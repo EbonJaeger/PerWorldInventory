@@ -17,7 +17,6 @@
 
 package me.gnat008.perworldinventory;
 
-import me.gnat008.perworldinventory.serialization.InventorySerializer;
 import me.gnat008.perworldinventory.util.Printer;
 import org.bukkit.plugin.java.JavaPlugin;
 
