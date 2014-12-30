@@ -22,20 +22,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class PerWorldInventory extends JavaPlugin {
 
-    private static Printer printer;
-
     @Override
     public void onEnable() {
-        printer = Printer.getInstance(this);
+
     }
 
     @Override
     public void onDisable() {
-        printer.disablePrinter();
-        printer = null;
-    }
-
-    public static Printer getPrinter() {
-        return printer;
+        Printer.disable();
     }
 }

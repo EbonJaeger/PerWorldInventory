@@ -23,12 +23,11 @@ import org.bukkit.entity.Player;
 
 public class Printer {
 
-    private PerWorldInventory plugin;
-
+    private static PerWorldInventory plugin;
     private static Printer instance;
 
-    private Printer(PerWorldInventory plugin) {
-        this.plugin = plugin;
+    private Printer(PerWorldInventory main) {
+        plugin = main;
     }
 
     public static Printer getInstance(PerWorldInventory plugin) {
@@ -39,7 +38,7 @@ public class Printer {
         return instance;
     }
 
-    public void disablePrinter() {
+    public static void disable() {
         instance = null;
     }
 
@@ -49,7 +48,7 @@ public class Printer {
      * @param msg  The message to send to console.
      * @param warn The level of the message.
      */
-    public void printToConsole(String msg, boolean warn) {
+    public static void printToConsole(String msg, boolean warn) {
         if (warn) {
             plugin.getLogger().warning("[BlockPlaceLimiter] " + msg);
         } else {
@@ -64,7 +63,7 @@ public class Printer {
      * @param msg    The message to send.
      * @param warn   If the message should be a warning (true for red, false for green).
      */
-    public void printToPlayer(Player player, String msg, boolean warn) {
+    public static void printToPlayer(Player player, String msg, boolean warn) {
         String message = "";
 
         if (warn) {
