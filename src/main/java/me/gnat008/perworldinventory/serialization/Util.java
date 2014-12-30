@@ -15,28 +15,27 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.gnat008.perworldinventory;
+package me.gnat008.perworldinventory.serialization;
 
-import me.gnat008.perworldinventory.serialization.InventorySerializer;
-import me.gnat008.perworldinventory.util.Printer;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.Material;
 
-public class PerWorldInventory extends JavaPlugin {
-
-    private static Printer printer;
-
-    @Override
-    public void onEnable() {
-        printer = Printer.getInstance(this);
+public class Util {
+    
+    protected Util() {}
+    
+    public static boolean isNumber(String s) {
+        try {
+            Integer.parseInt(s);
+            return true;
+        } catch (NumberFormatException ex) {
+            return false;
+        }
     }
-
-    @Override
-    public void onDisable() {
-        printer.disablePrinter();
-        printer = null;
-    }
-
-    public static Printer getPrinter() {
-        return printer;
+    
+    public static boolean isLeatherArmor(Material material) {
+        return material == Material.LEATHER_BOOTS || 
+                material == Material.LEATHER_CHESTPLATE || 
+                material == Material.LEATHER_HELMET || 
+                material == Material.LEATHER_LEGGINGS;
     }
 }
