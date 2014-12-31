@@ -37,6 +37,8 @@ public class PerWorldInventory extends JavaPlugin {
             new File(getDataFolder() + File.separator + "data").mkdirs();
         }
 
+        ConfigManager.getManager(this).reload();
+
         getServer().getPluginManager().registerEvents(new PlayerChangedWorldListener(this), this);
     }
 
