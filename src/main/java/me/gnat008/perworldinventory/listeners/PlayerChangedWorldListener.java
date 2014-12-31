@@ -40,5 +40,6 @@ public class PlayerChangedWorldListener implements Listener {
         String worldTo = player.getWorld().getName();
 
         plugin.getSerializer().writePlayerDataToFile(player, PlayerSerialization.serializePlayer(player), worldFrom);
+        plugin.getSerializer().getPlayerDataFromFile(player, worldTo);
     }
 }

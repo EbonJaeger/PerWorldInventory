@@ -48,7 +48,7 @@ public class Printer {
      * @param msg  The message to send to console.
      * @param warn The level of the message.
      */
-    public static void printToConsole(String msg, boolean warn) {
+    public void printToConsole(String msg, boolean warn) {
         if (warn) {
             plugin.getLogger().warning("[BlockPlaceLimiter] " + msg);
         } else {
@@ -63,7 +63,7 @@ public class Printer {
      * @param msg    The message to send.
      * @param warn   If the message should be a warning (true for red, false for green).
      */
-    public static void printToPlayer(Player player, String msg, boolean warn) {
+    public void printToPlayer(Player player, String msg, boolean warn) {
         String message = "";
 
         if (warn) {
