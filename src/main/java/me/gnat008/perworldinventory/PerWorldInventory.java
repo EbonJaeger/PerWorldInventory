@@ -17,6 +17,7 @@
 
 package me.gnat008.perworldinventory;
 
+import me.gnat008.perworldinventory.config.ConfigManager;
 import me.gnat008.perworldinventory.data.DataSerializer;
 import me.gnat008.perworldinventory.listeners.PlayerChangedWorldListener;
 import me.gnat008.perworldinventory.util.Printer;
@@ -41,6 +42,7 @@ public class PerWorldInventory extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        ConfigManager.disable();
         Printer.disable();
         serializer.disable();
     }
