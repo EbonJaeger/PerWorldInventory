@@ -25,18 +25,18 @@ public class PlayerSerialization {
 	/**
 	 * Serialize a Player into a JSONObject. The player's EnderChest, inventory (including armor) and stats
 	 * such as experience and potion effects will be saved unless disabled.
-	 * @param player
+	 * @param player The player to serialize
 	 * @return The serialized stats
 	 */
 	public static JSONObject serializePlayer(Player player, PerWorldInventory plugin) {
 		try {
 			JSONObject root = new JSONObject();
-			if(ConfigManager.getManager(plugin).getShouldSerialize("player-ender-chest"))
+			if(ConfigManager.getManager(plugin).getShouldSerialize("player.ender-chest"))
 				root.put("ender-chest", InventorySerialization.serializeInventory(player.getEnderChest()));
 			if(ConfigManager.getManager(plugin).getShouldSerialize("player.inventory"))
 				root.put("inventory", InventorySerialization.serializePlayerInventory(player.getInventory()));
 			if(ConfigManager.getManager(plugin).getShouldSerialize("player.stats"))
-				root.put("stats", PlayerStatsSerialization.serializePlayerStats(player));
+				root.put("stats", PlayerStatsSerialization.serializePlayerStats(player, plugin));
 			return root;
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -113,14 +113,4 @@ public class PlayerSerialization {
 			e.printStackTrace();
 		}
 	}
-	
-	/**
-	 * Test if a certain key should be serialized
-	 * @param key The key to test
-	 * @return Whether the key should be serilaized or not
-	 */
-	public static boolean shouldSerialize(String key) {
-		return SerializationConfig.getShouldSerialize("player." + key);
-	}
-	
 }
