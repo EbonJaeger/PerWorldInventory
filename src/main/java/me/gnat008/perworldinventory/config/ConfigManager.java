@@ -80,7 +80,7 @@ public class ConfigManager {
         Printer.getInstance(plugin).printToConsole("Worlds file reloaded successfully!", false);
     }
 
-    private void saveConfig() {
+    public void saveConfig() {
         try {
             config.save(getConfigFile());
         } catch (IOException ex) {
@@ -89,7 +89,7 @@ public class ConfigManager {
         }
     }
 
-    private void saveWorlds() {
+    public void saveWorlds() {
         try {
             worlds.save(getWorldsFile());
         } catch (IOException ex) {

@@ -43,6 +43,7 @@ public class PerWorldInventory extends JavaPlugin {
         manager.reloadWorlds();
         if (manager.getConfig().getBoolean("first-start")) {
             manager.getConfig().set("first-start", false);
+            manager.saveConfig();
         }
 
         getServer().getPluginManager().registerEvents(new PlayerChangedWorldListener(this), this);
