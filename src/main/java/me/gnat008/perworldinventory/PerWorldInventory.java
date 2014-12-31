@@ -27,17 +27,23 @@ import java.io.File;
 
 public class PerWorldInventory extends JavaPlugin {
 
+    private ConfigManager manager;
     private DataSerializer serializer;
 
     @Override
     public void onEnable() {
+        this.manager = ConfigManager.getManager(this);
         this.serializer = DataSerializer.getInstance(this);
 
         if (!getDataFolder().exists()) {
             new File(getDataFolder() + File.separator + "data").mkdirs();
         }
 
-        ConfigManager.getManager(this).reload();
+        manager.reloadConfig();
+        manager.reloadWorlds();
+        if (manager.getConfig().getBoolean("first-start")) {
+            manager.getConfig().set("first-start", false);
+        }
 
         getServer().getPluginManager().registerEvents(new PlayerChangedWorldListener(this), this);
     }
@@ -47,6 +53,10 @@ public class PerWorldInventory extends JavaPlugin {
         ConfigManager.disable();
         Printer.disable();
         serializer.disable();
+    }
+
+    public ConfigManager getConfigManager() {
+        return this.manager;
     }
 
     public DataSerializer getSerializer() {

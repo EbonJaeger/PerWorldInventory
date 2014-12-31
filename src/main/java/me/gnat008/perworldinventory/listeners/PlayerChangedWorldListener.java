@@ -42,4 +42,8 @@ public class PlayerChangedWorldListener implements Listener {
         plugin.getSerializer().writePlayerDataToFile(player, PlayerSerialization.serializePlayer(player, plugin), worldFrom);
         plugin.getSerializer().getPlayerDataFromFile(player, worldTo);
     }
+
+    private boolean shouldKeepInventory(String from, String to) {
+
+    }
 }
