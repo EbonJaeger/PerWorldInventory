@@ -25,6 +25,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 
+import java.util.List;
+import java.util.Map;
+
 public class PlayerChangedWorldListener implements Listener {
 
     private PerWorldInventory plugin;
@@ -40,10 +43,23 @@ public class PlayerChangedWorldListener implements Listener {
         String worldTo = player.getWorld().getName();
 
         plugin.getSerializer().writePlayerDataToFile(player, PlayerSerialization.serializePlayer(player, plugin), worldFrom);
-        plugin.getSerializer().getPlayerDataFromFile(player, worldTo);
+        if (!shouldKeepInventory(worldFrom, worldTo)) {
+            plugin.getSerializer().getPlayerDataFromFile(player, worldTo);
+        }
     }
 
     private boolean shouldKeepInventory(String from, String to) {
+        Map<String, Object> worlds = plugin.getConfigManager().getWorlds().getValues(true);
+        if (worlds.containsValue(to)) {
+            for (String s : worlds.keySet()) {
+                if ((worlds.get(s) instanceof List) &&
+                        ((List) worlds.get(s)).contains(to) &&
+                        ((List) worlds.get(s)).contains(from)) {
+                    return true;
+                }
+            }
+        }
 
+        return false;
     }
 }
