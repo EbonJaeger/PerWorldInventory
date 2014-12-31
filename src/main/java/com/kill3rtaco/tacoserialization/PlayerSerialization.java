@@ -1,5 +1,7 @@
 package com.kill3rtaco.tacoserialization;
 
+import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.config.ConfigManager;
 import org.bukkit.entity.Player;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,14 +28,14 @@ public class PlayerSerialization {
 	 * @param player
 	 * @return The serialized stats
 	 */
-	public static JSONObject serializePlayer(Player player) {
+	public static JSONObject serializePlayer(Player player, PerWorldInventory plugin) {
 		try {
 			JSONObject root = new JSONObject();
-			if(SerializationConfig.getShouldSerialize("player-ender-chest"))
+			if(ConfigManager.getManager(plugin).getShouldSerialize("player-ender-chest"))
 				root.put("ender-chest", InventorySerialization.serializeInventory(player.getEnderChest()));
-			if(SerializationConfig.getShouldSerialize("player.inventory"))
+			if(ConfigManager.getManager(plugin).getShouldSerialize("player.inventory"))
 				root.put("inventory", InventorySerialization.serializePlayerInventory(player.getInventory()));
-			if(SerializationConfig.getShouldSerialize("player.stats"))
+			if(ConfigManager.getManager(plugin).getShouldSerialize("player.stats"))
 				root.put("stats", PlayerStatsSerialization.serializePlayerStats(player));
 			return root;
 		} catch (JSONException e) {
@@ -47,8 +49,8 @@ public class PlayerSerialization {
 	 * @param player The player to serialize
 	 * @return The serialization string
 	 */
-	public static String serializePlayerAsString(Player player) {
-		return serializePlayerAsString(player, false);
+	public static String serializePlayerAsString(Player player, PerWorldInventory plugin) {
+		return serializePlayerAsString(player, false, plugin);
 	}
 	
 	/**
@@ -57,8 +59,8 @@ public class PlayerSerialization {
 	 * @param pretty Whether the resulting string should be 'pretty' or not
 	 * @return The serialization string
 	 */
-	public static String serializePlayerAsString(Player player, boolean pretty) {
-		return serializePlayerAsString(player, pretty, 5);
+	public static String serializePlayerAsString(Player player, boolean pretty, PerWorldInventory plugin) {
+		return serializePlayerAsString(player, pretty, 5, plugin);
 	}
 	
 	/**
@@ -68,12 +70,12 @@ public class PlayerSerialization {
 	 * @param indentFactor The amount of spaces in a tab
 	 * @return The serialization string
 	 */
-	public static String serializePlayerAsString(Player player, boolean pretty, int indentFactor) {
+	public static String serializePlayerAsString(Player player, boolean pretty, int indentFactor, PerWorldInventory plugin) {
 		try {
 			if(pretty) {
-				return serializePlayer(player).toString(indentFactor);
+				return serializePlayer(player, plugin).toString(indentFactor);
 			} else {
-				return serializePlayer(player).toString();
+				return serializePlayer(player, plugin).toString();
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();

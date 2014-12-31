@@ -1,5 +1,7 @@
 package com.kill3rtaco.tacoserialization;
 
+import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.config.ConfigManager;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.json.JSONException;
@@ -26,30 +28,30 @@ public class PlayerStatsSerialization {
 	 * @param player The player whose stats to serialize
 	 * @return The serialized stats
 	 */
-	public static JSONObject serializePlayerStats(Player player) {
+	public static JSONObject serializePlayerStats(Player player, PerWorldInventory plugin) {
 		try {
 			JSONObject root = new JSONObject();
-			if(shouldSerialize("can-fly"))
+			if(shouldSerialize("can-fly", plugin))
 				root.put("can-fly", player.getAllowFlight());
-			if(shouldSerialize("display-name"))
+			if(shouldSerialize("display-name", plugin))
 				root.put("display-name", player.getDisplayName());
-			if(shouldSerialize("exhaustion"))
+			if(shouldSerialize("exhaustion", plugin))
 				root.put("exhaustion", player.getExhaustion());
-			if(shouldSerialize("exp"))
+			if(shouldSerialize("exp", plugin))
 				root.put("exp", player.getExp());
-			if(shouldSerialize("flying"))
+			if(shouldSerialize("flying", plugin))
 				root.put("flying", player.isFlying());
-			if(shouldSerialize("food"))
+			if(shouldSerialize("food", plugin))
 				root.put("food", player.getFoodLevel());
-			if(shouldSerialize("gamemode"))
+			if(shouldSerialize("gamemode", plugin))
 				root.put("gamemode", player.getGameMode().ordinal());
-			if(shouldSerialize("health"))
+			if(shouldSerialize("health", plugin))
 				root.put("health", player.getHealthScale());
-			if(shouldSerialize("level"))
+			if(shouldSerialize("level", plugin))
 				root.put("level", player.getLevel());
-			if(shouldSerialize("potion-effects"))
+			if(shouldSerialize("potion-effects", plugin))
 				root.put("potion-effects", PotionEffectSerialization.serializeEffects(player.getActivePotionEffects()));
-			if(shouldSerialize("saturation"))
+			if(shouldSerialize("saturation", plugin))
 				root.put("saturation", player.getSaturation());
 			return root;
 		} catch (JSONException e) {
@@ -63,8 +65,8 @@ public class PlayerStatsSerialization {
 	 * @param player The player whose stats to serialize
 	 * @return The serialization string
 	 */
-	public static String serializePlayerStatsAsString(Player player) {
-		return serializePlayerStatsAsString(player, false);
+	public static String serializePlayerStatsAsString(Player player, PerWorldInventory plugin) {
+		return serializePlayerStatsAsString(player, false, plugin);
 	}
 	
 	/**
@@ -73,8 +75,8 @@ public class PlayerStatsSerialization {
 	 * @param pretty Whether the resulting string should be 'pretty' or not
 	 * @return The serialization string
 	 */
-	public static String serializePlayerStatsAsString(Player player, boolean pretty) {
-		return serializePlayerStatsAsString(player, pretty, 5);
+	public static String serializePlayerStatsAsString(Player player, boolean pretty, PerWorldInventory plugin) {
+		return serializePlayerStatsAsString(player, pretty, 5, plugin);
 	}
 	
 	/**
@@ -84,12 +86,12 @@ public class PlayerStatsSerialization {
 	 * @param indentFactor The amount of spaces in a tab
 	 * @return The serialization string
 	 */
-	public static String serializePlayerStatsAsString(Player player, boolean pretty, int indentFactor) {
+	public static String serializePlayerStatsAsString(Player player, boolean pretty, int indentFactor, PerWorldInventory plugin) {
 		try {
 			if(pretty) {
-				return serializePlayerStats(player).toString(indentFactor);
+				return serializePlayerStats(player, plugin).toString(indentFactor);
 			} else {
-				return serializePlayerStats(player).toString();
+				return serializePlayerStats(player, plugin).toString();
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -149,8 +151,8 @@ public class PlayerStatsSerialization {
 	 * @param key The key to test
 	 * @return Whether the key should be serilaized or not
 	 */
-	public static boolean shouldSerialize(String key) {
-		return SerializationConfig.getShouldSerialize("player-stats." + key);
+	public static boolean shouldSerialize(String key, PerWorldInventory plugin) {
+		return ConfigManager.getManager(plugin).getShouldSerialize("player-stats." + key);
 	}
 	
 }
