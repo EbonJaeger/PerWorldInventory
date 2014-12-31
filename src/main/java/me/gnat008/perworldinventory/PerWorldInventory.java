@@ -17,18 +17,35 @@
 
 package me.gnat008.perworldinventory;
 
+import me.gnat008.perworldinventory.data.DataSerializer;
+import me.gnat008.perworldinventory.listeners.PlayerChangedWorldListener;
 import me.gnat008.perworldinventory.util.Printer;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+
 public class PerWorldInventory extends JavaPlugin {
+
+    private DataSerializer serializer;
 
     @Override
     public void onEnable() {
+        this.serializer = DataSerializer.getInstance(this);
 
+        if (!getDataFolder().exists()) {
+            new File(getDataFolder() + File.separator + "data").mkdirs();
+        }
+
+        getServer().getPluginManager().registerEvents(new PlayerChangedWorldListener(this), this);
     }
 
     @Override
     public void onDisable() {
         Printer.disable();
+        serializer.disable();
+    }
+
+    public DataSerializer getSerializer() {
+        return this.serializer;
     }
 }
