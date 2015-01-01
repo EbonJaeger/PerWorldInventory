@@ -17,6 +17,7 @@
 
 package me.gnat008.perworldinventory;
 
+import me.gnat008.perworldinventory.commands.PlaceholderReloadCommand;
 import me.gnat008.perworldinventory.config.ConfigManager;
 import me.gnat008.perworldinventory.data.DataSerializer;
 import me.gnat008.perworldinventory.listeners.PlayerChangedWorldListener;
@@ -28,12 +29,10 @@ import java.io.File;
 public class PerWorldInventory extends JavaPlugin {
 
     private ConfigManager manager;
-    private DataSerializer serializer;
 
     @Override
     public void onEnable() {
         this.manager = ConfigManager.getManager(this);
-        this.serializer = DataSerializer.getInstance(this);
 
         if (!getDataFolder().exists()) {
             new File(getDataFolder() + File.separator + "data").mkdirs();
@@ -46,6 +45,7 @@ public class PerWorldInventory extends JavaPlugin {
             manager.saveConfig();
         }
 
+        getCommand("pwi").setExecutor(new PlaceholderReloadCommand(this));
         getServer().getPluginManager().registerEvents(new PlayerChangedWorldListener(this), this);
     }
 
@@ -53,7 +53,7 @@ public class PerWorldInventory extends JavaPlugin {
     public void onDisable() {
         ConfigManager.disable();
         Printer.disable();
-        serializer.disable();
+        DataSerializer.disable();
     }
 
     public ConfigManager getConfigManager() {
@@ -61,6 +61,10 @@ public class PerWorldInventory extends JavaPlugin {
     }
 
     public DataSerializer getSerializer() {
-        return this.serializer;
+        return DataSerializer.getInstance(this);
+    }
+
+    public Printer getPrinter() {
+        return Printer.getInstance(this);
     }
 }
