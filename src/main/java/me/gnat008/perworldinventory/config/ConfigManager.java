@@ -124,7 +124,7 @@ public class ConfigManager {
         defaults.add("world");
         defaults.add("world_nether");
         defaults.add("world_the_end");
-        addDefault(worlds, "worlds.default", defaults);
+        addDefault(worlds, "default", defaults);
     }
 
     private void addDefault(YamlConfiguration config, String path, Object value) {
