@@ -50,9 +50,9 @@ public class Printer {
      */
     public void printToConsole(String msg, boolean warn) {
         if (warn) {
-            plugin.getLogger().warning("[BlockPlaceLimiter] " + msg);
+            plugin.getLogger().warning("[" + plugin.getName() + "] " + msg);
         } else {
-            plugin.getLogger().info("[BlockPlaceLimiter] " + msg);
+            plugin.getLogger().info("[" + plugin.getName() + "] " + msg);
         }
     }
 
@@ -72,7 +72,7 @@ public class Printer {
             message += ChatColor.GREEN;
         }
 
-        message += "[BlockPlaceLimiter] " + msg;
+        message += "[" + plugin.getName() + "] " + msg;
 
         player.sendMessage(message);
     }
