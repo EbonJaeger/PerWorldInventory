@@ -50,7 +50,7 @@ public class DataSerializer {
         return instance;
     }
 
-    public void disable() {
+    public static void disable() {
         instance = null;
     }
 
