@@ -25,8 +25,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 
-import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 public class PlayerChangedWorldListener implements Listener {
 
@@ -49,12 +48,12 @@ public class PlayerChangedWorldListener implements Listener {
     }
 
     private boolean shouldKeepInventory(String from, String to) {
-        Map<String, Object> worlds = plugin.getConfigManager().getWorlds().getValues(true);
-        if (worlds.containsValue(to)) {
-            for (String s : worlds.keySet()) {
-                if ((worlds.get(s) instanceof List) &&
-                        ((List) worlds.get(s)).contains(to) &&
-                        ((List) worlds.get(s)).contains(from)) {
+        Set<String> keys = plugin.getConfigManager().getWorlds().getKeys(false);
+        if (!keys.isEmpty()) {
+            for (String key : keys) {
+                if (plugin.getConfigManager().getWorlds().getList(key) != null &&
+                        plugin.getConfigManager().getWorlds().getList(key).contains(to) &&
+                        plugin.getConfigManager().getWorlds().getList(key).contains(from)) {
                     return true;
                 }
             }
