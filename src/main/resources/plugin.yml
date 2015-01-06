@@ -5,4 +5,16 @@ author: Gnat008
 
 commands:
   pwi:
-    description: Placeholder for real commands
+    description: Commands for PerWorldInventory
+    aliases: [perworldinventory]
+    
+permissions:
+  perworldinventory.admin:
+    default: op
+    children:
+      perworldinventory.convert: true
+      perworldinventory.reload: true
+  perworldinventory.convert:
+    default: false
+  perworldinventory.reload:
+    default: false

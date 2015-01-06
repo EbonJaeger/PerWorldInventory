@@ -17,7 +17,7 @@
 
 package me.gnat008.perworldinventory;
 
-import me.gnat008.perworldinventory.commands.PlaceholderReloadCommand;
+import me.gnat008.perworldinventory.commands.PerWorldInventoryCommand;
 import me.gnat008.perworldinventory.config.ConfigManager;
 import me.gnat008.perworldinventory.data.DataConverter;
 import me.gnat008.perworldinventory.data.DataSerializer;
@@ -46,7 +46,7 @@ public class PerWorldInventory extends JavaPlugin {
             manager.saveConfig();
         }
 
-        getCommand("pwi").setExecutor(new PlaceholderReloadCommand(this));
+        getCommand("pwi").setExecutor(new PerWorldInventoryCommand(this));
         getServer().getPluginManager().registerEvents(new PlayerChangedWorldListener(this), this);
     }
 
