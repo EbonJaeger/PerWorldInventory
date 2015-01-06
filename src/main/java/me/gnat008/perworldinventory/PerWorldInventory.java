@@ -19,6 +19,7 @@ package me.gnat008.perworldinventory;
 
 import me.gnat008.perworldinventory.commands.PlaceholderReloadCommand;
 import me.gnat008.perworldinventory.config.ConfigManager;
+import me.gnat008.perworldinventory.data.DataConverter;
 import me.gnat008.perworldinventory.data.DataSerializer;
 import me.gnat008.perworldinventory.listeners.PlayerChangedWorldListener;
 import me.gnat008.perworldinventory.util.Printer;
@@ -54,6 +55,7 @@ public class PerWorldInventory extends JavaPlugin {
         ConfigManager.disable();
         Printer.disable();
         DataSerializer.disable();
+        DataConverter.disable();
         getServer().getScheduler().cancelTasks(this);
     }
 

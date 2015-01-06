@@ -12,6 +12,12 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Maven: org.spigotmc:spigot-api:1.8-R0.1-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: com.onarandombox.multiverseinventories:Multiverse-Inventories:2.4" level="project" />
+    <orderEntry type="library" name="Maven: org.bukkit:bukkit:1.2.5-R1.0" level="project" />
+    <orderEntry type="library" name="Maven: com.onarandombox.multiversecore:Multiverse-Core:2.4" level="project" />
+    <orderEntry type="library" name="Maven: com.onarandombox.multiverseadventure:Multiverse-Adventure:2.4" level="project" />
+    <orderEntry type="library" name="Maven: uk.co:MultiInv:3.0.6" level="project" />
+    <orderEntry type="library" name="Maven: me.drayshak:WorldInventories:1.0.2" level="project" />
+    <orderEntry type="library" name="Maven: junit:junit:4.8.2" level="project" />
   </component>
 </module>
-
