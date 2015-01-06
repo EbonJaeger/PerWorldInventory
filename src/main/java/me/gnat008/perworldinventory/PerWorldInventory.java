@@ -54,6 +54,7 @@ public class PerWorldInventory extends JavaPlugin {
         ConfigManager.disable();
         Printer.disable();
         DataSerializer.disable();
+        getServer().getScheduler().cancelTasks(this);
     }
 
     public ConfigManager getConfigManager() {
