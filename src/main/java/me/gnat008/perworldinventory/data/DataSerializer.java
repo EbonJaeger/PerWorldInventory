@@ -54,11 +54,10 @@ public class DataSerializer {
         instance = null;
     }
 
-    public void writePlayerDataToFile(Player player, JSONObject data, String world) {
-        File file = new File(FILE_PATH + File.separator + player.getUniqueId().toString(),
+    public void writePlayerDataToFile(Player player, final JSONObject data, String world) {
+        final File file = new File(FILE_PATH + File.separator + player.getUniqueId().toString(),
                 world + ".json");
 
-        FileWriter writer = null;
         try {
             if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdir();
@@ -68,19 +67,53 @@ public class DataSerializer {
                 file.createNewFile();
             }
 
-            writer = new FileWriter(file);
-            writer.write(Serializer.toString(data));
+            /*plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+                @Override
+                public void run() {
+                    FileWriter writer = null;
+                    try {
+                        writer = new FileWriter(file);
+                        writer.write(Serializer.toString(data));
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    } finally {
+                        try {
+                            if (writer != null) {
+                                writer.close();
+                            }
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }
+            });*/
+            writeData(file, Serializer.toString(data));
         } catch (IOException ex) {
             ex.printStackTrace();
-        } finally {
-            try {
-                if (writer != null) {
-                    writer.close();
-                }
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
         }
+    }
+
+    private void writeData(final File file, final String data) {
+        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+            @Override
+            public void run() {
+                FileWriter writer = null;
+                try {
+                    writer = new FileWriter(file);
+                    writer.write(data);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                } finally {
+                    try {
+                        if (writer != null) {
+                            writer.close();
+                        }
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+        });
     }
 
     public void getPlayerDataFromFile(Player player, String world) {
