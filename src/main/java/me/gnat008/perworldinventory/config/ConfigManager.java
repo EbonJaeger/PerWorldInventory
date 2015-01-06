@@ -66,7 +66,6 @@ public class ConfigManager {
         config = YamlConfiguration.loadConfiguration(getConfigFile());
         setConfigDefaults();
         saveConfig();
-        Printer.getInstance(plugin).printToConsole("Config reloaded successfully!", false);
     }
 
     public void reloadWorlds() {
@@ -77,14 +76,13 @@ public class ConfigManager {
         }
 
         saveWorlds();
-        Printer.getInstance(plugin).printToConsole("Worlds file reloaded successfully!", false);
     }
 
     public void saveConfig() {
         try {
             config.save(getConfigFile());
         } catch (IOException ex) {
-            Printer.getInstance(plugin).printToConsole("Error saving 'config.yml'!", true);
+            plugin.getPrinter().printToConsole("Error saving 'config.yml'!", true);
             ex.printStackTrace();
         }
     }
@@ -93,7 +91,7 @@ public class ConfigManager {
         try {
             worlds.save(getWorldsFile());
         } catch (IOException ex) {
-            Printer.getInstance(plugin).printToConsole("Error saving 'worlds.yml'!", true);
+            plugin.getPrinter().printToConsole("Error saving 'worlds.yml'!", true);
             ex.printStackTrace();
         }
     }
