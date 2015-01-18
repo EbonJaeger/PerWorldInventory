@@ -19,20 +19,21 @@ package me.gnat008.perworldinventory.listeners;
 
 import com.kill3rtaco.tacoserialization.PlayerSerialization;
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.data.WorldManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 
-import java.util.Set;
-
 public class PlayerChangedWorldListener implements Listener {
 
+    private WorldManager manager;
     private PerWorldInventory plugin;
 
     public PlayerChangedWorldListener(PerWorldInventory plugin) {
         this.plugin = plugin;
+        this.manager = plugin.getWorldManager();
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -40,26 +41,18 @@ public class PlayerChangedWorldListener implements Listener {
         Player player = event.getPlayer();
         String worldFrom = event.getFrom().getName();
         String worldTo = player.getWorld().getName();
+        String groupFrom = manager.getGroupFromWorld(worldFrom);
 
-        plugin.getSerializer().writePlayerDataToFile(player, PlayerSerialization.serializePlayer(player, plugin), worldFrom);
+        plugin.getSerializer().writePlayerDataToFile(player,
+                PlayerSerialization.serializePlayer(player, plugin),
+                groupFrom);
 
         if (!shouldKeepInventory(worldFrom, worldTo)) {
-            plugin.getSerializer().getPlayerDataFromFile(player, worldTo);
+            plugin.getSerializer().getPlayerDataFromFile(player, manager.getGroupFromWorld(worldTo));
         }
     }
 
-    private boolean shouldKeepInventory(String from, String to) {
-        Set<String> keys = plugin.getConfigManager().getWorlds().getKeys(false);
-        if (!keys.isEmpty()) {
-            for (String key : keys) {
-                if (plugin.getConfigManager().getWorlds().getList(key) != null &&
-                        plugin.getConfigManager().getWorlds().getList(key).contains(to) &&
-                        plugin.getConfigManager().getWorlds().getList(key).contains(from)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+    private boolean shouldKeepInventory(String group, String worldTo) {
+        return manager.getGroup(group).contains(worldTo);
     }
 }
