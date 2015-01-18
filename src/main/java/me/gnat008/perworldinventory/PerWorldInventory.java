@@ -37,6 +37,7 @@ public class PerWorldInventory extends JavaPlugin {
 
         if (!getDataFolder().exists()) {
             new File(getDataFolder() + File.separator + "data").mkdirs();
+            saveResource("default.json", true);
         }
 
         manager.reloadConfig();

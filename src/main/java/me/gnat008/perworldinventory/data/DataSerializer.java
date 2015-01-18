@@ -126,6 +126,8 @@ public class DataSerializer {
         } catch (FileNotFoundException ex) {
             try {
                 file.createNewFile();
+                JSONObject defaultData = Serializer.getObjectFromFile(new File(plugin.getDataFolder(), "default.json"));
+                PlayerSerialization.setPlayer(defaultData, player);
             } catch (IOException exIO) {
                 Printer.getInstance(plugin).printToConsole("Error creating file '" + FILE_PATH + File.separator +
                         player.getUniqueId().toString() + File.separator + world + ".json': " + ex.getMessage(), true);

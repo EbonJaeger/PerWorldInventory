@@ -1,0 +1,43 @@
+{
+     "ender-chest": [],
+     "stats": {
+          "flying": false,
+          "exp": 0,
+          "level": 0,
+          "can-fly": false,
+          "saturation": 10,
+          "food": 20,
+          "exhaustion": 0,
+          "potion-effects": "",
+          "health": 20
+     },
+     "inventory": {
+          "inventory": [],
+          "armor": [
+               {
+                    "amount": 0,
+                    "id": 0,
+                    "index": 0,
+                    "data": -1
+               },
+               {
+                    "amount": 0,
+                    "id": 0,
+                    "index": 1,
+                    "data": -1
+               },
+               {
+                    "amount": 0,
+                    "id": 0,
+                    "index": 2,
+                    "data": -1
+               },
+               {
+                    "amount": 0,
+                    "id": 0,
+                    "index": 3,
+                    "data": -1
+               }
+          ]
+     }
+}
