@@ -55,8 +55,8 @@ public class DataSerializer {
         instance = null;
     }
 
-    public void writePlayerDataToFile(OfflinePlayer player, final JSONObject data, String world) {
-        final File file = new File(FILE_PATH + File.separator + player.getUniqueId().toString(), world + ".json");
+    public void writePlayerDataToFile(OfflinePlayer player, final JSONObject data, String group) {
+        final File file = new File(FILE_PATH + File.separator + player.getUniqueId().toString(), group + ".json");
 
         try {
             if (!file.getParentFile().exists()) {
@@ -66,31 +66,10 @@ public class DataSerializer {
             if (!file.exists()) {
                 file.createNewFile();
             }
-
-            /*plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-                @Override
-                public void run() {
-                    FileWriter writer = null;
-                    try {
-                        writer = new FileWriter(file);
-                        writer.write(Serializer.toString(data));
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    } finally {
-                        try {
-                            if (writer != null) {
-                                writer.close();
-                            }
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
-                        }
-                    }
-                }
-            });*/
             writeData(file, Serializer.toString(data));
         } catch (IOException ex) {
             Printer.getInstance(plugin).printToConsole("Error creating file '" + FILE_PATH + File.separator +
-                    player.getUniqueId().toString() + File.separator + world + ".json': " + ex.getMessage(), true);
+                    player.getUniqueId().toString() + File.separator + group + ".json': " + ex.getMessage(), true);
             ex.printStackTrace();
         }
     }
@@ -118,8 +97,8 @@ public class DataSerializer {
         });
     }
 
-    public void getPlayerDataFromFile(Player player, String world) {
-        File file = new File(FILE_PATH + File.separator + player.getUniqueId().toString(), world + ".json");
+    public void getPlayerDataFromFile(Player player, String group) {
+        File file = new File(FILE_PATH + File.separator + player.getUniqueId().toString(), group + ".json");
         try {
             JSONObject data = Serializer.getObjectFromFile(file);
             PlayerSerialization.setPlayer(data, player);
@@ -130,7 +109,7 @@ public class DataSerializer {
                 PlayerSerialization.setPlayer(defaultData, player);
             } catch (IOException exIO) {
                 Printer.getInstance(plugin).printToConsole("Error creating file '" + FILE_PATH + File.separator +
-                        player.getUniqueId().toString() + File.separator + world + ".json': " + ex.getMessage(), true);
+                        player.getUniqueId().toString() + File.separator + group + ".json': " + ex.getMessage(), true);
             }
         }
     }
