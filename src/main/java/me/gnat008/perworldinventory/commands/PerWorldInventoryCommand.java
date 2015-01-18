@@ -65,12 +65,14 @@ public class PerWorldInventoryCommand implements CommandExecutor {
             case CONVERT:
                 if (isPlayer) {
                     if (player.hasPermission(PERMISSION_NODE + "convert")) {
-                        plugin.getPrinter().printToPlayer(player, "That operation is not supported at this time.", true);
+                        plugin.getPrinter().printToPlayer(player, "This is currently not guaranteed to work. All messages printed to console", true);
+                        mvConvert();
                     } else {
                         plugin.getPrinter().printToPlayer(player, NO_PERMISSION, true);
                     }
                 } else {
-                    plugin.getPrinter().printToConsole("That operation is not supported at this time.", true);
+                    plugin.getPrinter().printToConsole("This is currently not guaranteed to work.", true);
+                    mvConvert();
                 }
 
                 return true;
@@ -99,6 +101,15 @@ public class PerWorldInventoryCommand implements CommandExecutor {
         }
 
         return false;
+    }
+
+    private void mvConvert() {
+        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+            @Override
+            public void run() {
+                plugin.getDataConverter().convertMultiVerseData();
+            }
+        });
     }
 
     private void displayConsoleHelp() {

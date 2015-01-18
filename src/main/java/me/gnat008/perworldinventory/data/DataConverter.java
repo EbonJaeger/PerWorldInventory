@@ -17,7 +17,27 @@
 
 package me.gnat008.perworldinventory.data;
 
+import com.kill3rtaco.tacoserialization.InventorySerialization;
+import com.kill3rtaco.tacoserialization.PlayerSerialization;
+import com.kill3rtaco.tacoserialization.PotionEffectSerialization;
+import com.onarandombox.multiverseinventories.MultiverseInventories;
+import com.onarandombox.multiverseinventories.ProfileTypes;
+import com.onarandombox.multiverseinventories.api.profile.PlayerProfile;
+import com.onarandombox.multiverseinventories.api.profile.WorldGroupProfile;
+import com.onarandombox.multiverseinventories.api.share.Sharables;
 import me.gnat008.perworldinventory.PerWorldInventory;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.potion.PotionEffect;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.*;
 
 public class DataConverter {
 
@@ -41,5 +61,72 @@ public class DataConverter {
         converter = null;
     }
 
+    public void convertMultiVerseData() {
+        plugin.getPrinter().printToConsole("Beginning data conversion. This may take awhile...", false);
+        MultiverseInventories mvinventories = (MultiverseInventories) plugin.getServer().getPluginManager().getPlugin("Multiverse-Inventories");
+        List<WorldGroupProfile> mvgroups = mvinventories.getGroupManager().getGroups();
 
+        for (WorldGroupProfile mvgroup : mvgroups) {
+            Set<String> mvworlds = mvgroup.getWorlds();
+
+            for (OfflinePlayer player1 : Bukkit.getOfflinePlayers()) {
+                try {
+                    PlayerProfile playerData = mvgroup.getPlayerData(ProfileTypes.SURVIVAL, player1);
+                    if (playerData != null) {
+                        JSONObject writable = getAndSerializeToNewFormat(playerData);
+                        for (String world : mvworlds) {
+                            plugin.getSerializer().writePlayerDataToFile(player1, writable, world);
+                        }
+                    }
+                } catch (Exception ex) {
+                    plugin.getPrinter().printToConsole("Error importing Survival inventory for player: " + player1.getName() +
+                            " For group: " + mvgroup.getName(), true);
+                    ex.printStackTrace();
+                }
+            }
+        }
+
+        plugin.getPrinter().printToConsole("Data conversion complete! Disabling Multiverse-Inventories...", false);
+        plugin.getServer().getPluginManager().disablePlugin(mvinventories);
+        plugin.getPrinter().printToConsole("Multiverse-Inventories disabled! Don't forget to remove the .jar!", false);
+    }
+
+    private JSONObject getAndSerializeToNewFormat(PlayerProfile data) {
+        JSONObject root = new JSONObject();
+
+        if (data.get(Sharables.INVENTORY) != null) {
+            JSONArray inventory = InventorySerialization.serializeInventory(data.get(Sharables.INVENTORY));
+            root.put("inventory", inventory);
+        }
+        if (data.get(Sharables.ARMOR) != null) {
+            JSONArray armor = InventorySerialization.serializeInventory(data.get(Sharables.ARMOR));
+            root.put("armor", armor);
+        }
+
+        JSONObject stats = new JSONObject();
+        if (data.get(Sharables.EXHAUSTION) != null)
+            stats.put("exhaustion", data.get(Sharables.EXHAUSTION));
+        if (data.get(Sharables.EXPERIENCE) != null)
+            stats.put("exp", data.get(Sharables.EXPERIENCE));
+        if (data.get(Sharables.FOOD_LEVEL) != null)
+            stats.put("food", data.get(Sharables.FOOD_LEVEL));
+        if (data.get(Sharables.HEALTH) != null)
+            stats.put("health", data.get(Sharables.HEALTH));
+        if (data.get(Sharables.LEVEL) != null)
+            stats.put("level", data.get(Sharables.LEVEL));
+        if (data.get(Sharables.POTIONS) != null) {
+            PotionEffect[] effects = data.get(Sharables.POTIONS);
+            Collection<PotionEffect> potionEffects = new LinkedList<>();
+            for (PotionEffect effect : effects) {
+                potionEffects.add(effect);
+            }
+            stats.put("potion-effects", PotionEffectSerialization.serializeEffects(potionEffects));
+        }
+        if (data.get(Sharables.SATURATION) != null)
+            stats.put("saturation", data.get(Sharables.SATURATION));
+
+        root.put("stats", stats);
+
+        return root;
+    }
 }

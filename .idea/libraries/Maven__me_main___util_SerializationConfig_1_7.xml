@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: me.main__.util:SerializationConfig:1.7">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/me/main__/util/SerializationConfig/1.7/SerializationConfig-1.7.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/me/main__/util/SerializationConfig/1.7/SerializationConfig-1.7-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/me/main__/util/SerializationConfig/1.7/SerializationConfig-1.7-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

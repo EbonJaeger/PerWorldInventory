@@ -63,6 +63,10 @@ public class PerWorldInventory extends JavaPlugin {
         return this.manager;
     }
 
+    public DataConverter getDataConverter() {
+        return DataConverter.getInstance(this);
+    }
+
     public DataSerializer getSerializer() {
         return DataSerializer.getInstance(this);
     }

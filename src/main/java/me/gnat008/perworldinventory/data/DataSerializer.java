@@ -21,6 +21,7 @@ import com.kill3rtaco.tacoserialization.PlayerSerialization;
 import com.kill3rtaco.tacoserialization.Serializer;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.util.Printer;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.json.JSONObject;
 
@@ -54,9 +55,8 @@ public class DataSerializer {
         instance = null;
     }
 
-    public void writePlayerDataToFile(Player player, final JSONObject data, String world) {
-        final File file = new File(FILE_PATH + File.separator + player.getUniqueId().toString(),
-                world + ".json");
+    public void writePlayerDataToFile(OfflinePlayer player, final JSONObject data, String world) {
+        final File file = new File(FILE_PATH + File.separator + player.getUniqueId().toString(), world + ".json");
 
         try {
             if (!file.getParentFile().exists()) {
@@ -89,6 +89,8 @@ public class DataSerializer {
             });*/
             writeData(file, Serializer.toString(data));
         } catch (IOException ex) {
+            Printer.getInstance(plugin).printToConsole("Error creating file '" + FILE_PATH + File.separator +
+                    player.getUniqueId().toString() + File.separator + world + ".json': " + ex.getMessage(), true);
             ex.printStackTrace();
         }
     }
@@ -117,8 +119,7 @@ public class DataSerializer {
     }
 
     public void getPlayerDataFromFile(Player player, String world) {
-        File file = new File(FILE_PATH + File.separator + player.getUniqueId().toString(),
-                world + ".json");
+        File file = new File(FILE_PATH + File.separator + player.getUniqueId().toString(), world + ".json");
         try {
             JSONObject data = Serializer.getObjectFromFile(file);
             PlayerSerialization.setPlayer(data, player);
@@ -127,7 +128,7 @@ public class DataSerializer {
                 file.createNewFile();
             } catch (IOException exIO) {
                 Printer.getInstance(plugin).printToConsole("Error creating file '" + FILE_PATH + File.separator +
-                        player.getUniqueId().toString() + world + ".json", true);
+                        player.getUniqueId().toString() + File.separator + world + ".json': " + ex.getMessage(), true);
             }
         }
     }
