@@ -90,10 +90,10 @@ public class WorldManager {
         groups.clear();
 
         YamlConfiguration config = plugin.getConfigManager().getWorlds();
-        Set<String> keys = config.getConfigurationSection("worlds").getKeys(false);
+        Set<String> keys = config.getConfigurationSection("groups").getKeys(false);
         for (String key : keys) {
-            if (config.get("worlds." + key) instanceof List) {
-                List<String> worlds = config.getStringList("worlds." + key);
+            if (config.get("groups." + key) instanceof List) {
+                List<String> worlds = config.getStringList("groups." + key);
                 addGroup(key, worlds);
             }
         }

@@ -18,7 +18,6 @@
 package me.gnat008.perworldinventory.data;
 
 import com.kill3rtaco.tacoserialization.InventorySerialization;
-import com.kill3rtaco.tacoserialization.PlayerSerialization;
 import com.kill3rtaco.tacoserialization.PotionEffectSerialization;
 import com.onarandombox.multiverseinventories.MultiverseInventories;
 import com.onarandombox.multiverseinventories.ProfileTypes;
@@ -28,11 +27,6 @@ import com.onarandombox.multiverseinventories.api.share.Sharables;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffect;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -67,8 +61,6 @@ public class DataConverter {
         List<WorldGroupProfile> mvgroups = mvinventories.getGroupManager().getGroups();
 
         for (WorldGroupProfile mvgroup : mvgroups) {
-            Set<String> mvworlds = mvgroup.getWorlds();
-
             for (OfflinePlayer player1 : Bukkit.getOfflinePlayers()) {
                 try {
                     PlayerProfile playerData = mvgroup.getPlayerData(ProfileTypes.SURVIVAL, player1);
