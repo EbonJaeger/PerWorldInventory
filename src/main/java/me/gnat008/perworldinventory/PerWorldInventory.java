@@ -21,6 +21,7 @@ import me.gnat008.perworldinventory.commands.PerWorldInventoryCommand;
 import me.gnat008.perworldinventory.config.ConfigManager;
 import me.gnat008.perworldinventory.data.DataConverter;
 import me.gnat008.perworldinventory.data.DataSerializer;
+import me.gnat008.perworldinventory.data.WorldManager;
 import me.gnat008.perworldinventory.listeners.PlayerChangedWorldListener;
 import me.gnat008.perworldinventory.util.Printer;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -29,23 +30,20 @@ import java.io.File;
 
 public class PerWorldInventory extends JavaPlugin {
 
-    private ConfigManager manager;
-
     @Override
-    public void onEnable() {
-        this.manager = ConfigManager.getManager(this);
-
-        if (!getDataFolder().exists()) {
+    public void onEnable() {if (!getDataFolder().exists()) {
             new File(getDataFolder() + File.separator + "data").mkdirs();
             saveResource("default.json", true);
         }
 
-        manager.reloadConfig();
-        manager.reloadWorlds();
-        if (manager.getConfig().getBoolean("first-start")) {
-            manager.getConfig().set("first-start", false);
-            manager.saveConfig();
+        getConfigManager().reloadConfig();
+        getConfigManager().reloadWorlds();
+        if (getConfigManager().getConfig().getBoolean("first-start")) {
+            getConfigManager().getConfig().set("first-start", false);
+            getConfigManager().saveConfig();
         }
+
+        getWorldManager().loadGroups();
 
         getCommand("pwi").setExecutor(new PerWorldInventoryCommand(this));
         getServer().getPluginManager().registerEvents(new PlayerChangedWorldListener(this), this);
@@ -57,11 +55,12 @@ public class PerWorldInventory extends JavaPlugin {
         Printer.disable();
         DataSerializer.disable();
         DataConverter.disable();
+        WorldManager.disable();
         getServer().getScheduler().cancelTasks(this);
     }
 
     public ConfigManager getConfigManager() {
-        return this.manager;
+        return ConfigManager.getManager(this);
     }
 
     public DataConverter getDataConverter() {
@@ -74,5 +73,9 @@ public class PerWorldInventory extends JavaPlugin {
 
     public Printer getPrinter() {
         return Printer.getInstance(this);
+    }
+
+    public WorldManager getWorldManager() {
+        return WorldManager.getInstance(this);
     }
 }

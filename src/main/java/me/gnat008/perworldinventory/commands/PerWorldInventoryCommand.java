@@ -149,5 +149,6 @@ public class PerWorldInventoryCommand implements CommandExecutor {
     private void reloadConfigFiles() {
         plugin.getConfigManager().reloadConfig();
         plugin.getConfigManager().reloadWorlds();
+        plugin.getWorldManager().loadGroups();
     }
 }
