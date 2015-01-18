@@ -104,7 +104,7 @@ public class ConfigManager {
         addDefault(config, "player.inventory", true);
         addDefault(config, "player.stats", true);
         addDefault(config, "player-stats.can-fly", true);
-        addDefault(config, "player-stats.display-name", true);
+        addDefault(config, "player-stats.display-name", false);
         addDefault(config, "player-stats.exhaustion", true);
         addDefault(config, "player-stats.exp", true);
         addDefault(config, "player-stats.food", true);
