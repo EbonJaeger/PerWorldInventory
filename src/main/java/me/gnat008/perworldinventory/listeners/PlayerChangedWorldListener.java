@@ -52,7 +52,7 @@ public class PlayerChangedWorldListener implements Listener {
         }
     }
 
-    private boolean shouldKeepInventory(String group, String worldTo) {
-        return manager.getGroup(group).contains(worldTo);
+    private boolean shouldKeepInventory(String worldFrom, String worldTo) {
+        return manager.getGroupFromWorld(worldFrom).contains(worldTo);
     }
 }
