@@ -53,6 +53,10 @@ public class PlayerChangedWorldListener implements Listener {
     }
 
     private boolean shouldKeepInventory(String worldFrom, String worldTo) {
-        return manager.getGroupFromWorld(worldFrom).contains(worldTo);
+        try {
+            return manager.getGroup(manager.getGroupFromWorld(worldFrom)).contains(worldTo);
+        } catch (NullPointerException ex) {
+            return false;
+        }
     }
 }

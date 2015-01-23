@@ -6,7 +6,7 @@
 
     <groupId>me.gnat008</groupId>
     <artifactId>PerWorldInventory</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 
     <repositories>
         <repository>
