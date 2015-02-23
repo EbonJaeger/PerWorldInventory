@@ -1,10 +1,12 @@
 package com.kill3rtaco.tacoserialization;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
 import org.json.JSONArray;
@@ -52,6 +54,7 @@ public class SingleItemSerialization {
 			int data = items.getDurability();
 			boolean hasMeta = items.hasItemMeta();
 			String name = null, enchants = null;
+            String[] flags = null;
 			String[] lore = null;
 			int repairPenalty = 0;
 			Material mat = items.getType();
@@ -83,6 +86,14 @@ public class SingleItemSerialization {
 					}
 				}
 
+                if (meta.getItemFlags() != null && !meta.getItemFlags().isEmpty()) {
+                    List<String> flagsList = new ArrayList<>();
+                    for (ItemFlag flag : meta.getItemFlags()) {
+                        flagsList.add(flag.toString());
+                    }
+                    flags = flagsList.toArray(new String[flagsList.size()]);
+                }
+
 			}
 
 			values.put("id", id);
@@ -94,6 +105,8 @@ public class SingleItemSerialization {
 				values.put("name", name);
 			if(enchants != null)
 				values.put("enchantments", enchants);
+            if (flags != null)
+                values.put("flags", flags);
 			if(lore != null)
 				values.put("lore", lore);
 			if(repairPenalty != 0)
