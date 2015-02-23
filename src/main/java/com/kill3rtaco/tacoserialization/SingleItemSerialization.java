@@ -1,8 +1,6 @@
 package com.kill3rtaco.tacoserialization;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -174,12 +172,20 @@ public static ItemStack getItem(JSONObject item, int index) {
 			int data = item.getInt("data");
 			String name = null;
 			Map<Enchantment, Integer> enchants = null;
+            ArrayList<String> flags = null;
 			ArrayList<String> lore = null;
 			int repairPenalty = 0;
 			if(item.has("name"))
 				name = item.getString("name");
 			if(item.has("enchantments"))
 				enchants = EnchantmentSerialization.getEnchantments(item.getString("enchantments"));
+            if (item.has("flags")) {
+                JSONArray f = item.getJSONArray("flags");
+                flags = new ArrayList<>();
+                for (int i = 0; i < f.length(); i++) {
+                    flags.add(f.getString(i));
+                }
+            }
 			if(item.has("lore")) {
 				JSONArray l = item.getJSONArray("lore");
 				lore = new ArrayList<String>();
@@ -214,6 +220,11 @@ public static ItemStack getItem(JSONObject item, int index) {
 			ItemMeta meta = stuff.getItemMeta();
 			if(name != null)
 				meta.setDisplayName(name);
+            if (flags != null) {
+                for (String flag : flags) {
+                    meta.addItemFlags(ItemFlag.valueOf(flag));
+                }
+            }
 			if(lore != null)
 				meta.setLore(lore);
 			stuff.setItemMeta(meta);
