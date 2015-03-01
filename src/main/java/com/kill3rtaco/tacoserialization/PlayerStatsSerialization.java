@@ -152,7 +152,7 @@ public class PlayerStatsSerialization {
 	 * @return Whether the key should be serilaized or not
 	 */
 	public static boolean shouldSerialize(String key, PerWorldInventory plugin) {
-		return ConfigManager.getManager(plugin).getShouldSerialize("player-stats." + key);
+		return plugin.getConfigManager().getShouldSerialize("player-stats." + key);
 	}
 	
 }

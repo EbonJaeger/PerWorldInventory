@@ -89,7 +89,7 @@ public class WorldManager {
     public void loadGroups() {
         groups.clear();
 
-        YamlConfiguration config = plugin.getConfigManager().getWorlds();
+        YamlConfiguration config = plugin.getConfigManager().getConfig("worlds");
         Set<String> keys = config.getConfigurationSection("groups").getKeys(false);
         for (String key : keys) {
             if (config.get("groups." + key) instanceof List) {

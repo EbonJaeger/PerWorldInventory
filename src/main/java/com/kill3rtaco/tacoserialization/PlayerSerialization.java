@@ -31,11 +31,11 @@ public class PlayerSerialization {
 	public static JSONObject serializePlayer(Player player, PerWorldInventory plugin) {
 		try {
 			JSONObject root = new JSONObject();
-			if(ConfigManager.getManager(plugin).getShouldSerialize("player.ender-chest"))
+			if(plugin.getConfigManager().getShouldSerialize("player.ender-chest"))
 				root.put("ender-chest", InventorySerialization.serializeInventory(player.getEnderChest()));
-			if(ConfigManager.getManager(plugin).getShouldSerialize("player.inventory"))
+			if(plugin.getConfigManager().getShouldSerialize("player.inventory"))
 				root.put("inventory", InventorySerialization.serializePlayerInventory(player.getInventory()));
-			if(ConfigManager.getManager(plugin).getShouldSerialize("player.stats"))
+			if(plugin.getConfigManager().getShouldSerialize("player.stats"))
 				root.put("stats", PlayerStatsSerialization.serializePlayerStats(player, plugin));
 			return root;
 		} catch (JSONException e) {

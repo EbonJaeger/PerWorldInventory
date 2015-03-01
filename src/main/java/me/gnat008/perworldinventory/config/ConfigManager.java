@@ -18,19 +18,21 @@
 package me.gnat008.perworldinventory.config;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.util.Printer;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ConfigManager {
-
+    
+    private Map<String, File> configFiles = new HashMap<>();
+    private Map<File, YamlConfiguration> configs = new HashMap<>();
+    
     private PerWorldInventory plugin;
-    private YamlConfiguration config;
-    private YamlConfiguration worlds;
 
     private static ConfigManager manager;
 
@@ -46,104 +48,117 @@ public class ConfigManager {
         return manager;
     }
 
-    public static void disable() {
+    public void disable() {
+        plugin.getPrinter().printToConsole("Saving configs for shutdown.", false);
+        for (String config : configFiles.keySet()) {
+            saveConfig(config);
+        }
+        
+        this.configFiles.clear();
+        this.configs.clear();
         manager = null;
     }
 
-    public File getConfigFile() {
-        return new File(plugin.getDataFolder() + File.separator + "config.yml");
-    }
-
-    public File getWorldsFile() {
-        return new File(plugin.getDataFolder() + File.separator + "worlds.yml");
-    }
-
     public boolean getShouldSerialize(String path) {
-        return getConfig().getBoolean(path);
+        return getConfig("config").getBoolean(path);
     }
-
-    public void reloadConfig() {
-        config = YamlConfiguration.loadConfiguration(getConfigFile());
-        setConfigDefaults();
-        saveConfig();
+    
+    public File getConfigFile(String config) {
+        return configFiles.containsKey(config) ? configFiles.get(config) : null;
     }
-
-    public void reloadWorlds() {
-        worlds = YamlConfiguration.loadConfiguration(getWorldsFile());
-
-        if (getConfig().getBoolean("first-start")) {
-            setWorldsDefaults();
+    
+    public YamlConfiguration getConfig(String config) {
+        return configs.containsKey(getConfigFile(config)) ? configs.get(getConfigFile(config)) : null;
+    }
+    
+    public File addConfigFile(String name, File file, boolean addConfig) {
+        checkNotNull(name);
+        checkNotNull(file);
+        
+        configFiles.put(name, file);
+        if (addConfig) {
+            addConfig(file, reloadConfig(name));
         }
-
-        saveWorlds();
+        
+        return file;
     }
-
-    public void saveConfig() {
-        try {
-            config.save(getConfigFile());
-        } catch (IOException ex) {
-            plugin.getPrinter().printToConsole("Error saving 'config.yml'!", true);
-            ex.printStackTrace();
-        }
-    }
-
-    public void saveWorlds() {
-        try {
-            worlds.save(getWorldsFile());
-        } catch (IOException ex) {
-            plugin.getPrinter().printToConsole("Error saving 'worlds.yml'!", true);
-            ex.printStackTrace();
+    
+    public void reloadConfigs() {
+        for (String config : configFiles.keySet()) {
+            reloadConfig(config);
         }
     }
-
-    private void setConfigDefaults() {
-        YamlConfiguration config = getConfig();
-
-        addDefault(config, "first-start", true);
-        addDefault(config, "player.ender-chest", true);
-        addDefault(config, "player.inventory", true);
-        addDefault(config, "player.stats", true);
-        addDefault(config, "player-stats.can-fly", true);
-        addDefault(config, "player-stats.display-name", false);
-        addDefault(config, "player-stats.exhaustion", true);
-        addDefault(config, "player-stats.exp", true);
-        addDefault(config, "player-stats.food", true);
-        addDefault(config, "player-stats.flying", true);
-        addDefault(config, "player-stats.health", true);
-        addDefault(config, "player-stats.level", true);
-        addDefault(config, "player-stats.potion-effects", true);
-        addDefault(config, "player-stats.saturation", true);
-    }
-
-    private void setWorldsDefaults() {
-        YamlConfiguration worlds = getWorlds();
-
-        List<String> defaults = new ArrayList<>();
-        defaults.add("world");
-        defaults.add("world_nether");
-        defaults.add("world_the_end");
-        addDefault(worlds, "groups.default", defaults);
-    }
-
-    private void addDefault(YamlConfiguration config, String path, Object value) {
-        if (!config.contains(path)) {
-            config.set(path, value);
+    
+    public YamlConfiguration reloadConfig(String config) {
+        if (!config.equalsIgnoreCase("worlds")) {
+            setDefaults(config);
+        } else {
+            if (getConfig("config").getBoolean("first-start")) {
+                setDefaults(config);
+                getConfig("config").set("first-start", false);
+                saveConfig("config");
+            }
         }
+        
+        return YamlConfiguration.loadConfiguration(getConfigFile(config));
     }
 
-    public YamlConfiguration getConfig() {
-        if (config == null) {
-            reloadConfig();
-        }
+    private YamlConfiguration addConfig(File file, YamlConfiguration config) {
+        checkNotNull(file);
+        checkNotNull(config);
 
+        configs.put(file, config);
         return config;
     }
-
-    public YamlConfiguration getWorlds() {
-        if (worlds == null) {
-            reloadWorlds();
+    
+    private void checkNotNull(Object o) {
+        if (o == null)
+            throw new IllegalArgumentException("Parameter cannot be null!");
+    }
+    
+    private void saveConfig(String config) {
+        try {
+            getConfig(config).save(getConfigFile(config));
+        } catch (IOException ex) {
+            plugin.getPrinter().printToConsole("Error saving " + config + ".yml': " + ex.getMessage(), true);
         }
-
-        return worlds;
+    }
+    
+    private void setDefaults(String config) {
+        YamlConfiguration configuration;
+        if (getConfig(config) != null) {
+            configuration = getConfig(config);
+        } else {
+            configuration = YamlConfiguration.loadConfiguration(getConfigFile(config));
+        }
+        
+        if (config.equalsIgnoreCase("config")) {
+            configuration.addDefault("first-start", true);
+            configuration.addDefault("player.ender-chest", true);
+            configuration.addDefault("player.inventory", true);
+            configuration.addDefault("player.stats", true);
+            configuration.addDefault("player-stats.can-fly", true);
+            configuration.addDefault("player-stats.display-name", false);
+            configuration.addDefault("player-stats.exhaustion", true);
+            configuration.addDefault("player-stats.exp", true);
+            configuration.addDefault("player-stats.food", true);
+            configuration.addDefault("player-stats.flying", true);
+            configuration.addDefault("player-stats.health", true);
+            configuration.addDefault("player-stats.level", true);
+            configuration.addDefault("player-stats.potion-effects", true);
+            configuration.addDefault("player-stats.saturation", true);
+        } else if (config.equalsIgnoreCase("worlds")) {
+            List<String> defaults = new ArrayList<>();
+            defaults.add("world");
+            defaults.add("world_nether");
+            defaults.add("world_the_end");
+            configuration.addDefault("groups.default", defaults);
+        }
+        
+        try {
+            configuration.save(getConfigFile(config));
+        } catch (IOException ex) {
+            plugin.getPrinter().printToConsole("Error saving " + config + ".yml': " + ex.getMessage(), true);
+        }
     }
 }

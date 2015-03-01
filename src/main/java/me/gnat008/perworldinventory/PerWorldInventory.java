@@ -31,17 +31,15 @@ import java.io.File;
 public class PerWorldInventory extends JavaPlugin {
 
     @Override
-    public void onEnable() {if (!getDataFolder().exists()) {
+    public void onEnable() {
+        if (!getDataFolder().exists()) {
             new File(getDataFolder() + File.separator + "data").mkdirs();
-            saveResource("default.json", true);
         }
 
-        getConfigManager().reloadConfig();
-        getConfigManager().reloadWorlds();
-        if (getConfigManager().getConfig().getBoolean("first-start")) {
-            getConfigManager().getConfig().set("first-start", false);
-            getConfigManager().saveConfig();
-        }
+        saveResource("default.json", false);
+        
+        getConfigManager().addConfigFile("config", new File(getDataFolder() + File.separator + "config.yml"), true);
+        getConfigManager().addConfigFile("worlds", new File(getDataFolder() + File.separator + "worlds.yml"), true);
 
         getWorldManager().loadGroups();
 
@@ -51,10 +49,10 @@ public class PerWorldInventory extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        ConfigManager.disable();
         Printer.disable();
         DataSerializer.disable();
         DataConverter.disable();
+        getConfigManager().disable();
         WorldManager.disable();
         getServer().getScheduler().cancelTasks(this);
     }
