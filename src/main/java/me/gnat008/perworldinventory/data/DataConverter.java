@@ -69,7 +69,7 @@ public class DataConverter {
                         plugin.getSerializer().writePlayerDataToFile(player1, writable, mvgroup.getName());
                     }
                 } catch (Exception ex) {
-                    plugin.getPrinter().printToConsole("Error importing Survival inventory for player: " + player1.getName() +
+                    plugin.getPrinter().printToConsole("Error importing inventory for player: " + player1.getName() +
                             " For group: " + mvgroup.getName(), true);
                     ex.printStackTrace();
                 }
