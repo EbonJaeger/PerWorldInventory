@@ -77,7 +77,7 @@ public class ConfigManager {
         
         configFiles.put(name, file);
         if (addConfig) {
-            addConfig(file, reloadConfig(name));
+            reloadConfig(name);
         }
         
         return file;
@@ -89,7 +89,7 @@ public class ConfigManager {
         }
     }
     
-    public YamlConfiguration reloadConfig(String config) {
+    public void reloadConfig(String config) {
         if (!config.equalsIgnoreCase("worlds")) {
             setDefaults(config);
         } else {
@@ -100,15 +100,20 @@ public class ConfigManager {
             }
         }
         
-        return YamlConfiguration.loadConfiguration(getConfigFile(config));
+        addConfig(getConfigFile(config), YamlConfiguration.loadConfiguration(getConfigFile(config)));
     }
 
-    private YamlConfiguration addConfig(File file, YamlConfiguration config) {
+    private void addConfig(File file, YamlConfiguration config) {
         checkNotNull(file);
         checkNotNull(config);
 
         configs.put(file, config);
-        return config;
+    }
+    
+    private void addDefault(YamlConfiguration config, String path, Object value) {
+        if (!(config.contains(path))) {
+            config.set(path, value);
+        }
     }
     
     private void checkNotNull(Object o) {
@@ -125,34 +130,30 @@ public class ConfigManager {
     }
     
     private void setDefaults(String config) {
-        YamlConfiguration configuration;
-        if (getConfig(config) != null) {
-            configuration = getConfig(config);
-        } else {
-            configuration = YamlConfiguration.loadConfiguration(getConfigFile(config));
-        }
+        YamlConfiguration configuration = YamlConfiguration.loadConfiguration(getConfigFile(config));
         
         if (config.equalsIgnoreCase("config")) {
-            configuration.addDefault("first-start", true);
-            configuration.addDefault("player.ender-chest", true);
-            configuration.addDefault("player.inventory", true);
-            configuration.addDefault("player.stats", true);
-            configuration.addDefault("player-stats.can-fly", true);
-            configuration.addDefault("player-stats.display-name", false);
-            configuration.addDefault("player-stats.exhaustion", true);
-            configuration.addDefault("player-stats.exp", true);
-            configuration.addDefault("player-stats.food", true);
-            configuration.addDefault("player-stats.flying", true);
-            configuration.addDefault("player-stats.health", true);
-            configuration.addDefault("player-stats.level", true);
-            configuration.addDefault("player-stats.potion-effects", true);
-            configuration.addDefault("player-stats.saturation", true);
+            addDefault(configuration, "first-start", true);
+            addDefault(configuration, "player.ender-chest", true);
+            addDefault(configuration, "player.inventory", true);
+            addDefault(configuration, "player.stats", true);
+            addDefault(configuration, "player-stats.can-fly", true);
+            addDefault(configuration, "player-stats.display-name", false);
+            addDefault(configuration, "player-stats.exhaustion", true);
+            addDefault(configuration, "player-stats.exp", true);
+            addDefault(configuration, "player-stats.food", true);
+            addDefault(configuration, "player-stats.flying", true);
+            addDefault(configuration, "player-stats.gamemode", false);
+            addDefault(configuration, "player-stats.health", true);
+            addDefault(configuration, "player-stats.level", true);
+            addDefault(configuration, "player-stats.potion-effects", true);
+            addDefault(configuration, "player-stats.saturation", true);
         } else if (config.equalsIgnoreCase("worlds")) {
             List<String> defaults = new ArrayList<>();
             defaults.add("world");
             defaults.add("world_nether");
             defaults.add("world_the_end");
-            configuration.addDefault("groups.default", defaults);
+            addDefault(configuration, "groups.default", defaults);
         }
         
         try {
