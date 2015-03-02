@@ -44,7 +44,7 @@ public class PlayerStatsSerialization {
 			if(shouldSerialize("food", plugin))
 				root.put("food", player.getFoodLevel());
 			if(shouldSerialize("gamemode", plugin))
-				root.put("gamemode", player.getGameMode().ordinal());
+				root.put("gamemode", player.getGameMode().toString());
 			if(shouldSerialize("health", plugin))
 				root.put("health", player.getHealthScale());
 			if(shouldSerialize("level", plugin))
@@ -133,8 +133,27 @@ public class PlayerStatsSerialization {
 				player.setFoodLevel(stats.getInt("food"));
 			if(stats.has("health"))
 				player.setHealth(stats.getDouble("health"));
-			if(stats.has("gamemode"))
-				player.setGameMode(GameMode.getByValue(stats.getInt("gamemode")));
+			if(stats.has("gamemode")) {
+                if (stats.get("gamemode") instanceof String) {
+                    player.setGameMode(GameMode.valueOf(stats.getString("gamemode")));
+                } else {
+                    int gm = stats.getInt("gamemode");
+                    switch(gm) {
+                        case 0:
+                            player.setGameMode(GameMode.CREATIVE);
+                            break;
+                        case 1:
+                            player.setGameMode(GameMode.SURVIVAL);
+                            break;
+                        case 2:
+                            player.setGameMode(GameMode.ADVENTURE);
+                            break;
+                        case 3:
+                            player.setGameMode(GameMode.SPECTATOR);
+                            break;
+                    }
+                }
+            }
 			if(stats.has("level"))
 				player.setLevel(stats.getInt("level"));
 			if(stats.has("potion-effects"))
