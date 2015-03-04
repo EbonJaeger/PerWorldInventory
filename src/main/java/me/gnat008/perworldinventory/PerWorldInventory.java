@@ -32,7 +32,7 @@ public class PerWorldInventory extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        if (!getDataFolder().exists()) {
+        if (!(new File(getDataFolder() + File.separator + "data").exists())) {
             new File(getDataFolder() + File.separator + "data").mkdirs();
         }
 
