@@ -26,22 +26,33 @@ import me.gnat008.perworldinventory.listeners.PlayerChangedWorldListener;
 import me.gnat008.perworldinventory.util.Printer;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
+import java.io.*;
 
 public class PerWorldInventory extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        if (!(new File(getDataFolder() + File.separator + "data").exists())) {
-            new File(getDataFolder() + File.separator + "data").mkdirs();
+        if (!(new File(getDataFolder() + File.separator + "data" + File.separator + "defaults").exists())) {
+            new File(getDataFolder() + File.separator + "data" + File.separator + "defaults").mkdirs();
         }
 
-        saveResource("default.json", false);
+        if (!(new File(getDataFolder() + File.separator + "__default.json").exists())) {
+            saveResource("default.json", false);
+            File dFile = new File(getDataFolder() + File.separator + "default.json");
+            dFile.renameTo(new File(getDataFolder() + File.separator + "data" + File.separator + "defaults" + File.separator + "__default.json"));
+        }
         
         getConfigManager().addConfigFile("config", new File(getDataFolder() + File.separator + "config.yml"), true);
         getConfigManager().addConfigFile("worlds", new File(getDataFolder() + File.separator + "worlds.yml"), true);
 
         getWorldManager().loadGroups();
+        for (String group : getWorldManager().getGroups()) {
+            File fileTo = new File(getDataFolder() + File.separator + "data" + File.separator + "defaults" + File.separator + group + ".json");
+            if (!fileTo.exists()) {
+                File fileFrom = new File(getDataFolder() + File.separator + "data" + File.separator + "defaults" + File.separator + "__default.json");
+                copyFile(fileFrom, fileTo);
+            }
+        }
 
         getCommand("pwi").setExecutor(new PerWorldInventoryCommand(this));
         getServer().getPluginManager().registerEvents(new PlayerChangedWorldListener(this), this);
@@ -75,5 +86,37 @@ public class PerWorldInventory extends JavaPlugin {
 
     public WorldManager getWorldManager() {
         return WorldManager.getInstance(this);
+    }
+
+    private void copyFile(File from, File to) {
+        InputStream in = null;
+        OutputStream out = null;
+
+        try {
+            in = new FileInputStream(from);
+            out = new FileOutputStream(to);
+
+            byte[] buff = new byte[1024];
+            int len;
+            while ((len = in.read(buff)) > 0) {
+                out.write(buff, 0, len);
+            }
+        } catch (IOException ex) {
+            getPrinter().printToConsole("An error occurred copying file '" + from.getName() + "' to '" + to.getName() + "': " + ex.getMessage(), true);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ignored) {
+                }
+            }
+
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
     }
 }
