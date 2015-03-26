@@ -56,8 +56,10 @@ public class SingleItemSerialization {
 			String[] lore = null;
 			int repairPenalty = 0;
 			Material mat = items.getType();
-			JSONObject bookMeta = null, armorMeta = null, skullMeta = null, fwMeta = null;
-			if(mat == Material.BOOK_AND_QUILL || mat == Material.WRITTEN_BOOK) {
+			JSONObject bannerMeta = null, bookMeta = null, armorMeta = null, skullMeta = null, fwMeta = null;
+			if (mat == Material.BANNER) {
+				bannerMeta = BannerSerialization.serializeBanner((BannerMeta) items.getItemMeta());
+			} else if(mat == Material.BOOK_AND_QUILL || mat == Material.WRITTEN_BOOK) {
 				bookMeta = BookSerialization.serializeBookMeta((BookMeta) items.getItemMeta());
 			} else if(mat == Material.ENCHANTED_BOOK) {
 				bookMeta = BookSerialization.serializeEnchantedBookMeta((EnchantmentStorageMeta) items.getItemMeta());
@@ -109,6 +111,8 @@ public class SingleItemSerialization {
 				values.put("lore", lore);
 			if(repairPenalty != 0)
 				values.put("repairPenalty", repairPenalty);
+			if (bannerMeta != null && bannerMeta.length() > 0)
+				values.put("banner-meta", bannerMeta);
 			if(bookMeta != null && bookMeta.length() > 0)
 				values.put("book-meta", bookMeta);
 			if(armorMeta != null && armorMeta.length() > 0)
@@ -201,7 +205,10 @@ public static ItemStack getItem(JSONObject item, int index) {
 				throw new IllegalArgumentException("Item " + index + " - No Material found with id of " + id);
 			Material mat = Material.getMaterial(id);
 			ItemStack stuff = new ItemStack(mat, amount, (short) data);
-			if((mat == Material.BOOK_AND_QUILL || mat == Material.WRITTEN_BOOK) && item.has("book-meta")) {
+			if (mat == Material.BANNER) {
+				BannerMeta meta = BannerSerialization.getBannerMeta(item.getJSONObject("banner-meta"));
+				stuff.setItemMeta(meta);
+			} else if((mat == Material.BOOK_AND_QUILL || mat == Material.WRITTEN_BOOK) && item.has("book-meta")) {
 				BookMeta meta = BookSerialization.getBookMeta(item.getJSONObject("book-meta"));
 				stuff.setItemMeta(meta);
 			} else if(mat == Material.ENCHANTED_BOOK && item.has("book-meta")) {
