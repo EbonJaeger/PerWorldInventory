@@ -39,20 +39,13 @@ public class PerWorldInventory extends JavaPlugin {
         if (!(new File(getDataFolder() + File.separator + "__default.json").exists())) {
             saveResource("default.json", false);
             File dFile = new File(getDataFolder() + File.separator + "default.json");
-            dFile.renameTo(new File(getDataFolder() + File.separator + "data" + File.separator + "defaults" + File.separator + "__default.json"));
+            dFile.renameTo(new File(getDefaultFilesDirectory() + File.separator + "__default.json"));
         }
         
         getConfigManager().addConfigFile("config", new File(getDataFolder() + File.separator + "config.yml"), true);
         getConfigManager().addConfigFile("worlds", new File(getDataFolder() + File.separator + "worlds.yml"), true);
 
         getWorldManager().loadGroups();
-        for (String group : getWorldManager().getGroups()) {
-            File fileTo = new File(getDataFolder() + File.separator + "data" + File.separator + "defaults" + File.separator + group + ".json");
-            if (!fileTo.exists()) {
-                File fileFrom = new File(getDataFolder() + File.separator + "data" + File.separator + "defaults" + File.separator + "__default.json");
-                copyFile(fileFrom, fileTo);
-            }
-        }
 
         getCommand("pwi").setExecutor(new PerWorldInventoryCommand(this));
         getServer().getPluginManager().registerEvents(new PlayerChangedWorldListener(this), this);
@@ -80,43 +73,15 @@ public class PerWorldInventory extends JavaPlugin {
         return DataSerializer.getInstance(this);
     }
 
+    public File getDefaultFilesDirectory() {
+        return new File(getDataFolder() + File.separator + "data" + File.separator + "defaults");
+    }
+
     public Printer getPrinter() {
         return Printer.getInstance(this);
     }
 
     public WorldManager getWorldManager() {
         return WorldManager.getInstance(this);
-    }
-
-    private void copyFile(File from, File to) {
-        InputStream in = null;
-        OutputStream out = null;
-
-        try {
-            in = new FileInputStream(from);
-            out = new FileOutputStream(to);
-
-            byte[] buff = new byte[1024];
-            int len;
-            while ((len = in.read(buff)) > 0) {
-                out.write(buff, 0, len);
-            }
-        } catch (IOException ex) {
-            getPrinter().printToConsole("An error occurred copying file '" + from.getName() + "' to '" + to.getName() + "': " + ex.getMessage(), true);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException ignored) {
-                }
-            }
-
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException ignored) {
-                }
-            }
-        }
     }
 }

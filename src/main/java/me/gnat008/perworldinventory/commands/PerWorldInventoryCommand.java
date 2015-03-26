@@ -17,18 +17,24 @@
 
 package me.gnat008.perworldinventory.commands;
 
+import com.kill3rtaco.tacoserialization.PlayerSerialization;
+import com.kill3rtaco.tacoserialization.Serializer;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 
 public class PerWorldInventoryCommand implements CommandExecutor {
 
-    private enum Commands {CONVERT, HELP, RELOAD}
+    private enum Commands {CONVERT, HELP, RELOAD, SETWORLDDEFAULT}
 
     private PerWorldInventory plugin;
 
@@ -98,6 +104,31 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                 }
 
                 return true;
+
+            case SETWORLDDEFAULT:
+                if (isPlayer) {
+                    if (player.hasPermission(PERMISSION_NODE + "setdefaults")) {
+                        String group = "";
+
+                        if (args.length == 2) {
+                            group = args[1].equalsIgnoreCase("default") ? "__default" : args[1];
+                            setWorldDefault(player, group);
+                        } else {
+                            try {
+                                group = plugin.getWorldManager().getGroupFromWorld(player.getWorld().getName());
+                                setWorldDefault(player, group);
+                            } catch (IllegalArgumentException ex) {
+                                plugin.getPrinter().printToPlayer(player, "You are not standing in a valid world!", true);
+                            }
+                        }
+                    } else {
+                        plugin.getPrinter().printToPlayer(player, NO_PERMISSION, true);
+                    }
+                } else {
+                    plugin.getPrinter().printToConsole("This command can only be run from ingame.", true);
+                }
+
+                return true;
         }
 
         return false;
@@ -132,6 +163,8 @@ public class PerWorldInventoryCommand implements CommandExecutor {
         player.sendMessage(ChatColor.WHITE + "/pwi convert" + ChatColor.GOLD + " - Convert data from MultiVerse-Inventories.");
         player.sendMessage(ChatColor.WHITE + "/pwi help" + ChatColor.GOLD + " - Displays this help page.");
         player.sendMessage(ChatColor.WHITE + "/pwi reload" + ChatColor.GOLD + " - Reloads all configuration files.");
+        player.sendMessage(ChatColor.WHITE + "/pwi setworlddefault [group]" + ChatColor.GOLD + " - Set the default inventory" +
+                "loadout for a world, or the server default. The group you are standing in will be used if no group is specified.");
     }
 
     private void reload() {
@@ -149,5 +182,34 @@ public class PerWorldInventoryCommand implements CommandExecutor {
     private void reloadConfigFiles() {
         plugin.getConfigManager().reloadConfigs();
         plugin.getWorldManager().loadGroups();
+    }
+
+    private void setWorldDefault(Player player, String group) {
+        File file = new File(plugin.getDefaultFilesDirectory() + File.separator + group + ".json");
+        if (!file.exists()) {
+            plugin.getPrinter().printToPlayer(player, "Default file for this group not found!", true);
+            return;
+        }
+
+        File tmp = new File(plugin.getDataFolder() + File.separator + "data" + File.separator + player.getUniqueId() + File.separator + "tmp.json");
+        try {
+            tmp.mkdirs();
+            tmp.createNewFile();
+        } catch (IOException ex) {
+            plugin.getPrinter().printToPlayer(player, "Could not create temporary file! Aborting!", true);
+            return;
+        }
+        plugin.getSerializer().writeData(tmp, PlayerSerialization.serializePlayerAsString(player, plugin));
+
+        player.setFoodLevel(20);
+        player.setHealth(20);
+        player.setSaturation(20);
+        player.setTotalExperience(0);
+
+        plugin.getSerializer().writeData(file, PlayerSerialization.serializePlayerAsString(player, plugin));
+
+        plugin.getSerializer().getPlayerDataFromFile(player, "tmp");
+        tmp.delete();
+        plugin.getPrinter().printToPlayer(player, "Defaults for '" + group + "' set!", false);
     }
 }

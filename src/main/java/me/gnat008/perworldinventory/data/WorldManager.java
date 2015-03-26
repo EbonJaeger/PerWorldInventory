@@ -20,6 +20,7 @@ package me.gnat008.perworldinventory.data;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,6 +96,46 @@ public class WorldManager {
             if (config.get("groups." + key) instanceof List) {
                 List<String> worlds = config.getStringList("groups." + key);
                 addGroup(key, worlds);
+            }
+        }
+
+        for (String group : getGroups()) {
+            File fileTo = new File(plugin.getDefaultFilesDirectory() + File.separator + group + ".json");
+            if (!fileTo.exists()) {
+                File fileFrom = new File(plugin.getDefaultFilesDirectory() + File.separator + "__default.json");
+                copyFile(fileFrom, fileTo);
+            }
+        }
+    }
+
+    private void copyFile(File from, File to) {
+        InputStream in = null;
+        OutputStream out = null;
+
+        try {
+            in = new FileInputStream(from);
+            out = new FileOutputStream(to);
+
+            byte[] buff = new byte[1024];
+            int len;
+            while ((len = in.read(buff)) > 0) {
+                out.write(buff, 0, len);
+            }
+        } catch (IOException ex) {
+            plugin.getPrinter().printToConsole("An error occurred copying file '" + from.getName() + "' to '" + to.getName() + "': " + ex.getMessage(), true);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ignored) {
+                }
+            }
+
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException ignored) {
+                }
             }
         }
     }

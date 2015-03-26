@@ -74,7 +74,7 @@ public class DataSerializer {
         }
     }
 
-    private void writeData(final File file, final String data) {
+    public void writeData(final File file, final String data) {
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
             @Override
             public void run() {

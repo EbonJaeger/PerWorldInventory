@@ -1,5 +1,5 @@
 main: me.gnat008.perworldinventory.PerWorldInventory
-version: 1.2.2
+version: 1.3.0
 name: PerWorldInventory
 author: Gnat008
 
@@ -14,7 +14,10 @@ permissions:
     children:
       perworldinventory.convert: true
       perworldinventory.reload: true
+      perworldinventory.setdefaults: true
   perworldinventory.convert:
     default: false
   perworldinventory.reload:
+    default: false
+  perworldinventory.setdefaults:
     default: false
