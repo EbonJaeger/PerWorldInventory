@@ -1,7 +1,6 @@
 package com.kill3rtaco.tacoserialization;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.config.ConfigManager;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.json.JSONException;
