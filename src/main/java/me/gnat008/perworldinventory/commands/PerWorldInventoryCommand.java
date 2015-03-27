@@ -160,7 +160,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
         player.sendMessage(ChatColor.WHITE + "/pwi convert" + ChatColor.GOLD + " - Convert data from MultiVerse-Inventories.");
         player.sendMessage(ChatColor.WHITE + "/pwi help" + ChatColor.GOLD + " - Displays this help page.");
         player.sendMessage(ChatColor.WHITE + "/pwi reload" + ChatColor.GOLD + " - Reloads all configuration files.");
-        player.sendMessage(ChatColor.WHITE + "/pwi setworlddefault [group]" + ChatColor.GOLD + " - Set the default inventory" +
+        player.sendMessage(ChatColor.WHITE + "/pwi setworlddefault [group]" + ChatColor.GOLD + " - Set the default inventory " +
                 "loadout for a world, or the server default. The group you are standing in will be used if no group is specified.");
     }
 
