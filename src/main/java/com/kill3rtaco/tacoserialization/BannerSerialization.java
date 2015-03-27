@@ -28,7 +28,8 @@ public class BannerSerialization {
     public static JSONObject serializeBanner(BannerMeta banner) {
         try {
             JSONObject root = new JSONObject();
-            root.put("base-color", banner.getBaseColor().getDyeData());
+            if (banner.getBaseColor() != null)
+                root.put("base-color", banner.getBaseColor().getDyeData());
 
             JSONArray colors = new JSONArray();
             JSONArray patternTypes = new JSONArray();
@@ -57,7 +58,8 @@ public class BannerSerialization {
     public static BannerMeta getBannerMeta(JSONObject json) {
         try {
             BannerMeta dummy = (BannerMeta) new ItemStack(Material.BANNER).getItemMeta();
-            dummy.setBaseColor(DyeColor.getByDyeData(Byte.parseByte("" + json.get("base-color"))));
+            if (json.has("base-color"))
+                dummy.setBaseColor(DyeColor.getByDyeData(Byte.parseByte("" + json.get("base-color"))));
 
             JSONArray colors = json.getJSONArray("colors");
             JSONArray patternTypes = json.getJSONArray("pattern-types");
