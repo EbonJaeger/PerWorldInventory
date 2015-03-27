@@ -23,9 +23,9 @@ NOTE: If you change 'first-start' to 'true', all of your configurations will be 
 
 Next you configure your groups in the worlds.yml file. The format here is groups: >> group name >> list of worlds in that group. Worlds in the same group will all share the same inventory and stats.
 
-Once you have made your desired changes, simply type /pwi reload. That's it! You're done!
+Once you have made your desired changes, simply type /pwi reload.
 
-A 'default.json' file is provided in case a player goes to a world that is not found in your worlds.yml file. In that event, the contents of this file will be loaded, which is a blank inventory with no levels and full health. If you know what you are doing, you can change this to a custom setup. In the future, a command will be implemented to change this.
+A default inventory loadout is provided for each configured group, as well as for a server fallback, if for some reason a world isn't in any group. These can be set ingame by using the '/pwi setworlddefault [group]' command, where group is a configured group name, or 'default'. If no group is specified, it will set the loadout for the group that you are currently standing in. This does not require a reload.
 
 Conversion
 =================
