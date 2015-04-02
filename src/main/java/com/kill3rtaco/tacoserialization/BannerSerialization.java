@@ -64,7 +64,7 @@ public class BannerSerialization {
             JSONArray colors = json.getJSONArray("colors");
             JSONArray patternTypes = json.getJSONArray("pattern-types");
             for (int i = 0; i < colors.length(); i++) {
-                dummy.addPattern(new Pattern(DyeColor.getByDyeData(Byte.parseByte("" + colors.get(i))),
+                dummy.addPattern(new Pattern(DyeColor.getByDyeData(Integer.valueOf((int) colors.get(i)).byteValue()),
                         PatternType.getByIdentifier(patternTypes.getString(i))));
             }
 
