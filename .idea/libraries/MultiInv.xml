@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="MultiInv">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/MultiInv.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

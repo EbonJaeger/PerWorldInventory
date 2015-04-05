@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: uk.co:MultiInv:3.3.2-dev">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/uk/co/MultiInv/3.3.2-dev/MultiInv-3.3.2-dev.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/uk/co/MultiInv/3.3.2-dev/MultiInv-3.3.2-dev-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/uk/co/MultiInv/3.3.2-dev/MultiInv-3.3.2-dev-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

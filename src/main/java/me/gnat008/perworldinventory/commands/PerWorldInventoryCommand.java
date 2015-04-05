@@ -68,14 +68,44 @@ public class PerWorldInventoryCommand implements CommandExecutor {
             case CONVERT:
                 if (isPlayer) {
                     if (player.hasPermission(PERMISSION_NODE + "convert")) {
-                        plugin.getPrinter().printToPlayer(player, "This is currently not guaranteed to work. All messages printed to console", true);
-                        mvConvert();
+                        if (args.length == 2) {
+                            switch (args[1].toUpperCase()) {
+                                case "MULTIVERSE":
+                                    plugin.getPrinter().printToPlayer(player, "Converting from MultiVerse-Inventories! All messages are sent to console!", false);
+                                    mvConvert();
+                                    break;
+                                case "MULTIINV":
+                                    plugin.getPrinter().printToPlayer(player, "Converting from MultiInv! All messages are sent to console!", false);
+                                    miConvert();
+                                    break;
+                                default:
+                                    plugin.getPrinter().printToPlayer(player, "Valid arguments are: MULTIVERSE | MULTIINV", true);
+                                    break;
+                            }
+                        } else {
+                            plugin.getPrinter().printToPlayer(player, "You must specify the plugin to convert from: MULTIVERSE | MULTIINV", true);
+                        }
                     } else {
                         plugin.getPrinter().printToPlayer(player, NO_PERMISSION, true);
                     }
                 } else {
-                    plugin.getPrinter().printToConsole("This is currently not guaranteed to work.", true);
-                    mvConvert();
+                    if (args.length == 2) {
+                        switch (args[1].toUpperCase()) {
+                            case "MULTIVERSE":
+                                plugin.getPrinter().printToConsole("Converting from MultiVerse-Inventories!", false);
+                                mvConvert();
+                                break;
+                            case "MULTIINV":
+                                plugin.getPrinter().printToConsole("Converting from MultiInv!", false);
+                                miConvert();
+                                break;
+                            default:
+                                plugin.getPrinter().printToConsole("Valid arguments are: MULTIVERSE | MULTIINV", true);
+                                break;
+                        }
+                    } else {
+                        plugin.getPrinter().printToConsole("You must specify the plugin to convert from: MULTIVERSE | MULTIINV", true);
+                    }
                 }
 
                 return true;
@@ -136,6 +166,15 @@ public class PerWorldInventoryCommand implements CommandExecutor {
             @Override
             public void run() {
                 plugin.getDataConverter().convertMultiVerseData();
+            }
+        });
+    }
+
+    private void miConvert() {
+        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+            @Override
+            public void run() {
+                plugin.getDataConverter().convertMultiInvData();
             }
         });
     }
