@@ -27,6 +27,7 @@ import com.onarandombox.multiverseinventories.api.share.Sharables;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -93,15 +94,19 @@ public class DataConverter {
         MultiInv multiinv = (MultiInv) plugin.getServer().getPluginManager().getPlugin("MultiInv");
         MultiInvAPI mvAPI = new MultiInvAPI(multiinv);
 
-        for (OfflinePlayer offlinePlayer : Bukkit.getOfflinePlayers()) {
-            try {
-                for (String world : mvAPI.getGroups().keySet()) {
-                    MIAPIPlayer player = new MIAPIPlayer(offlinePlayer);
-                    plugin.getSerializer().writePlayerDataToFile(offlinePlayer, serializeMIToNewFormat(player), mvAPI.getGroups().get(world));
+        for (String world : mvAPI.getGroups().values()) {
+            System.out.println(world);
+            for (OfflinePlayer offlinePlayer : Bukkit.getOfflinePlayers()) {
+                MIAPIPlayer player = mvAPI.getPlayerInstance(offlinePlayer, world, GameMode.SURVIVAL);
+                if (player != null && player.getInventory() != null && player.getInventory().getInventoryContents() != null) {
+                    System.out.println(player.getPlayername());
+                    try {
+                        plugin.getSerializer().writePlayerDataToFile(offlinePlayer, serializeMIToNewFormat(player), mvAPI.getGroups().get(world));
+                    } catch (Exception ex) {
+                        plugin.getPrinter().printToConsole("Error importing inventory for player '" + offlinePlayer.getName() + ": " + ex.getMessage(), true);
+                        ex.printStackTrace();
+                    }
                 }
-            } catch (Exception ex) {
-                plugin.getPrinter().printToConsole("Error importing inventory for player '" + offlinePlayer.getName() + "!", true);
-                ex.printStackTrace();
             }
         }
 
@@ -113,13 +118,14 @@ public class DataConverter {
     private JSONObject serializeMVIToNewFormat(PlayerProfile data) {
         JSONObject root = new JSONObject();
 
+        JSONObject inv = new JSONObject();
         if (data.get(Sharables.INVENTORY) != null) {
             JSONArray inventory = InventorySerialization.serializeInventory(data.get(Sharables.INVENTORY));
-            root.put("inventory", inventory);
+            inv.put("inventory", inventory);
         }
         if (data.get(Sharables.ARMOR) != null) {
             JSONArray armor = InventorySerialization.serializeInventory(data.get(Sharables.ARMOR));
-            root.put("armor", armor);
+            inv.put("armor", armor);
         }
 
         JSONObject stats = new JSONObject();
@@ -144,6 +150,7 @@ public class DataConverter {
         if (data.get(Sharables.SATURATION) != null)
             stats.put("saturation", data.get(Sharables.SATURATION));
 
+        root.put("inventory", inv);
         root.put("stats", stats);
 
         return root;
@@ -151,26 +158,45 @@ public class DataConverter {
 
     private JSONObject serializeMIToNewFormat(MIAPIPlayer player) {
         JSONObject root = new JSONObject();
+        JSONObject inventory = new JSONObject();
 
         List<ItemStack> items = new ArrayList<>();
         for (MIItemStack item : player.getInventory().getInventoryContents()) {
-            items.add(item.getItemStack());
+            if (item == null || item.getItemStack() == null) {
+                items.add(new ItemStack(Material.AIR));
+            } else {
+                items.add(item.getItemStack());
+            }
         }
-        JSONArray inv = InventorySerialization.serializeInventory((ItemStack[]) items.toArray());
-        root.put("inventory", inv);
+        ItemStack[] invArray = new ItemStack[items.size()];
+        invArray = items.toArray(invArray);
+        JSONArray inv = InventorySerialization.serializeInventory(invArray);
+        inventory.put("inventory", inv);
 
         List<ItemStack> armorList = new ArrayList<>();
         for (MIItemStack item : player.getInventory().getArmorContents()) {
-            armorList.add(item.getItemStack());
+            if (item == null || item.getItemStack() == null) {
+                items.add(new ItemStack(Material.AIR));
+            } else {
+                armorList.add(item.getItemStack());
+            }
         }
-        JSONArray armor = InventorySerialization.serializeInventory((ItemStack[]) armorList.toArray());
-        root.put("armor", armor);
+        ItemStack[] armorArray = new ItemStack[armorList.size()];
+        armorArray = armorList.toArray(armorArray);
+        JSONArray armor = InventorySerialization.serializeInventory(armorArray);
+        inventory.put("armor", armor);
 
         List<ItemStack> enderChestList = new ArrayList<>();
         for (MIItemStack item : player.getEnderchest().getInventoryContents()) {
-            enderChestList.add(item.getItemStack());
+            if (item == null || item.getItemStack() == null) {
+                items.add(new ItemStack(Material.AIR));
+            } else {
+                enderChestList.add(item.getItemStack());
+            }
         }
-        JSONArray enderChest = InventorySerialization.serializeInventory((ItemStack[]) enderChestList.toArray());
+        ItemStack[] endArray = new ItemStack[enderChestList.size()];
+        endArray = enderChestList.toArray(endArray);
+        JSONArray enderChest = InventorySerialization.serializeInventory(endArray);
         root.put("ender-chest", enderChest);
 
         JSONObject stats = new JSONObject();
@@ -187,6 +213,7 @@ public class DataConverter {
         if (plugin.getConfigManager().getConfig("config").getBoolean("player-stats.saturation"))
             stats.put("saturation", player.getSaturation());
 
+        root.put("inventory", inventory);
         root.put("stats", stats);
 
         return root;
