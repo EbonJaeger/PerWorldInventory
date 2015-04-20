@@ -134,6 +134,7 @@ public class ConfigManager {
         
         if (config.equalsIgnoreCase("config")) {
             addDefault(configuration, "first-start", true);
+            addDefault(configuration, "separate-gamemode-inventories", false);
             addDefault(configuration, "player.ender-chest", true);
             addDefault(configuration, "player.inventory", true);
             addDefault(configuration, "player.stats", true);
