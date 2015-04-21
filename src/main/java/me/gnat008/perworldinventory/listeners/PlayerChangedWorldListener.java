@@ -25,6 +25,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.json.JSONObject;
 
 public class PlayerChangedWorldListener implements Listener {
 
@@ -45,10 +46,11 @@ public class PlayerChangedWorldListener implements Listener {
 
         plugin.getSerializer().writePlayerDataToFile(player,
                 PlayerSerialization.serializePlayer(player, plugin),
-                groupFrom);
+                groupFrom,
+                player.getGameMode().toString());
 
         if (!shouldKeepInventory(worldFrom, worldTo)) {
-            plugin.getSerializer().getPlayerDataFromFile(player, manager.getGroupFromWorld(worldTo));
+            plugin.getSerializer().getPlayerDataFromFile(player, manager.getGroupFromWorld(worldTo), player.getGameMode().toString());
         }
     }
 
