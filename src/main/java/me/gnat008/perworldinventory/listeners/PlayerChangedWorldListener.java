@@ -20,6 +20,7 @@ package me.gnat008.perworldinventory.listeners;
 import com.kill3rtaco.tacoserialization.PlayerSerialization;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.data.WorldManager;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -44,13 +45,24 @@ public class PlayerChangedWorldListener implements Listener {
         String worldTo = player.getWorld().getName();
         String groupFrom = manager.getGroupFromWorld(worldFrom);
 
-        plugin.getSerializer().writePlayerDataToFile(player,
-                PlayerSerialization.serializePlayer(player, plugin),
-                groupFrom,
-                player.getGameMode().toString());
+        if (plugin.getConfigManager().getConfig("config").getBoolean("separate-gamemode-inventories")) {
+            plugin.getSerializer().writePlayerDataToFile(player,
+                    PlayerSerialization.serializePlayer(player, plugin),
+                    groupFrom,
+                    player.getGameMode().toString());
+        } else {
+            plugin.getSerializer().writePlayerDataToFile(player,
+                    PlayerSerialization.serializePlayer(player, plugin),
+                    groupFrom,
+                    GameMode.SURVIVAL.toString());
+        }
 
         if (!shouldKeepInventory(worldFrom, worldTo)) {
-            plugin.getSerializer().getPlayerDataFromFile(player, manager.getGroupFromWorld(worldTo), player.getGameMode().toString());
+            if (plugin.getConfigManager().getConfig("config").getBoolean("separate-gamemode-inventories")) {
+                plugin.getSerializer().getPlayerDataFromFile(player, manager.getGroupFromWorld(worldTo), player.getGameMode().toString());
+            } else {
+                plugin.getSerializer().getPlayerDataFromFile(player, manager.getGroupFromWorld(worldTo), GameMode.SURVIVAL.toString());
+            }
         }
     }
 

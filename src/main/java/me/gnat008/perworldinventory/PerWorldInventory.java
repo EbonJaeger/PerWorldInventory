@@ -50,7 +50,9 @@ public class PerWorldInventory extends JavaPlugin {
 
         getCommand("pwi").setExecutor(new PerWorldInventoryCommand(this));
         getServer().getPluginManager().registerEvents(new PlayerChangedWorldListener(this), this);
-        getServer().getPluginManager().registerEvents(new PlayerGameModeChangeListener(this), this);
+
+        if (getConfigManager().getConfig("config").getBoolean("separate-gamemode-inventories"))
+            getServer().getPluginManager().registerEvents(new PlayerGameModeChangeListener(this), this);
     }
 
     @Override
