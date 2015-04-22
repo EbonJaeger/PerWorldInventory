@@ -59,7 +59,12 @@ public class PlayerChangedWorldListener implements Listener {
 
         if (!shouldKeepInventory(worldFrom, worldTo)) {
             if (plugin.getConfigManager().getConfig("config").getBoolean("separate-gamemode-inventories")) {
-                plugin.getSerializer().getPlayerDataFromFile(player, manager.getGroupFromWorld(worldTo), player.getGameMode().toString());
+                if (plugin.getConfigManager().getConfig("config").getBoolean("manage-gamemodes")) {
+                    plugin.getSerializer().getPlayerDataFromFile(player, manager.getGroupFromWorld(worldTo),
+                            manager.getGameMode(manager.getGroupFromWorld(worldTo)).toString());
+                } else {
+                    plugin.getSerializer().getPlayerDataFromFile(player, manager.getGroupFromWorld(worldTo), player.getGameMode().toString());
+                }
             } else {
                 plugin.getSerializer().getPlayerDataFromFile(player, manager.getGroupFromWorld(worldTo), GameMode.SURVIVAL.toString());
             }

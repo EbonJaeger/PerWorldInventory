@@ -18,6 +18,7 @@
 package me.gnat008.perworldinventory.data;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
+import org.bukkit.GameMode;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.*;
@@ -29,6 +30,7 @@ import java.util.Set;
 public class WorldManager {
 
     private Map<String, List<String>> groups = new HashMap<>();
+    private Map<String, GameMode> gameModes = new HashMap<>();
     private PerWorldInventory plugin;
 
     private static WorldManager manager = null;
@@ -49,12 +51,12 @@ public class WorldManager {
         manager = null;
     }
 
+    public GameMode getGameMode(String group) {
+        return gameModes.containsKey(group) ? gameModes.get(group) : null;
+    }
+
     public List<String> getGroup(String group) {
-        if (groups.containsKey(group)) {
-            return groups.get(group);
-        } else {
-            return null;
-        }
+        return groups.containsKey(group) ? groups.get(group) : null;
     }
 
     public Set<String> getGroups() {
@@ -71,12 +73,15 @@ public class WorldManager {
         throw new IllegalArgumentException("World '" + world + "' not found! Could not get group!");
     }
 
-    public void addGroup(String group, List<String> worlds) {
+    public void addGroup(String group, List<String> worlds, GameMode defGameMode) {
         groups.put(group, worlds);
+        if (defGameMode != null)
+            gameModes.put(group, defGameMode);
     }
 
     public void removeGroup(String group) {
         groups.remove(group);
+        gameModes.remove(group);
     }
 
     public boolean isInGroup(String group, String world) {
@@ -93,13 +98,32 @@ public class WorldManager {
         YamlConfiguration config = plugin.getConfigManager().getConfig("worlds");
         Set<String> keys = config.getConfigurationSection("groups").getKeys(false);
         for (String key : keys) {
-            if (config.get("groups." + key) instanceof List) {
-                List<String> worlds = config.getStringList("groups." + key);
-                addGroup(key, worlds);
+            List<String> worlds;
+            GameMode gameMode;
+            if (config.isConfigurationSection("groups." + key + ".worlds")) {
+                worlds = config.getStringList("groups." + key + ".worlds");
+                if (plugin.getConfigManager().getConfig("config").getBoolean("manage-gamemodes")) {
+                    gameMode = GameMode.valueOf(config.getString("groups." + key + ".default-gamemode").toUpperCase());
+                } else {
+                    gameMode = null;
+                }
+            } else {
+                worlds = config.getStringList("groups." + key);
+
+                config.set("groups." + key, null);
+                config.set("groups." + key + ".worlds", worlds);
+
+                if (plugin.getConfigManager().getConfig("config").getBoolean("manage-gamemodes")) {
+                    gameMode = GameMode.SURVIVAL;
+                    config.set("groups." + key + ".default-gamemode", "SURVIVAL");
+                } else {
+                    gameMode = null;
+                }
             }
+            addGroup(key, worlds, gameMode);
         }
 
-        for (String group : getGroups()) {
+        for (String group : groups.keySet()) {
             File fileTo = new File(plugin.getDefaultFilesDirectory() + File.separator + group + ".json");
             if (!fileTo.exists()) {
                 File fileFrom = new File(plugin.getDefaultFilesDirectory() + File.separator + "__default.json");
