@@ -74,7 +74,7 @@ public class DataConverter {
                     PlayerProfile playerData = mvgroup.getPlayerData(ProfileTypes.SURVIVAL, player1);
                     if (playerData != null) {
                         JSONObject writable = serializeMVIToNewFormat(playerData);
-                        plugin.getSerializer().writePlayerDataToFile(player1, writable, mvgroup.getName());
+                        plugin.getSerializer().writePlayerDataToFile(player1, writable, mvgroup.getName(), GameMode.SURVIVAL.toString());
                     }
                 } catch (Exception ex) {
                     plugin.getPrinter().printToConsole("Error importing inventory for player: " + player1.getName() +
@@ -95,13 +95,14 @@ public class DataConverter {
         MultiInvAPI mvAPI = new MultiInvAPI(multiinv);
 
         for (String world : mvAPI.getGroups().values()) {
-            System.out.println(world);
+            System.out.println("World: " + world);
             for (OfflinePlayer offlinePlayer : Bukkit.getOfflinePlayers()) {
+                System.out.println("OfflinePlayer: " + offlinePlayer.getName());
                 MIAPIPlayer player = mvAPI.getPlayerInstance(offlinePlayer, world, GameMode.SURVIVAL);
                 if (player != null && player.getInventory() != null && player.getInventory().getInventoryContents() != null) {
-                    System.out.println(player.getPlayername());
+                    System.out.println("MIAPIPlayer: " + player.getPlayername());
                     try {
-                        plugin.getSerializer().writePlayerDataToFile(offlinePlayer, serializeMIToNewFormat(player), mvAPI.getGroups().get(world));
+                        plugin.getSerializer().writePlayerDataToFile(offlinePlayer, serializeMIToNewFormat(player), mvAPI.getGroups().get(world), GameMode.SURVIVAL.toString());
                     } catch (Exception ex) {
                         plugin.getPrinter().printToConsole("Error importing inventory for player '" + offlinePlayer.getName() + ": " + ex.getMessage(), true);
                         ex.printStackTrace();
