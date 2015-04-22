@@ -24,6 +24,7 @@ import me.gnat008.perworldinventory.data.DataSerializer;
 import me.gnat008.perworldinventory.data.WorldManager;
 import me.gnat008.perworldinventory.listeners.PlayerChangedWorldListener;
 import me.gnat008.perworldinventory.listeners.PlayerGameModeChangeListener;
+import me.gnat008.perworldinventory.listeners.PlayerQuitListener;
 import me.gnat008.perworldinventory.util.Printer;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -50,6 +51,7 @@ public class PerWorldInventory extends JavaPlugin {
 
         getCommand("pwi").setExecutor(new PerWorldInventoryCommand(this));
         getServer().getPluginManager().registerEvents(new PlayerChangedWorldListener(this), this);
+        getServer().getPluginManager().registerEvents(new PlayerQuitListener(this), this);
 
         if (getConfigManager().getConfig("config").getBoolean("separate-gamemode-inventories"))
             getServer().getPluginManager().registerEvents(new PlayerGameModeChangeListener(this), this);
