@@ -22,10 +22,7 @@ import org.bukkit.GameMode;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class WorldManager {
 
@@ -94,13 +91,13 @@ public class WorldManager {
 
     public void loadGroups() {
         groups.clear();
+        gameModes.clear();
 
         YamlConfiguration config = plugin.getConfigManager().getConfig("worlds");
-        Set<String> keys = config.getConfigurationSection("groups").getKeys(false);
-        for (String key : keys) {
+        for (String key : config.getConfigurationSection("groups").getKeys(false)) {
             List<String> worlds;
             GameMode gameMode;
-            if (config.isConfigurationSection("groups." + key + ".worlds")) {
+            if (config.contains("groups." + key + ".worlds")) {
                 worlds = config.getStringList("groups." + key + ".worlds");
                 if (plugin.getConfigManager().getConfig("config").getBoolean("manage-gamemodes")) {
                     gameMode = GameMode.valueOf(config.getString("groups." + key + ".default-gamemode").toUpperCase());
