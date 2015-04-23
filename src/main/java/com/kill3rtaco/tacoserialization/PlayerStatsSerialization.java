@@ -170,6 +170,8 @@ public class PlayerStatsSerialization {
 	 * @return Whether the key should be serilaized or not
 	 */
 	public static boolean shouldSerialize(String key, PerWorldInventory plugin) {
+		if (key.equalsIgnoreCase("gamemode") && plugin.getConfigManager().getConfig("config").getBoolean("separate-gamemode-inventories"))
+			return false;
 		return plugin.getConfigManager().getShouldSerialize("player-stats." + key);
 	}
 	
