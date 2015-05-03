@@ -23,6 +23,8 @@ import me.gnat008.perworldinventory.data.DataConverter;
 import me.gnat008.perworldinventory.data.DataSerializer;
 import me.gnat008.perworldinventory.data.WorldManager;
 import me.gnat008.perworldinventory.listeners.PlayerChangedWorldListener;
+import me.gnat008.perworldinventory.listeners.PlayerGameModeChangeListener;
+import me.gnat008.perworldinventory.listeners.PlayerQuitListener;
 import me.gnat008.perworldinventory.util.Printer;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -47,8 +49,19 @@ public class PerWorldInventory extends JavaPlugin {
 
         getWorldManager().loadGroups();
 
+        getPrinter().printToConsole("Registering commands...", false);
         getCommand("pwi").setExecutor(new PerWorldInventoryCommand(this));
+        getPrinter().printToConsole("Commands registered! Registering listeners...", false);
         getServer().getPluginManager().registerEvents(new PlayerChangedWorldListener(this), this);
+        getPrinter().printToConsole("Registered PlayerChangedWorldListener.", false);
+        getServer().getPluginManager().registerEvents(new PlayerQuitListener(this), this);
+        getPrinter().printToConsole("Registered PlayerQuitListener.", false);
+
+        if (getConfigManager().getConfig("config").getBoolean("separate-gamemode-inventories")) {
+            getServer().getPluginManager().registerEvents(new PlayerGameModeChangeListener(this), this);
+            getPrinter().printToConsole("Registered PlayerGameModeChangeListener.", false);
+        }
+        getPrinter().printToConsole("Listeners enabled!", false);
     }
 
     @Override

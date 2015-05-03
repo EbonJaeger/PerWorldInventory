@@ -40,7 +40,7 @@ public class DataSerializer {
 
     private DataSerializer(PerWorldInventory plugin) {
         this.plugin = plugin;
-        FILE_PATH = plugin.getDataFolder() + File.separator + "data";
+        FILE_PATH = plugin.getDataFolder() + File.separator + "data" + File.separator;
     }
 
     public static DataSerializer getInstance(PerWorldInventory plugin) {
@@ -55,8 +55,15 @@ public class DataSerializer {
         instance = null;
     }
 
-    public void writePlayerDataToFile(OfflinePlayer player, final JSONObject data, String group) {
-        final File file = new File(FILE_PATH + File.separator + player.getUniqueId().toString(), group + ".json");
+    public void writePlayerDataToFile(OfflinePlayer player, JSONObject data, String group, String gamemode) {
+        File file;
+        if (gamemode.equalsIgnoreCase("SURVIVAL")) {
+            file = new File(FILE_PATH + player.getUniqueId().toString(), group + ".json");
+        } else if (gamemode.equalsIgnoreCase("ADVENTURE")) {
+            file = new File(FILE_PATH + player.getUniqueId().toString(), group + "_adventure.json");
+        } else {
+            file = new File(FILE_PATH + player.getUniqueId().toString(), group + "_creative.json");
+        }
 
         try {
             if (!file.getParentFile().exists()) {
@@ -68,7 +75,7 @@ public class DataSerializer {
             }
             writeData(file, Serializer.toString(data));
         } catch (IOException ex) {
-            Printer.getInstance(plugin).printToConsole("Error creating file '" + FILE_PATH + File.separator +
+            Printer.getInstance(plugin).printToConsole("Error creating file '" + FILE_PATH +
                     player.getUniqueId().toString() + File.separator + group + ".json': " + ex.getMessage(), true);
             ex.printStackTrace();
         }
@@ -97,8 +104,16 @@ public class DataSerializer {
         });
     }
 
-    public void getPlayerDataFromFile(Player player, String group) {
-        File file = new File(FILE_PATH + File.separator + player.getUniqueId().toString(), group + ".json");
+    public void getPlayerDataFromFile(Player player, String group, String gamemode) {
+        File file;
+        if (gamemode.equalsIgnoreCase("SURVIVAL")) {
+            file = new File(FILE_PATH + player.getUniqueId().toString(), group + ".json");
+        } else if (gamemode.equalsIgnoreCase("ADVENTURE")) {
+            file = new File(FILE_PATH + player.getUniqueId().toString(), group + "_adventure.json");
+        } else {
+            file = new File(FILE_PATH + player.getUniqueId().toString(), group + "_creative.json");
+        }
+
         try {
             JSONObject data = Serializer.getObjectFromFile(file);
             PlayerSerialization.setPlayer(data, player);
@@ -106,12 +121,12 @@ public class DataSerializer {
             try {
                 file.createNewFile();
                 JSONObject defaultGroupData = Serializer.getObjectFromFile(
-                        new File(plugin.getDataFolder() + File.separator + "data" + File.separator + "defaults" + File.separator + group + ".json"));
+                        new File(FILE_PATH + "defaults" + File.separator + group + ".json"));
                 PlayerSerialization.setPlayer(defaultGroupData, player);
             } catch (FileNotFoundException ex2) {
                 try {
                     JSONObject defaultData = Serializer.getObjectFromFile(
-                            new File(plugin.getDataFolder() + File.separator + "data" + File.separator + "defaults" + File.separator + "__default.json"));
+                            new File(FILE_PATH + "defaults" + File.separator + "__default.json"));
                     PlayerSerialization.setPlayer(defaultData, player);
                 } catch (FileNotFoundException ex3) {
                     plugin.getPrinter().printToPlayer(player, "Something went horribly wrong when loading your inventory! " +
@@ -120,7 +135,7 @@ public class DataSerializer {
                             "' for group '" + group + "': " + ex3.getMessage(), true);
                 }
             } catch (IOException exIO) {
-                Printer.getInstance(plugin).printToConsole("Error creating file '" + FILE_PATH + File.separator +
+                Printer.getInstance(plugin).printToConsole("Error creating file '" + FILE_PATH +
                         player.getUniqueId().toString() + File.separator + group + ".json': " + ex.getMessage(), true);
             }
         }

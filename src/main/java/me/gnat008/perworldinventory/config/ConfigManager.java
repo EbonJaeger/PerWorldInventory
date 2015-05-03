@@ -134,6 +134,8 @@ public class ConfigManager {
         
         if (config.equalsIgnoreCase("config")) {
             addDefault(configuration, "first-start", true);
+            addDefault(configuration, "manage-gamemodes", false);
+            addDefault(configuration, "separate-gamemode-inventories", false);
             addDefault(configuration, "player.ender-chest", true);
             addDefault(configuration, "player.inventory", true);
             addDefault(configuration, "player.stats", true);
@@ -153,7 +155,8 @@ public class ConfigManager {
             defaults.add("world");
             defaults.add("world_nether");
             defaults.add("world_the_end");
-            addDefault(configuration, "groups.default", defaults);
+            addDefault(configuration, "groups.default.worlds", defaults);
+            addDefault(configuration, "groups.default.default-gamemode", "SURVIVAL");
         }
         
         try {

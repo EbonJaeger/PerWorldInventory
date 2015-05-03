@@ -20,6 +20,7 @@ package me.gnat008.perworldinventory.commands;
 import com.kill3rtaco.tacoserialization.PlayerSerialization;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -244,7 +245,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
 
         plugin.getSerializer().writeData(file, PlayerSerialization.serializePlayerAsString(player, plugin));
 
-        plugin.getSerializer().getPlayerDataFromFile(player, "tmp");
+        plugin.getSerializer().getPlayerDataFromFile(player, "tmp", GameMode.SURVIVAL.toString());
         tmp.delete();
         plugin.getPrinter().printToPlayer(player, "Defaults for '" + group + "' set!", false);
     }

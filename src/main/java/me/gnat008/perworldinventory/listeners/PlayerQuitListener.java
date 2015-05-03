@@ -19,63 +19,37 @@ package me.gnat008.perworldinventory.listeners;
 
 import com.kill3rtaco.tacoserialization.PlayerSerialization;
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.data.WorldManager;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
-import org.json.JSONObject;
+import org.bukkit.event.player.PlayerQuitEvent;
 
-public class PlayerChangedWorldListener implements Listener {
+public class PlayerQuitListener implements Listener {
 
-    private WorldManager manager;
     private PerWorldInventory plugin;
 
-    public PlayerChangedWorldListener(PerWorldInventory plugin) {
+    public PlayerQuitListener(PerWorldInventory plugin) {
         this.plugin = plugin;
-        this.manager = plugin.getWorldManager();
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerChangeWorld(PlayerChangedWorldEvent event) {
+    public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        String worldFrom = event.getFrom().getName();
-        String worldTo = player.getWorld().getName();
-        String groupFrom = manager.getGroupFromWorld(worldFrom);
+        String logoutWorld = player.getWorld().getName();
+        String group = plugin.getWorldManager().getGroupFromWorld(logoutWorld);
 
         if (plugin.getConfigManager().getConfig("config").getBoolean("separate-gamemode-inventories")) {
             plugin.getSerializer().writePlayerDataToFile(player,
                     PlayerSerialization.serializePlayer(player, plugin),
-                    groupFrom,
+                    group,
                     player.getGameMode().toString());
         } else {
             plugin.getSerializer().writePlayerDataToFile(player,
                     PlayerSerialization.serializePlayer(player, plugin),
-                    groupFrom,
+                    group,
                     GameMode.SURVIVAL.toString());
-        }
-
-        if (!shouldKeepInventory(worldFrom, worldTo)) {
-            if (plugin.getConfigManager().getConfig("config").getBoolean("separate-gamemode-inventories")) {
-                if (plugin.getConfigManager().getConfig("config").getBoolean("manage-gamemodes")) {
-                    plugin.getSerializer().getPlayerDataFromFile(player, manager.getGroupFromWorld(worldTo),
-                            manager.getGameMode(manager.getGroupFromWorld(worldTo)).toString());
-                } else {
-                    plugin.getSerializer().getPlayerDataFromFile(player, manager.getGroupFromWorld(worldTo), player.getGameMode().toString());
-                }
-            } else {
-                plugin.getSerializer().getPlayerDataFromFile(player, manager.getGroupFromWorld(worldTo), GameMode.SURVIVAL.toString());
-            }
-        }
-    }
-
-    private boolean shouldKeepInventory(String worldFrom, String worldTo) {
-        try {
-            return manager.getGroup(manager.getGroupFromWorld(worldFrom)).contains(worldTo);
-        } catch (NullPointerException ex) {
-            return false;
         }
     }
 }
