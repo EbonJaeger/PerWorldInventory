@@ -49,19 +49,19 @@ public class PerWorldInventory extends JavaPlugin {
 
         getWorldManager().loadGroups();
 
-        getPrinter().printToConsole("Registering commands...", false);
+        getLogger().info("Registering commands...");
         getCommand("pwi").setExecutor(new PerWorldInventoryCommand(this));
-        getPrinter().printToConsole("Commands registered! Registering listeners...", false);
+        getLogger().info("Commands registered! Registering listeners...");
         getServer().getPluginManager().registerEvents(new PlayerChangedWorldListener(this), this);
-        getPrinter().printToConsole("Registered PlayerChangedWorldListener.", false);
+        getLogger().info("Registered PlayerChangedWorldListener.");
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(this), this);
-        getPrinter().printToConsole("Registered PlayerQuitListener.", false);
+        getLogger().info("Registered PlayerQuitListener.");
 
         if (getConfigManager().getConfig("config").getBoolean("separate-gamemode-inventories")) {
             getServer().getPluginManager().registerEvents(new PlayerGameModeChangeListener(this), this);
-            getPrinter().printToConsole("Registered PlayerGameModeChangeListener.", false);
+            getLogger().info("Registered PlayerGameModeChangeListener.");
         }
-        getPrinter().printToConsole("Listeners enabled!", false);
+        getLogger().info("Listeners enabled!");
     }
 
     @Override
