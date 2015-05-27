@@ -236,10 +236,10 @@ public class InventorySerialization {
 				JSONObject item = inv.getJSONObject(i);
 				int index = item.getInt("index");
 				if(index > size)
-					throw new IllegalArgumentException("index found is greator than expected size (" + index + ">" + size + ")");
+					throw new IllegalArgumentException("Index found is greater than expected size (" + index + " > " + size + ")");
 				if(index > contents.length || index < 0)
 					throw new IllegalArgumentException("Item " + i + " - Slot " + index + " does not exist in this inventory");
-				ItemStack stuff = SingleItemSerialization.getItem(item);
+				ItemStack stuff = SingleItemSerialization.deserializeItem(item);
 				contents[index] = stuff;
 			}
 			return contents;
