@@ -26,11 +26,15 @@ import me.gnat008.perworldinventory.listeners.PlayerChangedWorldListener;
 import me.gnat008.perworldinventory.listeners.PlayerGameModeChangeListener;
 import me.gnat008.perworldinventory.listeners.PlayerQuitListener;
 import me.gnat008.perworldinventory.util.Printer;
+import net.milkbowl.vault.economy.Economy;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
 
 public class PerWorldInventory extends JavaPlugin {
+
+    private Economy economy;
 
     @Override
     public void onEnable() {
@@ -62,6 +66,17 @@ public class PerWorldInventory extends JavaPlugin {
             getLogger().info("Registered PlayerGameModeChangeListener.");
         }
         getLogger().info("Listeners enabled!");
+
+        if (getServer().getPluginManager().getPlugin("Vault") != null) {
+            getLogger().info("Vault found! Hooking into it...");
+            RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+            if (rsp != null) {
+                economy = rsp.getProvider();
+                getLogger().info("Hooked into Vault!");
+            } else {
+                getLogger().warning("Unable to hook into Vault!");
+            }
+        }
     }
 
     @Override
@@ -84,6 +99,10 @@ public class PerWorldInventory extends JavaPlugin {
 
     public DataSerializer getSerializer() {
         return DataSerializer.getInstance(this);
+    }
+
+    public Economy getEconomy() {
+        return this.economy;
     }
 
     public File getDefaultFilesDirectory() {

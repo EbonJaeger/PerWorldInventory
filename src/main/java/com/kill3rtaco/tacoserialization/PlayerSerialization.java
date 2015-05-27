@@ -36,6 +36,8 @@ public class PlayerSerialization {
 				root.put("inventory", InventorySerialization.serializePlayerInventory(player.getInventory()));
 			if(plugin.getConfigManager().getShouldSerialize("player.stats"))
 				root.put("stats", PlayerStatsSerialization.serializePlayerStats(player, plugin));
+			if (plugin.getConfigManager().getShouldSerialize("player.economy"))
+				root.put("economy", EconomySerialization.serializeEconomy(player, plugin.getEconomy()));
 			return root;
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -87,9 +89,9 @@ public class PlayerSerialization {
 	 * @param meta The stats to set
 	 * @param player The affected player
 	 */
-	public static void setPlayer(String meta, Player player) {
+	public static void setPlayer(String meta, Player player, PerWorldInventory plugin) {
 		try {
-			setPlayer(new JSONObject(meta), player);
+			setPlayer(new JSONObject(meta), player, plugin);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -100,7 +102,7 @@ public class PlayerSerialization {
 	 * @param meta The stats to set
 	 * @param player The affected player
 	 */
-	public static void setPlayer(JSONObject meta, Player player) {
+	public static void setPlayer(JSONObject meta, Player player, PerWorldInventory plugin) {
 		try {
 			if(meta.has("ender-chest"))
 				InventorySerialization.setInventory(player.getEnderChest(), meta.getJSONArray("ender-chest"));
@@ -108,6 +110,8 @@ public class PlayerSerialization {
 				InventorySerialization.setPlayerInventory(player, meta.getJSONObject("inventory"));
 			if(meta.has("stats"))
 				PlayerStatsSerialization.applyPlayerStats(player, meta.getJSONObject("stats"));
+			if (meta.has("economy"))
+				EconomySerialization.setEconomy(plugin.getEconomy(), meta.getJSONObject("economy"), player);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}

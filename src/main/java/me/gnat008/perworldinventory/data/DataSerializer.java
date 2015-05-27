@@ -116,18 +116,18 @@ public class DataSerializer {
 
         try {
             JSONObject data = Serializer.getObjectFromFile(file);
-            PlayerSerialization.setPlayer(data, player);
+            PlayerSerialization.setPlayer(data, player, plugin);
         } catch (FileNotFoundException ex) {
             try {
                 file.createNewFile();
                 JSONObject defaultGroupData = Serializer.getObjectFromFile(
                         new File(FILE_PATH + "defaults" + File.separator + group + ".json"));
-                PlayerSerialization.setPlayer(defaultGroupData, player);
+                PlayerSerialization.setPlayer(defaultGroupData, player, plugin);
             } catch (FileNotFoundException ex2) {
                 try {
                     JSONObject defaultData = Serializer.getObjectFromFile(
                             new File(FILE_PATH + "defaults" + File.separator + "__default.json"));
-                    PlayerSerialization.setPlayer(defaultData, player);
+                    PlayerSerialization.setPlayer(defaultData, player, plugin);
                 } catch (FileNotFoundException ex3) {
                     plugin.getPrinter().printToPlayer(player, "Something went horribly wrong when loading your inventory! " +
                             "Please notify a server administrator!", true);

@@ -138,6 +138,7 @@ public class ConfigManager {
             addDefault(configuration, "separate-gamemode-inventories", false);
             addDefault(configuration, "player.ender-chest", true);
             addDefault(configuration, "player.inventory", true);
+            addDefault(configuration, "player.economy", false);
             addDefault(configuration, "player.stats", true);
             addDefault(configuration, "player-stats.can-fly", true);
             addDefault(configuration, "player-stats.display-name", false);

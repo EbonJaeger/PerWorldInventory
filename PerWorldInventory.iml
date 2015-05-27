@@ -28,5 +28,6 @@
     <orderEntry type="library" name="Maven: me.drayshak:WorldInventories:1.0.2" level="project" />
     <orderEntry type="library" name="Maven: junit:junit:4.8.2" level="project" />
     <orderEntry type="library" name="Maven: uk.co:MultiInv:3.3.2-dev" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: net.milkbowl.vault:VaultAPI:1.5" level="project" />
   </component>
 </module>
