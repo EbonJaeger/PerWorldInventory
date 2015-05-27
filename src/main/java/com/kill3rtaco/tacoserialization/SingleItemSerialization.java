@@ -29,8 +29,9 @@ public class SingleItemSerialization {
 	 * @param index The position of the ItemStack inside the inventory
 	 * @return The serialized items
 	 */
-	public static JSONObject serializeItemInInventory(ItemStack items, int index) {
-		return serializeItems(items, true, index);
+	@Deprecated
+	public static JSONObject serializeItemInInventoryOld(ItemStack items, int index) {
+		return serializeItemsOld(items, true, index);
 	}
 	
 	/**
@@ -38,11 +39,13 @@ public class SingleItemSerialization {
 	 * @param items The items to serialize
 	 * @return The serialized items
 	 */
-	public static JSONObject serializeItem(ItemStack items) {
-		return serializeItems(items, false, 0);
+	@Deprecated
+	public static JSONObject serializeItemOld(ItemStack items) {
+		return serializeItemsOld(items, false, 0);
 	}
-	
-	private static JSONObject serializeItems(ItemStack items, boolean useIndex, int index) {
+
+	@Deprecated
+	private static JSONObject serializeItemsOld(ItemStack items, boolean useIndex, int index) {
 		try {
 			JSONObject values = new JSONObject();
 			if(items == null)
@@ -127,12 +130,61 @@ public class SingleItemSerialization {
 			return null;
 		}
 	}
+
+	public static JSONObject serializeItemInInventory(ItemStack item, int index) {
+		return serializeItem(item, true, index);
+	}
+
+	public static JSONObject serializeItem(ItemStack item, boolean useIndex, int index) {
+		try {
+			JSONObject values = new JSONObject();
+			if (item == null) {
+				return null;
+			}
+
+			if (useIndex) {
+				values.put("index", index);
+			}
+
+			Map<String, Object> itemMap = item.serialize();
+			for (String key : itemMap.keySet()) {
+				values.put(key, itemMap.get(key));
+			}
+
+			return values;
+		} catch (JSONException ex) {
+			ex.printStackTrace();
+			return null;
+		}
+	}
+
+	public static ItemStack deserializeItem(JSONObject data) {
+		return deserializeItem(data, 0);
+	}
+
+	public static ItemStack deserializeItem(JSONObject data, int index) {
+		try {
+			Map<String, Object> dataMap = new HashMap<>();
+			for (String key : data.keySet()) {
+				if (!key.equalsIgnoreCase("index")) {
+					dataMap.put(key, data.get(key));
+					System.out.println(key + ": " + dataMap.get(key));
+				}
+			}
+
+			return ItemStack.deserialize(dataMap);
+		} catch (JSONException ex) {
+			ex.printStackTrace();
+			return null;
+		}
+	}
 	
 	/**
 	 * Deserialize an ItemStack
 	 * @param item The ItemStack to deserialize
 	 * @return The Deserialized ItemStack
 	 */
+	@Deprecated
 	public static ItemStack getItem(String item) {
 		return getItem(item, 0);
 	}
@@ -144,6 +196,7 @@ public class SingleItemSerialization {
 	 * @param index The index of the ItemStack in an inventory or ItemStack array
 	 * @return The deserialized ItemStack
 	 */
+	@Deprecated
 	public static ItemStack getItem(String item, int index) {
 		try {
 			return getItem(new JSONObject(item), index);
@@ -158,6 +211,7 @@ public class SingleItemSerialization {
 	 * @param item The ItemStack to deserialize
 	 * @return The Deserialized ItemStack
 	 */
+	@Deprecated
 	public static ItemStack getItem(JSONObject item) {
 		return getItem(item, 0);
 	}
@@ -169,7 +223,8 @@ public class SingleItemSerialization {
 	 * @param index The index of the ItemStack in an inventory or ItemStack array
 	 * @return The deserialized ItemStack
 	 */
-public static ItemStack getItem(JSONObject item, int index) {
+	@Deprecated
+	public static ItemStack getItem(JSONObject item, int index) {
 		try {
 			int id = item.getInt("id");
 			int amount = item.getInt("amount");
@@ -282,9 +337,9 @@ public static ItemStack getItem(JSONObject item, int index) {
 	public static String serializeItemInInventoryAsString(ItemStack items, int index, boolean pretty, int indentFactor) {
 		try {
 			if(pretty) {
-				return serializeItemInInventory(items, index).toString(indentFactor);
+				return serializeItemInInventoryOld(items, index).toString(indentFactor);
 			} else {
-				return serializeItemInInventory(items, index).toString();
+				return serializeItemInInventoryOld(items, index).toString();
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -321,9 +376,9 @@ public static ItemStack getItem(JSONObject item, int index) {
 	public static String serializeItemAsString(ItemStack items, boolean pretty, int indentFactor) {
 		try {
 			if(pretty) {
-				return serializeItem(items).toString(indentFactor);
+				return serializeItemOld(items).toString(indentFactor);
 			} else {
-				return serializeItem(items).toString();
+				return serializeItemOld(items).toString();
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
