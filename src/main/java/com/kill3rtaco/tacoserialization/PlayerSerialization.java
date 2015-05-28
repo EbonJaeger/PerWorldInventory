@@ -31,6 +31,8 @@ public class PlayerSerialization {
     public static JSONObject serializePlayer(Player player, PerWorldInventory plugin) {
         try {
             JSONObject root = new JSONObject();
+            // Formats: 0 == old serialization, 1 == new serialization
+            root.put("data-format", 1);
             if (plugin.getConfigManager().getShouldSerialize("player.ender-chest"))
                 root.put("ender-chest", InventorySerialization.serializeInventory(player.getEnderChest()));
             if (plugin.getConfigManager().getShouldSerialize("player.inventory"))
@@ -110,10 +112,15 @@ public class PlayerSerialization {
      */
     public static void setPlayer(JSONObject meta, Player player, PerWorldInventory plugin) {
         try {
+            // Formats: 0 == old serialization, 1 == new serialization
+            int format = 0;
+            if (meta.has("data-format"))
+                format = meta.getInt("data-format");
+
             if (meta.has("ender-chest"))
-                InventorySerialization.setInventory(player.getEnderChest(), meta.getJSONArray("ender-chest"));
+                InventorySerialization.setInventory(player.getEnderChest(), meta.getJSONArray("ender-chest"), format);
             if (meta.has("inventory"))
-                InventorySerialization.setPlayerInventory(player, meta.getJSONObject("inventory"));
+                InventorySerialization.setPlayerInventory(player, meta.getJSONObject("inventory"), format);
             if (meta.has("stats"))
                 PlayerStatsSerialization.applyPlayerStats(player, meta.getJSONObject("stats"));
             if (meta.has("economy"))

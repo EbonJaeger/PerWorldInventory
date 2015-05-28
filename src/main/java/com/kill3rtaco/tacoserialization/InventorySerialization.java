@@ -225,11 +225,12 @@ public class InventorySerialization {
      *
      * @param json The JSON String to use
      * @param size The expected size of the inventory, can be greater than expected
+     * @param format Data format being used; 0 is old, 1 is new
      * @return An ItemStack array constructed from a JSONArray constructed from the given String
      */
-    public static ItemStack[] getInventory(String json, int size) {
+    public static ItemStack[] getInventory(String json, int size, int format) {
         try {
-            return getInventory(new JSONArray(json), size);
+            return getInventory(new JSONArray(json), size, format);
         } catch (JSONException e) {
             e.printStackTrace();
             return null;
@@ -241,9 +242,10 @@ public class InventorySerialization {
      *
      * @param inv  The JSONObject to get from
      * @param size The expected size of the inventory, can be greater than expected
+     * @param format Data format being used; 0 is old, 1 is new
      * @return An ItemStack array constructed from the given JSONArray
      */
-    public static ItemStack[] getInventory(JSONArray inv, int size) {
+    public static ItemStack[] getInventory(JSONArray inv, int size, int format) {
         try {
             ItemStack[] contents = new ItemStack[size];
             for (int i = 0; i < inv.length(); i++) {
@@ -253,7 +255,13 @@ public class InventorySerialization {
                     throw new IllegalArgumentException("Index found is greater than expected size (" + index + " > " + size + ")");
                 if (index > contents.length || index < 0)
                     throw new IllegalArgumentException("Item " + i + " - Slot " + index + " does not exist in this inventory");
-                ItemStack stuff = SingleItemSerialization.deserializeItem(item);
+
+                ItemStack stuff;
+                if (format == 1) {
+                    stuff = SingleItemSerialization.deserializeItem(item);
+                } else {
+                    stuff = SingleItemSerialization.getItem(item);
+                }
                 contents[index] = stuff;
             }
             return contents;
@@ -268,9 +276,10 @@ public class InventorySerialization {
      *
      * @param jsonFile The File to use
      * @param size     The expected size of the inventory, can be greater than expected
+     * @param format Data format being used; 0 is old, 1 is new
      * @return An ItemStack array constructed from a JSONArray using the given file as a reference
      */
-    public static ItemStack[] getInventory(File jsonFile, int size) {
+    public static ItemStack[] getInventory(File jsonFile, int size, int format) {
         String source = "";
         try {
             Scanner x = new Scanner(jsonFile);
@@ -278,7 +287,7 @@ public class InventorySerialization {
                 source += x.nextLine() + "\n";
             }
             x.close();
-            return getInventory(source, size);
+            return getInventory(source, size, format);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return null;
@@ -291,9 +300,10 @@ public class InventorySerialization {
      *
      * @param holder The InventoryHolder to which the Inventory will be set
      * @param inv    The reference JSON string
+     * @param format Data format being used; 0 is old, 1 is new
      */
-    public static void setInventory(InventoryHolder holder, String inv) {
-        setInventory(holder.getInventory(), inv);
+    public static void setInventory(InventoryHolder holder, String inv, int format) {
+        setInventory(holder.getInventory(), inv, format);
     }
 
     /**
@@ -301,9 +311,10 @@ public class InventorySerialization {
      *
      * @param holder The InventoryHolder to which the Inventory will be set
      * @param inv    The reference JSONArray
+     * @param format Data format being used; 0 is old, 1 is new
      */
-    public static void setInventory(InventoryHolder holder, JSONArray inv) {
-        setInventory(holder.getInventory(), inv);
+    public static void setInventory(InventoryHolder holder, JSONArray inv, int format) {
+        setInventory(holder.getInventory(), inv, format);
     }
 
     /**
@@ -312,10 +323,11 @@ public class InventorySerialization {
      *
      * @param inventory The InventoryHolder to which the Inventory will be set
      * @param inv       The reference JSON string
+     * @param format Data format being used; 0 is old, 1 is new
      */
-    public static void setInventory(Inventory inventory, String inv) {
+    public static void setInventory(Inventory inventory, String inv, int format) {
         try {
-            setInventory(inventory, new JSONArray(inv));
+            setInventory(inventory, new JSONArray(inv), format);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -326,9 +338,10 @@ public class InventorySerialization {
      *
      * @param inventory The InventoryHolder to which the Inventory will be set
      * @param inv       The reference JSONArray
+     * @param format Data format being used; 0 is old, 1 is new
      */
-    public static void setInventory(Inventory inventory, JSONArray inv) {
-        ItemStack[] items = getInventory(inv, inventory.getSize());
+    public static void setInventory(Inventory inventory, JSONArray inv, int format) {
+        ItemStack[] items = getInventory(inv, inventory.getSize(), format);
         inventory.clear();
         for (int i = 0; i < items.length; i++) {
             ItemStack item = items[i];
@@ -344,10 +357,11 @@ public class InventorySerialization {
      *
      * @param player The InventoryHolder to which the Inventory will be set
      * @param inv    The reference JSON string
+     * @param format Data format being used; 0 is old, 1 is new
      */
-    public static void setPlayerInventory(Player player, String inv) {
+    public static void setPlayerInventory(Player player, String inv, int format) {
         try {
-            setPlayerInventory(player, new JSONObject(inv));
+            setPlayerInventory(player, new JSONObject(inv), format);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -358,14 +372,15 @@ public class InventorySerialization {
      *
      * @param player The InventoryHolder to which the Inventory will be set
      * @param inv    The reference JSONArray
+     * @param format Data format being used; 0 is old, 1 is new
      */
-    public static void setPlayerInventory(Player player, JSONObject inv) {
+    public static void setPlayerInventory(Player player, JSONObject inv, int format) {
         try {
             PlayerInventory inventory = player.getInventory();
-            ItemStack[] armor = getInventory(inv.getJSONArray("armor"), 4);
+            ItemStack[] armor = getInventory(inv.getJSONArray("armor"), 4, format);
             inventory.clear();
             inventory.setArmorContents(armor);
-            setInventory(player, inv.getJSONArray("inventory"));
+            setInventory(player, inv.getJSONArray("inventory"), format);
         } catch (JSONException e) {
             e.printStackTrace();
         }
