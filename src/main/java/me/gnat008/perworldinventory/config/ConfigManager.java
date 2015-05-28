@@ -28,10 +28,10 @@ import java.util.List;
 import java.util.Map;
 
 public class ConfigManager {
-    
+
     private Map<String, File> configFiles = new HashMap<>();
     private Map<File, YamlConfiguration> configs = new HashMap<>();
-    
+
     private PerWorldInventory plugin;
 
     private static ConfigManager manager;
@@ -53,7 +53,7 @@ public class ConfigManager {
         for (String config : configFiles.keySet()) {
             saveConfig(config);
         }
-        
+
         this.configFiles.clear();
         this.configs.clear();
         manager = null;
@@ -62,33 +62,33 @@ public class ConfigManager {
     public boolean getShouldSerialize(String path) {
         return getConfig("config").getBoolean(path);
     }
-    
+
     public File getConfigFile(String config) {
         return configFiles.containsKey(config) ? configFiles.get(config) : null;
     }
-    
+
     public YamlConfiguration getConfig(String config) {
         return configs.containsKey(getConfigFile(config)) ? configs.get(getConfigFile(config)) : null;
     }
-    
+
     public File addConfigFile(String name, File file, boolean addConfig) {
         checkNotNull(name);
         checkNotNull(file);
-        
+
         configFiles.put(name, file);
         if (addConfig) {
             reloadConfig(name);
         }
-        
+
         return file;
     }
-    
+
     public void reloadConfigs() {
         for (String config : configFiles.keySet()) {
             reloadConfig(config);
         }
     }
-    
+
     public void reloadConfig(String config) {
         if (!config.equalsIgnoreCase("worlds")) {
             setDefaults(config);
@@ -99,7 +99,7 @@ public class ConfigManager {
                 saveConfig("config");
             }
         }
-        
+
         addConfig(getConfigFile(config), YamlConfiguration.loadConfiguration(getConfigFile(config)));
     }
 
@@ -109,18 +109,18 @@ public class ConfigManager {
 
         configs.put(file, config);
     }
-    
+
     private void addDefault(YamlConfiguration config, String path, Object value) {
         if (!(config.contains(path))) {
             config.set(path, value);
         }
     }
-    
+
     private void checkNotNull(Object o) {
         if (o == null)
             throw new IllegalArgumentException("Parameter cannot be null!");
     }
-    
+
     private void saveConfig(String config) {
         try {
             getConfig(config).save(getConfigFile(config));
@@ -128,10 +128,10 @@ public class ConfigManager {
             plugin.getPrinter().printToConsole("Error saving " + config + ".yml': " + ex.getMessage(), true);
         }
     }
-    
+
     private void setDefaults(String config) {
         YamlConfiguration configuration = YamlConfiguration.loadConfiguration(getConfigFile(config));
-        
+
         if (config.equalsIgnoreCase("config")) {
             addDefault(configuration, "first-start", true);
             addDefault(configuration, "manage-gamemodes", false);
@@ -159,7 +159,7 @@ public class ConfigManager {
             addDefault(configuration, "groups.default.worlds", defaults);
             addDefault(configuration, "groups.default.default-gamemode", "SURVIVAL");
         }
-        
+
         try {
             configuration.save(getConfigFile(config));
         } catch (IOException ex) {

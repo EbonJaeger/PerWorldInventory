@@ -18,14 +18,14 @@
 package com.kill3rtaco.tacoserialization;
 
 import net.milkbowl.vault.economy.Economy;
-import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.entity.Player;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class EconomySerialization {
 
-    protected  EconomySerialization() {}
+    protected EconomySerialization() {
+    }
 
     public static JSONObject serializeEconomy(Player player, Economy econ) {
         try {

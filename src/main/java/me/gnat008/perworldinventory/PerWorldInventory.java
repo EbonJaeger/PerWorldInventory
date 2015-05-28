@@ -30,7 +30,7 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.*;
+import java.io.File;
 
 public class PerWorldInventory extends JavaPlugin {
 
@@ -47,7 +47,7 @@ public class PerWorldInventory extends JavaPlugin {
             File dFile = new File(getDataFolder() + File.separator + "default.json");
             dFile.renameTo(new File(getDefaultFilesDirectory() + File.separator + "__default.json"));
         }
-        
+
         getConfigManager().addConfigFile("config", new File(getDataFolder() + File.separator + "config.yml"), true);
         getConfigManager().addConfigFile("worlds", new File(getDataFolder() + File.separator + "worlds.yml"), true);
 
