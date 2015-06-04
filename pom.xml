@@ -6,7 +6,7 @@
 
     <groupId>me.gnat008</groupId>
     <artifactId>PerWorldInventory</artifactId>
-    <version>1.4.0</version>
+    <version>1.5.0</version>
 
     <repositories>
         <repository>
@@ -22,6 +22,11 @@
         <repository>
             <id>local-repo</id>
             <url>file://$(basedir)/lib/</url>
+        </repository>
+
+        <repository>
+            <id>vault-repo</id>
+            <url>http://nexus.theyeticave.net/content/repositories/pub_releases</url>
         </repository>
     </repositories>
 
@@ -46,6 +51,13 @@
             <version>3.3.2-dev</version>
             <type>jar</type>
             <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>net.milkbowl.vault</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <version>1.5</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

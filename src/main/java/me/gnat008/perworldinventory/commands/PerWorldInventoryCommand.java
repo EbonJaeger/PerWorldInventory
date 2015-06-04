@@ -18,6 +18,7 @@
 package me.gnat008.perworldinventory.commands;
 
 import com.kill3rtaco.tacoserialization.PlayerSerialization;
+import com.kill3rtaco.tacoserialization.Serializer;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -230,20 +231,20 @@ public class PerWorldInventoryCommand implements CommandExecutor {
 
         File tmp = new File(plugin.getDataFolder() + File.separator + "data" + File.separator + player.getUniqueId() + File.separator + "tmp.json");
         try {
-            tmp.mkdirs();
+            tmp.getParentFile().mkdirs();
             tmp.createNewFile();
         } catch (IOException ex) {
             plugin.getPrinter().printToPlayer(player, "Could not create temporary file! Aborting!", true);
             return;
         }
-        plugin.getSerializer().writeData(tmp, PlayerSerialization.serializePlayerAsString(player, plugin));
+        plugin.getSerializer().writePlayerDataToFile(player, PlayerSerialization.serializePlayer(player, plugin), "tmp", GameMode.SURVIVAL.toString());
 
         player.setFoodLevel(20);
         player.setHealth(20);
         player.setSaturation(20);
         player.setTotalExperience(0);
 
-        plugin.getSerializer().writeData(file, PlayerSerialization.serializePlayerAsString(player, plugin));
+        plugin.getSerializer().writeData(file, Serializer.toString(PlayerSerialization.serializePlayer(player, plugin)));
 
         plugin.getSerializer().getPlayerDataFromFile(player, "tmp", GameMode.SURVIVAL.toString());
         tmp.delete();
