@@ -5,14 +5,15 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
+import org.bukkit.util.io.BukkitObjectInputStream;
+import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 /**
  * A class to help with the serialization of ItemStacks.
@@ -151,13 +152,15 @@ public class SingleItemSerialization {
                 values.put("index", index);
             }
 
-            Map<String, Object> itemMap = item.serialize();
-            for (String key : itemMap.keySet()) {
-                values.put(key, itemMap.get(key));
-            }
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            BukkitObjectOutputStream dataObject = new BukkitObjectOutputStream(outputStream);
+            dataObject.writeObject(item);
+
+            dataObject.close();
+            values.put("item", Base64Coder.encodeLines(outputStream.toByteArray()));
 
             return values;
-        } catch (JSONException ex) {
+        } catch (JSONException | IOException ex) {
             ex.printStackTrace();
             return null;
         }
@@ -169,16 +172,14 @@ public class SingleItemSerialization {
 
     public static ItemStack deserializeItem(JSONObject data, int index) {
         try {
-            Map<String, Object> dataMap = new HashMap<>();
-            for (String key : data.keySet()) {
-                if (!key.equalsIgnoreCase("index")) {
-                    dataMap.put(key, data.get(key));
-                    System.out.println(key + ": " + dataMap.get(key));
-                }
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data.getString("item")));
+            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
+            try {
+                return (ItemStack) dataInput.readObject();
+            } finally {
+                dataInput.close();
             }
-
-            return ItemStack.deserialize(dataMap);
-        } catch (JSONException ex) {
+        } catch (JSONException | IOException | ClassNotFoundException ex) {
             ex.printStackTrace();
             return null;
         }
