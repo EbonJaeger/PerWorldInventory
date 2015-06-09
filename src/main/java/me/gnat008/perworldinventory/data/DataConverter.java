@@ -25,6 +25,7 @@ import com.onarandombox.multiverseinventories.api.profile.PlayerProfile;
 import com.onarandombox.multiverseinventories.api.profile.WorldGroupProfile;
 import com.onarandombox.multiverseinventories.api.share.Sharables;
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.config.defaults.ConfigValues;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -203,17 +204,17 @@ public class DataConverter {
         root.put("ender-chest", enderChest);
 
         JSONObject stats = new JSONObject();
-        if (plugin.getConfigManager().getConfig("config").getBoolean("player-stats.exp"))
+        if (ConfigValues.EXP.getBoolean())
             stats.put("exp", player.getXp());
-        if (plugin.getConfigManager().getConfig("config").getBoolean("player-stats.food"))
+        if (ConfigValues.FOOD.getBoolean())
             stats.put("food", player.getFoodlevel());
-        if (plugin.getConfigManager().getConfig("config").getBoolean("player-stats.gamemode"))
+        if (ConfigValues.GAMEMODE.getBoolean())
             stats.put("gamemode", player.getGm().toString());
-        if (plugin.getConfigManager().getConfig("config").getBoolean("player-stats.health"))
+        if (ConfigValues.HEALTH.getBoolean())
             stats.put("health", player.getHealth());
-        if (plugin.getConfigManager().getConfig("config").getBoolean("player-stats.level"))
+        if (ConfigValues.LEVEL.getBoolean())
             stats.put("level", player.getXpLevel());
-        if (plugin.getConfigManager().getConfig("config").getBoolean("player-stats.saturation"))
+        if (ConfigValues.SATURATION.getBoolean())
             stats.put("saturation", player.getSaturation());
 
         root.put("inventory", inventory);

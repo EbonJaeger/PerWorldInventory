@@ -18,7 +18,7 @@
 package me.gnat008.perworldinventory.config.defaults;
 
 import me.gnat008.perworldinventory.config.ConfigType;
-import me.gnat008.perworldinventory.config.ConfigManagerV3;
+import me.gnat008.perworldinventory.config.ConfigManager;
 
 public enum ConfigValues {
 
@@ -62,10 +62,10 @@ public enum ConfigValues {
     }
 
     public void set(Object value) {
-        ConfigManagerV3.getInstance().getConfig(ConfigType.CONFIG).getConfig().set(getKey(), value);
+        ConfigManager.getInstance().getConfig(ConfigType.CONFIG).getConfig().set(getKey(), value);
     }
 
     public boolean getBoolean() {
-        return ConfigManagerV3.getInstance().getConfig(ConfigType.CONFIG).getConfig().getBoolean(getKey(), (boolean) def);
+        return ConfigManager.getInstance().getConfig(ConfigType.CONFIG).getConfig().getBoolean(getKey(), (boolean) def);
     }
 }

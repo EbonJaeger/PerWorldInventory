@@ -18,8 +18,10 @@
 package me.gnat008.perworldinventory.data;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.config.ConfigType;
+import me.gnat008.perworldinventory.config.defaults.ConfigValues;
 import org.bukkit.GameMode;
-import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.*;
 import java.util.HashMap;
@@ -96,13 +98,13 @@ public class WorldManager {
         groups.clear();
         gameModes.clear();
 
-        YamlConfiguration config = plugin.getConfigManager().getConfig("worlds");
+        FileConfiguration config = plugin.getConfigManager().getConfig(ConfigType.WORLDS).getConfig();
         for (String key : config.getConfigurationSection("groups").getKeys(false)) {
             List<String> worlds;
             GameMode gameMode;
             if (config.contains("groups." + key + ".worlds")) {
                 worlds = config.getStringList("groups." + key + ".worlds");
-                if (plugin.getConfigManager().getConfig("config").getBoolean("manage-gamemodes")) {
+                if (ConfigValues.MANAGE_GAMEMODES.getBoolean()) {
                     gameMode = GameMode.valueOf(config.getString("groups." + key + ".default-gamemode").toUpperCase());
                 } else {
                     gameMode = null;
@@ -113,7 +115,7 @@ public class WorldManager {
                 config.set("groups." + key, null);
                 config.set("groups." + key + ".worlds", worlds);
 
-                if (plugin.getConfigManager().getConfig("config").getBoolean("manage-gamemodes")) {
+                if (ConfigValues.MANAGE_GAMEMODES.getBoolean()) {
                     gameMode = GameMode.SURVIVAL;
                     config.set("groups." + key + ".default-gamemode", "SURVIVAL");
                 } else {

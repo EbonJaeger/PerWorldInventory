@@ -19,6 +19,7 @@ package me.gnat008.perworldinventory.listeners;
 
 import com.kill3rtaco.tacoserialization.PlayerSerialization;
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.config.defaults.ConfigValues;
 import me.gnat008.perworldinventory.data.WorldManager;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -44,7 +45,7 @@ public class PlayerChangedWorldListener implements Listener {
         String worldTo = player.getWorld().getName();
         String groupFrom = manager.getGroupFromWorld(worldFrom);
 
-        if (plugin.getConfigManager().getConfig("config").getBoolean("separate-gamemode-inventories")) {
+        if (ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean()) {
             plugin.getSerializer().writePlayerDataToFile(player,
                     PlayerSerialization.serializePlayer(player, plugin),
                     groupFrom,
@@ -57,8 +58,8 @@ public class PlayerChangedWorldListener implements Listener {
         }
 
         if (!shouldKeepInventory(worldFrom, worldTo)) {
-            if (plugin.getConfigManager().getConfig("config").getBoolean("separate-gamemode-inventories")) {
-                if (plugin.getConfigManager().getConfig("config").getBoolean("manage-gamemodes")) {
+            if (ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean()) {
+                if (ConfigValues.MANAGE_GAMEMODES.getBoolean()) {
                     plugin.getSerializer().getPlayerDataFromFile(player, manager.getGroupFromWorld(worldTo),
                             manager.getGameMode(manager.getGroupFromWorld(worldTo)).toString());
                 } else {

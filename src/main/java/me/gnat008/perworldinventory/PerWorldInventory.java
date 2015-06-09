@@ -19,6 +19,8 @@ package me.gnat008.perworldinventory;
 
 import me.gnat008.perworldinventory.commands.PerWorldInventoryCommand;
 import me.gnat008.perworldinventory.config.ConfigManager;
+import me.gnat008.perworldinventory.config.ConfigType;
+import me.gnat008.perworldinventory.config.defaults.ConfigValues;
 import me.gnat008.perworldinventory.data.DataConverter;
 import me.gnat008.perworldinventory.data.DataSerializer;
 import me.gnat008.perworldinventory.data.WorldManager;
@@ -48,8 +50,8 @@ public class PerWorldInventory extends JavaPlugin {
             dFile.renameTo(new File(getDefaultFilesDirectory() + File.separator + "__default.json"));
         }
 
-        getConfigManager().addConfigFile("config", new File(getDataFolder() + File.separator + "config.yml"), true);
-        getConfigManager().addConfigFile("worlds", new File(getDataFolder() + File.separator + "worlds.yml"), true);
+        getConfigManager().addConfig(ConfigType.CONFIG, new File(getDataFolder() + File.separator + "config.yml"));
+        getConfigManager().addConfig(ConfigType.WORLDS, new File(getDataFolder() + File.separator + "worlds.yml"));
 
         getWorldManager().loadGroups();
 
@@ -61,7 +63,7 @@ public class PerWorldInventory extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(this), this);
         getLogger().info("Registered PlayerQuitListener.");
 
-        if (getConfigManager().getConfig("config").getBoolean("separate-gamemode-inventories")) {
+        if (ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean()) {
             getServer().getPluginManager().registerEvents(new PlayerGameModeChangeListener(this), this);
             getLogger().info("Registered PlayerGameModeChangeListener.");
         }
@@ -90,7 +92,7 @@ public class PerWorldInventory extends JavaPlugin {
     }
 
     public ConfigManager getConfigManager() {
-        return ConfigManager.getManager(this);
+        return ConfigManager.getInstance();
     }
 
     public DataConverter getDataConverter() {
