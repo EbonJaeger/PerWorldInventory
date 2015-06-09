@@ -23,6 +23,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConfigFile {
 
@@ -33,7 +35,7 @@ public class ConfigFile {
     public ConfigFile(ConfigType type, File file) {
         this.type = type;
         this.file = file;
-        this.config = YamlConfiguration.loadConfiguration(file);
+        reload();
     }
 
     public ConfigType getType() {
@@ -50,6 +52,7 @@ public class ConfigFile {
 
     public void reload() {
         setDefaults(type);
+        this.config = YamlConfiguration.loadConfiguration(file);
     }
 
     public void save() throws IOException {
@@ -63,9 +66,9 @@ public class ConfigFile {
     private void setDefaults(ConfigType type) {
         switch (type) {
             case CONFIG:
-                for (ConfigValues defaults : ConfigValues.values()) {
-                    if (!config.contains(defaults.getKey())) {
-                        config.set(defaults.getKey(), defaults);
+                for (ConfigValues def : ConfigValues.values()) {
+                    if (!config.contains(def.getKey())) {
+                        config.set(def.getKey(), def);
                     }
                 }
 
@@ -80,7 +83,21 @@ public class ConfigFile {
                 }
                 break;
             case WORLDS:
-                //TODO: Set world defaults
+                if (ConfigValues.FIRST_START.getBoolean()) {
+                    List<String> defaults = new ArrayList<>();
+                    defaults.add("world");
+                    defaults.add("world_nether");
+                    defaults.add("world_the_end");
+
+                    config.set("groups.default.worlds", defaults);
+                    config.set("groups.default.default-gamemode", "SURVIVAL");
+
+                    try {
+                        saveConfig();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
                 break;
         }
     }
