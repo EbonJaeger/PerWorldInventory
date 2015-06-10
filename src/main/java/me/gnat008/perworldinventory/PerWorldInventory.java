@@ -32,7 +32,7 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
+import java.io.*;
 
 public class PerWorldInventory extends JavaPlugin {
 
@@ -117,5 +117,37 @@ public class PerWorldInventory extends JavaPlugin {
 
     public WorldManager getWorldManager() {
         return WorldManager.getInstance(this);
+    }
+
+    public void copyFile(File from, File to) {
+        InputStream in = null;
+        OutputStream out = null;
+
+        try {
+            in = new FileInputStream(from);
+            out = new FileOutputStream(to);
+
+            byte[] buff = new byte[1024];
+            int len;
+            while ((len = in.read(buff)) > 0) {
+                out.write(buff, 0, len);
+            }
+        } catch (IOException ex) {
+            getPrinter().printToConsole("An error occurred copying file '" + from.getName() + "' to '" + to.getName() + "': " + ex.getMessage(), true);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ignored) {
+                }
+            }
+
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
     }
 }

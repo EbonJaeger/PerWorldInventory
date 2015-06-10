@@ -17,6 +17,7 @@
 
 package me.gnat008.perworldinventory.groups;
 
+import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.ConfigManager;
 import me.gnat008.perworldinventory.config.ConfigType;
 import me.gnat008.perworldinventory.config.defaults.ConfigValues;
@@ -34,11 +35,15 @@ public class GroupManager {
 
     private Map<String, Group> groups = new HashMap<>();
 
-    private GroupManager() {}
+    private PerWorldInventory plugin;
 
-    public static GroupManager getInstance() {
+    private GroupManager(PerWorldInventory plugin) {
+        this.plugin = plugin;
+    }
+
+    public static GroupManager getInstance(PerWorldInventory plugin) {
         if (instance == null) {
-            instance = new GroupManager();
+            instance = new GroupManager(plugin);
         }
 
         return instance;
@@ -95,6 +100,8 @@ public class GroupManager {
             } else {
                 addGroup(key, worlds);
             }
+
+            setDefaultsFile(key);
         }
     }
 
@@ -102,7 +109,7 @@ public class GroupManager {
         File fileTo = new File(plugin.getDefaultFilesDirectory() + File.separator + group + ".json");
         if (!fileTo.exists()) {
             File fileFrom = new File(plugin.getDefaultFilesDirectory() + File.separator + "__default.json");
-            copyFile(fileFrom, fileTo);
+            plugin.copyFile(fileFrom, fileTo);
         }
     }
 }
