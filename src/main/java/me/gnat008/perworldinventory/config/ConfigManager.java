@@ -17,8 +17,6 @@
 
 package me.gnat008.perworldinventory.config;
 
-import me.gnat008.perworldinventory.config.defaults.ConfigValues;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -52,10 +50,6 @@ public class ConfigManager {
             }
         }
         instance = null;
-    }
-
-    public boolean getShouldSerialize(ConfigValues var) {
-        return var.getBoolean();
     }
 
     public ConfigFile getConfig(ConfigType type) {
