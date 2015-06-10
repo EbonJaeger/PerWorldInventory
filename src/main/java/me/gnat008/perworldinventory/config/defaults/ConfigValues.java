@@ -52,13 +52,17 @@ public enum ConfigValues {
         this.def = def;
     }
 
+    public Object getDef() {
+        return def;
+    }
+
     public String getKey() {
         if (this.ordinal() < 3)
-            return name().toLowerCase().replaceAll("_", "-");
+            return this.toString().toLowerCase().replaceAll("_", "-");
         else if (this.ordinal() < 7)
-            return "player." + name().toLowerCase().replaceAll("_", "-");
+            return "player." + this.toString().toLowerCase().replaceAll("_", "-");
         else
-            return "player.stats." + name().toLowerCase().replaceAll("_", "-");
+            return "player.stats." + this.toString().toLowerCase().replaceAll("_", "-");
     }
 
     public void set(Object value) {

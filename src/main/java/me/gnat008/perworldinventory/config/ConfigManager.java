@@ -64,6 +64,7 @@ public class ConfigManager {
 
     public void addConfig(ConfigType type, File file) {
         configs.put(type, new ConfigFile(type, file));
+        reloadConfig(type);
     }
 
     public void reloadConfigs() {

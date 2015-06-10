@@ -35,7 +35,14 @@ public class ConfigFile {
     public ConfigFile(ConfigType type, File file) {
         this.type = type;
         this.file = file;
-        reload();
+
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 
     public ConfigType getType() {
@@ -51,8 +58,8 @@ public class ConfigFile {
     }
 
     public void reload() {
-        setDefaults(type);
         this.config = YamlConfiguration.loadConfiguration(file);
+        setDefaults(type);
     }
 
     public void save() throws IOException {
@@ -68,7 +75,7 @@ public class ConfigFile {
             case CONFIG:
                 for (ConfigValues def : ConfigValues.values()) {
                     if (!config.contains(def.getKey())) {
-                        config.set(def.getKey(), def);
+                        config.set(def.getKey(), def.getDef());
                     }
                 }
 
