@@ -25,6 +25,7 @@ import me.gnat008.perworldinventory.util.Printer;
 import org.bukkit.GameMode;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -133,11 +134,11 @@ public class DataSerializer {
         try {
             JSONObject data = Serializer.getObjectFromFile(file);
             PlayerSerialization.setPlayer(data, player, plugin);
-        } catch (FileNotFoundException ex) {
+        } catch (FileNotFoundException | JSONException ex) {
             try {
                 file.createNewFile();
                 JSONObject defaultGroupData = Serializer.getObjectFromFile(
-                        new File(FILE_PATH + "defaults" + File.separator + group + ".json"));
+                        new File(FILE_PATH + "defaults" + File.separator + group.getName() + ".json"));
                 PlayerSerialization.setPlayer(defaultGroupData, player, plugin);
             } catch (FileNotFoundException ex2) {
                 try {
@@ -148,11 +149,11 @@ public class DataSerializer {
                     plugin.getPrinter().printToPlayer(player, "Something went horribly wrong when loading your inventory! " +
                             "Please notify a server administrator!", true);
                     plugin.getPrinter().printToConsole("Unable to find inventory data for player '" + player.getName() +
-                            "' for group '" + group + "': " + ex3.getMessage(), true);
+                            "' for group '" + group.getName() + "': " + ex3.getMessage(), true);
                 }
             } catch (IOException exIO) {
                 Printer.getInstance(plugin).printToConsole("Error creating file '" + FILE_PATH +
-                        player.getUniqueId().toString() + File.separator + group + ".json': " + ex.getMessage(), true);
+                        player.getUniqueId().toString() + File.separator + group.getName() + ".json': " + ex.getMessage(), true);
             }
         }
     }

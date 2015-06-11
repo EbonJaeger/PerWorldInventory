@@ -19,7 +19,9 @@ package me.gnat008.perworldinventory.listeners;
 
 import com.kill3rtaco.tacoserialization.PlayerSerialization;
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.data.WorldManager;
+import me.gnat008.perworldinventory.config.defaults.ConfigValues;
+import me.gnat008.perworldinventory.groups.Group;
+import me.gnat008.perworldinventory.groups.GroupManager;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -27,14 +29,16 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 
+import java.util.ArrayList;
+
 public class PlayerChangedWorldListener implements Listener {
 
-    private WorldManager manager;
+    private GroupManager manager;
     private PerWorldInventory plugin;
 
     public PlayerChangedWorldListener(PerWorldInventory plugin) {
         this.plugin = plugin;
-        this.manager = plugin.getWorldManager();
+        this.manager = plugin.getGroupManager();
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -42,41 +46,41 @@ public class PlayerChangedWorldListener implements Listener {
         Player player = event.getPlayer();
         String worldFrom = event.getFrom().getName();
         String worldTo = player.getWorld().getName();
-        String groupFrom = manager.getGroupFromWorld(worldFrom);
+        Group groupFrom = manager.getGroupFromWorld(worldFrom);
+        Group groupTo = manager.getGroupFromWorld(worldTo);
 
-        if (plugin.getConfigManager().getConfig("config").getBoolean("separate-gamemode-inventories")) {
+        if (groupFrom == null) {
+            groupFrom = new Group(worldFrom, new ArrayList<String>(), null);
+        }
+
+        if (ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean()) {
             plugin.getSerializer().writePlayerDataToFile(player,
                     PlayerSerialization.serializePlayer(player, plugin),
                     groupFrom,
-                    player.getGameMode().toString());
+                    player.getGameMode());
         } else {
             plugin.getSerializer().writePlayerDataToFile(player,
                     PlayerSerialization.serializePlayer(player, plugin),
                     groupFrom,
-                    GameMode.SURVIVAL.toString());
+                    GameMode.SURVIVAL);
         }
 
-        if (!shouldKeepInventory(worldFrom, worldTo)) {
-            if (plugin.getConfigManager().getConfig("config").getBoolean("separate-gamemode-inventories")) {
-                if (plugin.getConfigManager().getConfig("config").getBoolean("manage-gamemodes")) {
-                    plugin.getSerializer().getPlayerDataFromFile(player, manager.getGroupFromWorld(worldTo),
-                            manager.getGroupFromWorld(worldTo).getGameMode());
-                            manager.getGameMode(manager.getGroupFromWorld(worldTo)).toString());
-                    player.setGameMode(manager.getGameMode(manager.getGroupFromWorld(worldTo)));
+        if (!groupFrom.containsWorld(worldTo)) {
+            if (groupTo == null) {
+                groupTo = new Group(worldTo, null, GameMode.SURVIVAL);
+            }
+
+            if (ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean()) {
+                if (ConfigValues.MANAGE_GAMEMODES.getBoolean()) {
+                    plugin.getSerializer().getPlayerDataFromFile(player, groupTo,
+                            groupTo.getGameMode());
+                    player.setGameMode(groupTo.getGameMode());
                 } else {
-                    plugin.getSerializer().getPlayerDataFromFile(player, manager.getGroupFromWorld(worldTo), player.getGameMode().toString());
+                    plugin.getSerializer().getPlayerDataFromFile(player, groupTo, player.getGameMode());
                 }
             } else {
-                plugin.getSerializer().getPlayerDataFromFile(player, manager.getGroupFromWorld(worldTo), GameMode.SURVIVAL.toString());
+                plugin.getSerializer().getPlayerDataFromFile(player, groupTo, GameMode.SURVIVAL);
             }
-        }
-    }
-
-    private boolean shouldKeepInventory(String worldFrom, String worldTo) {
-        try {
-            return manager.getGroup(manager.getGroupFromWorld(worldFrom)).contains(worldTo);
-        } catch (NullPointerException ex) {
-            return false;
         }
     }
 }

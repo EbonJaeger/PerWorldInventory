@@ -41,6 +41,9 @@ public class PlayerQuitListener implements Listener {
         Player player = event.getPlayer();
         String logoutWorld = player.getWorld().getName();
         Group group = plugin.getGroupManager().getGroupFromWorld(logoutWorld);
+        if (group == null) {
+            group = new Group(logoutWorld, null, null);
+        }
 
         if (ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean()) {
             plugin.getSerializer().writePlayerDataToFile(player,
