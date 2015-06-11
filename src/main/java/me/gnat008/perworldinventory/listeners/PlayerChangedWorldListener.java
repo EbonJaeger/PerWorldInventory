@@ -61,6 +61,7 @@ public class PlayerChangedWorldListener implements Listener {
                 if (plugin.getConfigManager().getConfig("config").getBoolean("manage-gamemodes")) {
                     plugin.getSerializer().getPlayerDataFromFile(player, manager.getGroupFromWorld(worldTo),
                             manager.getGameMode(manager.getGroupFromWorld(worldTo)).toString());
+                    player.setGameMode(manager.getGameMode(manager.getGroupFromWorld(worldTo)));
                 } else {
                     plugin.getSerializer().getPlayerDataFromFile(player, manager.getGroupFromWorld(worldTo), player.getGameMode().toString());
                 }
