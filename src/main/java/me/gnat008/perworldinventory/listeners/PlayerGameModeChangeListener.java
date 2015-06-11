@@ -42,11 +42,11 @@ public class PlayerGameModeChangeListener implements Listener {
 
         plugin.getSerializer().writePlayerDataToFile(player,
                 PlayerSerialization.serializePlayer(player, plugin),
-                plugin.getWorldManager().getGroupFromWorld(player.getWorld().getName()),
-                oldGameMode.toString());
+                plugin.getGroupManager().getGroupFromWorld(player.getWorld().getName()),
+                oldGameMode);
 
         plugin.getSerializer().getPlayerDataFromFile(player,
-                plugin.getWorldManager().getGroupFromWorld(player.getWorld().getName()),
-                newGameMode.toString());
+                plugin.getGroupManager().getGroupFromWorld(player.getWorld().getName()),
+                newGameMode);
     }
 }

@@ -23,7 +23,7 @@ import me.gnat008.perworldinventory.config.ConfigType;
 import me.gnat008.perworldinventory.config.defaults.ConfigValues;
 import me.gnat008.perworldinventory.data.DataConverter;
 import me.gnat008.perworldinventory.data.DataSerializer;
-import me.gnat008.perworldinventory.data.WorldManager;
+import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.listeners.PlayerChangedWorldListener;
 import me.gnat008.perworldinventory.listeners.PlayerGameModeChangeListener;
 import me.gnat008.perworldinventory.listeners.PlayerQuitListener;
@@ -53,7 +53,7 @@ public class PerWorldInventory extends JavaPlugin {
         getConfigManager().addConfig(ConfigType.CONFIG, new File(getDataFolder() + File.separator + "config.yml"));
         getConfigManager().addConfig(ConfigType.WORLDS, new File(getDataFolder() + File.separator + "worlds.yml"));
 
-        getWorldManager().loadGroups();
+        getGroupManager().loadGroupsToMemory();
 
         getLogger().info("Registering commands...");
         getCommand("pwi").setExecutor(new PerWorldInventoryCommand(this));
@@ -87,7 +87,7 @@ public class PerWorldInventory extends JavaPlugin {
         DataSerializer.disable();
         DataConverter.disable();
         getConfigManager().disable();
-        WorldManager.disable();
+        getGroupManager().disable();
         getServer().getScheduler().cancelTasks(this);
     }
 
@@ -111,12 +111,12 @@ public class PerWorldInventory extends JavaPlugin {
         return new File(getDataFolder() + File.separator + "data" + File.separator + "defaults");
     }
 
-    public Printer getPrinter() {
-        return Printer.getInstance(this);
+    public GroupManager getGroupManager() {
+        return GroupManager.getInstance(this);
     }
 
-    public WorldManager getWorldManager() {
-        return WorldManager.getInstance(this);
+    public Printer getPrinter() {
+        return Printer.getInstance(this);
     }
 
     public void copyFile(File from, File to) {

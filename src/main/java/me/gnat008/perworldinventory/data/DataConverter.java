@@ -77,7 +77,7 @@ public class DataConverter {
                     PlayerProfile playerData = mvgroup.getPlayerData(ProfileTypes.SURVIVAL, player1);
                     if (playerData != null) {
                         JSONObject writable = serializeMVIToNewFormat(playerData);
-                        plugin.getSerializer().writePlayerDataToFile(player1, writable, mvgroup.getName(), GameMode.SURVIVAL.toString());
+                        plugin.getSerializer().writePlayerDataToFile(player1, writable, plugin.getGroupManager().getGroup(mvgroup.getName()), GameMode.SURVIVAL);
                     }
                 } catch (Exception ex) {
                     plugin.getPrinter().printToConsole("Error importing inventory for player: " + player1.getName() +
@@ -95,7 +95,7 @@ public class DataConverter {
     public void convertMultiInvData() {
         plugin.getPrinter().printToConsole("Beginning data conversion. This may take awhile...", false);
         MultiInv multiinv = (MultiInv) plugin.getServer().getPluginManager().getPlugin("MultiInv");
-        MultiInvAPI mvAPI = new MultiInvAPI(multiinv);
+        /*MultiInvAPI mvAPI = new MultiInvAPI(multiinv);
 
         for (String world : mvAPI.getGroups().values()) {
             System.out.println("World: " + world);
@@ -105,14 +105,14 @@ public class DataConverter {
                 if (player != null && player.getInventory() != null && player.getInventory().getInventoryContents() != null) {
                     System.out.println("MIAPIPlayer: " + player.getPlayername());
                     try {
-                        plugin.getSerializer().writePlayerDataToFile(offlinePlayer, serializeMIToNewFormat(player), mvAPI.getGroups().get(world), GameMode.SURVIVAL.toString());
+                        plugin.getSerializer().writePlayerDataToFile(offlinePlayer, serializeMIToNewFormat(player), mvAPI.getGroups().get(world), GameMode.SURVIVAL);
                     } catch (Exception ex) {
                         plugin.getPrinter().printToConsole("Error importing inventory for player '" + offlinePlayer.getName() + ": " + ex.getMessage(), true);
                         ex.printStackTrace();
                     }
                 }
             }
-        }
+        }*/
 
         plugin.getPrinter().printToConsole("Data conversion complete! Disabling MultiInv...", false);
         plugin.getServer().getPluginManager().disablePlugin(multiinv);
