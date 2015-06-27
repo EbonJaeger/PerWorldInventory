@@ -1,7 +1,7 @@
 PerWorldInventory
 =================
 Made by Gnat008, for Spigot 1.8.
-Version: 1.5.1
+Version: 1.5.2
 
 Introduction
 =================
