@@ -38,8 +38,12 @@ public class PerWorldInventory extends JavaPlugin {
 
     private Economy economy;
 
+    private static PerWorldInventory instance = null;
+
     @Override
     public void onEnable() {
+        instance = this;
+
         if (!(new File(getDataFolder() + File.separator + "data" + File.separator + "defaults").exists())) {
             new File(getDataFolder() + File.separator + "data" + File.separator + "defaults").mkdirs();
         }
@@ -89,6 +93,15 @@ public class PerWorldInventory extends JavaPlugin {
         getConfigManager().disable();
         getGroupManager().disable();
         getServer().getScheduler().cancelTasks(this);
+        instance = null;
+    }
+
+    public static PerWorldInventory getInstance() {
+        if (instance == null) {
+            throw new IllegalStateException("Cannot get instance before onEnable() has been called!");
+        }
+
+        return instance;
     }
 
     public ConfigManager getConfigManager() {

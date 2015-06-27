@@ -1,7 +1,9 @@
 package com.kill3rtaco.tacoserialization;
 
+import me.gnat008.perworldinventory.PerWorldInventory;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemFactory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
@@ -146,6 +148,18 @@ public class SingleItemSerialization {
             JSONObject values = new JSONObject();
             if (item == null) {
                 return null;
+            }
+
+            /*
+             * Check to see if the item is a skull with a null owner.
+             * This is because some people are getting skulls with null owners, which causes Spigot to throw an error
+             * when it tries to serialize the item. If this ever gets fixed in Spigot, this will be removed.
+             */
+            if (item.getType() == Material.SKULL_ITEM) {
+                SkullMeta meta = (SkullMeta) item.getItemMeta();
+                if (meta.hasOwner() && meta.getOwner() == null || meta.getOwner().isEmpty()) {
+                    item.setItemMeta(PerWorldInventory.getInstance().getServer().getItemFactory().getItemMeta(Material.SKULL_ITEM));
+                }
             }
 
             if (useIndex) {
