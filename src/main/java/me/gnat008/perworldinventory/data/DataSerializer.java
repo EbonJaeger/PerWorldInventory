@@ -20,9 +20,12 @@ package me.gnat008.perworldinventory.data;
 import com.kill3rtaco.tacoserialization.PlayerSerialization;
 import com.kill3rtaco.tacoserialization.Serializer;
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.util.Printer;
+import org.bukkit.GameMode;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -55,14 +58,21 @@ public class DataSerializer {
         instance = null;
     }
 
-    public void writePlayerDataToFile(OfflinePlayer player, JSONObject data, String group, String gamemode) {
+    public void writePlayerDataToFile(OfflinePlayer player, JSONObject data, Group group, GameMode gamemode) {
         File file;
-        if (gamemode.equalsIgnoreCase("SURVIVAL")) {
-            file = new File(FILE_PATH + player.getUniqueId().toString(), group + ".json");
-        } else if (gamemode.equalsIgnoreCase("ADVENTURE")) {
-            file = new File(FILE_PATH + player.getUniqueId().toString(), group + "_adventure.json");
-        } else {
-            file = new File(FILE_PATH + player.getUniqueId().toString(), group + "_creative.json");
+        switch (gamemode) {
+            case ADVENTURE:
+                file = new File(FILE_PATH + player.getUniqueId().toString(), group.getName() + "_adventure.json");
+                break;
+            case CREATIVE:
+                file = new File(FILE_PATH + player.getUniqueId().toString(), group.getName() + "_creative.json");
+                break;
+            case SPECTATOR:
+                file = new File(FILE_PATH + player.getUniqueId().toString(), group.getName() + "_creative.json");
+                break;
+            default:
+                file = new File(FILE_PATH + player.getUniqueId().toString(), group.getName() + ".json");
+                break;
         }
 
         try {
@@ -76,7 +86,7 @@ public class DataSerializer {
             writeData(file, Serializer.toString(data));
         } catch (IOException ex) {
             Printer.getInstance(plugin).printToConsole("Error creating file '" + FILE_PATH +
-                    player.getUniqueId().toString() + File.separator + group + ".json': " + ex.getMessage(), true);
+                    player.getUniqueId().toString() + File.separator + group.getName() + ".json': " + ex.getMessage(), true);
             ex.printStackTrace();
         }
     }
@@ -104,24 +114,31 @@ public class DataSerializer {
         });
     }
 
-    public void getPlayerDataFromFile(Player player, String group, String gamemode) {
+    public void getPlayerDataFromFile(Player player, Group group, GameMode gamemode) {
         File file;
-        if (gamemode.equalsIgnoreCase("SURVIVAL")) {
-            file = new File(FILE_PATH + player.getUniqueId().toString(), group + ".json");
-        } else if (gamemode.equalsIgnoreCase("ADVENTURE")) {
-            file = new File(FILE_PATH + player.getUniqueId().toString(), group + "_adventure.json");
-        } else {
-            file = new File(FILE_PATH + player.getUniqueId().toString(), group + "_creative.json");
+        switch(gamemode) {
+            case ADVENTURE:
+                file = new File(FILE_PATH + player.getUniqueId().toString(), group.getName() + "_adventure.json");
+                break;
+            case CREATIVE:
+                file = new File(FILE_PATH + player.getUniqueId().toString(), group.getName() + "_creative.json");
+                break;
+            case SPECTATOR:
+                file = new File(FILE_PATH + player.getUniqueId().toString(), group.getName() + "_creative.json");
+                break;
+            default:
+                file = new File(FILE_PATH + player.getUniqueId().toString(), group.getName() + ".json");
+                break;
         }
 
         try {
             JSONObject data = Serializer.getObjectFromFile(file);
             PlayerSerialization.setPlayer(data, player, plugin);
-        } catch (FileNotFoundException ex) {
+        } catch (FileNotFoundException | JSONException ex) {
             try {
                 file.createNewFile();
                 JSONObject defaultGroupData = Serializer.getObjectFromFile(
-                        new File(FILE_PATH + "defaults" + File.separator + group + ".json"));
+                        new File(FILE_PATH + "defaults" + File.separator + group.getName() + ".json"));
                 PlayerSerialization.setPlayer(defaultGroupData, player, plugin);
             } catch (FileNotFoundException ex2) {
                 try {
@@ -132,11 +149,11 @@ public class DataSerializer {
                     plugin.getPrinter().printToPlayer(player, "Something went horribly wrong when loading your inventory! " +
                             "Please notify a server administrator!", true);
                     plugin.getPrinter().printToConsole("Unable to find inventory data for player '" + player.getName() +
-                            "' for group '" + group + "': " + ex3.getMessage(), true);
+                            "' for group '" + group.getName() + "': " + ex3.getMessage(), true);
                 }
             } catch (IOException exIO) {
                 Printer.getInstance(plugin).printToConsole("Error creating file '" + FILE_PATH +
-                        player.getUniqueId().toString() + File.separator + group + ".json': " + ex.getMessage(), true);
+                        player.getUniqueId().toString() + File.separator + group.getName() + ".json': " + ex.getMessage(), true);
             }
         }
     }

@@ -20,6 +20,7 @@ package me.gnat008.perworldinventory.commands;
 import com.kill3rtaco.tacoserialization.PlayerSerialization;
 import com.kill3rtaco.tacoserialization.Serializer;
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.groups.Group;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.command.Command;
@@ -137,14 +138,14 @@ public class PerWorldInventoryCommand implements CommandExecutor {
             case SETWORLDDEFAULT:
                 if (isPlayer) {
                     if (player.hasPermission(PERMISSION_NODE + "setdefaults")) {
-                        String group = "";
+                        Group group;
 
                         if (args.length == 2) {
-                            group = args[1].equalsIgnoreCase("default") ? "__default" : args[1];
+                            group = args[1].equalsIgnoreCase("default") ? new Group("__default", null, null) : plugin.getGroupManager().getGroup(args[1]);
                             setWorldDefault(player, group);
                         } else {
                             try {
-                                group = plugin.getWorldManager().getGroupFromWorld(player.getWorld().getName());
+                                group = plugin.getGroupManager().getGroupFromWorld(player.getWorld().getName());
                                 setWorldDefault(player, group);
                             } catch (IllegalArgumentException ex) {
                                 plugin.getPrinter().printToPlayer(player, "You are not standing in a valid world!", true);
@@ -219,11 +220,11 @@ public class PerWorldInventoryCommand implements CommandExecutor {
 
     private void reloadConfigFiles() {
         plugin.getConfigManager().reloadConfigs();
-        plugin.getWorldManager().loadGroups();
+        plugin.getGroupManager().loadGroupsToMemory();
     }
 
-    private void setWorldDefault(Player player, String group) {
-        File file = new File(plugin.getDefaultFilesDirectory() + File.separator + group + ".json");
+    private void setWorldDefault(Player player, Group group) {
+        File file = new File(plugin.getDefaultFilesDirectory() + File.separator + group.getName() + ".json");
         if (!file.exists()) {
             plugin.getPrinter().printToPlayer(player, "Default file for this group not found!", true);
             return;
@@ -237,7 +238,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
             plugin.getPrinter().printToPlayer(player, "Could not create temporary file! Aborting!", true);
             return;
         }
-        plugin.getSerializer().writePlayerDataToFile(player, PlayerSerialization.serializePlayer(player, plugin), "tmp", GameMode.SURVIVAL.toString());
+        plugin.getSerializer().writePlayerDataToFile(player, PlayerSerialization.serializePlayer(player, plugin), new Group("tmp", null, null), GameMode.SURVIVAL);
 
         player.setFoodLevel(20);
         player.setHealth(20);
@@ -246,8 +247,8 @@ public class PerWorldInventoryCommand implements CommandExecutor {
 
         plugin.getSerializer().writeData(file, Serializer.toString(PlayerSerialization.serializePlayer(player, plugin)));
 
-        plugin.getSerializer().getPlayerDataFromFile(player, "tmp", GameMode.SURVIVAL.toString());
-        tmp.delete();
-        plugin.getPrinter().printToPlayer(player, "Defaults for '" + group + "' set!", false);
+        plugin.getSerializer().getPlayerDataFromFile(player, new Group("tmp", null, null), GameMode.SURVIVAL);
+        tmp.deleteOnExit();
+        plugin.getPrinter().printToPlayer(player, "Defaults for '" + group.getName() + "' set!", false);
     }
 }

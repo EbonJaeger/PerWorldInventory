@@ -19,9 +19,11 @@ package me.gnat008.perworldinventory;
 
 import me.gnat008.perworldinventory.commands.PerWorldInventoryCommand;
 import me.gnat008.perworldinventory.config.ConfigManager;
+import me.gnat008.perworldinventory.config.ConfigType;
+import me.gnat008.perworldinventory.config.defaults.ConfigValues;
 import me.gnat008.perworldinventory.data.DataConverter;
 import me.gnat008.perworldinventory.data.DataSerializer;
-import me.gnat008.perworldinventory.data.WorldManager;
+import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.listeners.PlayerChangedWorldListener;
 import me.gnat008.perworldinventory.listeners.PlayerGameModeChangeListener;
 import me.gnat008.perworldinventory.listeners.PlayerQuitListener;
@@ -30,7 +32,7 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
+import java.io.*;
 
 public class PerWorldInventory extends JavaPlugin {
 
@@ -48,10 +50,10 @@ public class PerWorldInventory extends JavaPlugin {
             dFile.renameTo(new File(getDefaultFilesDirectory() + File.separator + "__default.json"));
         }
 
-        getConfigManager().addConfigFile("config", new File(getDataFolder() + File.separator + "config.yml"), true);
-        getConfigManager().addConfigFile("worlds", new File(getDataFolder() + File.separator + "worlds.yml"), true);
+        getConfigManager().addConfig(ConfigType.CONFIG, new File(getDataFolder() + File.separator + "config.yml"));
+        getConfigManager().addConfig(ConfigType.WORLDS, new File(getDataFolder() + File.separator + "worlds.yml"));
 
-        getWorldManager().loadGroups();
+        getGroupManager().loadGroupsToMemory();
 
         getLogger().info("Registering commands...");
         getCommand("pwi").setExecutor(new PerWorldInventoryCommand(this));
@@ -61,7 +63,7 @@ public class PerWorldInventory extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(this), this);
         getLogger().info("Registered PlayerQuitListener.");
 
-        if (getConfigManager().getConfig("config").getBoolean("separate-gamemode-inventories")) {
+        if (ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean()) {
             getServer().getPluginManager().registerEvents(new PlayerGameModeChangeListener(this), this);
             getLogger().info("Registered PlayerGameModeChangeListener.");
         }
@@ -85,12 +87,12 @@ public class PerWorldInventory extends JavaPlugin {
         DataSerializer.disable();
         DataConverter.disable();
         getConfigManager().disable();
-        WorldManager.disable();
+        getGroupManager().disable();
         getServer().getScheduler().cancelTasks(this);
     }
 
     public ConfigManager getConfigManager() {
-        return ConfigManager.getManager(this);
+        return ConfigManager.getInstance();
     }
 
     public DataConverter getDataConverter() {
@@ -109,11 +111,43 @@ public class PerWorldInventory extends JavaPlugin {
         return new File(getDataFolder() + File.separator + "data" + File.separator + "defaults");
     }
 
+    public GroupManager getGroupManager() {
+        return GroupManager.getInstance(this);
+    }
+
     public Printer getPrinter() {
         return Printer.getInstance(this);
     }
 
-    public WorldManager getWorldManager() {
-        return WorldManager.getInstance(this);
+    public void copyFile(File from, File to) {
+        InputStream in = null;
+        OutputStream out = null;
+
+        try {
+            in = new FileInputStream(from);
+            out = new FileOutputStream(to);
+
+            byte[] buff = new byte[1024];
+            int len;
+            while ((len = in.read(buff)) > 0) {
+                out.write(buff, 0, len);
+            }
+        } catch (IOException ex) {
+            getPrinter().printToConsole("An error occurred copying file '" + from.getName() + "' to '" + to.getName() + "': " + ex.getMessage(), true);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ignored) {
+                }
+            }
+
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
     }
 }

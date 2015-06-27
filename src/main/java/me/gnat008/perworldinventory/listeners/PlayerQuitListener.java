@@ -19,6 +19,8 @@ package me.gnat008.perworldinventory.listeners;
 
 import com.kill3rtaco.tacoserialization.PlayerSerialization;
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.config.defaults.ConfigValues;
+import me.gnat008.perworldinventory.groups.Group;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -38,18 +40,21 @@ public class PlayerQuitListener implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         String logoutWorld = player.getWorld().getName();
-        String group = plugin.getWorldManager().getGroupFromWorld(logoutWorld);
+        Group group = plugin.getGroupManager().getGroupFromWorld(logoutWorld);
+        if (group == null) {
+            group = new Group(logoutWorld, null, null);
+        }
 
-        if (plugin.getConfigManager().getConfig("config").getBoolean("separate-gamemode-inventories")) {
+        if (ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean()) {
             plugin.getSerializer().writePlayerDataToFile(player,
                     PlayerSerialization.serializePlayer(player, plugin),
                     group,
-                    player.getGameMode().toString());
+                    player.getGameMode());
         } else {
             plugin.getSerializer().writePlayerDataToFile(player,
                     PlayerSerialization.serializePlayer(player, plugin),
                     group,
-                    GameMode.SURVIVAL.toString());
+                    GameMode.SURVIVAL);
         }
     }
 }

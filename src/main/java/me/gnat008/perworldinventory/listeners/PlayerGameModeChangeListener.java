@@ -19,6 +19,7 @@ package me.gnat008.perworldinventory.listeners;
 
 import com.kill3rtaco.tacoserialization.PlayerSerialization;
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.groups.Group;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -39,14 +40,19 @@ public class PlayerGameModeChangeListener implements Listener {
         Player player = event.getPlayer();
         GameMode oldGameMode = player.getGameMode();
         GameMode newGameMode = event.getNewGameMode();
+        Group group = plugin.getGroupManager().getGroupFromWorld(player.getWorld().getName());
+        if (group == null) {
+            group = new Group(player.getWorld().getName(), null, null);
+        }
 
         plugin.getSerializer().writePlayerDataToFile(player,
                 PlayerSerialization.serializePlayer(player, plugin),
-                plugin.getWorldManager().getGroupFromWorld(player.getWorld().getName()),
-                oldGameMode.toString());
+                group,
+                oldGameMode);
 
-        plugin.getSerializer().getPlayerDataFromFile(player,
-                plugin.getWorldManager().getGroupFromWorld(player.getWorld().getName()),
-                newGameMode.toString());
+        plugin.getSerializer().getPlayerDataFromFile(
+                player,
+                group,
+                newGameMode);
     }
 }

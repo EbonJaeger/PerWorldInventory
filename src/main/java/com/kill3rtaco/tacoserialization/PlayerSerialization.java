@@ -1,6 +1,7 @@
 package com.kill3rtaco.tacoserialization;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.config.defaults.ConfigValues;
 import org.bukkit.entity.Player;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,13 +34,13 @@ public class PlayerSerialization {
             JSONObject root = new JSONObject();
             // Formats: 0 == old serialization, 1 == new serialization
             root.put("data-format", 1);
-            if (plugin.getConfigManager().getShouldSerialize("player.ender-chest"))
+            if (ConfigValues.ENDER_CHEST.getBoolean())
                 root.put("ender-chest", InventorySerialization.serializeInventory(player.getEnderChest()));
-            if (plugin.getConfigManager().getShouldSerialize("player.inventory"))
+            if (ConfigValues.INVENTORY.getBoolean())
                 root.put("inventory", InventorySerialization.serializePlayerInventory(player.getInventory()));
-            if (plugin.getConfigManager().getShouldSerialize("player.stats"))
-                root.put("stats", PlayerStatsSerialization.serializePlayerStats(player, plugin));
-            if (plugin.getConfigManager().getShouldSerialize("player.economy"))
+            if (ConfigValues.STATS.getBoolean())
+                root.put("stats", PlayerStatsSerialization.serializePlayerStats(player));
+            if (ConfigValues.ECONOMY.getBoolean())
                 root.put("economy", EconomySerialization.serializeEconomy(player, plugin.getEconomy()));
             return root;
         } catch (JSONException e) {
