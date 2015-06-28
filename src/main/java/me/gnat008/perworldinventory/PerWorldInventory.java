@@ -23,6 +23,8 @@ import me.gnat008.perworldinventory.config.ConfigType;
 import me.gnat008.perworldinventory.config.defaults.ConfigValues;
 import me.gnat008.perworldinventory.data.DataConverter;
 import me.gnat008.perworldinventory.data.DataSerializer;
+import me.gnat008.perworldinventory.data.mysql.MySQL;
+import me.gnat008.perworldinventory.data.mysql.MySQLManager;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.listeners.PlayerChangedWorldListener;
 import me.gnat008.perworldinventory.listeners.PlayerGameModeChangeListener;
@@ -33,9 +35,12 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 public class PerWorldInventory extends JavaPlugin {
 
+    private Connection conn = null;
     private Economy economy;
 
     private static PerWorldInventory instance = null;
@@ -83,6 +88,17 @@ public class PerWorldInventory extends JavaPlugin {
                 getLogger().warning("Unable to hook into Vault!");
             }
         }
+
+        if (ConfigValues.USE_MYSQL.getBoolean()) {
+            getLogger().info("Configured to use MySQL! Attempting to connect to database...");
+            try {
+                MySQLManager.getInstance().startConnection();
+            } catch (SQLException ex) {
+                getLogger().warning("Could not connect to database: " + ex.getMessage());
+                getLogger().warning("Setting 'use-mysql' to 'false' in the config, and switching to flatfiles!");
+                ConfigValues.USE_MYSQL.set(false);
+            }
+        }
     }
 
     @Override
@@ -93,6 +109,15 @@ public class PerWorldInventory extends JavaPlugin {
         getConfigManager().disable();
         getGroupManager().disable();
         getServer().getScheduler().cancelTasks(this);
+
+        if (conn != null) {
+            try {
+                conn.close();
+            } catch (SQLException ex) {
+                getLogger().severe("Error closing database connection: " + ex.getMessage());
+            }
+        }
+
         instance = null;
     }
 
@@ -106,6 +131,10 @@ public class PerWorldInventory extends JavaPlugin {
 
     public ConfigManager getConfigManager() {
         return ConfigManager.getInstance();
+    }
+
+    public Connection getConnection() {
+        return this.conn;
     }
 
     public DataConverter getDataConverter() {
