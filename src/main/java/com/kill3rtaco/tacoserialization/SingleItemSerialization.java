@@ -157,7 +157,7 @@ public class SingleItemSerialization {
              */
             if (item.getType() == Material.SKULL_ITEM) {
                 SkullMeta meta = (SkullMeta) item.getItemMeta();
-                if (meta.hasOwner() && meta.getOwner() == null || meta.getOwner().isEmpty()) {
+                if (meta.hasOwner() && (meta.getOwner() == null || meta.getOwner().isEmpty())) {
                     item.setItemMeta(PerWorldInventory.getInstance().getServer().getItemFactory().getItemMeta(Material.SKULL_ITEM));
                 }
             }
