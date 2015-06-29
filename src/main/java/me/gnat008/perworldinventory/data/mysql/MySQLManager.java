@@ -18,6 +18,7 @@
 package me.gnat008.perworldinventory.data.mysql;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.config.defaults.ConfigValues;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -26,11 +27,14 @@ public class MySQLManager {
 
     private static MySQLManager instance = null;
 
+    private final String prefix;
+
     private Connection conn = null;
     private PerWorldInventory plugin;
 
     private MySQLManager() {
         this.plugin = PerWorldInventory.getInstance();
+        prefix = ConfigValues.PREFIX.getString();
     }
 
     public static MySQLManager getInstance() {
@@ -56,12 +60,17 @@ public class MySQLManager {
     public void startConnection() throws SQLException {
         conn = MySQL.getConnection();
         plugin.getLogger().info("Connected to MySQL database!");
+
+        setupTables();
     }
 
     private void setupTables() throws SQLException {
-        conn.prepareStatement("CREATE TABLE IF NOT EXISTS 'pwi_data' (" +
-                "'index' INT NOT NULL AUTO_INCREMENT" +
-                "'uuid' CHAR(36) NOT NULL" +
-                "'')")
+        conn.prepareStatement("CREATE TABLE IF NOT EXISTS `" + prefix + "data` (" +
+                "`id` INT NOT NULL AUTO_INCREMENT," +
+                "`uuid` CHAR(36) NOT NULL," +
+                "`group` VARCHAR(255) NOT NULL," +
+                "`gamemode` ENUM('adventure', 'creative', 'survival') NOT NULL," +
+                "`data` BLOB NOT NULL," +
+                "PRIMARY KEY (id));").execute();
     }
 }

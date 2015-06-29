@@ -42,17 +42,12 @@ public class MySQL {
     }
 
     private MySQL(String hostname, int port, String dbName, String username, String password) {
-        Properties props = new Properties();
-        props.setProperty("dataSourceClassName", "com.mysql.jdbc.jdbc2.optional.MysqlDataSource");
-        props.setProperty("serverName", hostname);
-        props.setProperty("port", String.valueOf(port));
-        props.setProperty("dataSource.databaseName", dbName);
-        props.setProperty("dataSource.user", username);
-        props.setProperty("dataSource.password", password);
-        props.setProperty("dataSource.cachePrepStmts", "true");
-        props.setProperty("dataSource.prepStmtCacheSize", "50");
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl("jdbc:mysql://" + hostname + ":" + port + "/" + dbName);
+        config.setUsername(username);
+        config.setPassword(password);
+        config.setMaximumPoolSize(10);
 
-        HikariConfig config = new HikariConfig(props);
         hikariDS = new HikariDataSource(config);
     }
 

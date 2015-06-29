@@ -97,6 +97,7 @@ public class PerWorldInventory extends JavaPlugin {
                 getLogger().warning("Could not connect to database: " + ex.getMessage());
                 getLogger().warning("Setting 'use-mysql' to 'false' in the config, and switching to flatfiles!");
                 ConfigValues.USE_MYSQL.set(false);
+                getConfigManager().reloadConfig(ConfigType.CONFIG);
             }
         }
     }

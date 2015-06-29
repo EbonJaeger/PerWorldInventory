@@ -51,6 +51,7 @@ public enum ConfigValues {
     HOSTNAME("localhost"),
     PORT(3306),
     DATABASE_NAME("minecraft"),
+    PREFIX("pwi_"),
     USERNAME("admin"),
     PASSWORD("password");
 
