@@ -108,16 +108,8 @@ public class PerWorldInventory extends JavaPlugin {
         DataConverter.disable();
         getConfigManager().disable();
         getGroupManager().disable();
+        getMySQLManager().disable();
         getServer().getScheduler().cancelTasks(this);
-
-        if (conn != null) {
-            try {
-                conn.close();
-            } catch (SQLException ex) {
-                getLogger().severe("Error closing database connection: " + ex.getMessage());
-            }
-        }
-
         instance = null;
     }
 
@@ -131,10 +123,6 @@ public class PerWorldInventory extends JavaPlugin {
 
     public ConfigManager getConfigManager() {
         return ConfigManager.getInstance();
-    }
-
-    public Connection getConnection() {
-        return this.conn;
     }
 
     public DataConverter getDataConverter() {
@@ -155,6 +143,10 @@ public class PerWorldInventory extends JavaPlugin {
 
     public GroupManager getGroupManager() {
         return GroupManager.getInstance(this);
+    }
+
+    public MySQLManager getMySQLManager() {
+        return MySQLManager.getInstance();
     }
 
     public Printer getPrinter() {

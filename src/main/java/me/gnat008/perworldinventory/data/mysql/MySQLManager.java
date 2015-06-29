@@ -59,6 +59,9 @@ public class MySQLManager {
     }
 
     private void setupTables() throws SQLException {
-        conn.
+        conn.prepareStatement("CREATE TABLE IF NOT EXISTS 'pwi_data' (" +
+                "'index' INT NOT NULL AUTO_INCREMENT" +
+                "'uuid' CHAR(36) NOT NULL" +
+                "'')")
     }
 }
