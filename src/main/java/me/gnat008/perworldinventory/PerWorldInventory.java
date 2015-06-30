@@ -23,7 +23,6 @@ import me.gnat008.perworldinventory.config.ConfigType;
 import me.gnat008.perworldinventory.config.defaults.ConfigValues;
 import me.gnat008.perworldinventory.data.DataConverter;
 import me.gnat008.perworldinventory.data.DataSerializer;
-import me.gnat008.perworldinventory.data.mysql.MySQL;
 import me.gnat008.perworldinventory.data.mysql.MySQLManager;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.listeners.PlayerChangedWorldListener;
@@ -96,8 +95,8 @@ public class PerWorldInventory extends JavaPlugin {
             } catch (SQLException ex) {
                 getLogger().warning("Could not connect to database: " + ex.getMessage());
                 getLogger().warning("Setting 'use-mysql' to 'false' in the config, and switching to flatfiles!");
-                ConfigValues.USE_MYSQL.set(false);
-                getConfigManager().reloadConfig(ConfigType.CONFIG);
+                //ConfigValues.USE_MYSQL.set(false);
+                //getConfigManager().reloadConfig(ConfigType.CONFIG);
             }
         }
     }

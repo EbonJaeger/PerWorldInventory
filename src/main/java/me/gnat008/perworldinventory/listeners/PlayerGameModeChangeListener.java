@@ -19,6 +19,7 @@ package me.gnat008.perworldinventory.listeners;
 
 import com.kill3rtaco.tacoserialization.PlayerSerialization;
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.config.defaults.ConfigValues;
 import me.gnat008.perworldinventory.groups.Group;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -26,6 +27,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
+
+import java.sql.SQLException;
 
 public class PlayerGameModeChangeListener implements Listener {
 
@@ -45,10 +48,27 @@ public class PlayerGameModeChangeListener implements Listener {
             group = new Group(player.getWorld().getName(), null, null);
         }
 
-        plugin.getSerializer().writePlayerDataToFile(player,
-                PlayerSerialization.serializePlayer(player, plugin),
-                group,
-                oldGameMode);
+        if (ConfigValues.USE_MYSQL.getBoolean()) {
+            try {
+                plugin.getMySQLManager().updateDatabase(
+                        player.getUniqueId().toString(),
+                        group.getName(),
+                        oldGameMode.toString().toLowerCase(),
+                        plugin.getSerializer().serializeForMySQL(PlayerSerialization.serializePlayer(player, plugin)));
+            } catch (SQLException ex) {
+                plugin.getLogger().severe("Error trying to save player data to database: " + ex.getMessage());
+                plugin.getLogger().severe("Saving to flatfile instead!");
+                plugin.getSerializer().writePlayerDataToFile(player,
+                        PlayerSerialization.serializePlayer(player, plugin),
+                        group,
+                        oldGameMode);
+            }
+        } else {
+            plugin.getSerializer().writePlayerDataToFile(player,
+                    PlayerSerialization.serializePlayer(player, plugin),
+                    group,
+                    oldGameMode);
+        }
 
         plugin.getSerializer().getPlayerDataFromFile(
                 player,

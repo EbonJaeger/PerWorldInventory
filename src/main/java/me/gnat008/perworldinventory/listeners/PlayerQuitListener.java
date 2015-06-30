@@ -28,6 +28,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.sql.SQLException;
+
 public class PlayerQuitListener implements Listener {
 
     private PerWorldInventory plugin;
@@ -46,15 +48,49 @@ public class PlayerQuitListener implements Listener {
         }
 
         if (ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean()) {
-            plugin.getSerializer().writePlayerDataToFile(player,
-                    PlayerSerialization.serializePlayer(player, plugin),
-                    group,
-                    player.getGameMode());
+            if (ConfigValues.USE_MYSQL.getBoolean()) {
+                try {
+                    plugin.getMySQLManager().updateDatabase(
+                            player.getUniqueId().toString(),
+                            group.getName(),
+                            player.getGameMode().toString().toLowerCase(),
+                            plugin.getSerializer().serializeForMySQL(PlayerSerialization.serializePlayer(player, plugin)));
+                } catch (SQLException ex) {
+                    plugin.getLogger().severe("Error trying to save player data to database: " + ex.getMessage());
+                    plugin.getLogger().severe("Saving to flatfile instead!");
+                    plugin.getSerializer().writePlayerDataToFile(player,
+                            PlayerSerialization.serializePlayer(player, plugin),
+                            group,
+                            player.getGameMode());
+                }
+            } else {
+                plugin.getSerializer().writePlayerDataToFile(player,
+                        PlayerSerialization.serializePlayer(player, plugin),
+                        group,
+                        player.getGameMode());
+            }
         } else {
-            plugin.getSerializer().writePlayerDataToFile(player,
-                    PlayerSerialization.serializePlayer(player, plugin),
-                    group,
-                    GameMode.SURVIVAL);
+            if (ConfigValues.USE_MYSQL.getBoolean()) {
+                try {
+                    plugin.getMySQLManager().updateDatabase(
+                            player.getUniqueId().toString(),
+                            group.getName(),
+                            GameMode.SURVIVAL.toString().toLowerCase(),
+                            plugin.getSerializer().serializeForMySQL(PlayerSerialization.serializePlayer(player, plugin)));
+                } catch (SQLException ex) {
+                    plugin.getLogger().severe("Error trying to save player data to database: " + ex.getMessage());
+                    plugin.getLogger().severe("Saving to flatfile instead!");
+                    plugin.getSerializer().writePlayerDataToFile(player,
+                            PlayerSerialization.serializePlayer(player, plugin),
+                            group,
+                            GameMode.SURVIVAL);
+                }
+            } else {
+                plugin.getSerializer().writePlayerDataToFile(player,
+                        PlayerSerialization.serializePlayer(player, plugin),
+                        group,
+                        GameMode.SURVIVAL);
+            }
         }
     }
 }

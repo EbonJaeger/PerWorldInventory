@@ -28,10 +28,7 @@ import org.bukkit.entity.Player;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 
 public class DataSerializer {
 
@@ -155,6 +152,16 @@ public class DataSerializer {
                 Printer.getInstance(plugin).printToConsole("Error creating file '" + FILE_PATH +
                         player.getUniqueId().toString() + File.separator + group.getName() + ".json': " + ex.getMessage(), true);
             }
+        }
+    }
+
+    public byte[] serializeForMySQL(JSONObject data) {
+        try {
+            byte[] bytes = data.toString().getBytes("UTF-8");
+            return bytes;
+        } catch (UnsupportedEncodingException ex) {
+            plugin.getLogger().severe("Error during encoding: " + ex.getMessage());
+            return null;
         }
     }
 }

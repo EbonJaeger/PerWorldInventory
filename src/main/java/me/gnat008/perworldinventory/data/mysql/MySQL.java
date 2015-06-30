@@ -17,17 +17,25 @@
 
 package me.gnat008.perworldinventory.data.mysql;
 
+import com.sun.rowset.CachedRowSetImpl;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.defaults.ConfigValues;
+import org.bukkit.Bukkit;
 
+import javax.sql.RowSet;
+import javax.sql.rowset.CachedRowSet;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
+import java.util.concurrent.*;
 
-public class MySQL {
+class MySQL {
 
-    private static final MySQL INSTANCE;
+    public static final MySQL INSTANCE;
 
     private final HikariDataSource hikariDS;
 
@@ -51,7 +59,89 @@ public class MySQL {
         hikariDS = new HikariDataSource(config);
     }
 
-    public static Connection getConnection() throws SQLException {
-        return INSTANCE.hikariDS.getConnection();
+    public void connect() {
+        isConnected();
+    }
+
+    public void disconnect() {
+        hikariDS.shutdown();
+    }
+
+    public CachedRowSet query(final PreparedStatement stmt) {
+        CachedRowSet rowSet = null;
+
+        if (isConnected()) {
+            try {
+                ExecutorService exe = Executors.newCachedThreadPool();
+
+                Future<CachedRowSet> future = exe.submit(new Callable<CachedRowSet>() {
+                    @Override
+                    public CachedRowSet call() throws Exception {
+                        try {
+                            ResultSet resultSet = stmt.executeQuery();
+
+                            CachedRowSet cachedRowSet = new CachedRowSetImpl();
+                            cachedRowSet.populate(resultSet);
+                            resultSet.close();
+
+                            stmt.getConnection().close();
+
+                            if (cachedRowSet.next()) {
+                                return cachedRowSet;
+                            }
+                        } catch (SQLException ex) {
+                            ex.printStackTrace();
+                        }
+
+                        return null;
+                    }
+                });
+
+                if (future.get() != null) {
+                    rowSet = future.get();
+                }
+            } catch (InterruptedException | ExecutionException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        return rowSet;
+    }
+
+    public void execute(final PreparedStatement stmt) {
+        if (isConnected()) {
+            Bukkit.getScheduler().runTaskAsynchronously(PerWorldInventory.getInstance(), new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        stmt.execute();
+
+                        stmt.getConnection().close();
+                    } catch (SQLException ex) {
+                        PerWorldInventory.getInstance().getLogger().severe("Error executing statement: " + ex.getMessage());
+                    }
+                }
+            });
+        }
+    }
+
+    public Connection getConnection() {
+        try {
+            return hikariDS.getConnection();
+        } catch (SQLException ex) {
+            PerWorldInventory.getInstance().getLogger().severe("Unable to connect to database: " + ex.getMessage());
+        }
+
+        return null;
+    }
+
+    public boolean isConnected() {
+        try {
+            hikariDS.getConnection();
+        } catch (SQLException ex) {
+            return false;
+        }
+
+        return true;
     }
 }
