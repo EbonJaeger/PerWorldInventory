@@ -79,10 +79,6 @@ public class ConfigFile {
                     }
                 }
 
-                if (ConfigValues.FIRST_START.getBoolean()){
-                    ConfigValues.FIRST_START.set(false);
-                }
-
                 try {
                     saveConfig();
                 } catch (IOException ex) {
@@ -99,6 +95,7 @@ public class ConfigFile {
                     config.set("groups.default.worlds", defaults);
                     config.set("groups.default.default-gamemode", "SURVIVAL");
 
+                    ConfigValues.FIRST_START.set(false);
                     try {
                         saveConfig();
                     } catch (IOException ex) {
