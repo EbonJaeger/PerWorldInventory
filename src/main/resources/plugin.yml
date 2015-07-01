@@ -1,5 +1,5 @@
 main: me.gnat008.perworldinventory.PerWorldInventory
-version: 1.5.3
+version: 1.5.4
 name: PerWorldInventory
 author: Gnat008
 softdepend: [Vault]
