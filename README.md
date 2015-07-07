@@ -7,7 +7,7 @@
 
 ## Installation and Usage
 
-Gitter ChatRoom: [![Gitter Chat](https://img.shields.io/badge/GITTER-JOIN_CHAT_%E2%86%92-1dce73.svg)](https://gitter.im/ExileDev/PerWorldInventory)
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ExileDev/PerWorldInventory?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge)
 
 MCStats (metrics): <br />
 <a href="http://mcstats.org/plugin/PerWorldInventory" target="_blank" class="externalLink" rel="nofollow"><img src="http://i.mcstats.org/PerWorldInventory/Global+Statistics.png" class="bbCodeImage LbImage" alt="[&#8203;IMG]" data-url="http://i.mcstats.org/NexusInventory/Global+Statistics.png"></a>
