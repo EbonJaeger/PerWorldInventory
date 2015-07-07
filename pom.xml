@@ -8,6 +8,17 @@
     <artifactId>PerWorldInventory</artifactId>
     <version>1.5.4</version>
 
+    <name>PerWorldInventory</name>
+    <description>The multiverse inventories replacement // and multiinv</description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <bukkitVersion>1.8.7-R0.1-SNAPSHOT</bukkitVersion>
+        <mainClass>${project.groupId}.${project.artifactId}</mainClass>
+    </properties>
+
     <repositories>
         <repository>
             <id>onarandombox</id>
@@ -21,7 +32,7 @@
 
         <repository>
             <id>local-repo</id>
-            <url>file://$(basedir)/lib/</url>
+            <url>${project.basedir}/Library/</url>
         </repository>
 
         <repository>
@@ -32,9 +43,15 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>1.8-R0.1-SNAPSHOT</version>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20140107</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.bukkit</groupId>
+            <artifactId>bukkit</artifactId>
+            <version>${bukkitVersion}</version>
         </dependency>
 
         <dependency>
@@ -48,9 +65,10 @@
         <dependency>
             <groupId>uk.co</groupId>
             <artifactId>MultiInv</artifactId>
-            <version>3.3.2-dev</version>
-            <type>jar</type>
-            <scope>compile</scope>
+            <version>3.3.5</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/Library/MultiInv-3.3.5.jar</systemPath>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
@@ -71,6 +89,8 @@
                 <directory>${basedir}/src/main/resources/</directory>
                 <includes>
                     <include>**</include>
+                    <include>plugin.yml</include>
+                    <include>default.json</include>
                 </includes>
             </resource>
         </resources>
@@ -83,6 +103,33 @@
                     <source>1.7</source>
                     <target>1.7</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <artifactSet>
+                        <includes>
+                            <include>org.json</include>
+                        </includes>
+                    </artifactSet>
+                    <relocations>
+                        <relocation>
+                            <pattern>org.json</pattern>
+                            <shadedPattern>com.ExtendedAlpha.org.json</shadedPattern>
+                        </relocation>
+                    </relocations>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
