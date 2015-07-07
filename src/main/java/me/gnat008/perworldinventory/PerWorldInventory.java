@@ -17,18 +17,23 @@
 
 package me.gnat008.perworldinventory;
 
-import me.gnat008.perworldinventory.commands.PerWorldInventoryCommand;
-import me.gnat008.perworldinventory.config.ConfigManager;
-import me.gnat008.perworldinventory.config.ConfigType;
-import me.gnat008.perworldinventory.config.defaults.ConfigValues;
-import me.gnat008.perworldinventory.data.DataConverter;
-import me.gnat008.perworldinventory.data.DataSerializer;
-import me.gnat008.perworldinventory.groups.GroupManager;
-import me.gnat008.perworldinventory.listeners.PlayerChangedWorldListener;
-import me.gnat008.perworldinventory.listeners.PlayerGameModeChangeListener;
-import me.gnat008.perworldinventory.listeners.PlayerQuitListener;
-import me.gnat008.perworldinventory.util.Printer;
+import me.gnat008.perworldinventory.Commands.PerWorldInventoryCommand;
+import me.gnat008.perworldinventory.Config.ConfigManager;
+import me.gnat008.perworldinventory.Config.ConfigType;
+import me.gnat008.perworldinventory.Config.defaults.ConfigValues;
+import me.gnat008.perworldinventory.Data.DataConverter;
+import me.gnat008.perworldinventory.Data.DataSerializer;
+import me.gnat008.perworldinventory.Groups.GroupManager;
+import me.gnat008.perworldinventory.Listeners.PlayerChangedWorldListener;
+import me.gnat008.perworldinventory.Listeners.PlayerGameModeChangeListener;
+import me.gnat008.perworldinventory.Listeners.PlayerQuitListener;
+import me.gnat008.perworldinventory.Logger.PWILogger;
+import me.gnat008.perworldinventory.Metrics.Metrics;
+import me.gnat008.perworldinventory.Updater.SpigotUpdater;
+import me.gnat008.perworldinventory.Util.ChatColor;
+import me.gnat008.perworldinventory.Util.Printer;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -36,7 +41,12 @@ import java.io.*;
 
 public class PerWorldInventory extends JavaPlugin {
 
+    // Initialize Economy
     private Economy economy;
+    // Initialize updater
+    private SpigotUpdater updater;
+    // Initialize logger (auto implements enable/disable messages to console)
+    public static PWILogger log;
 
     private static PerWorldInventory instance = null;
 
@@ -83,7 +93,33 @@ public class PerWorldInventory extends JavaPlugin {
                 getLogger().warning("Unable to hook into Vault!");
             }
         }
+
+    {
+
     }
+    if (getConfig().getBoolean("CHECK_UPDATES")) {
+
+        log.info("Initializing updater...");
+        this.updater = new SpigotUpdater(this);
+        getUpdater().checkUpdates();
+        if (SpigotUpdater.updateAvailable()) {
+            Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_GRAY + "---------------------------------");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "           NexusInventory Updater");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + " ");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "An update for NexusInventory has been found!");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "NexusInventory " + SpigotUpdater.getHighest());
+            Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "You are running " + getDescription().getVersion());
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + " ");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "Download at:");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "SpigotMC: https://goo.gl/W7b4yK");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_GRAY + "---------------------------------");
+        }
+    }
+
+    log.info("Initializing Metrics..");
+    setupMetrics();
+    log.info("Enabled!");
+}
 
     @Override
     public void onDisable() {
@@ -94,6 +130,15 @@ public class PerWorldInventory extends JavaPlugin {
         getGroupManager().disable();
         getServer().getScheduler().cancelTasks(this);
         instance = null;
+    }
+
+    private void setupMetrics() {
+        try {
+            Metrics metrics = new Metrics(this);
+            metrics.start();
+        } catch (IOException e) {
+            log.warning("Couldn't submit metrics stats: " + e.getMessage());
+        }
     }
 
     public static PerWorldInventory getInstance() {
@@ -130,6 +175,11 @@ public class PerWorldInventory extends JavaPlugin {
 
     public Printer getPrinter() {
         return Printer.getInstance(this);
+    }
+
+    public SpigotUpdater getUpdater()
+    {
+        return this.updater;
     }
 
     public void copyFile(File from, File to) {

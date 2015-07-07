@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.gnat008.perworldinventory.groups;
+package me.gnat008.perworldinventory.Groups;
 
 import org.bukkit.GameMode;
 

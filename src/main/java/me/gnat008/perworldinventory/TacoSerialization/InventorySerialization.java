@@ -1,4 +1,4 @@
-package com.kill3rtaco.tacoserialization;
+package me.gnat008.perworldinventory.TacoSerialization;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;

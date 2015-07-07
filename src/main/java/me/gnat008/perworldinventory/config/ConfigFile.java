@@ -15,9 +15,9 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.gnat008.perworldinventory.config;
+package me.gnat008.perworldinventory.Config;
 
-import me.gnat008.perworldinventory.config.defaults.ConfigValues;
+import me.gnat008.perworldinventory.Config.defaults.ConfigValues;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 

@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.gnat008.perworldinventory.config;
+package me.gnat008.perworldinventory.Config;
 
 /**
  * Enum for the two types of configs, the main config, and the world groups config.

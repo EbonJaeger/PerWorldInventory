@@ -15,13 +15,13 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.gnat008.perworldinventory.data;
+package me.gnat008.perworldinventory.Data;
 
-import com.kill3rtaco.tacoserialization.PlayerSerialization;
-import com.kill3rtaco.tacoserialization.Serializer;
+import me.gnat008.perworldinventory.TacoSerialization.PlayerSerialization;
+import me.gnat008.perworldinventory.TacoSerialization.Serializer;
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.groups.Group;
-import me.gnat008.perworldinventory.util.Printer;
+import me.gnat008.perworldinventory.Groups.Group;
+import me.gnat008.perworldinventory.Util.Printer;
 import org.bukkit.GameMode;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;

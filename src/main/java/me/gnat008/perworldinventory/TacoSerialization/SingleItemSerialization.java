@@ -1,9 +1,9 @@
-package com.kill3rtaco.tacoserialization;
+package me.gnat008.perworldinventory.TacoSerialization;
 
+import me.gnat008.perworldinventory.Util.MinecraftUtils;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemFactory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
@@ -14,8 +14,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A class to help with the serialization of ItemStacks.
@@ -68,19 +72,20 @@ public class SingleItemSerialization {
             int repairPenalty = 0;
             Material mat = items.getType();
             JSONObject bannerMeta = null, bookMeta = null, armorMeta = null, skullMeta = null, fwMeta = null;
-            if (mat == Material.BANNER) {
-                bannerMeta = BannerSerialization.serializeBanner((BannerMeta) items.getItemMeta());
-            } else if (mat == Material.BOOK_AND_QUILL || mat == Material.WRITTEN_BOOK) {
-                bookMeta = BookSerialization.serializeBookMeta((BookMeta) items.getItemMeta());
-            } else if (mat == Material.ENCHANTED_BOOK) {
-                bookMeta = BookSerialization.serializeEnchantedBookMeta((EnchantmentStorageMeta) items.getItemMeta());
-            } else if (Util.isLeatherArmor(mat)) {
-                armorMeta = LeatherArmorSerialization.serializeArmor((LeatherArmorMeta) items.getItemMeta());
-            } else if (mat == Material.SKULL_ITEM) {
-                skullMeta = SkullSerialization.serializeSkull((SkullMeta) items.getItemMeta());
-            } else if (mat == Material.FIREWORK) {
-                fwMeta = FireworkSerialization.serializeFireworkMeta((FireworkMeta) items.getItemMeta());
-            }
+            if (MinecraftUtils.getMinecraftVersion().startsWith("1.8"))
+                if (mat == Material.BANNER) {
+                    bannerMeta = BannerSerialization.serializeBanner((BannerMeta) items.getItemMeta());
+                } else if (mat == Material.BOOK_AND_QUILL || mat == Material.WRITTEN_BOOK) {
+                    bookMeta = BookSerialization.serializeBookMeta((BookMeta) items.getItemMeta());
+                } else if (mat == Material.ENCHANTED_BOOK) {
+                    bookMeta = BookSerialization.serializeEnchantedBookMeta((EnchantmentStorageMeta) items.getItemMeta());
+                } else if (Util.isLeatherArmor(mat)) {
+                    armorMeta = LeatherArmorSerialization.serializeArmor((LeatherArmorMeta) items.getItemMeta());
+                } else if (mat == Material.SKULL_ITEM) {
+                    skullMeta = SkullSerialization.serializeSkull((SkullMeta) items.getItemMeta());
+                } else if (mat == Material.FIREWORK) {
+                    fwMeta = FireworkSerialization.serializeFireworkMeta((FireworkMeta) items.getItemMeta());
+                }
             if (hasMeta) {
                 ItemMeta meta = items.getItemMeta();
                 if (meta.hasDisplayName())
@@ -103,6 +108,35 @@ public class SingleItemSerialization {
                         flagsList.add(flag.toString());
                     }
                     flags = flagsList.toArray(new String[flagsList.size()]);
+                }
+
+            }
+            if (MinecraftUtils.getMinecraftVersion().startsWith("1.7"))
+                if (mat == Material.BOOK_AND_QUILL || mat == Material.WRITTEN_BOOK) {
+                    bookMeta = BookSerialization.serializeBookMeta((BookMeta) items.getItemMeta());
+                } else if (mat == Material.ENCHANTED_BOOK) {
+                    bookMeta = BookSerialization.serializeEnchantedBookMeta((EnchantmentStorageMeta) items.getItemMeta());
+                } else if (Util.isLeatherArmor(mat)) {
+                    armorMeta = LeatherArmorSerialization.serializeArmor((LeatherArmorMeta) items.getItemMeta());
+                } else if (mat == Material.SKULL_ITEM) {
+                    skullMeta = SkullSerialization.serializeSkull((SkullMeta) items.getItemMeta());
+                } else if (mat == Material.FIREWORK) {
+                    fwMeta = FireworkSerialization.serializeFireworkMeta((FireworkMeta) items.getItemMeta());
+                }
+            if (hasMeta) {
+                ItemMeta meta = items.getItemMeta();
+                if (meta.hasDisplayName())
+                    name = meta.getDisplayName();
+                if (meta.hasLore()) {
+                    lore = meta.getLore().toArray(new String[]{});
+                }
+                if (meta.hasEnchants())
+                    enchants = EnchantmentSerialization.serializeEnchantments(meta.getEnchants());
+                if (meta instanceof Repairable) {
+                    Repairable rep = (Repairable) meta;
+                    if (rep.hasRepairCost()) {
+                        repairPenalty = rep.getRepairCost();
+                    }
                 }
 
             }
@@ -165,6 +199,7 @@ public class SingleItemSerialization {
             if (useIndex) {
                 values.put("index", index);
             }
+
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             BukkitObjectOutputStream dataObject = new BukkitObjectOutputStream(outputStream);
@@ -279,9 +314,9 @@ public class SingleItemSerialization {
             if (item.has("repairPenalty"))
                 repairPenalty = item.getInt("repairPenalty");
 
-
-            if (Material.getMaterial(id) == null)
-                throw new IllegalArgumentException("Item " + index + " - No Material found with id of " + id);
+            if (MinecraftUtils.getMinecraftVersion().startsWith("1.8"))
+                if (Material.getMaterial(id) == null)
+                    throw new IllegalArgumentException("Item " + index + " - No Material found with id of " + id);
             Material mat = Material.getMaterial(id);
             ItemStack stuff = new ItemStack(mat, amount, (short) data);
             if (mat == Material.BANNER) {
@@ -303,6 +338,23 @@ public class SingleItemSerialization {
                 FireworkMeta meta = FireworkSerialization.getFireworkMeta(item.getJSONObject("firework-meta"));
                 stuff.setItemMeta(meta);
             }
+            if (MinecraftUtils.getMinecraftVersion().startsWith("1.7"))
+                if ((mat == Material.BOOK_AND_QUILL || mat == Material.WRITTEN_BOOK) && item.has("book-meta")) {
+                    BookMeta meta = BookSerialization.getBookMeta(item.getJSONObject("book-meta"));
+                    stuff.setItemMeta(meta);
+                } else if (mat == Material.ENCHANTED_BOOK && item.has("book-meta")) {
+                    EnchantmentStorageMeta meta = BookSerialization.getEnchantedBookMeta(item.getJSONObject("book-meta"));
+                    stuff.setItemMeta(meta);
+                } else if (Util.isLeatherArmor(mat) && item.has("armor-meta")) {
+                    LeatherArmorMeta meta = LeatherArmorSerialization.getLeatherArmorMeta(item.getJSONObject("armor-meta"));
+                    stuff.setItemMeta(meta);
+                } else if (mat == Material.SKULL_ITEM && item.has("skull-meta")) {
+                    SkullMeta meta = SkullSerialization.getSkullMeta(item.getJSONObject("skull-meta"));
+                    stuff.setItemMeta(meta);
+                } else if (mat == Material.FIREWORK && item.has("firework-meta")) {
+                    FireworkMeta meta = FireworkSerialization.getFireworkMeta(item.getJSONObject("firework-meta"));
+                    stuff.setItemMeta(meta);
+                }
             ItemMeta meta = stuff.getItemMeta();
             if (name != null)
                 meta.setDisplayName(name);

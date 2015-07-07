@@ -15,12 +15,12 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.gnat008.perworldinventory.commands;
+package me.gnat008.perworldinventory.Commands;
 
-import com.kill3rtaco.tacoserialization.PlayerSerialization;
-import com.kill3rtaco.tacoserialization.Serializer;
+import me.gnat008.perworldinventory.TacoSerialization.PlayerSerialization;
+import me.gnat008.perworldinventory.TacoSerialization.Serializer;
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.groups.Group;
+import me.gnat008.perworldinventory.Groups.Group;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.command.Command;

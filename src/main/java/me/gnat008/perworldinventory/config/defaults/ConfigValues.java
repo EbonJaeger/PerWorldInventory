@@ -15,10 +15,10 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.gnat008.perworldinventory.config.defaults;
+package me.gnat008.perworldinventory.Config.defaults;
 
-import me.gnat008.perworldinventory.config.ConfigType;
-import me.gnat008.perworldinventory.config.ConfigManager;
+import me.gnat008.perworldinventory.Config.ConfigType;
+import me.gnat008.perworldinventory.Config.ConfigManager;
 
 public enum ConfigValues {
 
@@ -26,6 +26,7 @@ public enum ConfigValues {
     FIRST_START(true),
     MANAGE_GAMEMODES(false),
     SEPARATE_GAMEMODE_INVENTORIES(true),
+    CHECK_UPDATES(true),
 
     // Second level
     ECONOMY(false),

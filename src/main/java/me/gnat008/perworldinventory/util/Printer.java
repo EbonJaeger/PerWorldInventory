@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.gnat008.perworldinventory.util;
+package me.gnat008.perworldinventory.Util;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
 import org.bukkit.ChatColor;

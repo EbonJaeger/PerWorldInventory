@@ -15,12 +15,12 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.gnat008.perworldinventory.groups;
+package me.gnat008.perworldinventory.Groups;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.config.ConfigManager;
-import me.gnat008.perworldinventory.config.ConfigType;
-import me.gnat008.perworldinventory.config.defaults.ConfigValues;
+import me.gnat008.perworldinventory.Config.ConfigManager;
+import me.gnat008.perworldinventory.Config.ConfigType;
+import me.gnat008.perworldinventory.Config.defaults.ConfigValues;
 import org.bukkit.GameMode;
 import org.bukkit.configuration.file.FileConfiguration;
 

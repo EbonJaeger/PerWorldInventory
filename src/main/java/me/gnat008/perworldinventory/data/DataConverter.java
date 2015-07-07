@@ -15,17 +15,17 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.gnat008.perworldinventory.data;
+package me.gnat008.perworldinventory.Data;
 
-import com.kill3rtaco.tacoserialization.InventorySerialization;
-import com.kill3rtaco.tacoserialization.PotionEffectSerialization;
+import me.gnat008.perworldinventory.TacoSerialization.InventorySerialization;
+import me.gnat008.perworldinventory.TacoSerialization.PotionEffectSerialization;
 import com.onarandombox.multiverseinventories.MultiverseInventories;
 import com.onarandombox.multiverseinventories.ProfileTypes;
 import com.onarandombox.multiverseinventories.api.profile.PlayerProfile;
 import com.onarandombox.multiverseinventories.api.profile.WorldGroupProfile;
 import com.onarandombox.multiverseinventories.api.share.Sharables;
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.config.defaults.ConfigValues;
+import me.gnat008.perworldinventory.Config.defaults.ConfigValues;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -35,7 +35,6 @@ import org.bukkit.potion.PotionEffect;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
-import uk.co.tggl.pluckerpluck.multiinv.MultiInvAPI;
 import uk.co.tggl.pluckerpluck.multiinv.api.MIAPIPlayer;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIItemStack;
 

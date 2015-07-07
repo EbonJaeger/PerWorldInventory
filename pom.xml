@@ -118,7 +118,7 @@
                     <relocations>
                         <relocation>
                             <pattern>org.json</pattern>
-                            <shadedPattern>com.ExtendedAlpha.org.json</shadedPattern>
+                            <shadedPattern>me.gnat008.org.json</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>

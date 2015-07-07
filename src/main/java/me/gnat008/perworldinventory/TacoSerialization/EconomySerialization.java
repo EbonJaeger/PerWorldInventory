@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.kill3rtaco.tacoserialization;
+package me.gnat008.perworldinventory.TacoSerialization;
 
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.entity.Player;
