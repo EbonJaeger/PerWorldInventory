@@ -53,6 +53,8 @@ public class PerWorldInventory extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        // Initialize Logger
+        log = new PWILogger();
         instance = this;
 
         if (!(new File(getDataFolder() + File.separator + "data" + File.separator + "defaults").exists())) {
