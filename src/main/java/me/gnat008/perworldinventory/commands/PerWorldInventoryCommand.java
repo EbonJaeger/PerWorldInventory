@@ -1,26 +1,27 @@
-/*
- * Copyright (C) 2014-2015  Gnat008
+/**
+ * PerWorldInventory is a multi-world inventory plugin.
+ * Copyright (C) 2014 - 2015 Gnat008
  *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.gnat008.perworldinventory.commands;
+package me.gnat008.perworldinventory.Commands;
 
-import com.kill3rtaco.tacoserialization.PlayerSerialization;
-import com.kill3rtaco.tacoserialization.Serializer;
+import me.gnat008.perworldinventory.TacoSerialization.PlayerSerialization;
+import me.gnat008.perworldinventory.TacoSerialization.Serializer;
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.groups.Group;
+import me.gnat008.perworldinventory.Groups.Group;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.command.Command;
@@ -59,7 +60,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
             command = Commands.valueOf(args[0].toUpperCase());
         } catch (ArrayIndexOutOfBoundsException | IllegalArgumentException ex) {
             if (isPlayer) {
-                plugin.getPrinter().printToPlayer((Player) sender, "Not a valid command. Please type /pwi help for help.", true);
+                plugin.getPlayerMessenger().sendMessage((Player) sender, "Not a valid command. Please type /pwi help for help.");
             } else {
                 displayConsoleHelp();
             }
@@ -74,40 +75,40 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                         if (args.length == 2) {
                             switch (args[1].toUpperCase()) {
                                 case "MULTIVERSE":
-                                    plugin.getPrinter().printToPlayer(player, "Converting from MultiVerse-Inventories! All messages are sent to console!", false);
+                                    plugin.getPlayerMessenger().sendMessage(player, "Converting from MultiVerse-Inventories! All messages are sent to console!");
                                     mvConvert();
                                     break;
                                 case "MULTIINV":
-                                    plugin.getPrinter().printToPlayer(player, "Converting from MultiInv! All messages are sent to console!", false);
+                                    plugin.getPlayerMessenger().sendMessage(player, "Converting from MultiInv! All messages are sent to console!");
                                     miConvert();
                                     break;
                                 default:
-                                    plugin.getPrinter().printToPlayer(player, "Valid arguments are: MULTIVERSE | MULTIINV", true);
+                                    plugin.getPlayerMessenger().sendMessage(player, "Valid arguments are: MULTIVERSE | MULTIINV");
                                     break;
                             }
                         } else {
-                            plugin.getPrinter().printToPlayer(player, "You must specify the plugin to convert from: MULTIVERSE | MULTIINV", true);
+                            plugin.getPlayerMessenger().sendMessage(player, "You must specify the plugin to convert from: MULTIVERSE | MULTIINV");
                         }
                     } else {
-                        plugin.getPrinter().printToPlayer(player, NO_PERMISSION, true);
+                        plugin.getPlayerMessenger().sendMessage(player, NO_PERMISSION);
                     }
                 } else {
                     if (args.length == 2) {
                         switch (args[1].toUpperCase()) {
                             case "MULTIVERSE":
-                                plugin.getPrinter().printToConsole("Converting from MultiVerse-Inventories!", false);
+                                PerWorldInventory.log.info("Converting from MultiVerse-Inventories!");
                                 mvConvert();
                                 break;
                             case "MULTIINV":
-                                plugin.getPrinter().printToConsole("Converting from MultiInv!", false);
+                                PerWorldInventory.log.info("Converting from MultiInv!");
                                 miConvert();
                                 break;
                             default:
-                                plugin.getPrinter().printToConsole("Valid arguments are: MULTIVERSE | MULTIINV", true);
+                                PerWorldInventory.log.info("Valid arguments are: MULTIVERSE | MULTIINV");
                                 break;
                         }
                     } else {
-                        plugin.getPrinter().printToConsole("You must specify the plugin to convert from: MULTIVERSE | MULTIINV", true);
+                        PerWorldInventory.log.info("You must specify the plugin to convert from: MULTIVERSE | MULTIINV");
                     }
                 }
 
@@ -127,7 +128,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                     if (player.hasPermission(PERMISSION_NODE + "reload")) {
                         reload(player);
                     } else {
-                        plugin.getPrinter().printToPlayer(player, NO_PERMISSION, true);
+                        plugin.getPlayerMessenger().sendMessage(player, NO_PERMISSION);
                     }
                 } else {
                     reload();
@@ -148,14 +149,14 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                                 group = plugin.getGroupManager().getGroupFromWorld(player.getWorld().getName());
                                 setWorldDefault(player, group);
                             } catch (IllegalArgumentException ex) {
-                                plugin.getPrinter().printToPlayer(player, "You are not standing in a valid world!", true);
+                                plugin.getPlayerMessenger().sendMessage(player, "You are not standing in a valid world!");
                             }
                         }
                     } else {
-                        plugin.getPrinter().printToPlayer(player, NO_PERMISSION, true);
+                        plugin.getPlayerMessenger().sendMessage(player, NO_PERMISSION);
                     }
                 } else {
-                    plugin.getPrinter().printToConsole("This command can only be run from ingame.", true);
+                    PerWorldInventory.log.info("This command can only be run from ingame.");
                 }
 
                 return true;
@@ -183,10 +184,10 @@ public class PerWorldInventoryCommand implements CommandExecutor {
     }
 
     private void displayConsoleHelp() {
-        plugin.getPrinter().printToConsole("Available commands:", false);
-        plugin.getPrinter().printToConsole("/pwi convert - Convert MultiVerse-Inventories data", false);
-        plugin.getPrinter().printToConsole("/pwi help - Displays this help", false);
-        plugin.getPrinter().printToConsole("/pwi reload - Reload config and world files", false);
+        PerWorldInventory.log.info("Available commands:");
+        PerWorldInventory.log.info("/pwi convert - Convert MultiVerse-Inventories data");
+        PerWorldInventory.log.info("/pwi help - Displays this help");
+        PerWorldInventory.log.info("/pwi reload - Reload config and world files");
     }
 
     private void displayPlayerHelp(Player player) {
@@ -209,13 +210,13 @@ public class PerWorldInventoryCommand implements CommandExecutor {
     private void reload() {
         reloadConfigFiles();
 
-        plugin.getPrinter().printToConsole("Configuration files reloaded.", false);
+        PerWorldInventory.log.info("Configuration files reloaded.");
     }
 
     private void reload(Player player) {
         reloadConfigFiles();
 
-        plugin.getPrinter().printToPlayer(player, "Configuration files reloaded.", false);
+        plugin.getPlayerMessenger().sendMessage(player, "Configuration files reloaded.");
     }
 
     private void reloadConfigFiles() {
@@ -226,7 +227,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
     private void setWorldDefault(Player player, Group group) {
         File file = new File(plugin.getDefaultFilesDirectory() + File.separator + group.getName() + ".json");
         if (!file.exists()) {
-            plugin.getPrinter().printToPlayer(player, "Default file for this group not found!", true);
+            plugin.getPlayerMessenger().sendMessage(player, "Default file for this group not found!");
             return;
         }
 
@@ -235,7 +236,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
             tmp.getParentFile().mkdirs();
             tmp.createNewFile();
         } catch (IOException ex) {
-            plugin.getPrinter().printToPlayer(player, "Could not create temporary file! Aborting!", true);
+            plugin.getPlayerMessenger().sendMessage(player, "Could not create temporary file! Aborting!");
             return;
         }
         plugin.getSerializer().writePlayerDataToFile(player, PlayerSerialization.serializePlayer(player, plugin), new Group("tmp", null, null), GameMode.SURVIVAL);
@@ -249,6 +250,6 @@ public class PerWorldInventoryCommand implements CommandExecutor {
 
         plugin.getSerializer().getPlayerDataFromFile(player, new Group("tmp", null, null), GameMode.SURVIVAL);
         tmp.deleteOnExit();
-        plugin.getPrinter().printToPlayer(player, "Defaults for '" + group.getName() + "' set!", false);
+        plugin.getPlayerMessenger().sendMessage(player, "Defaults for '" + group.getName() + "' set!");
     }
 }

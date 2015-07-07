@@ -16,13 +16,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.gnat008.perworldinventory.Config;
+package me.gnat008.perworldinventory.Util;
 
-/**
- * Enum for the two types of configs, the main config, and the world groups config.
- */
-public enum ConfigType {
+import org.bukkit.Bukkit;
 
-    CONFIG,
-    WORLDS
+public class MinecraftUtils {
+    public static String getMinecraftVersion() {
+        // Get the raw version
+        final String rawVersion = Bukkit.getVersion();
+
+        // Get the start of the raw string
+        int start = rawVersion.indexOf("MC:");
+        if(start == -1)
+            return rawVersion;
+
+        // Exclude the 'MC:'
+        start += 4;
+
+        // Get the end of the string
+        int end = rawVersion.indexOf(')', start);
+
+        // Get and return the Minecraft version number
+        return rawVersion.substring(start, end);
+    }
 }

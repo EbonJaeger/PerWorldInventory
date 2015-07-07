@@ -1,31 +1,32 @@
-/*
- * Copyright (C) 2014-2015  Gnat008
+/**
+ * PerWorldInventory is a multi-world inventory plugin.
+ * Copyright (C) 2014 - 2015 Gnat008
  *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.gnat008.perworldinventory.data;
+package me.gnat008.perworldinventory.Data;
 
-import com.kill3rtaco.tacoserialization.InventorySerialization;
-import com.kill3rtaco.tacoserialization.PotionEffectSerialization;
+import me.gnat008.perworldinventory.TacoSerialization.InventorySerialization;
+import me.gnat008.perworldinventory.TacoSerialization.PotionEffectSerialization;
 import com.onarandombox.multiverseinventories.MultiverseInventories;
 import com.onarandombox.multiverseinventories.ProfileTypes;
 import com.onarandombox.multiverseinventories.api.profile.PlayerProfile;
 import com.onarandombox.multiverseinventories.api.profile.WorldGroupProfile;
 import com.onarandombox.multiverseinventories.api.share.Sharables;
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.config.defaults.ConfigValues;
+import me.gnat008.perworldinventory.Config.defaults.ConfigValues;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -35,7 +36,6 @@ import org.bukkit.potion.PotionEffect;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
-import uk.co.tggl.pluckerpluck.multiinv.MultiInvAPI;
 import uk.co.tggl.pluckerpluck.multiinv.api.MIAPIPlayer;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIItemStack;
 
@@ -67,7 +67,7 @@ public class DataConverter {
     }
 
     public void convertMultiVerseData() {
-        plugin.getPrinter().printToConsole("Beginning data conversion. This may take awhile...", false);
+        PerWorldInventory.log.info("Beginning data conversion. This may take awhile...");
         MultiverseInventories mvinventories = (MultiverseInventories) plugin.getServer().getPluginManager().getPlugin("Multiverse-Inventories");
         List<WorldGroupProfile> mvgroups = mvinventories.getGroupManager().getGroups();
 
@@ -80,20 +80,20 @@ public class DataConverter {
                         plugin.getSerializer().writePlayerDataToFile(player1, writable, plugin.getGroupManager().getGroup(mvgroup.getName()), GameMode.SURVIVAL);
                     }
                 } catch (Exception ex) {
-                    plugin.getPrinter().printToConsole("Error importing inventory for player: " + player1.getName() +
-                            " For group: " + mvgroup.getName(), true);
+                    PerWorldInventory.log.warning("Error importing inventory for player: " + player1.getName() +
+                            " For group: " + mvgroup.getName());
                     ex.printStackTrace();
                 }
             }
         }
 
-        plugin.getPrinter().printToConsole("Data conversion complete! Disabling Multiverse-Inventories...", false);
+        PerWorldInventory.log.info("Data conversion complete! Disabling Multiverse-Inventories...");
         plugin.getServer().getPluginManager().disablePlugin(mvinventories);
-        plugin.getPrinter().printToConsole("Multiverse-Inventories disabled! Don't forget to remove the .jar!", false);
+        PerWorldInventory.log.info("Multiverse-Inventories disabled! Don't forget to remove the .jar!");
     }
 
     public void convertMultiInvData() {
-        plugin.getPrinter().printToConsole("Beginning data conversion. This may take awhile...", false);
+        PerWorldInventory.log.info("Beginning data conversion. This may take awhile...");
         MultiInv multiinv = (MultiInv) plugin.getServer().getPluginManager().getPlugin("MultiInv");
         /*MultiInvAPI mvAPI = new MultiInvAPI(multiinv);
 
@@ -114,9 +114,9 @@ public class DataConverter {
             }
         }*/
 
-        plugin.getPrinter().printToConsole("Data conversion complete! Disabling MultiInv...", false);
+        PerWorldInventory.log.info("Data conversion complete! Disabling MultiInv...");
         plugin.getServer().getPluginManager().disablePlugin(multiinv);
-        plugin.getPrinter().printToConsole("MultiInv disabled! Don't forget to remove the .jar!", false);
+        PerWorldInventory.log.info("MultiInv disabled! Don't forget to remove the .jar!");
     }
 
     private JSONObject serializeMVIToNewFormat(PlayerProfile data) {

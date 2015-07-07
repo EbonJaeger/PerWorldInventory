@@ -1,27 +1,27 @@
-/*
- * Copyright (C) 2014-2015  Gnat008
+/**
+ * PerWorldInventory is a multi-world inventory plugin.
+ * Copyright (C) 2014 - 2015 Gnat008
  *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.gnat008.perworldinventory.data;
+package me.gnat008.perworldinventory.Data;
 
-import com.kill3rtaco.tacoserialization.PlayerSerialization;
-import com.kill3rtaco.tacoserialization.Serializer;
+import me.gnat008.perworldinventory.Groups.Group;
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.groups.Group;
-import me.gnat008.perworldinventory.util.Printer;
+import me.gnat008.perworldinventory.TacoSerialization.PlayerSerialization;
+import me.gnat008.perworldinventory.TacoSerialization.Serializer;
 import org.bukkit.GameMode;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -85,8 +85,8 @@ public class DataSerializer {
             }
             writeData(file, Serializer.toString(data));
         } catch (IOException ex) {
-            Printer.getInstance(plugin).printToConsole("Error creating file '" + FILE_PATH +
-                    player.getUniqueId().toString() + File.separator + group.getName() + ".json': " + ex.getMessage(), true);
+            PerWorldInventory.log.severe("Error creating file '" + FILE_PATH +
+                    player.getUniqueId().toString() + File.separator + group.getName() + ".json': " + ex.getMessage());
             ex.printStackTrace();
         }
     }
@@ -146,14 +146,14 @@ public class DataSerializer {
                             new File(FILE_PATH + "defaults" + File.separator + "__default.json"));
                     PlayerSerialization.setPlayer(defaultData, player, plugin);
                 } catch (FileNotFoundException ex3) {
-                    plugin.getPrinter().printToPlayer(player, "Something went horribly wrong when loading your inventory! " +
-                            "Please notify a server administrator!", true);
-                    plugin.getPrinter().printToConsole("Unable to find inventory data for player '" + player.getName() +
-                            "' for group '" + group.getName() + "': " + ex3.getMessage(), true);
+                    plugin.getPlayerMessenger().sendMessage(player, "Something went horribly wrong when loading your inventory! " +
+                            "Please notify a server administrator!");
+                    PerWorldInventory.log.severe("Unable to find inventory data for player '" + player.getName() +
+                            "' for group '" + group.getName() + "': " + ex3.getMessage());
                 }
             } catch (IOException exIO) {
-                Printer.getInstance(plugin).printToConsole("Error creating file '" + FILE_PATH +
-                        player.getUniqueId().toString() + File.separator + group.getName() + ".json': " + ex.getMessage(), true);
+                PerWorldInventory.log.severe("Error creating file '" + FILE_PATH +
+                        player.getUniqueId().toString() + File.separator + group.getName() + ".json': " + ex.getMessage());
             }
         }
     }

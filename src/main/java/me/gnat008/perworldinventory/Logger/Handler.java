@@ -16,13 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.gnat008.perworldinventory.Config;
+package me.gnat008.perworldinventory.Logger;
 
-/**
- * Enum for the two types of configs, the main config, and the world groups config.
- */
-public enum ConfigType {
+public interface Handler {
 
-    CONFIG,
-    WORLDS
+    void info(final Object message);
+
+    void warning(final Object message);
+
+    void severe(final Object message);
+
+    void debug(final Object message);
+
 }

@@ -16,13 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.gnat008.perworldinventory.Config;
+package me.gnat008.perworldinventory;
 
-/**
- * Enum for the two types of configs, the main config, and the world groups config.
- */
-public enum ConfigType {
+public class DefaultVals {
 
-    CONFIG,
-    WORLDS
+    public static String pluginName = "PerWorldInventory";
+
 }
