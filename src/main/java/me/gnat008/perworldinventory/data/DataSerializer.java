@@ -18,11 +18,10 @@
 
 package me.gnat008.perworldinventory.Data;
 
+import me.gnat008.perworldinventory.Groups.Group;
+import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.TacoSerialization.PlayerSerialization;
 import me.gnat008.perworldinventory.TacoSerialization.Serializer;
-import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.Groups.Group;
-import me.gnat008.perworldinventory.Util.Printer;
 import org.bukkit.GameMode;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -86,8 +85,8 @@ public class DataSerializer {
             }
             writeData(file, Serializer.toString(data));
         } catch (IOException ex) {
-            Printer.getInstance(plugin).printToConsole("Error creating file '" + FILE_PATH +
-                    player.getUniqueId().toString() + File.separator + group.getName() + ".json': " + ex.getMessage(), true);
+            PerWorldInventory.log.severe("Error creating file '" + FILE_PATH +
+                    player.getUniqueId().toString() + File.separator + group.getName() + ".json': " + ex.getMessage());
             ex.printStackTrace();
         }
     }
@@ -147,14 +146,14 @@ public class DataSerializer {
                             new File(FILE_PATH + "defaults" + File.separator + "__default.json"));
                     PlayerSerialization.setPlayer(defaultData, player, plugin);
                 } catch (FileNotFoundException ex3) {
-                    plugin.getPrinter().printToPlayer(player, "Something went horribly wrong when loading your inventory! " +
-                            "Please notify a server administrator!", true);
-                    plugin.getPrinter().printToConsole("Unable to find inventory data for player '" + player.getName() +
-                            "' for group '" + group.getName() + "': " + ex3.getMessage(), true);
+                    plugin.getPlayerMessenger().sendMessage(player, "Something went horribly wrong when loading your inventory! " +
+                            "Please notify a server administrator!");
+                    PerWorldInventory.log.severe("Unable to find inventory data for player '" + player.getName() +
+                            "' for group '" + group.getName() + "': " + ex3.getMessage());
                 }
             } catch (IOException exIO) {
-                Printer.getInstance(plugin).printToConsole("Error creating file '" + FILE_PATH +
-                        player.getUniqueId().toString() + File.separator + group.getName() + ".json': " + ex.getMessage(), true);
+                PerWorldInventory.log.severe("Error creating file '" + FILE_PATH +
+                        player.getUniqueId().toString() + File.separator + group.getName() + ".json': " + ex.getMessage());
             }
         }
     }

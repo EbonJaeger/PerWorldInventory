@@ -32,7 +32,7 @@ import me.gnat008.perworldinventory.Logger.PWILogger;
 import me.gnat008.perworldinventory.Metrics.Metrics;
 import me.gnat008.perworldinventory.Updater.SpigotUpdater;
 import me.gnat008.perworldinventory.Util.ChatColor;
-import me.gnat008.perworldinventory.Util.Printer;
+import me.gnat008.perworldinventory.Util.PlayerMessenger;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -70,28 +70,28 @@ public class PerWorldInventory extends JavaPlugin {
 
         getGroupManager().loadGroupsToMemory();
 
-        getLogger().info("Registering commands...");
+        log.info("Registering commands...");
         getCommand("pwi").setExecutor(new PerWorldInventoryCommand(this));
-        getLogger().info("Commands registered! Registering listeners...");
+        log.info("Commands registered! Registering listeners...");
         getServer().getPluginManager().registerEvents(new PlayerChangedWorldListener(this), this);
-        getLogger().info("Registered PlayerChangedWorldListener.");
+        log.info("Registered PlayerChangedWorldListener.");
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(this), this);
-        getLogger().info("Registered PlayerQuitListener.");
+        log.info("Registered PlayerQuitListener.");
 
         if (ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean()) {
             getServer().getPluginManager().registerEvents(new PlayerGameModeChangeListener(this), this);
-            getLogger().info("Registered PlayerGameModeChangeListener.");
+            log.info("Registered PlayerGameModeChangeListener.");
         }
-        getLogger().info("Listeners enabled!");
+        log.info("Listeners enabled!");
 
         if (getServer().getPluginManager().getPlugin("Vault") != null) {
-            getLogger().info("Vault found! Hooking into it...");
+            log.info("Vault found! Hooking into it...");
             RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
             if (rsp != null) {
                 economy = rsp.getProvider();
-                getLogger().info("Hooked into Vault!");
+                log.info("Hooked into Vault!");
             } else {
-                getLogger().warning("Unable to hook into Vault!");
+                log.warning("Unable to hook into Vault!");
             }
         }
 
@@ -124,7 +124,7 @@ public class PerWorldInventory extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        Printer.disable();
+        PlayerMessenger.disable();
         DataSerializer.disable();
         DataConverter.disable();
         getConfigManager().disable();
@@ -174,8 +174,8 @@ public class PerWorldInventory extends JavaPlugin {
         return GroupManager.getInstance(this);
     }
 
-    public Printer getPrinter() {
-        return Printer.getInstance(this);
+    public PlayerMessenger getPlayerMessenger() {
+        return PlayerMessenger.getInstance(this);
     }
 
     public SpigotUpdater getUpdater()
@@ -197,7 +197,7 @@ public class PerWorldInventory extends JavaPlugin {
                 out.write(buff, 0, len);
             }
         } catch (IOException ex) {
-            getPrinter().printToConsole("An error occurred copying file '" + from.getName() + "' to '" + to.getName() + "': " + ex.getMessage(), true);
+            log.warning("An error occurred copying file '" + from.getName() + "' to '" + to.getName() + "': " + ex.getMessage());
         } finally {
             if (in != null) {
                 try {

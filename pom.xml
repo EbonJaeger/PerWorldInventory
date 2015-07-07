@@ -9,7 +9,7 @@
     <version>1.5.4</version>
 
     <name>PerWorldInventory</name>
-    <description>The multiverse inventories replacement // and multiinv</description>
+    <description>The multiverse inventories replacement</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -18,6 +18,11 @@
         <bukkitVersion>1.8.7-R0.1-SNAPSHOT</bukkitVersion>
         <mainClass>${project.groupId}.${project.artifactId}</mainClass>
     </properties>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/Gnat008/PerWorldInventory/issues</url>
+    </issueManagement>
 
     <repositories>
         <repository>

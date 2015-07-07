@@ -1,6 +1,6 @@
-main: me.gnat008.perworldinventory.PerWorldInventory
-version: 1.5.4
-name: PerWorldInventory
+main: ${project.groupId}.perworldinventory.${project.artifactId}
+version: ${project.version}
+name: ${project.name}
 author: Gnat008
 softdepend: [Vault]
 

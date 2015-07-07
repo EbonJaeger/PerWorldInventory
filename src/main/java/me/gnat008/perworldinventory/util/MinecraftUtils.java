@@ -1,5 +1,5 @@
 /**
- * NexusInventory is a multi-world inventory plugin.
+ * PerWorldInventory is a multi-world inventory plugin.
  * Copyright (C) 2014 - 2015 Gnat008
  *
  * This program is free software: you can redistribute it and/or modify
