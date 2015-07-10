@@ -29,8 +29,10 @@ import me.gnat008.perworldinventory.listeners.PlayerGameModeChangeListener;
 import me.gnat008.perworldinventory.listeners.PlayerQuitListener;
 import me.gnat008.perworldinventory.util.Printer;
 import net.milkbowl.vault.economy.Economy;
+
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.mcstats.Metrics;
 
 import java.io.*;
 
@@ -58,7 +60,15 @@ public class PerWorldInventory extends JavaPlugin {
         getConfigManager().addConfig(ConfigType.WORLDS, new File(getDataFolder() + File.separator + "worlds.yml"));
 
         getGroupManager().loadGroupsToMemory();
-
+        
+        getLogger().info("Starting metrics...");
+        try {
+            Metrics metrics = new Metrics(this);
+            metrics.start();
+        } catch (IOException e) {
+        	getLogger().info("Failed to start metrics!");
+        }
+        
         getLogger().info("Registering commands...");
         getCommand("pwi").setExecutor(new PerWorldInventoryCommand(this));
         getLogger().info("Commands registered! Registering listeners...");

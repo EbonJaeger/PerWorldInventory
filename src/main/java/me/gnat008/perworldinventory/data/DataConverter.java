@@ -35,7 +35,6 @@ import org.bukkit.potion.PotionEffect;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
-import uk.co.tggl.pluckerpluck.multiinv.MultiInvAPI;
 import uk.co.tggl.pluckerpluck.multiinv.api.MIAPIPlayer;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIItemStack;
 

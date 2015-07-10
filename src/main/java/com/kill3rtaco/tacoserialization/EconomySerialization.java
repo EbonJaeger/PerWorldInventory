@@ -35,7 +35,7 @@ public class EconomySerialization {
                 data.put("bank-balance", econ.bankBalance(player.getName()).balance);
             }
 
-            data.put("balance", econ.getBalance(player));
+            data.put("balance", econ.getBalance(player.getName()));
 
             return data;
         } catch (JSONException ex) {
@@ -51,8 +51,8 @@ public class EconomySerialization {
                 econ.bankDeposit(player.getName(), data.getDouble("bank-balance"));
             }
 
-            econ.withdrawPlayer(player, econ.getBalance(player));
-            econ.depositPlayer(player, data.getDouble("balance"));
+            econ.withdrawPlayer(player.getName(), econ.getBalance(player.getName()));
+            econ.depositPlayer(player.getName(), data.getDouble("balance"));
         } catch (JSONException ex) {
             ex.printStackTrace();
         }
