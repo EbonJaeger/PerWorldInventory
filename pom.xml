@@ -5,8 +5,25 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>me.gnat008</groupId>
-    <artifactId>PerWorldInventory</artifactId>
+    <artifactId>perworldinventory</artifactId>
     <version>1.5.4</version>
+
+    <name>PerWorldInventory</name>
+    <description>The multiverse inventories replacement</description>
+    
+    <packaging>jar</packaging>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <bukkitVersion>1.8.7-R0.1-SNAPSHOT</bukkitVersion>
+    </properties>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/Gnat008/PerWorldInventory/issues</url>
+    </issueManagement>
 
     <repositories>
         <repository>
@@ -18,12 +35,7 @@
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
         </repository>
-
-        <repository>
-            <id>local-repo</id>
-            <url>file://$(basedir)/lib/</url>
-        </repository>
-
+        
         <repository>
             <id>vault-repo</id>
             <url>http://nexus.theyeticave.net/content/repositories/pub_releases</url>
@@ -32,15 +44,21 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20140107</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.8-R0.1-SNAPSHOT</version>
+            <version>${bukkitVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>com.onarandombox.multiverseinventories</groupId>
             <artifactId>Multiverse-Inventories</artifactId>
-            <version>2.4</version>
+            <version>2.5</version>
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
@@ -48,9 +66,10 @@
         <dependency>
             <groupId>uk.co</groupId>
             <artifactId>MultiInv</artifactId>
-            <version>3.3.2-dev</version>
-            <type>jar</type>
-            <scope>compile</scope>
+            <version>3.3.5</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/Library/MultiInv-3.3.5.jar</systemPath>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
@@ -62,29 +81,75 @@
     </dependencies>
 
     <build>
-        <finalName>${project.name}</finalName>
-        <sourceDirectory>src/main/java</sourceDirectory>
-        <resources>
-            <resource>
-                <targetPath>.</targetPath>
-                <filtering>true</filtering>
-                <directory>${basedir}/src/main/resources/</directory>
-                <includes>
-                    <include>**</include>
-                </includes>
-            </resource>
-        </resources>
-
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.2</version>
+                <version>3.3</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>replacer</artifactId>
+                <version>1.5.3</version>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <file>target/classes/plugin.yml</file>
+                    <replacements>
+                        <replacement>
+                            <token>maven-version</token>
+                            <value>${project.version}</value>
+                        </replacement>
+                    </replacements>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <archive>
+                        <manifestFile>${manifest.file}</manifestFile>
+                    </archive>
+                    <finalName>${project.name}-${project.version}</finalName>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <artifactSet>
+                        <includes>
+                            <include>org.json</include>
+                        </includes>
+                    </artifactSet>
+                    <relocations>
+                        <relocation>
+                            <pattern>org.json</pattern>
+                            <shadedPattern>me.gnat008.org.json</shadedPattern>
+                        </relocation>
+                    </relocations>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
-
 </project>
