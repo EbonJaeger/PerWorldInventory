@@ -1,0 +1,9 @@
+machine:
+  java:
+    version: oraclejdk7
+general:
+  artifacts:
+    - "target/PerWorldInventory-*.jar"
+test:
+  override:
+    - mvn clean install
