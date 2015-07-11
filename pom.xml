@@ -6,7 +6,7 @@
 
     <groupId>me.gnat008</groupId>
     <artifactId>perworldinventory</artifactId>
-    <version>1.5.4</version>
+    <version>1.5.5</version>
 
     <name>PerWorldInventory</name>
     <description>The multiverse inventories replacement</description>
@@ -57,7 +57,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>${bukkitVersion}</version>
+            <version>1.8-R0.1-SNAPSHOT</version>
         </dependency>
         
         <dependency>
@@ -91,6 +91,10 @@
                 <exclusion>
                     <groupId>org.bukkit</groupId>
                     <artifactId>craftbukkit</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>net.milkbowl.vault</groupId>
+                    <artifactId>Vault</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
