@@ -124,21 +124,21 @@ public class PlayerStatsSerialization {
      */
     public static void applyPlayerStats(Player player, JSONObject stats) {
         try {
-            if (stats.has("can-fly"))
+            if (ConfigValues.CAN_FLY.getBoolean() && stats.has("can-fly"))
                 player.setAllowFlight(stats.getBoolean("can-fly"));
-            if (stats.has("display-name"))
+            if (ConfigValues.DISPLAY_NAME.getBoolean() && stats.has("display-name"))
                 player.setDisplayName(stats.getString("display-name"));
-            if (stats.has("exhaustion"))
+            if (ConfigValues.EXHAUSTION.getBoolean() && stats.has("exhaustion"))
                 player.setExhaustion((float) stats.getDouble("exhaustion"));
-            if (stats.has("exp"))
+            if (ConfigValues.EXP.getBoolean() && stats.has("exp"))
                 player.setExp((float) stats.getDouble("exp"));
-            if (stats.has("flying"))
+            if (ConfigValues.FLYING.getBoolean() && stats.has("flying"))
                 player.setFlying(stats.getBoolean("flying"));
-            if (stats.has("food"))
+            if (ConfigValues.FOOD.getBoolean() && stats.has("food"))
                 player.setFoodLevel(stats.getInt("food"));
-            if (stats.has("health"))
+            if (ConfigValues.HEALTH.getBoolean() && stats.has("health"))
                 player.setHealth(stats.getDouble("health"));
-            if (stats.has("gamemode")) {
+            if (ConfigValues.GAMEMODE.getBoolean() && stats.has("gamemode")) {
                 if (stats.get("gamemode") instanceof String) {
                     player.setGameMode(GameMode.valueOf(stats.getString("gamemode")));
                 } else {
@@ -159,11 +159,11 @@ public class PlayerStatsSerialization {
                     }
                 }
             }
-            if (stats.has("level"))
+            if (ConfigValues.LEVEL.getBoolean() && stats.has("level"))
                 player.setLevel(stats.getInt("level"));
-            if (stats.has("potion-effects"))
+            if (ConfigValues.POTION_EFFECTS.getBoolean() && stats.has("potion-effects"))
                 PotionEffectSerialization.setPotionEffects(stats.getString("potion-effects"), player);
-            if (stats.has("saturation"))
+            if (ConfigValues.SATURATION.getBoolean() && stats.has("saturation"))
                 player.setSaturation((float) stats.getDouble("saturation"));
         } catch (JSONException e) {
             e.printStackTrace();
