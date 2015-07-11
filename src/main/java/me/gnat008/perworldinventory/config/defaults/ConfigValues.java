@@ -24,6 +24,7 @@ public enum ConfigValues {
 
     // First level
     FIRST_START(true),
+    ENABLE_METRICS(true),
     MANAGE_GAMEMODES(false),
     SEPARATE_GAMEMODE_INVENTORIES(true),
     USE_MYSQL(false),
@@ -66,13 +67,13 @@ public enum ConfigValues {
     }
 
     public String getKey() {
-        if (this.ordinal() < 4)
-            return this.toString().toLowerCase().replace('_', '-');
-        else if (this.ordinal() < 8)
-            return "player." + this.toString().toLowerCase().replace('_', '-');
-        else if (this.ordinal() < 19)
-            return "player.stats." + this.toString().toLowerCase().replace('_', '-');
-        else {
+        if (this.ordinal() < 5)
+            return this.toString().toLowerCase().replaceAll("_", "-");
+        else if (this.ordinal() < 9)
+            return "player." + this.toString().toLowerCase().replaceAll("_", "-");
+        else if (this.ordinal() < 20) {
+            return "player.stats." + this.toString().toLowerCase().replaceAll("_", "-");
+        } else {
             return "mysql." + this.toString().toLowerCase().replace('_', '-');
         }
     }
