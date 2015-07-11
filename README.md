@@ -7,6 +7,7 @@
 
 ## Installation and Usage
 
+[![Build Status](https://travis-ci.org/Gnat008/PerWorldInventory.svg?branch=master)](https://travis-ci.org/Gnat008/PerWorldInventory) <br />
 MCStats (metrics): <br />
 <a href="http://mcstats.org/plugin/PerWorldInventory" target="_blank" class="externalLink" rel="nofollow"><img src="http://i.mcstats.org/PerWorldInventory/Global+Statistics.png" class="bbCodeImage LbImage" alt="[&#8203;IMG]" data-url="http://i.mcstats.org/PerWorldInventory/Global+Statistics.png"></a>
 
