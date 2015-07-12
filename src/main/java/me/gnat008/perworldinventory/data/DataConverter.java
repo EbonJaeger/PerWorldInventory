@@ -36,6 +36,7 @@ import org.bukkit.potion.PotionEffect;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
+import uk.co.tggl.pluckerpluck.multiinv.MultiInvAPI;
 import uk.co.tggl.pluckerpluck.multiinv.api.MIAPIPlayer;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIItemStack;
 
@@ -113,24 +114,45 @@ public class DataConverter {
     public void convertMultiInvData() {
         plugin.getLogger().info("Beginning data conversion. This may take awhile...");
         MultiInv multiinv = (MultiInv) plugin.getServer().getPluginManager().getPlugin("MultiInv");
-        /*MultiInvAPI mvAPI = new MultiInvAPI(multiinv);
+        MultiInvAPI mvAPI = new MultiInvAPI(multiinv);
 
-        for (String world : mvAPI.getGroups().values()) {
-            System.out.println("World: " + world);
+        for (String groupName : mvAPI.getGroups().values()) {
             for (OfflinePlayer offlinePlayer : Bukkit.getOfflinePlayers()) {
-                System.out.println("OfflinePlayer: " + offlinePlayer.getName());
-                MIAPIPlayer player = mvAPI.getPlayerInstance(offlinePlayer, world, GameMode.SURVIVAL);
-                if (player != null && player.getInventory() != null && player.getInventory().getInventoryContents() != null) {
-                    System.out.println("MIAPIPlayer: " + player.getPlayername());
-                    try {
-                        plugin.getSerializer().writePlayerDataToFile(offlinePlayer, serializeMIToNewFormat(player), mvAPI.getGroups().get(world), GameMode.SURVIVAL);
-                    } catch (Exception ex) {
-                        plugin.getPrinter().printToConsole("Error importing inventory for player '" + offlinePlayer.getName() + ": " + ex.getMessage(), true);
-                        ex.printStackTrace();
+                try {
+                    for (GameMode gamemode : GameMode.values()) {
+                        MIAPIPlayer player = null;
+                        switch (gamemode) {
+                            case SURVIVAL:
+                                player = mvAPI.getPlayerInstance(offlinePlayer, groupName, gamemode);
+                                break;
+                            case ADVENTURE:
+                                player = mvAPI.getPlayerInstance(offlinePlayer, groupName, gamemode);
+                                break;
+                            case SPECTATOR:
+                            case CREATIVE:
+                                player = mvAPI.getPlayerInstance(offlinePlayer, groupName, GameMode.CREATIVE);
+                                break;
+                        }
+
+                        if (player != null) {
+                            Group group = plugin.getGroupManager().getGroup(groupName);
+                            if (group == null) {
+                                group = new Group(groupName, null, null);
+                            }
+
+                            plugin.getSerializer().writePlayerDataToFile(
+                                    offlinePlayer,
+                                    serializeMIToNewFormat(player),
+                                    group,
+                                    gamemode);
+                        }
                     }
+                } catch (Exception ex) {
+                    plugin.getLogger().warning("Error importing inventory for player '" + offlinePlayer.getName() +
+                            "' for group '" + groupName + "': " + ex.getMessage());
                 }
             }
-        }*/
+        }
 
         plugin.getLogger().info("Data conversion complete! Disabling MultiInv...");
         plugin.getServer().getPluginManager().disablePlugin(multiinv);
