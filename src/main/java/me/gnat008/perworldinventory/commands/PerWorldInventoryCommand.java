@@ -34,8 +34,6 @@ import java.util.List;
 
 public class PerWorldInventoryCommand implements CommandExecutor {
 
-    private enum Commands {CONVERT, HELP, RELOAD, SETWORLDDEFAULT}
-
     private PerWorldInventory plugin;
 
     private final String NO_PERMISSION = "You do not have permission to do that.";
@@ -54,9 +52,9 @@ public class PerWorldInventoryCommand implements CommandExecutor {
             player = (Player) sender;
         }
 
-        Commands command;
+        PWICommand command;
         try {
-            command = Commands.valueOf(args[0].toUpperCase());
+            command = PWICommand.valueOf(args[0].toUpperCase());
         } catch (ArrayIndexOutOfBoundsException | IllegalArgumentException ex) {
             if (isPlayer) {
                 plugin.getPrinter().printToPlayer((Player) sender, "Not a valid command. Please type /pwi help for help.", true);
