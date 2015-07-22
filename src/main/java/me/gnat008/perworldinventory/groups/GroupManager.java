@@ -59,11 +59,11 @@ public class GroupManager {
     }
 
     public void addGroup(String name, List<String> worlds, GameMode gamemode) {
-        groups.put(name, new Group(name, worlds, gamemode));
+        groups.put(name.toLowerCase(), new Group(name, worlds, gamemode));
     }
 
     public Group getGroup(String group) {
-        return this.groups.containsKey(group) ? this.groups.get(group) : null;
+        return this.groups.containsKey(group.toLowerCase()) ? this.groups.get(group.toLowerCase()) : null;
     }
 
     public Group getGroupFromWorld(String world) {
