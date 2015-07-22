@@ -54,7 +54,7 @@ public class PlayerQuitListener implements Listener {
                             player.getUniqueId().toString(),
                             group.getName(),
                             player.getGameMode().toString().toLowerCase(),
-                            plugin.getSerializer().serializeForMySQL(PlayerSerialization.serializePlayer(player, plugin)));
+                            PlayerSerialization.serializePlayer(player, plugin));
                 } catch (SQLException ex) {
                     plugin.getLogger().severe("Error trying to save player data to database: " + ex.getMessage());
                     plugin.getLogger().severe("Saving to flatfile instead!");
@@ -76,7 +76,7 @@ public class PlayerQuitListener implements Listener {
                             player.getUniqueId().toString(),
                             group.getName(),
                             GameMode.SURVIVAL.toString().toLowerCase(),
-                            plugin.getSerializer().serializeForMySQL(PlayerSerialization.serializePlayer(player, plugin)));
+                            PlayerSerialization.serializePlayer(player, plugin));
                 } catch (SQLException ex) {
                     plugin.getLogger().severe("Error trying to save player data to database: " + ex.getMessage());
                     plugin.getLogger().severe("Saving to flatfile instead!");

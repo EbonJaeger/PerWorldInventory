@@ -54,7 +54,7 @@ public class PlayerGameModeChangeListener implements Listener {
                         player.getUniqueId().toString(),
                         group.getName(),
                         oldGameMode.toString().toLowerCase(),
-                        plugin.getSerializer().serializeForMySQL(PlayerSerialization.serializePlayer(player, plugin)));
+                        PlayerSerialization.serializePlayer(player, plugin));
             } catch (SQLException ex) {
                 plugin.getLogger().severe("Error trying to save player data to database: " + ex.getMessage());
                 plugin.getLogger().severe("Saving to flatfile instead!");

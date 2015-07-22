@@ -154,14 +154,4 @@ public class DataSerializer {
             }
         }
     }
-
-    public byte[] serializeForMySQL(JSONObject data) {
-        try {
-            byte[] bytes = data.toString().getBytes("UTF-8");
-            return bytes;
-        } catch (UnsupportedEncodingException ex) {
-            plugin.getLogger().severe("Error during encoding: " + ex.getMessage());
-            return null;
-        }
-    }
 }
