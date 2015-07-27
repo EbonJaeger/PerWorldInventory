@@ -21,6 +21,7 @@ import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.defaults.ConfigValues;
 import org.json.JSONObject;
 
+import javax.sql.rowset.serial.SerialBlob;
 import java.sql.*;
 import java.util.UUID;
 
@@ -187,25 +188,28 @@ public class MySQLManager {
      */
     private void updateExising(String data_uuid, JSONObject data) throws SQLException {
         if (data.has("ender-chest")) {
+            Blob ender = new SerialBlob(data.getJSONArray("ender-chest").toString().getBytes());
             PreparedStatement updateEnderChest = mySQL.prepareStatement(
                     "UPDATE `" + prefix + "ender_chests` SET `items` = ? WHERE `data_uuid` = ?;"
             );
-            updateEnderChest.setBytes(1, data.getJSONArray("ender-chest").toString().getBytes());
+            updateEnderChest.setBlob(1, ender);
             updateEnderChest.setString(2, data_uuid);
             mySQL.execute(updateEnderChest);
         }
 
         if (data.has("inventory")) {
+            Blob armor = new SerialBlob(data.getJSONObject("inventory").getJSONArray("armor").toString().getBytes());
             PreparedStatement updateArmor = mySQL.prepareStatement(
                     "UPDATE `" + prefix + "armor` SET `items` = ? WHERE `data_uuid` = ?;"
             );
-            updateArmor.setBytes(1, data.getJSONObject("inventory").getJSONArray("armor").toString().getBytes());
+            updateArmor.setBlob(1, armor);
             updateArmor.setString(2, data_uuid);
 
+            Blob inv = new SerialBlob(data.getJSONObject("inventory").getJSONArray("inventory").toString().getBytes());
             PreparedStatement updateInventory = mySQL.prepareStatement(
                     "UPDATE `" + prefix + "inventory` SET `items` = ? WHERE `data_uuid` = ?;"
             );
-            updateArmor.setBytes(1, data.getJSONObject("inventory").getJSONArray("inventory").toString().getBytes());
+            updateArmor.setBlob(1, inv);
             updateArmor.setString(2, data_uuid);
 
             mySQL.execute(updateArmor);
