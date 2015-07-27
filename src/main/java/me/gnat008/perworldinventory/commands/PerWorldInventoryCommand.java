@@ -37,7 +37,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
     private PerWorldInventory plugin;
 
     private final String NO_PERMISSION = "You do not have permission to do that.";
-    private final String PERMISSION_NODE = "perworldinventories.";
+    private final String PERMISSION_NODE = "perworldinventory.";
 
     public PerWorldInventoryCommand(PerWorldInventory plugin) {
         this.plugin = plugin;
@@ -246,7 +246,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
         plugin.getSerializer().writeData(file, Serializer.toString(PlayerSerialization.serializePlayer(player, plugin)));
 
         plugin.getSerializer().getPlayerDataFromFile(player, new Group("tmp", null, null), GameMode.SURVIVAL);
-        tmp.deleteOnExit();
+        tmp.delete();
         plugin.getPrinter().printToPlayer(player, "Defaults for '" + group.getName() + "' set!", false);
     }
 }
