@@ -111,7 +111,7 @@ public class DataSerializer {
         });
     }
 
-    public void getPlayerDataFromFile(Player player, Group group, GameMode gamemode) {
+    public JSONObject getPlayerDataFromFile(Player player, Group group, GameMode gamemode) {
         File file;
         switch(gamemode) {
             case ADVENTURE:

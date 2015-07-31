@@ -78,9 +78,7 @@ public class PerWorldInventory extends JavaPlugin {
         getCommand("pwi").setExecutor(new PerWorldInventoryCommand(this));
         getLogger().info("Commands registered! Registering listeners...");
         getServer().getPluginManager().registerEvents(new PlayerChangedWorldListener(this), this);
-        getLogger().info("Registered PlayerChangedWorldListener.");
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(this), this);
-        getLogger().info("Registered PlayerQuitListener.");
 
         if (ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean()) {
             getServer().getPluginManager().registerEvents(new PlayerGameModeChangeListener(this), this);
