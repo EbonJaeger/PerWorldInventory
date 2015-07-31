@@ -11,7 +11,6 @@
           "exp": 0,
           "food": 20
      },
-     "economy": {"balance": 0},
      "data-format": 1,
      "inventory": {
           "armor": [

@@ -24,6 +24,7 @@ public enum ConfigValues {
 
     // First level
     FIRST_START(true),
+    ENABLE_METRICS(true),
     MANAGE_GAMEMODES(false),
     SEPARATE_GAMEMODE_INVENTORIES(true),
 
@@ -57,9 +58,9 @@ public enum ConfigValues {
     }
 
     public String getKey() {
-        if (this.ordinal() < 3)
+        if (this.ordinal() < 4)
             return this.toString().toLowerCase().replaceAll("_", "-");
-        else if (this.ordinal() < 7)
+        else if (this.ordinal() < 8)
             return "player." + this.toString().toLowerCase().replaceAll("_", "-");
         else
             return "player.stats." + this.toString().toLowerCase().replaceAll("_", "-");

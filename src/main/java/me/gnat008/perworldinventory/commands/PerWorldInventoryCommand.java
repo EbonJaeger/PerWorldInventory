@@ -34,12 +34,10 @@ import java.util.List;
 
 public class PerWorldInventoryCommand implements CommandExecutor {
 
-    private enum Commands {CONVERT, HELP, RELOAD, SETWORLDDEFAULT}
-
     private PerWorldInventory plugin;
 
     private final String NO_PERMISSION = "You do not have permission to do that.";
-    private final String PERMISSION_NODE = "perworldinventories.";
+    private final String PERMISSION_NODE = "perworldinventory.";
 
     public PerWorldInventoryCommand(PerWorldInventory plugin) {
         this.plugin = plugin;
@@ -54,9 +52,9 @@ public class PerWorldInventoryCommand implements CommandExecutor {
             player = (Player) sender;
         }
 
-        Commands command;
+        PWICommand command;
         try {
-            command = Commands.valueOf(args[0].toUpperCase());
+            command = PWICommand.valueOf(args[0].toUpperCase());
         } catch (ArrayIndexOutOfBoundsException | IllegalArgumentException ex) {
             if (isPlayer) {
                 plugin.getPrinter().printToPlayer((Player) sender, "Not a valid command. Please type /pwi help for help.", true);
@@ -248,7 +246,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
         plugin.getSerializer().writeData(file, Serializer.toString(PlayerSerialization.serializePlayer(player, plugin)));
 
         plugin.getSerializer().getPlayerDataFromFile(player, new Group("tmp", null, null), GameMode.SURVIVAL);
-        tmp.deleteOnExit();
+        tmp.delete();
         plugin.getPrinter().printToPlayer(player, "Defaults for '" + group.getName() + "' set!", false);
     }
 }
