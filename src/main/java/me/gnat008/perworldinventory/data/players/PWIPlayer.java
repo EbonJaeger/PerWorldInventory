@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2014-2015  Erufael
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package me.gnat008.perworldinventory.data.players;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
@@ -143,5 +160,231 @@ public class PWIPlayer {
      */
     public void setCanFly(boolean canFly) {
         this.canFly = canFly;
+    }
+
+    /**
+     * Get a player's display name.
+     *
+     * @return Display name
+     */
+    public String getDisplayName() {
+        return this.displayName;
+    }
+
+    /**
+     * Set a player's display name.
+     *
+     * @param displayName Display name
+     */
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    /**
+     * Get a player's exhaustion level.
+     *
+     * @return Exhaustion
+     */
+    public float getExhaustion() {
+        return this.exhaustion;
+    }
+
+    /**
+     * Set a player's exhaustion level.
+     *
+     * @param exhaustion Exhaustion
+     */
+    public void setExhaustion(float exhaustion) {
+        this.exhaustion = exhaustion;
+    }
+
+    /**
+     * Get a player's experience amount.
+     *
+     * @return Experience
+     */
+    public float getExperience() {
+        return this.experience;
+    }
+
+    /**
+     * Set a player's experience amount.
+     *
+     * @param experience Experience
+     */
+    public void setExperience(float experience) {
+        this.experience = experience;
+    }
+
+    /**
+     * See if a player is currently flying.
+     *
+     * @return Flying
+     */
+    public boolean isFlying() {
+        return this.isFlying;
+    }
+
+    /**
+     * Set if a player is flying.
+     *
+     * @param flying Flying
+     */
+    public void setFlying(boolean flying) {
+        this.isFlying = flying;
+    }
+
+    /**
+     * Get a player's food level.
+     *
+     * @return Food level
+     */
+    public int getFoodLevel() {
+        return this.foodLevel;
+    }
+
+    /**
+     * Set a player's food level.
+     *
+     * @param foodLevel Food level
+     */
+    public void setFoodLevel(int foodLevel) {
+        this.foodLevel = foodLevel;
+    }
+
+    /**
+     * Get a player's GameMode.
+     *
+     * @return GameMode
+     */
+    public GameMode getGamemode() {
+        return this.gamemode;
+    }
+
+    /**
+     * Set a player's GameMode.
+     *
+     * @param gamemode GameMode
+     */
+    public void setGamemode(GameMode gamemode) {
+        this.gamemode = gamemode;
+    }
+
+    /**
+     * Get a player's current experience level.
+     *
+     * @return Level
+     */
+    public int getLevel() {
+        return this.level;
+    }
+
+    /**
+     * Set a player's current experience level.
+     *
+     * @param level Level
+     */
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    /**
+     * Get a player's saturation level.
+     *
+     * @return Saturation
+     */
+    public float getSaturationLevel() {
+        return this.saturationLevel;
+    }
+
+    /**
+     * Set a player's saturation level.
+     *
+     * @param saturationLevel Saturation
+     */
+    public void setSaturationLevel(float saturationLevel) {
+        this.saturationLevel = saturationLevel;
+    }
+
+    /**
+     * Get a player's active potion effects.
+     *
+     * @return Active potion effects
+     */
+    public Collection<PotionEffect> getPotionEffects() {
+        return this.potionEffects;
+    }
+
+    /**
+     * Set a player's active potion effects.
+     *
+     * @param potionEffects Potion effects
+     */
+    public void setPotionEffects(Collection<PotionEffect> potionEffects) {
+        this.potionEffects = potionEffects;
+    }
+
+    /**
+     * Get a player's bank balance (economy).
+     *
+     * @return Bank balance
+     */
+    public double getBankBalance() {
+        return this.bankBalance;
+    }
+
+    /**
+     * Set a player's bank balance (economy).
+     *
+     * @param bankBalance Bank balance
+     */
+    public void setBankBalance(double bankBalance) {
+        this.bankBalance = bankBalance;
+    }
+
+    /**
+     * Get a player's balance (economy).
+     *
+     * @return Balance
+     */
+    public double getBalance() {
+        return this.balance;
+    }
+
+    /**
+     * Set a player's balance (economy).
+     *
+     * @param balance Balance
+     */
+    public void setBalance(double balance) {
+        this.balance = balance;
+    }
+
+    /**
+     * Get a player's UUID.
+     *
+     * @return UUID
+     */
+    public UUID getUuid() {
+        return this.uuid;
+    }
+
+    /**
+     * Get a player's name.
+     *
+     * @return Name
+     */
+    public String getName() {
+        return this.name;
+    }
+
+    /**
+     * Get a player's data file directory, where flat-file inventory information
+     * is stored.
+     *
+     * @return Data file directory
+     */
+    public File getDataFileDirectory() {
+        return this.dataFileDirectory;
     }
 }
