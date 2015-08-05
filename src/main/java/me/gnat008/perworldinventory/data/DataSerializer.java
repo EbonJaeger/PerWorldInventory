@@ -133,6 +133,9 @@ public class DataSerializer {
             PlayerSerialization.setPlayer(data, player, plugin);
         } catch (FileNotFoundException | JSONException ex) {
             try {
+                if (!file.getParentFile().exists()) {
+                    file.getParentFile().createNewFile();
+                }
                 file.createNewFile();
                 JSONObject defaultGroupData = Serializer.getObjectFromFile(
                         new File(FILE_PATH + "defaults" + File.separator + group.getName() + ".json"));
