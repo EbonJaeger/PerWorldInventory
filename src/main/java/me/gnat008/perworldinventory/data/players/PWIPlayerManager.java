@@ -18,12 +18,18 @@
 package me.gnat008.perworldinventory.data.players;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
+import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-
+/**
+ * This class is used to manage cached players.
+ * Players are meant to be added when data needs to be saved, and removed
+ * when the data has been saved to the database, whether it be MySQL or
+ * flat files.
+ */
 public class PWIPlayerManager {
 
     private static PWIPlayerManager instance = null;
@@ -54,5 +60,35 @@ public class PWIPlayerManager {
      */
     public void disable() {
         instance = null;
+    }
+
+    /**
+     * Add a new player to the cache.
+     *
+     * @param player The Player to add
+     */
+    public void addPlayer(Player player) {
+        playerCache.put(player.getUniqueId(), new PWIPlayer(player));
+    }
+
+    /**
+     * Removes a player from the cache. This should be called when the data has been
+     * written to the database so we don't use up unnecessary amounts of memory.
+     *
+     * @param uuid The UUID of the player to remove
+     */
+    public void removePlayer(UUID uuid) {
+        playerCache.remove(uuid);
+    }
+
+    /**
+     * Get a PWI player from a UUID.
+     * This method will return null if no player is found.
+     *
+     * @param uuid The UUID of the player to get
+     * @return The PWIPlayer
+     */
+    public PWIPlayer getPlayer(UUID uuid) {
+        return playerCache.get(uuid) != null ? playerCache.get(uuid) : null;
     }
 }

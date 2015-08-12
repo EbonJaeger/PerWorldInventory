@@ -191,6 +191,8 @@
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                     <artifactSet>
                         <includes>
+                            <include>org.apache.tomcat:tomcat-jdbc</include>
+                            <inclide>org.apache.tomcat:tomcat-juli</inclide>
                             <include>org.json</include>
                             <include>org.mcstats.*:*</include>
                         </includes>
@@ -203,10 +205,6 @@
                        <relocation>
                            <pattern>org.json</pattern>
                            <shadedPattern>me.gnat008.perworldinventory.libs.org.json</shadedPattern>
-                       </relocation>
-                       <relocation>
-                           <pattern>me.botsko.elixr</pattern>
-                           <shadedPattern>me.gnat008.perworldinventory.libs.elixr</shadedPattern>
                        </relocation>
                        <relocation>
                            <pattern>org.apache.tomcat.jdbc</pattern>

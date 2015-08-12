@@ -20,6 +20,7 @@ package me.gnat008.perworldinventory.data;
 import com.kill3rtaco.tacoserialization.PlayerSerialization;
 import com.kill3rtaco.tacoserialization.Serializer;
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.util.Printer;
 import org.bukkit.GameMode;
@@ -29,6 +30,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.*;
+import java.util.UUID;
 
 public class DataSerializer {
 
@@ -56,19 +58,21 @@ public class DataSerializer {
     }
 
     public void writePlayerDataToFile(OfflinePlayer player, JSONObject data, Group group, GameMode gamemode) {
+        UUID uuid = player.getUniqueId();
+
         File file;
         switch (gamemode) {
             case ADVENTURE:
-                file = new File(FILE_PATH + player.getUniqueId().toString(), group.getName() + "_adventure.json");
+                file = new File(FILE_PATH + uuid, group.getName() + "_adventure.json");
                 break;
             case CREATIVE:
-                file = new File(FILE_PATH + player.getUniqueId().toString(), group.getName() + "_creative.json");
+                file = new File(FILE_PATH + uuid, group.getName() + "_creative.json");
                 break;
             case SPECTATOR:
-                file = new File(FILE_PATH + player.getUniqueId().toString(), group.getName() + "_creative.json");
+                file = new File(FILE_PATH + uuid, group.getName() + "_creative.json");
                 break;
             default:
-                file = new File(FILE_PATH + player.getUniqueId().toString(), group.getName() + ".json");
+                file = new File(FILE_PATH + uuid, group.getName() + ".json");
                 break;
         }
 
@@ -83,7 +87,7 @@ public class DataSerializer {
             writeData(file, Serializer.toString(data));
         } catch (IOException ex) {
             Printer.getInstance(plugin).printToConsole("Error creating file '" + FILE_PATH +
-                    player.getUniqueId().toString() + File.separator + group.getName() + ".json': " + ex.getMessage(), true);
+                    uuid + File.separator + group.getName() + ".json': " + ex.getMessage(), true);
             ex.printStackTrace();
         }
     }
@@ -111,7 +115,7 @@ public class DataSerializer {
         });
     }
 
-    public JSONObject getPlayerDataFromFile(Player player, Group group, GameMode gamemode) {
+    public void getPlayerDataFromFile(Player player, Group group, GameMode gamemode) {
         File file;
         switch(gamemode) {
             case ADVENTURE:

@@ -28,6 +28,14 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.UUID;
 
+/**
+ * This class is used to represent a Player.
+ * It contains all of the variables that can be saved, as well as a few things
+ * for internal use.
+ *
+ * A PWIPlayer is meant to be used as a cache, in order to improve performance
+ * both when using a MySQL database, and perhaps for flat-file storage as well.
+ */
 public class PWIPlayer {
 
     /* INVENTORIES */

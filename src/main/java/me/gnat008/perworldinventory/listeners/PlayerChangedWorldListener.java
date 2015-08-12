@@ -20,6 +20,7 @@ package me.gnat008.perworldinventory.listeners;
 import com.kill3rtaco.tacoserialization.PlayerSerialization;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.defaults.ConfigValues;
+import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import org.bukkit.GameMode;
