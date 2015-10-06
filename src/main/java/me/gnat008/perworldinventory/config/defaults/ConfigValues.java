@@ -27,7 +27,7 @@ public enum ConfigValues {
     ENABLE_METRICS(true),
     MANAGE_GAMEMODES(false),
     SEPARATE_GAMEMODE_INVENTORIES(true),
-    USE_MYSQL(false),
+    USE_SQL(false),
 
     // Second level
     ECONOMY(false),
@@ -48,7 +48,8 @@ public enum ConfigValues {
     POTION_EFFECTS(true),
     SATURATION(true),
 
-    // MySQL Config
+    // SQL Config
+    SQL_DRIVER("mysql"), //TODO: Change to 'sqllite'
     HOSTNAME("localhost"),
     PORT(3306),
     DATABASE_NAME("minecraft"),

@@ -48,21 +48,8 @@ public class PlayerGameModeChangeListener implements Listener {
             group = new Group(player.getWorld().getName(), null, null);
         }
 
-        if (ConfigValues.USE_MYSQL.getBoolean()) {
-            try {
-                plugin.getMySQLManager().updateDatabase(
-                        player.getUniqueId().toString(),
-                        group.getName(),
-                        oldGameMode.toString().toLowerCase(),
-                        PlayerSerialization.serializePlayer(player, plugin));
-            } catch (SQLException ex) {
-                plugin.getLogger().severe("Error trying to save player data to database: " + ex.getMessage());
-                plugin.getLogger().severe("Saving to flatfile instead!");
-                plugin.getSerializer().writePlayerDataToFile(player,
-                        PlayerSerialization.serializePlayer(player, plugin),
-                        group,
-                        oldGameMode);
-            }
+        if (ConfigValues.USE_SQL.getBoolean()) {
+            //TODO: Implement SQL
         } else {
             plugin.getSerializer().writePlayerDataToFile(player,
                     PlayerSerialization.serializePlayer(player, plugin),

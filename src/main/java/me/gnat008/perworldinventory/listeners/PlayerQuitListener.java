@@ -48,21 +48,8 @@ public class PlayerQuitListener implements Listener {
         }
 
         if (ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean()) {
-            if (ConfigValues.USE_MYSQL.getBoolean()) {
-                try {
-                    plugin.getMySQLManager().updateDatabase(
-                            player.getUniqueId().toString(),
-                            group.getName(),
-                            player.getGameMode().toString().toLowerCase(),
-                            PlayerSerialization.serializePlayer(player, plugin));
-                } catch (SQLException ex) {
-                    plugin.getLogger().severe("Error trying to save player data to database: " + ex.getMessage());
-                    plugin.getLogger().severe("Saving to flatfile instead!");
-                    plugin.getSerializer().writePlayerDataToFile(player,
-                            PlayerSerialization.serializePlayer(player, plugin),
-                            group,
-                            player.getGameMode());
-                }
+            if (ConfigValues.USE_SQL.getBoolean()) {
+                //TODO: Implement SQL
             } else {
                 plugin.getSerializer().writePlayerDataToFile(player,
                         PlayerSerialization.serializePlayer(player, plugin),
@@ -70,21 +57,8 @@ public class PlayerQuitListener implements Listener {
                         player.getGameMode());
             }
         } else {
-            if (ConfigValues.USE_MYSQL.getBoolean()) {
-                try {
-                    plugin.getMySQLManager().updateDatabase(
-                            player.getUniqueId().toString(),
-                            group.getName(),
-                            GameMode.SURVIVAL.toString().toLowerCase(),
-                            PlayerSerialization.serializePlayer(player, plugin));
-                } catch (SQLException ex) {
-                    plugin.getLogger().severe("Error trying to save player data to database: " + ex.getMessage());
-                    plugin.getLogger().severe("Saving to flatfile instead!");
-                    plugin.getSerializer().writePlayerDataToFile(player,
-                            PlayerSerialization.serializePlayer(player, plugin),
-                            group,
-                            GameMode.SURVIVAL);
-                }
+            if (ConfigValues.USE_SQL.getBoolean()) {
+                //TODO: Implement SQL
             } else {
                 plugin.getSerializer().writePlayerDataToFile(player,
                         PlayerSerialization.serializePlayer(player, plugin),

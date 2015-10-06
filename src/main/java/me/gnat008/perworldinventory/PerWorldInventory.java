@@ -17,31 +17,39 @@
 
 package me.gnat008.perworldinventory;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.mcstats.Metrics;
+
 import me.gnat008.perworldinventory.commands.PerWorldInventoryCommand;
 import me.gnat008.perworldinventory.config.ConfigManager;
 import me.gnat008.perworldinventory.config.ConfigType;
 import me.gnat008.perworldinventory.config.defaults.ConfigValues;
 import me.gnat008.perworldinventory.data.DataConverter;
 import me.gnat008.perworldinventory.data.DataSerializer;
-import me.gnat008.perworldinventory.data.mysql.MySQL;
-import me.gnat008.perworldinventory.data.mysql.MySQLManager;
+import me.gnat008.perworldinventory.database.Database;
+import me.gnat008.perworldinventory.database.mysql.MySQL;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.listeners.PlayerChangedWorldListener;
 import me.gnat008.perworldinventory.listeners.PlayerGameModeChangeListener;
 import me.gnat008.perworldinventory.listeners.PlayerQuitListener;
 import me.gnat008.perworldinventory.util.Printer;
-
 import net.milkbowl.vault.economy.Economy;
-import org.bukkit.plugin.RegisteredServiceProvider;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.mcstats.Metrics;
-
-import java.io.*;
-import java.sql.SQLException;
 
 public class PerWorldInventory extends JavaPlugin {
 
     private Economy economy;
+    private Database database;
+    private Connection connection;
 
     private static PerWorldInventory instance = null;
 
@@ -97,18 +105,25 @@ public class PerWorldInventory extends JavaPlugin {
             }
         }
 
-        if (ConfigValues.USE_MYSQL.getBoolean()) {
-            getLogger().info("Configured to use MySQL! Attempting to connect to database...");
+        if (ConfigValues.USE_SQL.getBoolean()) {
+            getLogger().info("Configured to use SQL! Attempting to connect to database...");
+            /*mySQLManager = new MySQLManager(this);
             try {
-                MySQLManager.getInstance().startConnection();
+                mySQLManager.startConnection();
             } catch (SQLException ex) {
-                MySQL.getInstance().handleDatabaseException(ex);
-                if (!MySQL.getInstance().isConnected()) {
+                mySQLManager.getMySQL().handleDatabaseException(ex);
+                if (!mySQLManager.isDbConnected()) {
                     getLogger().warning("Setting 'use-mysql' to 'false' in the config, and switching to flatfiles!");
                     //ConfigValues.USE_MYSQL.set(false);
                     //getConfigManager().reloadConfig(ConfigType.CONFIG);
                 }
-                getLogger().info("Connected to the MySQL database!");
+            }*/
+            
+            if (setupDatabase()) {
+                getLogger().info("Successfully connected to the database!");
+            } else {
+                getLogger().warning("Setting 'use-sql' to 'false' in the config, and switching to flatfiles!");
+                //TODO: Set config setting to false
             }
         }
     }
@@ -120,7 +135,6 @@ public class PerWorldInventory extends JavaPlugin {
         DataConverter.disable();
         getConfigManager().disable();
         getGroupManager().disable();
-        getMySQLManager().disable();
         getServer().getScheduler().cancelTasks(this);
         instance = null;
     }
@@ -136,9 +150,17 @@ public class PerWorldInventory extends JavaPlugin {
     public ConfigManager getConfigManager() {
         return ConfigManager.getInstance();
     }
+    
+    public Connection getConnection() {
+        return connection;
+    }
 
     public DataConverter getDataConverter() {
         return DataConverter.getInstance(this);
+    }
+    
+    public Database getSQLDatabase() {
+        return database;
     }
 
     public DataSerializer getSerializer() {
@@ -155,10 +177,6 @@ public class PerWorldInventory extends JavaPlugin {
 
     public GroupManager getGroupManager() {
         return GroupManager.getInstance(this);
-    }
-
-    public MySQLManager getMySQLManager() {
-        return MySQLManager.getInstance();
     }
 
     public Printer getPrinter() {
@@ -195,5 +213,47 @@ public class PerWorldInventory extends JavaPlugin {
                 }
             }
         }
+    }
+    
+    private boolean setupDatabase() {
+        if (ConfigValues.SQL_DRIVER.getString().equalsIgnoreCase("mysql")) {
+            getLogger().info("Attempting to connect to MySQL database...");
+            database = new MySQL(this, 
+                    ConfigValues.DATABASE_NAME.getString(),
+                    ConfigValues.HOSTNAME.getString() + ":" + ConfigValues.PORT.getInt(),
+                    ConfigValues.USERNAME.getString(),
+                    ConfigValues.PASSWORD.getString());
+            if (!openDatabaseConnection())
+                return false;
+        }/* else if () {
+            //TODO: Implement SQLlite
+        }*/ else {
+            getLogger().warning("Valid database driver not detected!");
+            getLogger().warning("Valid database drivers are: mysql or sqllite");
+            return false;
+        }
+        
+        return true;
+    }
+    
+    private boolean openDatabaseConnection() {
+        if (database == null) {
+            getLogger().severe("No database loaded!");
+            return false;
+        }
+        
+        try {
+            connection = database.openConnection();
+        } catch (SQLException sqlEx) {
+            getLogger().severe("Unable to create a connection to the " + database.getType() + " database!");
+            getLogger().severe("Please make sure your configuration settings are correct!");
+            return false;
+        } catch (ClassNotFoundException cnfEx) {
+            getLogger().severe("No database driver found for " + database.getType() + "!");
+            getLogger().severe(cnfEx.getMessage());
+            return false;
+        }
+        
+        return true;
     }
 }
