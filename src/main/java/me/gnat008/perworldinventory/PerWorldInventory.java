@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -36,6 +37,7 @@ import me.gnat008.perworldinventory.config.ConfigType;
 import me.gnat008.perworldinventory.config.defaults.ConfigValues;
 import me.gnat008.perworldinventory.data.DataConverter;
 import me.gnat008.perworldinventory.data.DataSerializer;
+import me.gnat008.perworldinventory.database.Column;
 import me.gnat008.perworldinventory.database.Database;
 import me.gnat008.perworldinventory.database.mysql.MySQL;
 import me.gnat008.perworldinventory.groups.GroupManager;
@@ -107,18 +109,6 @@ public class PerWorldInventory extends JavaPlugin {
 
         if (ConfigValues.USE_SQL.getBoolean()) {
             getLogger().info("Configured to use SQL! Attempting to connect to database...");
-            /*mySQLManager = new MySQLManager(this);
-            try {
-                mySQLManager.startConnection();
-            } catch (SQLException ex) {
-                mySQLManager.getMySQL().handleDatabaseException(ex);
-                if (!mySQLManager.isDbConnected()) {
-                    getLogger().warning("Setting 'use-mysql' to 'false' in the config, and switching to flatfiles!");
-                    //ConfigValues.USE_MYSQL.set(false);
-                    //getConfigManager().reloadConfig(ConfigType.CONFIG);
-                }
-            }*/
-            
             if (setupDatabase()) {
                 getLogger().info("Successfully connected to the database!");
             } else {
@@ -233,6 +223,13 @@ public class PerWorldInventory extends JavaPlugin {
             return false;
         }
         
+        try {
+            setupTables();
+        } catch (SQLException | ClassNotFoundException ex) {
+            getLogger().severe("Unable to create the database tables: " + ex.getMessage());
+            return false;
+        }
+        
         return true;
     }
     
@@ -255,5 +252,52 @@ public class PerWorldInventory extends JavaPlugin {
         }
         
         return true;
+    }
+    
+    private void setupTables() throws SQLException, ClassNotFoundException {
+        String prefix = ConfigValues.PREFIX.getString();
+        
+        Column[] pd = new Column[5];
+        pd[0] = database.createColumn("id").type("INT").notNull().primaryKey().autoIncrement();
+        pd[1] = database.createColumn("uuid").type("CHAR", 36).notNull();
+        pd[2] = database.createColumn("data_group").type("VARCHAR", 255).notNull();
+        pd[3] = database.createColumn("gamemode").type("ENUM('survival', 'creative', 'adventure')").notNull();
+        pd[4] = database.createColumn("data_uuid").type("CHAR", 36).notNull();
+        String playerDataQuery = database.createQuery().createTable(prefix + "player_data", true, pd).buildQuery();
+        PreparedStatement playerData = database.prepareStatement(playerDataQuery);
+        database.updateDb(playerData);
+        
+        Column[] invs = new Column[3];
+        invs[0] = database.createColumn("id").type("INT").notNull().primaryKey().autoIncrement();
+        invs[1] = database.createColumn("data_uuid").type("CHAR", 36).notNull();
+        invs[2] = database.createColumn("items").type("BLOB").notNull();
+        String enderChestQuery = database.createQuery().createTable(prefix + "ender_chests", true, invs).buildQuery();
+        PreparedStatement enderChest = database.prepareStatement(enderChestQuery);
+        database.updateDb(enderChest);
+        
+        String armorQuery = database.createQuery().createTable(prefix + "armor", true, invs).buildQuery();
+        PreparedStatement armor = database.prepareStatement(armorQuery);
+        database.updateDb(armor);
+        
+        String inventoryQuery = database.createQuery().createTable(prefix + "inventory", true, invs).buildQuery();
+        PreparedStatement inventory = database.prepareStatement(inventoryQuery);
+        database.updateDb(inventory);
+        
+        Column[] ps = new Column[12];
+        ps[0] = database.createColumn("id").type("INT").notNull().primaryKey().autoIncrement();
+        ps[1] = database.createColumn("uuid").type("CHAR", 36).notNull();
+        ps[2] = database.createColumn("can_fly").type("BIT");
+        ps[3] = database.createColumn("display_name").type("VARCHAR", 16);
+        ps[4] = database.createColumn("exhaustion").type("FLOAT");
+        ps[5] = database.createColumn("exp").type("FLOAT");
+        ps[6] = database.createColumn("flying").type("BIT");
+        ps[7] = database.createColumn("food").type("INT", 20);
+        ps[8] = database.createColumn("health").type("DOUBLE");
+        ps[9] = database.createColumn("level").type("INT");
+        ps[10] = database.createColumn("potion_effects").type("BLOB");
+        ps[11] = database.createColumn("saturation").type("INT", 20);
+        String playerStatsQuery = database.createQuery().createTable(prefix + "player_stats", true, ps).buildQuery();
+        PreparedStatement playerStats = database.prepareStatement(playerStatsQuery);
+        database.updateDb(playerStats);
     }
 }

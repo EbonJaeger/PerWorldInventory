@@ -159,6 +159,16 @@ public abstract class Database {
     }
     
     /**
+     * Create a new {@link me.gnat008.perworldinventory.database.Column}.
+     * 
+     * @param name The name of the column
+     * @return The Column object
+     */
+    public Column createColumn(String name) {
+        return new Column(name);
+    }
+    
+    /**
      * Create a new {@link me.gnat008.perworldinventory.database.Query} to
      * build a SQL statement.
      * 

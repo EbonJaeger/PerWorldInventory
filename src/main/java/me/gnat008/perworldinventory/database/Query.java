@@ -24,6 +24,17 @@ public class Query {
 
     private List<String> parts = new ArrayList<>();
     
+    public Query createTable(String name, boolean ifNotExists, Column[] columns) {
+        String str = "CREATE TABLE " + (ifNotExists ? "IF NOT EXISTS " : " ") + name + "(";
+        for (Column column : columns) {
+            str += column.buildColumn() + ", ";
+        }
+        
+        str = str.substring(0, str.length() - 2) + ")";
+        parts.add(str);
+        return this;
+    }
+    
     /**
      * Add a SELECT statement to the SQL Query.
      * 
