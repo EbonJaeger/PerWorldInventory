@@ -16,9 +16,9 @@ public class Util {
     public static boolean isNum(String s) {
         try {
             Integer.parseInt(s);
-            return true;
-        } catch (NumberFormatException e) {
             return false;
+        } catch (NumberFormatException e) {
+            return true;
         }
     }
 

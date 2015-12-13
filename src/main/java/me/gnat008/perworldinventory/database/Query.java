@@ -75,12 +75,22 @@ public class Query {
     
     /**
      * Add a DELETE statement to the SQL Query.
-     * 
-     * @param table The table to delete from
+     *
      * @return This Query object
      */
-    public Query delete(String table) {
-        parts.add("DELETE FROM " + table);
+    public Query delete() {
+        parts.add("DELETE ");
+        return this;
+    }
+
+    /**
+     * Add a FROM statement to the SQL Query.
+     *
+     * @param table The table to operate on
+     * @return This Query object
+     */
+    public Query from(String table) {
+        parts.add("FROM " + table);
         return this;
     }
     

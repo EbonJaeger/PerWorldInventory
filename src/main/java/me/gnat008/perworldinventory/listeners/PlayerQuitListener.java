@@ -28,8 +28,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.sql.SQLException;
-
 public class PlayerQuitListener implements Listener {
 
     private PerWorldInventory plugin;

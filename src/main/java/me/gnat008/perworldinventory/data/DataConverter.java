@@ -38,10 +38,7 @@ import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
 import uk.co.tggl.pluckerpluck.multiinv.api.MIAPIPlayer;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIItemStack;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class DataConverter {
 
@@ -145,9 +142,7 @@ public class DataConverter {
         if (data.get(Sharables.POTIONS) != null) {
             PotionEffect[] effects = data.get(Sharables.POTIONS);
             Collection<PotionEffect> potionEffects = new LinkedList<>();
-            for (PotionEffect effect : effects) {
-                potionEffects.add(effect);
-            }
+            Collections.addAll(potionEffects, effects);
             stats.put("potion-effects", PotionEffectSerialization.serializeEffects(potionEffects));
         }
         if (data.get(Sharables.SATURATION) != null)

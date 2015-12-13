@@ -64,9 +64,9 @@ public class EnchantmentSerialization {
             String[] ench = enchants[i].split(":");
             if (ench.length < 2)
                 throw new IllegalArgumentException(serializedEnchants + " - Enchantment " + i + " (" + enchants[i] + "): split must at least have a length of 2");
-            if (!Util.isNum(ench[0]))
+            if (Util.isNum(ench[0]))
                 throw new IllegalArgumentException(serializedEnchants + " - Enchantment " + i + " (" + enchants[i] + "): id is not an integer");
-            if (!Util.isNum(ench[1]))
+            if (Util.isNum(ench[1]))
                 throw new IllegalArgumentException(serializedEnchants + " - Enchantment " + i + " (" + enchants[i] + "): level is not an integer");
             int id = Integer.parseInt(ench[0]);
             int level = Integer.parseInt(ench[1]);

@@ -59,11 +59,11 @@ public class PotionEffectSerialization {
             String[] effect = effs[i].split(":");
             if (effect.length < 3)
                 throw new IllegalArgumentException(serializedEffects + " - PotionEffect " + i + " (" + effs[i] + "): split must at least have a length of 3");
-            if (!Util.isNum(effect[0]))
+            if (Util.isNum(effect[0]))
                 throw new IllegalArgumentException(serializedEffects + " - PotionEffect " + i + " (" + effs[i] + "): id is not an integer");
-            if (!Util.isNum(effect[1]))
+            if (Util.isNum(effect[1]))
                 throw new IllegalArgumentException(serializedEffects + " - PotionEffect " + i + " (" + effs[i] + "): duration is not an integer");
-            if (!Util.isNum(effect[2]))
+            if (Util.isNum(effect[2]))
                 throw new IllegalArgumentException(serializedEffects + " - PotionEffect " + i + " (" + effs[i] + "): amplifier is not an integer");
             int id = Integer.parseInt(effect[0]);
             int duration = Integer.parseInt(effect[1]);

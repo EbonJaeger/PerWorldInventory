@@ -28,8 +28,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 
-import java.sql.SQLException;
-
 public class PlayerGameModeChangeListener implements Listener {
 
     private PerWorldInventory plugin;

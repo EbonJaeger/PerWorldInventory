@@ -18,6 +18,7 @@
 package me.gnat008.perworldinventory.data.players;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.groups.Group;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -50,6 +51,7 @@ public class PWIPlayer {
     private float experience;
     private boolean isFlying;
     private int foodLevel;
+    private double health;
     private GameMode gamemode;
     private int level;
     private float saturationLevel;
@@ -63,9 +65,11 @@ public class PWIPlayer {
     private String name;
 
     /* PERWORLDINVENTORY STUFF */
+    private boolean saved;
     private File dataFileDirectory;
+    private Group group;
 
-    public PWIPlayer(Player player) {
+    public PWIPlayer(Player player, Group group) {
         this.uuid = player.getUniqueId();
         this.name = player.getName();
         this.dataFileDirectory = new File(PerWorldInventory.getInstance().getDataFolder() + File.separator + "data" + File.separator + uuid.toString());
@@ -77,6 +81,9 @@ public class PWIPlayer {
             }
         }
 
+        this.group = group;
+        this.saved = false;
+
         this.armor = player.getInventory().getArmorContents();
         this.enderChest = player.getEnderChest().getContents();
         this.inventory = player.getInventory().getContents();
@@ -87,6 +94,7 @@ public class PWIPlayer {
         this.experience = player.getTotalExperience();
         this.isFlying = player.isFlying();
         this.foodLevel = player.getFoodLevel();
+        this.health = player.getHealth();
         this.gamemode = player.getGameMode();
         this.level = player.getLevel();
         this.saturationLevel = player.getSaturation();
@@ -261,6 +269,24 @@ public class PWIPlayer {
     }
 
     /**
+     * Get a player's health.
+     *
+     * @return Health level
+     */
+    public double getHealth() {
+        return health;
+    }
+
+    /**
+     * Set a player's health.
+     *
+     * @param health Health level
+     */
+    public void setHealth(double health) {
+        this.health = health;
+    }
+
+    /**
      * Get a player's GameMode.
      *
      * @return GameMode
@@ -394,5 +420,33 @@ public class PWIPlayer {
      */
     public File getDataFileDirectory() {
         return this.dataFileDirectory;
+    }
+
+    /**
+     * Get the {@link me.gnat008.perworldinventory.groups.Group} that this PWIPlayer
+     * instance is storing information for.
+     *
+     * @return The Group for this PWIPlayer
+     */
+    public Group getGroup() {
+        return group;
+    }
+
+    /**
+     * Check if the data for this player has been saved to a database or flatfile.
+     *
+     * @return True if saved
+     */
+    public boolean isSaved() {
+        return !saved;
+    }
+
+    /**
+     * Set if this player has been saved to a database or flatfile.
+     *
+     * @param saved True if saved, false if not
+     */
+    public void setSaved(boolean saved) {
+        this.saved = saved;
     }
 }

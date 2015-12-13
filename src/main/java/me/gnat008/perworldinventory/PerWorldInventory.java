@@ -52,6 +52,7 @@ public class PerWorldInventory extends JavaPlugin {
     private Economy economy;
     private Database database;
     private Connection connection;
+    private DataSerializer serializer;
 
     private static PerWorldInventory instance = null;
 
@@ -73,6 +74,8 @@ public class PerWorldInventory extends JavaPlugin {
         getConfigManager().addConfig(ConfigType.WORLDS, new File(getDataFolder() + File.separator + "worlds.yml"));
 
         getGroupManager().loadGroupsToMemory();
+
+        this.serializer = new DataSerializer(this);
 
         if (ConfigValues.ENABLE_METRICS.getBoolean()) {
             getLogger().info("Starting metrics...");
@@ -121,7 +124,6 @@ public class PerWorldInventory extends JavaPlugin {
     @Override
     public void onDisable() {
         Printer.disable();
-        DataSerializer.disable();
         DataConverter.disable();
         getConfigManager().disable();
         getGroupManager().disable();
@@ -154,7 +156,7 @@ public class PerWorldInventory extends JavaPlugin {
     }
 
     public DataSerializer getSerializer() {
-        return DataSerializer.getInstance(this);
+        return serializer;
     }
 
     public Economy getEconomy() {
