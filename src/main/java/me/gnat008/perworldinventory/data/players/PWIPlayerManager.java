@@ -115,12 +115,13 @@ public class PWIPlayerManager {
      * @param group The {@link me.gnat008.perworldinventory.groups.Group} to remove
      * @param gameMode The {@link org.bukkit.GameMode} to remove
      */
-    public void removePlayer(Group group, GameMode gameMode) {
+    public void removePlayer(Group group, GameMode gameMode, UUID uuid) {
         if (playerCache.containsKey(group)) {
             Set<PWIPlayer> players = playerCache.get(group);
             Iterator<PWIPlayer> itr = players.iterator();
             while (itr.hasNext()) {
-                if (itr.next().getGamemode() == gameMode) {
+                PWIPlayer cachedPlayer = itr.next();
+                if (cachedPlayer.getUuid().equals(uuid) && cachedPlayer.getGamemode() == gameMode) {
                     itr.remove();
                 }
             }
@@ -242,7 +243,7 @@ public class PWIPlayerManager {
                                 }
                             });
                         } else {
-                            removePlayer(group, player.getGamemode());
+                            removePlayer(group, player.getGamemode(), player.getUuid());
                         }
                     }
                 }
