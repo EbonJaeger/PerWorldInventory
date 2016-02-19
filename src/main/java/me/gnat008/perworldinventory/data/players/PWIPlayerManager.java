@@ -59,7 +59,7 @@ public class PWIPlayerManager {
 
         for (Group group : playerCache.keySet()) {
             for (PWIPlayer player : playerCache.get(group)) {
-                if (player.isSaved()) {
+                if (!player.isSaved()) {
                     player.setSaved(true);
                     plugin.getSerializer().saveToDatabase(
                             group,
