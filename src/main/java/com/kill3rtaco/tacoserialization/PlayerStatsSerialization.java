@@ -81,8 +81,13 @@ public class PlayerStatsSerialization {
                 player.setFlying(stats.getBoolean("flying"));
             if (ConfigValues.FOOD.getBoolean() && stats.has("food"))
                 player.setFoodLevel(stats.getInt("food"));
-            if (ConfigValues.HEALTH.getBoolean() && stats.has("health"))
-                player.setHealth(stats.getDouble("health"));
+            if (ConfigValues.HEALTH.getBoolean() && stats.has("health")) {
+                if (stats.getDouble("health") <= player.getMaxHealth()) {
+                    player.setHealth(stats.getDouble("health"));
+                } else {
+                    player.setHealth(player.getMaxHealth());
+                }
+            }
             if (ConfigValues.GAMEMODE.getBoolean() && (!ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean()) && stats.has("gamemode")) {
                 if (stats.get("gamemode") instanceof String) {
                     player.setGameMode(GameMode.valueOf(stats.getString("gamemode")));

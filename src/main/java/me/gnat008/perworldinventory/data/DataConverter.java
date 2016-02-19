@@ -117,6 +117,7 @@ public class DataConverter {
 
     private JSONObject serializeMVIToNewFormat(PlayerProfile data) {
         JSONObject root = new JSONObject();
+        root.put("data-format", 1);
 
         JSONObject inv = new JSONObject();
         if (data.get(Sharables.INVENTORY) != null) {
@@ -156,6 +157,8 @@ public class DataConverter {
 
     private JSONObject serializeMIToNewFormat(MIAPIPlayer player) {
         JSONObject root = new JSONObject();
+        root.put("data-format", 1);
+
         JSONObject inventory = new JSONObject();
 
         List<ItemStack> items = new ArrayList<>();
