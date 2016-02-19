@@ -1,6 +1,7 @@
 package com.kill3rtaco.tacoserialization;
 
 import me.gnat008.perworldinventory.config.defaults.ConfigValues;
+import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.json.JSONException;
@@ -28,91 +29,35 @@ public class PlayerStatsSerialization {
      * @param player The player whose stats to serialize
      * @return The serialized stats
      */
-    public static JSONObject serializePlayerStats(Player player) {
+    public static JSONObject serializePlayerStats(PWIPlayer player) {
         try {
             JSONObject root = new JSONObject();
             if (ConfigValues.CAN_FLY.getBoolean())
-                root.put("can-fly", player.getAllowFlight());
+                root.put("can-fly", player.getCanFly());
             if (ConfigValues.DISPLAY_NAME.getBoolean())
                 root.put("display-name", player.getDisplayName());
             if (ConfigValues.EXHAUSTION.getBoolean())
                 root.put("exhaustion", player.getExhaustion());
             if (ConfigValues.EXP.getBoolean())
-                root.put("exp", player.getExp());
+                root.put("exp", player.getExperience());
             if (ConfigValues.FLYING.getBoolean())
                 root.put("flying", player.isFlying());
             if (ConfigValues.FOOD.getBoolean())
                 root.put("food", player.getFoodLevel());
             if (ConfigValues.GAMEMODE.getBoolean())
-                root.put("gamemode", player.getGameMode().toString());
+                root.put("gamemode", player.getGamemode().toString());
             if (ConfigValues.HEALTH.getBoolean())
-                root.put("health", player.getHealthScale());
+                root.put("health", player.getHealth());
             if (ConfigValues.LEVEL.getBoolean())
                 root.put("level", player.getLevel());
             if (ConfigValues.POTION_EFFECTS.getBoolean())
-                root.put("potion-effects", PotionEffectSerialization.serializeEffects(player.getActivePotionEffects()));
+                root.put("potion-effects", PotionEffectSerialization.serializeEffects(player.getPotionEffects()));
             if (ConfigValues.SATURATION.getBoolean())
-                root.put("saturation", player.getSaturation());
+                root.put("saturation", player.getSaturationLevel());
             return root;
         } catch (JSONException e) {
             e.printStackTrace();
             return null;
-        }
-    }
-
-    /**
-     * Serialize a player's stats as a string
-     *
-     * @param player The player whose stats to serialize
-     * @return The serialization string
-     */
-    public static String serializePlayerStatsAsString(Player player) {
-        return serializePlayerStatsAsString(player, false);
-    }
-
-    /**
-     * Serialize a player's stats as a string
-     *
-     * @param player The player whose stats to serialize
-     * @param pretty Whether the resulting string should be 'pretty' or not
-     * @return The serialization string
-     */
-    public static String serializePlayerStatsAsString(Player player, boolean pretty) {
-        return serializePlayerStatsAsString(player, pretty, 5);
-    }
-
-    /**
-     * Serialize a player's stats as a string
-     *
-     * @param player       The player whose stats to serialize
-     * @param pretty       Whether the resulting string should be 'pretty' or not
-     * @param indentFactor The amount of spaces in a tab
-     * @return The serialization string
-     */
-    public static String serializePlayerStatsAsString(Player player, boolean pretty, int indentFactor) {
-        try {
-            if (pretty) {
-                return serializePlayerStats(player).toString(indentFactor);
-            } else {
-                return serializePlayerStats(player).toString();
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    /**
-     * Apply stats to a player
-     *
-     * @param player The player to affect
-     * @param stats  The stats to apply
-     */
-    public static void applyPlayerStats(Player player, String stats) {
-        try {
-            applyPlayerStats(player, new JSONObject(stats));
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
     }
 

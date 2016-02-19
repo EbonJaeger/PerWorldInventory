@@ -29,6 +29,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
+@Deprecated
 public class PlayerJoinListener implements Listener {
 
     private GroupManager manager;
@@ -41,7 +42,7 @@ public class PlayerJoinListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
+        /*Player player = event.getPlayer();
         String worldTo = player.getWorld().getName();
         Group groupTo = manager.getGroupFromWorld(worldTo);
 
@@ -59,6 +60,6 @@ public class PlayerJoinListener implements Listener {
             }
         } else {
             plugin.getSerializer().getPlayerDataFromFile(player, groupTo, GameMode.SURVIVAL);
-        }
+        }*/
     }
 }

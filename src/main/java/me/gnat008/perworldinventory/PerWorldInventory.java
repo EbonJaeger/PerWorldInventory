@@ -27,6 +27,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import me.gnat008.perworldinventory.data.FileSerializer;
+import me.gnat008.perworldinventory.data.SQLSerializer;
+import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.mcstats.Metrics;
@@ -53,6 +56,7 @@ public class PerWorldInventory extends JavaPlugin {
     private Database database;
     private Connection connection;
     private DataSerializer serializer;
+    private PWIPlayerManager playerManager;
 
     private static PerWorldInventory instance = null;
 
@@ -75,7 +79,7 @@ public class PerWorldInventory extends JavaPlugin {
 
         getGroupManager().loadGroupsToMemory();
 
-        this.serializer = new DataSerializer(this);
+        playerManager = new PWIPlayerManager(this);
 
         if (ConfigValues.ENABLE_METRICS.getBoolean()) {
             getLogger().info("Starting metrics...");
@@ -119,10 +123,17 @@ public class PerWorldInventory extends JavaPlugin {
                 //TODO: Set config setting to false
             }
         }
+
+        if (ConfigValues.USE_SQL.getBoolean()) {
+            serializer = new SQLSerializer(this);
+        } else {
+            serializer = new FileSerializer(this);
+        }
     }
 
     @Override
     public void onDisable() {
+        playerManager.onDisable();
         Printer.disable();
         DataConverter.disable();
         getConfigManager().disable();
@@ -141,10 +152,6 @@ public class PerWorldInventory extends JavaPlugin {
 
     public ConfigManager getConfigManager() {
         return ConfigManager.getInstance();
-    }
-    
-    public Connection getConnection() {
-        return connection;
     }
 
     public DataConverter getDataConverter() {
@@ -173,6 +180,10 @@ public class PerWorldInventory extends JavaPlugin {
 
     public Printer getPrinter() {
         return Printer.getInstance(this);
+    }
+
+    public PWIPlayerManager getPlayerManager() {
+        return this.playerManager;
     }
 
     public void copyFile(File from, File to) {

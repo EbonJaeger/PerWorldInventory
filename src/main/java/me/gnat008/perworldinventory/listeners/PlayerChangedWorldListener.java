@@ -53,25 +53,7 @@ public class PlayerChangedWorldListener implements Listener {
             groupFrom = new Group(worldFrom, new ArrayList<String>(), null);
         }
 
-        if (ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean()) {
-            if (ConfigValues.USE_SQL.getBoolean()) {
-                //TODO: Implement SQL
-            } else {
-                plugin.getSerializer().writePlayerDataToFile(player,
-                        PlayerSerialization.serializePlayer(player, plugin),
-                        groupFrom,
-                        player.getGameMode());
-            }
-        } else {
-            if (ConfigValues.USE_SQL.getBoolean()) {
-                //TODO: Implement SQL
-            } else {
-                plugin.getSerializer().writePlayerDataToFile(player,
-                        PlayerSerialization.serializePlayer(player, plugin),
-                        groupFrom,
-                        GameMode.SURVIVAL);
-            }
-        }
+        plugin.getPlayerManager().addPlayer(player, groupFrom);
 
         if (!groupFrom.containsWorld(worldTo)) {
             if (groupTo == null) {
@@ -79,15 +61,13 @@ public class PlayerChangedWorldListener implements Listener {
             }
 
             if (ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean()) {
+                plugin.getSerializer().getFromDatabase(groupTo, player.getGameMode(), player);
+
                 if (ConfigValues.MANAGE_GAMEMODES.getBoolean()) {
-                    plugin.getSerializer().getPlayerDataFromFile(player, groupTo,
-                            groupTo.getGameMode());
                     player.setGameMode(groupTo.getGameMode());
-                } else {
-                    plugin.getSerializer().getPlayerDataFromFile(player, groupTo, player.getGameMode());
                 }
             } else {
-                plugin.getSerializer().getPlayerDataFromFile(player, groupTo, GameMode.SURVIVAL);
+                plugin.getSerializer().getFromDatabase(groupTo, GameMode.SURVIVAL, player);
             }
         }
     }

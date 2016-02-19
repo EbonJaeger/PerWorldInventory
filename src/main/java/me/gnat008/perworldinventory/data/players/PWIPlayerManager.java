@@ -36,14 +36,12 @@ import java.util.*;
 public class PWIPlayerManager {
 
     private PerWorldInventory plugin;
-    private DataSerializer serializer;
     private int taskID;
 
     private Map<Group, Set<PWIPlayer>> playerCache = new LinkedHashMap<>();
 
-    private PWIPlayerManager(PerWorldInventory plugin) {
+    public PWIPlayerManager(PerWorldInventory plugin) {
         this.plugin = plugin;
-        this.serializer = plugin.getSerializer();
 
         this.taskID = scheduleRepeatingTask();
     }
@@ -61,7 +59,7 @@ public class PWIPlayerManager {
             for (PWIPlayer player : playerCache.get(group)) {
                 if (player.isSaved()) {
                     player.setSaved(true);
-                    serializer.saveToDatabase(
+                    plugin.getSerializer().saveToDatabase(
                             group,
                             ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean() ? player.getGamemode() : GameMode.SURVIVAL,
                             player
@@ -88,20 +86,21 @@ public class PWIPlayerManager {
         Set<PWIPlayer> players = playerCache.get(group);
         if (players == null) {
             players = new HashSet<>();
+
+            players.add(new PWIPlayer(player, group));
+            playerCache.put(group, players);
         } else {
             Iterator<PWIPlayer> itr = players.iterator();
             PWIPlayer pwiPlayer;
             while (itr.hasNext()) {
                 pwiPlayer = itr.next();
-                if (pwiPlayer.getGamemode() == player.getGameMode()) {
-                    itr.remove();
-                    break;
+
+                if (player.getGameMode() == pwiPlayer.getGamemode() ||
+                        !ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean()) {
+                    updateCache(player, pwiPlayer);
                 }
             }
         }
-
-        players.add(new PWIPlayer(player, group));
-        playerCache.put(group, players);
     }
 
     /**
@@ -139,7 +138,8 @@ public class PWIPlayerManager {
         if (playerCache.containsKey(group)) {
             Set<PWIPlayer> players = playerCache.get(group);
             for (PWIPlayer player : players) {
-                if (player.getGamemode() == gameMode)
+                if (player.getGamemode() == gameMode ||
+                        !ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean())
                     return player;
             }
         }
@@ -148,7 +148,7 @@ public class PWIPlayerManager {
     }
 
     /**
-     * Starts a synchronized repeating task to iterate through all PWIPlayersin the player
+     * Starts a synchronized repeating task to iterate through all PWIPlayers in the player
      * cache. If the player has not yet been saved to a database, they will be saved.
      * <p>
      * Additionally, if a player is still in the cache, but they have already been saved,
@@ -171,7 +171,7 @@ public class PWIPlayerManager {
                             Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
                                 @Override
                                 public void run() {
-                                    serializer.saveToDatabase(group, player.getGamemode(), player);
+                                    plugin.getSerializer().saveToDatabase(group, player.getGamemode(), player);
                                 }
                             });
                         } else {
@@ -181,5 +181,36 @@ public class PWIPlayerManager {
                 }
             }
         }, 6000L, 6000L);
+    }
+
+    /**
+     * Updates all the values of a player in the cache.
+     *
+     * @param newData The current snapshot of the Player
+     * @param currentPlayer The PWIPlayer currently in the cache
+     */
+    private void updateCache(Player newData, PWIPlayer currentPlayer) {
+        currentPlayer.setSaved(false);
+
+        currentPlayer.setArmor(newData.getInventory().getArmorContents());
+        currentPlayer.setEnderChest(newData.getEnderChest().getContents());
+        currentPlayer.setInventory(newData.getInventory().getContents());
+
+        currentPlayer.setCanFly(newData.getAllowFlight());
+        currentPlayer.setDisplayName(newData.getDisplayName());
+        currentPlayer.setExhaustion(newData.getExhaustion());
+        currentPlayer.setExperience(newData.getTotalExperience());
+        currentPlayer.setFlying(newData.isFlying());
+        currentPlayer.setFoodLevel(newData.getFoodLevel());
+        currentPlayer.setHealth(newData.getHealth());
+        currentPlayer.setGamemode(newData.getGameMode());
+        currentPlayer.setLevel(newData.getLevel());
+        currentPlayer.setSaturationLevel(newData.getSaturation());
+        currentPlayer.setPotionEffects(newData.getActivePotionEffects());
+
+        if (PerWorldInventory.getInstance().getEconomy() != null) {
+            currentPlayer.setBankBalance(PerWorldInventory.getInstance().getEconomy().bankBalance(newData.getName()).balance);
+            currentPlayer.setBalance(PerWorldInventory.getInstance().getEconomy().getBalance(newData));
+        }
     }
 }

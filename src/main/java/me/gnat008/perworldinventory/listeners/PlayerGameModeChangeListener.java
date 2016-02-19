@@ -39,25 +39,14 @@ public class PlayerGameModeChangeListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerGameModeChange(PlayerGameModeChangeEvent event) {
         Player player = event.getPlayer();
-        GameMode oldGameMode = player.getGameMode();
         GameMode newGameMode = event.getNewGameMode();
         Group group = plugin.getGroupManager().getGroupFromWorld(player.getWorld().getName());
         if (group == null) {
             group = new Group(player.getWorld().getName(), null, null);
         }
 
-        if (ConfigValues.USE_SQL.getBoolean()) {
-            //TODO: Implement SQL
-        } else {
-            plugin.getSerializer().writePlayerDataToFile(player,
-                    PlayerSerialization.serializePlayer(player, plugin),
-                    group,
-                    oldGameMode);
-        }
+        plugin.getPlayerManager().addPlayer(player, group);
 
-        plugin.getSerializer().getPlayerDataFromFile(
-                player,
-                group,
-                newGameMode);
+        plugin.getSerializer().getFromDatabase(group, newGameMode, player);
     }
 }

@@ -73,7 +73,7 @@ public class DataConverter {
                     PlayerProfile playerData = mvgroup.getPlayerData(ProfileTypes.SURVIVAL, player1);
                     if (playerData != null) {
                         JSONObject writable = serializeMVIToNewFormat(playerData);
-                        plugin.getSerializer().writePlayerDataToFile(player1, writable, plugin.getGroupManager().getGroup(mvgroup.getName()), GameMode.SURVIVAL);
+                        //plugin.getSerializer().writePlayerDataToFile(player1, writable, plugin.getGroupManager().getGroup(mvgroup.getName()), GameMode.SURVIVAL);
                     }
                 } catch (Exception ex) {
                     plugin.getPrinter().printToConsole("Error importing inventory for player: " + player1.getName() +
