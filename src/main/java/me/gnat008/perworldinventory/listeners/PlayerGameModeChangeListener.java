@@ -47,6 +47,6 @@ public class PlayerGameModeChangeListener implements Listener {
 
         plugin.getPlayerManager().addPlayer(player, group);
 
-        plugin.getSerializer().getFromDatabase(group, newGameMode, player);
+        plugin.getPlayerManager().getPlayerData(group, newGameMode, player);
     }
 }

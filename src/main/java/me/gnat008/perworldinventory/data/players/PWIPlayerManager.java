@@ -21,9 +21,11 @@ import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.defaults.ConfigValues;
 import me.gnat008.perworldinventory.data.DataSerializer;
 import me.gnat008.perworldinventory.groups.Group;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
 
 import java.util.*;
 
@@ -95,7 +97,8 @@ public class PWIPlayerManager {
             while (itr.hasNext()) {
                 pwiPlayer = itr.next();
 
-                if (player.getGameMode() == pwiPlayer.getGamemode() ||
+                if (player.getUniqueId().equals(pwiPlayer.getUuid()) &&
+                        player.getGameMode() == pwiPlayer.getGamemode() ||
                         !ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean()) {
                     updateCache(player, pwiPlayer);
                 }
@@ -124,6 +127,69 @@ public class PWIPlayerManager {
         }
     }
 
+    public void getPlayerData(Group group, GameMode gamemode, Player player) {
+        boolean isInCache = getDataFromCache(group, gamemode, player);
+
+        if(!isInCache) {
+            plugin.getSerializer().getFromDatabase(group, gamemode, player);
+        }
+    }
+
+    private boolean getDataFromCache(Group group, GameMode gamemode, Player player) {
+        PWIPlayer cachedPlayer = getCachedPlayer(group, gamemode, player.getUniqueId());
+        if (cachedPlayer == null)
+            return false;
+
+        if (ConfigValues.ENDER_CHEST.getBoolean())
+            player.getEnderChest().setContents(cachedPlayer.getEnderChest());
+        if (ConfigValues.INVENTORY.getBoolean()) {
+            player.getInventory().setContents(cachedPlayer.getInventory());
+            player.getInventory().setArmorContents(cachedPlayer.getArmor());
+        }
+        if (ConfigValues.STATS.getBoolean()) {
+            if (ConfigValues.CAN_FLY.getBoolean())
+                player.setAllowFlight(cachedPlayer.getCanFly());
+            if (ConfigValues.DISPLAY_NAME.getBoolean())
+                player.setDisplayName(cachedPlayer.getDisplayName());
+            if (ConfigValues.EXHAUSTION.getBoolean())
+                player.setExhaustion(cachedPlayer.getExhaustion());
+            if (ConfigValues.EXP.getBoolean())
+                player.setExp(cachedPlayer.getExperience());
+            if (ConfigValues.FLYING.getBoolean())
+                player.setFlying(cachedPlayer.isFlying());
+            if (ConfigValues.FOOD.getBoolean())
+                player.setFoodLevel(cachedPlayer.getFoodLevel());
+            if (ConfigValues.HEALTH.getBoolean()) {
+                if (cachedPlayer.getHealth() <= player.getMaxHealth())
+                    player.setHealth(cachedPlayer.getHealth());
+                else
+                    player.setHealth(player.getMaxHealth());
+            }
+            if (ConfigValues.GAMEMODE.getBoolean() && (!ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean()))
+                player.setGameMode(cachedPlayer.getGamemode());
+            if (ConfigValues.LEVEL.getBoolean())
+                player.setLevel(cachedPlayer.getLevel());
+            if (ConfigValues.POTION_EFFECTS.getBoolean()) {
+                for (PotionEffect effect : player.getActivePotionEffects()) {
+                    player.removePotionEffect(effect.getType());
+                }
+                player.addPotionEffects(cachedPlayer.getPotionEffects());
+            }
+            if (ConfigValues.SATURATION.getBoolean())
+                player.setSaturation(cachedPlayer.getSaturationLevel());
+        }
+        if (ConfigValues.ECONOMY.getBoolean()) {
+            Economy econ = plugin.getEconomy();
+            econ.bankWithdraw(player.getName(), econ.bankBalance(player.getName()).balance);
+            econ.bankDeposit(player.getName(), cachedPlayer.getBankBalance());
+
+            econ.withdrawPlayer(player, econ.getBalance(player));
+            econ.depositPlayer(player, cachedPlayer.getBalance());
+        }
+
+        return true;
+    }
+
     /**
      * Get a PWI player from a UUID.
      * <p>
@@ -134,11 +200,12 @@ public class PWIPlayerManager {
      * @param gameMode The GameMode to get the data for
      * @return The PWIPlayer
      */
-    public PWIPlayer getPlayer(Group group, GameMode gameMode) {
+    private PWIPlayer getCachedPlayer(Group group, GameMode gameMode, UUID uuid) {
         if (playerCache.containsKey(group)) {
             Set<PWIPlayer> players = playerCache.get(group);
             for (PWIPlayer player : players) {
-                if (player.getGamemode() == gameMode ||
+                if (player.getUuid().equals(uuid) &&
+                        player.getGamemode() == gameMode ||
                         !ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean())
                     return player;
             }
