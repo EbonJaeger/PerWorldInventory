@@ -19,6 +19,7 @@ package me.gnat008.perworldinventory.database;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class Query {
 
@@ -91,6 +92,15 @@ public class Query {
      */
     public Query from(String table) {
         parts.add("FROM " + table);
+        return this;
+    }
+
+    public Query from(Set<String> tables) {
+        String from = "FROM ";
+        for (String table : tables)
+            from += ", " + table + " ";
+
+        parts.add(from);
         return this;
     }
     

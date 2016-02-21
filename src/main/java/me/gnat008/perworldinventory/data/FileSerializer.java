@@ -61,7 +61,6 @@ public class FileSerializer extends DataSerializer {
         } catch (IOException ex) {
             Printer.getInstance(plugin).printToConsole("Error creating file '" + FILE_PATH +
                     player.getUuid() + File.separator + group.getName() + ".json': " + ex.getMessage(), true);
-            ex.printStackTrace();
         }
     }
 
@@ -97,8 +96,9 @@ public class FileSerializer extends DataSerializer {
         } catch (FileNotFoundException | JSONException ex) {
             try {
                 if (!file.getParentFile().exists()) {
-                    file.getParentFile().createNewFile();
+                    file.getParentFile().mkdir();
                 }
+
                 file.createNewFile();
                 JSONObject defaultGroupData = Serializer.getObjectFromFile(
                         new File(FILE_PATH + "defaults" + File.separator + group.getName() + ".json"));

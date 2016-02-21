@@ -272,22 +272,23 @@ public class PerWorldInventory extends JavaPlugin {
         
         Column[] pd = new Column[5];
         pd[0] = database.createColumn("id").type("INT").notNull().primaryKey().autoIncrement();
-        pd[1] = database.createColumn("uuid").type("CHAR", 36).notNull();
+        pd[1] = database.createColumn("uuid").type("CHAR", 32).notNull();
         pd[2] = database.createColumn("data_group").type("VARCHAR", 255).notNull();
         pd[3] = database.createColumn("gamemode").type("ENUM('survival', 'creative', 'adventure')").notNull();
-        pd[4] = database.createColumn("data_uuid").type("CHAR", 36).notNull();
+        pd[4] = database.createColumn("data_uuid").type("CHAR", 32).notNull();
         String playerDataQuery = database.createQuery().createTable(prefix + "player_data", true, pd).buildQuery();
         PreparedStatement playerData = database.prepareStatement(playerDataQuery);
         database.updateDb(playerData);
         
         Column[] invs = new Column[3];
         invs[0] = database.createColumn("id").type("INT").notNull().primaryKey().autoIncrement();
-        invs[1] = database.createColumn("data_uuid").type("CHAR", 36).notNull();
+        invs[1] = database.createColumn("data_uuid").type("CHAR", 32).notNull();
         invs[2] = database.createColumn("items").type("BLOB").notNull();
         String enderChestQuery = database.createQuery().createTable(prefix + "ender_chests", true, invs).buildQuery();
         PreparedStatement enderChest = database.prepareStatement(enderChestQuery);
         database.updateDb(enderChest);
         
+        invs[2] = database.createColumn("armor_items").type("BLOB").notNull();
         String armorQuery = database.createQuery().createTable(prefix + "armor", true, invs).buildQuery();
         PreparedStatement armor = database.prepareStatement(armorQuery);
         database.updateDb(armor);
@@ -298,7 +299,7 @@ public class PerWorldInventory extends JavaPlugin {
         
         Column[] ps = new Column[12];
         ps[0] = database.createColumn("id").type("INT").notNull().primaryKey().autoIncrement();
-        ps[1] = database.createColumn("uuid").type("CHAR", 36).notNull();
+        ps[1] = database.createColumn("data_uuid").type("CHAR", 32).notNull();
         ps[2] = database.createColumn("can_fly").type("BIT");
         ps[3] = database.createColumn("display_name").type("VARCHAR", 16);
         ps[4] = database.createColumn("exhaustion").type("FLOAT");
@@ -312,5 +313,14 @@ public class PerWorldInventory extends JavaPlugin {
         String playerStatsQuery = database.createQuery().createTable(prefix + "player_stats", true, ps).buildQuery();
         PreparedStatement playerStats = database.prepareStatement(playerStatsQuery);
         database.updateDb(playerStats);
+
+        Column[] econ = new Column[4];
+        econ[0] = database.createColumn("id").type("INT").notNull().primaryKey().autoIncrement();
+        econ[1] = database.createColumn("data_uuid").type("CHAR", 32).notNull();
+        econ[2] = database.createColumn("bank_balance").type("DOUBLE");
+        econ[3] = database.createColumn("balance").type("DOUBLE");
+        String econQuery = database.createQuery().createTable(prefix + "econ", true, econ).buildQuery();
+        PreparedStatement econStatement = database.prepareStatement(econQuery);
+        database.updateDb(econStatement);
     }
 }

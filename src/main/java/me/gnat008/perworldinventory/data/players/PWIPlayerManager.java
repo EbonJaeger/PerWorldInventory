@@ -92,16 +92,12 @@ public class PWIPlayerManager {
             players.add(new PWIPlayer(player, group));
             playerCache.put(group, players);
         } else {
-            Iterator<PWIPlayer> itr = players.iterator();
-            PWIPlayer pwiPlayer;
-            while (itr.hasNext()) {
-                pwiPlayer = itr.next();
-
-                if (player.getUniqueId().equals(pwiPlayer.getUuid()) &&
-                        player.getGameMode() == pwiPlayer.getGamemode() ||
-                        !ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean()) {
-                    updateCache(player, pwiPlayer);
-                }
+            PWIPlayer cachedPlayer = getCachedPlayer(group, player.getGameMode(), player.getUniqueId());
+            if (cachedPlayer != null) {
+                updateCache(player, cachedPlayer);
+            } else {
+                players.add(new PWIPlayer(player, group));
+                playerCache.put(group, players);
             }
         }
     }
@@ -267,11 +263,10 @@ public class PWIPlayerManager {
         currentPlayer.setCanFly(newData.getAllowFlight());
         currentPlayer.setDisplayName(newData.getDisplayName());
         currentPlayer.setExhaustion(newData.getExhaustion());
-        currentPlayer.setExperience(newData.getTotalExperience());
+        currentPlayer.setExperience(newData.getExp());
         currentPlayer.setFlying(newData.isFlying());
         currentPlayer.setFoodLevel(newData.getFoodLevel());
         currentPlayer.setHealth(newData.getHealth());
-        currentPlayer.setGamemode(newData.getGameMode());
         currentPlayer.setLevel(newData.getLevel());
         currentPlayer.setSaturationLevel(newData.getSaturation());
         currentPlayer.setPotionEffects(newData.getActivePotionEffects());

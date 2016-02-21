@@ -224,7 +224,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
     }
 
     private void setWorldDefault(Player player, Group group) {
-        FileSerializer temp = new FileSerializer(plugin);
+        FileSerializer fs = new FileSerializer(plugin);
         File file = new File(plugin.getDefaultFilesDirectory() + File.separator + group.getName() + ".json");
         if (!file.exists()) {
             plugin.getPrinter().printToPlayer(player, "Default file for this group not found!", true);
@@ -240,16 +240,16 @@ public class PerWorldInventoryCommand implements CommandExecutor {
             return;
         }
         Group tempGroup = new Group("tmp", null, null);
-        plugin.getPlayerManager().addPlayer(player, tempGroup);
+        fs.writeData(tmp, Serializer.toString(PlayerSerialization.serializePlayer(new PWIPlayer(player, tempGroup), plugin)));
 
         player.setFoodLevel(20);
         player.setHealth(20);
         player.setSaturation(20);
         player.setTotalExperience(0);
 
-        temp.writeData(file, Serializer.toString(PlayerSerialization.serializePlayer(new PWIPlayer(player, tempGroup), plugin)));
+        fs.writeData(file, Serializer.toString(PlayerSerialization.serializePlayer(new PWIPlayer(player, group), plugin)));
 
-        temp.getFromDatabase(group, GameMode.SURVIVAL, player);
+        fs.getFromDatabase(tempGroup, GameMode.SURVIVAL, player);
         tmp.delete();
         plugin.getPrinter().printToPlayer(player, "Defaults for '" + group.getName() + "' set!", false);
     }

@@ -32,6 +32,7 @@ import javax.sql.rowset.CachedRowSet;
 import com.sun.rowset.CachedRowSetImpl;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
+import org.bukkit.Bukkit;
 
 public abstract class Database {
 
@@ -106,40 +107,24 @@ public abstract class Database {
      * @throws SQLException If a database error occurs
      * @throws ClassNotFoundException If the database driver is not found
      */
-    public CachedRowSet queryDb(final PreparedStatement query) throws SQLException, ClassNotFoundException {
-        CachedRowSet rowSet = null;
-        
-        if (!isConnected())
-            openConnection();
-        
-        try {
-            ExecutorService exe = Executors.newCachedThreadPool();
+    public void queryDb(final PreparedStatement query, final Callback<ResultSet> callback) throws SQLException {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final ResultSet result = query.executeQuery();
 
-            Future<CachedRowSet> future = exe.submit(new Callable<CachedRowSet>() {
-                @Override
-                public CachedRowSet call() throws Exception {
-                    ResultSet resultSet = query.executeQuery();
-
-                    CachedRowSet cachedRowSet = new CachedRowSetImpl();
-                    cachedRowSet.populate(resultSet);
-                    resultSet.close();
-
-                    if (cachedRowSet.next()) {
-                        return cachedRowSet;
-                    }
-
-                    return null;
+                    Bukkit.getScheduler().runTask(plugin, new Runnable() {
+                        @Override
+                        public void run() {
+                            callback.onSuccess(result);
+                        }
+                    });
+                } catch (SQLException ex) {
+                    callback.onFailure(ex);
                 }
-            });
-
-            if (future.get() != null) {
-                rowSet = future.get();
             }
-        } catch (InterruptedException | ExecutionException ex) {
-            ex.printStackTrace();
-        }
-
-        return rowSet;
+        });
     }
     
     /**
@@ -154,8 +139,7 @@ public abstract class Database {
         if (!isConnected())
             openConnection();
         
-        int result = update.executeUpdate();
-        return result;
+        return update.executeUpdate();
     }
     
     /**
@@ -191,5 +175,10 @@ public abstract class Database {
             openConnection();
         
         return connection.prepareStatement(sql);
+    }
+
+    public interface Callback<T> {
+        void onSuccess(T done);
+        void onFailure(Throwable cause);
     }
 }

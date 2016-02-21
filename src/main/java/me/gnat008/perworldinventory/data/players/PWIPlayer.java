@@ -74,11 +74,7 @@ public class PWIPlayer {
         this.name = player.getName();
         this.dataFileDirectory = new File(PerWorldInventory.getInstance().getDataFolder() + File.separator + "data" + File.separator + uuid.toString());
         if (!dataFileDirectory.exists()) {
-            try {
-                dataFileDirectory.createNewFile();
-            } catch (IOException ex) {
-                PerWorldInventory.getInstance().getLogger().warning("Unable to create data directory for '" + name + "'!");
-            }
+            dataFileDirectory.mkdir();
         }
 
         this.group = group;
@@ -91,7 +87,7 @@ public class PWIPlayer {
         this.canFly = player.getAllowFlight();
         this.displayName = player.getDisplayName();
         this.exhaustion = player.getExhaustion();
-        this.experience = player.getTotalExperience();
+        this.experience = player.getExp();
         this.isFlying = player.isFlying();
         this.foodLevel = player.getFoodLevel();
         this.health = player.getHealth();
