@@ -230,7 +230,7 @@ public class PWIPlayerManager {
                 for (final Group group : playerCache.keySet()) {
                     Set<PWIPlayer> players = playerCache.get(group);
                     for (final PWIPlayer player : players) {
-                        if (player.isSaved()) {
+                        if (!player.isSaved()) {
                             player.setSaved(true);
                             Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
                                 @Override
