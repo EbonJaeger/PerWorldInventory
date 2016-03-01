@@ -46,16 +46,7 @@ public enum ConfigValues {
     HEALTH(true),
     LEVEL(true),
     POTION_EFFECTS(true),
-    SATURATION(true),
-
-    // SQL Config
-    SQL_DRIVER("mysql"), //TODO: Change to 'sqllite'
-    HOSTNAME("localhost"),
-    PORT(3306),
-    DATABASE_NAME("minecraft"),
-    PREFIX("pwi_"),
-    USERNAME("admin"),
-    PASSWORD("password");
+    SATURATION(true);
 
     private final Object def;
 

@@ -24,11 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 import me.gnat008.perworldinventory.data.FileSerializer;
-import me.gnat008.perworldinventory.data.SQLSerializer;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -40,9 +37,6 @@ import me.gnat008.perworldinventory.config.ConfigType;
 import me.gnat008.perworldinventory.config.defaults.ConfigValues;
 import me.gnat008.perworldinventory.data.DataConverter;
 import me.gnat008.perworldinventory.data.DataSerializer;
-import me.gnat008.perworldinventory.database.Column;
-import me.gnat008.perworldinventory.database.Database;
-import me.gnat008.perworldinventory.database.mysql.MySQL;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.listeners.PlayerChangedWorldListener;
 import me.gnat008.perworldinventory.listeners.PlayerGameModeChangeListener;
@@ -53,7 +47,6 @@ import net.milkbowl.vault.economy.Economy;
 public class PerWorldInventory extends JavaPlugin {
 
     private Economy economy;
-    private Database database;
     private Connection connection;
     private DataSerializer serializer;
     private PWIPlayerManager playerManager;
@@ -114,21 +107,7 @@ public class PerWorldInventory extends JavaPlugin {
             }
         }
 
-        if (ConfigValues.USE_SQL.getBoolean()) {
-            getLogger().info("Configured to use SQL! Attempting to connect to database...");
-            if (setupDatabase()) {
-                getLogger().info("Successfully connected to the database!");
-            } else {
-                getLogger().warning("Setting 'use-sql' to 'false' in the config, and switching to flatfiles!");
-                //TODO: Set config setting to false
-            }
-        }
-
-        if (ConfigValues.USE_SQL.getBoolean()) {
-            serializer = new SQLSerializer(this);
-        } else {
-            serializer = new FileSerializer(this);
-        }
+        serializer = new FileSerializer(this);
     }
 
     @Override
@@ -156,10 +135,6 @@ public class PerWorldInventory extends JavaPlugin {
 
     public DataConverter getDataConverter() {
         return DataConverter.getInstance(this);
-    }
-    
-    public Database getSQLDatabase() {
-        return database;
     }
 
     public DataSerializer getSerializer() {
@@ -216,111 +191,5 @@ public class PerWorldInventory extends JavaPlugin {
                 }
             }
         }
-    }
-    
-    private boolean setupDatabase() {
-        if (ConfigValues.SQL_DRIVER.getString().equalsIgnoreCase("mysql")) {
-            getLogger().info("Attempting to connect to MySQL database...");
-            database = new MySQL(this, 
-                    ConfigValues.DATABASE_NAME.getString(),
-                    ConfigValues.HOSTNAME.getString() + ":" + ConfigValues.PORT.getInt(),
-                    ConfigValues.USERNAME.getString(),
-                    ConfigValues.PASSWORD.getString());
-            if (!openDatabaseConnection())
-                return false;
-        }/* else if () {
-            //TODO: Implement SQLlite
-        }*/ else {
-            getLogger().warning("Valid database driver not detected!");
-            getLogger().warning("Valid database drivers are: mysql or sqllite");
-            return false;
-        }
-        
-        try {
-            setupTables();
-        } catch (SQLException | ClassNotFoundException ex) {
-            getLogger().severe("Unable to create the database tables: " + ex.getMessage());
-            return false;
-        }
-        
-        return true;
-    }
-    
-    private boolean openDatabaseConnection() {
-        if (database == null) {
-            getLogger().severe("No database loaded!");
-            return false;
-        }
-        
-        try {
-            connection = database.openConnection();
-        } catch (SQLException sqlEx) {
-            getLogger().severe("Unable to create a connection to the " + database.getType() + " database!");
-            getLogger().severe("Please make sure your configuration settings are correct!");
-            return false;
-        } catch (ClassNotFoundException cnfEx) {
-            getLogger().severe("No database driver found for " + database.getType() + "!");
-            getLogger().severe(cnfEx.getMessage());
-            return false;
-        }
-        
-        return true;
-    }
-    
-    private void setupTables() throws SQLException, ClassNotFoundException {
-        String prefix = ConfigValues.PREFIX.getString();
-        
-        Column[] pd = new Column[5];
-        pd[0] = database.createColumn("id").type("INT").notNull().primaryKey().autoIncrement();
-        pd[1] = database.createColumn("uuid").type("CHAR", 32).notNull();
-        pd[2] = database.createColumn("data_group").type("VARCHAR", 255).notNull();
-        pd[3] = database.createColumn("gamemode").type("ENUM('survival', 'creative', 'adventure')").notNull();
-        pd[4] = database.createColumn("data_uuid").type("CHAR", 32).notNull();
-        String playerDataQuery = database.createQuery().createTable(prefix + "player_data", true, pd).buildQuery();
-        PreparedStatement playerData = database.prepareStatement(playerDataQuery);
-        database.updateDb(playerData);
-        
-        Column[] invs = new Column[3];
-        invs[0] = database.createColumn("id").type("INT").notNull().primaryKey().autoIncrement();
-        invs[1] = database.createColumn("data_uuid").type("CHAR", 32).notNull();
-        invs[2] = database.createColumn("items").type("BLOB").notNull();
-        String enderChestQuery = database.createQuery().createTable(prefix + "ender_chests", true, invs).buildQuery();
-        PreparedStatement enderChest = database.prepareStatement(enderChestQuery);
-        database.updateDb(enderChest);
-        
-        invs[2] = database.createColumn("armor_items").type("BLOB").notNull();
-        String armorQuery = database.createQuery().createTable(prefix + "armor", true, invs).buildQuery();
-        PreparedStatement armor = database.prepareStatement(armorQuery);
-        database.updateDb(armor);
-        
-        String inventoryQuery = database.createQuery().createTable(prefix + "inventory", true, invs).buildQuery();
-        PreparedStatement inventory = database.prepareStatement(inventoryQuery);
-        database.updateDb(inventory);
-        
-        Column[] ps = new Column[12];
-        ps[0] = database.createColumn("id").type("INT").notNull().primaryKey().autoIncrement();
-        ps[1] = database.createColumn("data_uuid").type("CHAR", 32).notNull();
-        ps[2] = database.createColumn("can_fly").type("BIT");
-        ps[3] = database.createColumn("display_name").type("VARCHAR", 16);
-        ps[4] = database.createColumn("exhaustion").type("FLOAT");
-        ps[5] = database.createColumn("exp").type("FLOAT");
-        ps[6] = database.createColumn("flying").type("BIT");
-        ps[7] = database.createColumn("food").type("INT", 20);
-        ps[8] = database.createColumn("health").type("DOUBLE");
-        ps[9] = database.createColumn("level").type("INT");
-        ps[10] = database.createColumn("potion_effects").type("BLOB");
-        ps[11] = database.createColumn("saturation").type("INT", 20);
-        String playerStatsQuery = database.createQuery().createTable(prefix + "player_stats", true, ps).buildQuery();
-        PreparedStatement playerStats = database.prepareStatement(playerStatsQuery);
-        database.updateDb(playerStats);
-
-        Column[] econ = new Column[4];
-        econ[0] = database.createColumn("id").type("INT").notNull().primaryKey().autoIncrement();
-        econ[1] = database.createColumn("data_uuid").type("CHAR", 32).notNull();
-        econ[2] = database.createColumn("bank_balance").type("DOUBLE");
-        econ[3] = database.createColumn("balance").type("DOUBLE");
-        String econQuery = database.createQuery().createTable(prefix + "econ", true, econ).buildQuery();
-        PreparedStatement econStatement = database.prepareStatement(econQuery);
-        database.updateDb(econStatement);
     }
 }

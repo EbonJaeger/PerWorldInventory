@@ -232,14 +232,11 @@ public class PWIPlayerManager {
                     Set<PWIPlayer> players = playerCache.get(group);
                     Iterator<PWIPlayer> itr = players.iterator();
                     while (itr.hasNext()) {
-                        plugin.getLogger().info("Iterator has next!");
                         final PWIPlayer player = itr.next();
                         if (!player.isSaved()) {
-                            plugin.getLogger().info(player.getName() + " is not saved!");
                             player.setSaved(true);
                             plugin.getSerializer().saveToDatabase(group, player.getGamemode(), player);
                         } else {
-                            plugin.getLogger().info("Removing " + player.getName() + " from cache!");
                             itr.remove();
                         }
                     }
