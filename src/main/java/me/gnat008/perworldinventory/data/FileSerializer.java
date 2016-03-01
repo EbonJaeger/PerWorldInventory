@@ -94,29 +94,31 @@ public class FileSerializer extends DataSerializer {
             JSONObject data = Serializer.getObjectFromFile(file);
             PlayerSerialization.setPlayer(data, player, plugin);
         } catch (FileNotFoundException | JSONException ex) {
-            try {
-                if (!file.getParentFile().exists()) {
-                    file.getParentFile().mkdir();
-                }
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdir();
+            }
 
-                file.createNewFile();
-                JSONObject defaultGroupData = Serializer.getObjectFromFile(
-                        new File(FILE_PATH + "defaults" + File.separator + group.getName() + ".json"));
+            getFromDefaults(group, player);
+        }
+    }
+
+    public void getFromDefaults(Group group, Player player) {
+        File file = new File(FILE_PATH + "defaults", group.getName() + ".json");
+
+        try {
+            JSONObject defaultGroupData = Serializer.getObjectFromFile(file);
+            PlayerSerialization.setPlayer(defaultGroupData, player, plugin);
+        } catch (FileNotFoundException ex) {
+            file = new File(FILE_PATH + "defaults", "__default.json");
+
+            try {
+                JSONObject defaultGroupData = Serializer.getObjectFromFile(file);
                 PlayerSerialization.setPlayer(defaultGroupData, player, plugin);
             } catch (FileNotFoundException ex2) {
-                try {
-                    JSONObject defaultData = Serializer.getObjectFromFile(
-                            new File(FILE_PATH + "defaults" + File.separator + "__default.json"));
-                    PlayerSerialization.setPlayer(defaultData, player, plugin);
-                } catch (FileNotFoundException ex3) {
-                    plugin.getPrinter().printToPlayer(player, "Something went horribly wrong when loading your inventory! " +
-                            "Please notify a server administrator!", true);
-                    plugin.getPrinter().printToConsole("Unable to find inventory data for player '" + player.getName() +
-                            "' for group '" + group.getName() + "': " + ex3.getMessage(), true);
-                }
-            } catch (IOException exIO) {
-                Printer.getInstance(plugin).printToConsole("Error creating file '" + FILE_PATH +
-                        player.getUniqueId().toString() + File.separator + group.getName() + ".json': " + ex.getMessage(), true);
+                plugin.getPrinter().printToPlayer(player, "Something went horribly wrong when loading your inventory! " +
+                        "Please notify a server administrator!", true);
+                plugin.getLogger().severe("Unable to find inventory data for player '" + player.getName() +
+                        "' for group '" + group.getName() + "': " + ex2.getMessage());
             }
         }
     }

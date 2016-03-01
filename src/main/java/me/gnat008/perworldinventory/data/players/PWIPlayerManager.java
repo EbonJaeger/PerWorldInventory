@@ -28,6 +28,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class is used to manage cached players.
@@ -40,7 +41,7 @@ public class PWIPlayerManager {
     private PerWorldInventory plugin;
     private int taskID;
 
-    private Map<Group, Set<PWIPlayer>> playerCache = new LinkedHashMap<>();
+    private Map<Group, Set<PWIPlayer>> playerCache = new ConcurrentHashMap<>();
 
     public PWIPlayerManager(PerWorldInventory plugin) {
         this.plugin = plugin;
@@ -229,17 +230,17 @@ public class PWIPlayerManager {
             public void run() {
                 for (final Group group : playerCache.keySet()) {
                     Set<PWIPlayer> players = playerCache.get(group);
-                    for (final PWIPlayer player : players) {
+                    Iterator<PWIPlayer> itr = players.iterator();
+                    while (itr.hasNext()) {
+                        plugin.getLogger().info("Iterator has next!");
+                        final PWIPlayer player = itr.next();
                         if (!player.isSaved()) {
+                            plugin.getLogger().info(player.getName() + " is not saved!");
                             player.setSaved(true);
-                            Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-                                @Override
-                                public void run() {
-                                    plugin.getSerializer().saveToDatabase(group, player.getGamemode(), player);
-                                }
-                            });
+                            plugin.getSerializer().saveToDatabase(group, player.getGamemode(), player);
                         } else {
-                            removePlayer(group, player.getGamemode(), player.getUuid());
+                            plugin.getLogger().info("Removing " + player.getName() + " from cache!");
+                            itr.remove();
                         }
                     }
                 }

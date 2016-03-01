@@ -95,12 +95,20 @@ public class Query {
         return this;
     }
 
-    public Query from(Set<String> tables) {
+    public Query from(String... tables) {
         String from = "FROM ";
-        for (String table : tables)
-            from += ", " + table + " ";
+        String on = " ON (";
+        for (int i = 0; i < tables.length; i++) {
+            if (i == 1)
+                from += tables[i] + " LEFT JOIN (";
+            from += tables[i] + ", ";
+            on += tables[i] + ".data_uuid=" + tables[i-1] + ".data_uuid AND ";
+        }
 
-        parts.add(from);
+        from = from.substring(0, from.length() - 2) + ")";
+        on = on.substring(0, on.length() - 5) + ")";
+
+        parts.add(from + " " + on);
         return this;
     }
     
@@ -167,6 +175,17 @@ public class Query {
      */
     public Query and(String column, Operator operator) {
         parts.add("AND " + column + operator.get() + "?");
+        return this;
+    }
+
+    /**
+     * Limit how many rows are returned by the query.
+     *
+     * @param number The max rows to return
+     * @return This Query object
+     */
+    public Query limit(int number) {
+        parts.add("LIMIT " + 1);
         return this;
     }
     

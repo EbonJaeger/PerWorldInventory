@@ -434,7 +434,7 @@ public class PWIPlayer {
      * @return True if saved
      */
     public boolean isSaved() {
-        return !saved;
+        return saved;
     }
 
     /**

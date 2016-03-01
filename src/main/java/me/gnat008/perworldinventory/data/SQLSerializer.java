@@ -19,7 +19,6 @@ package me.gnat008.perworldinventory.data;
 
 import com.kill3rtaco.tacoserialization.InventorySerialization;
 import com.kill3rtaco.tacoserialization.PotionEffectSerialization;
-import com.sun.rowset.CachedRowSetImpl;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.defaults.ConfigValues;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
@@ -33,7 +32,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.json.JSONArray;
 
-import javax.sql.rowset.CachedRowSet;
 import javax.sql.rowset.serial.SerialBlob;
 import java.sql.*;
 import java.util.*;
@@ -42,7 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SQLSerializer extends DataSerializer {
 
     private final Database database;
-    private Set<String> tableNames;
+    private String[] tableNames;
 
     private final String PREFIX;
 
@@ -51,12 +49,12 @@ public class SQLSerializer extends DataSerializer {
 
         this.database = plugin.getSQLDatabase();
         this.PREFIX = ConfigValues.PREFIX.getString();
-        this.tableNames = new HashSet<>();
-        this.tableNames.add(PREFIX + "ender_chests");
-        this.tableNames.add(PREFIX + "armor");
-        this.tableNames.add(PREFIX + "inventory");
-        this.tableNames.add(PREFIX + "player_stats");
-        this.tableNames.add(PREFIX + "econ");
+        this.tableNames = new String[5];
+        this.tableNames[0] = PREFIX + "ender_chests";
+        this.tableNames[1] = PREFIX + "armor";
+        this.tableNames[2] = PREFIX + "inventory";
+        this.tableNames[3] = PREFIX + "player_stats";
+        this.tableNames[4] = PREFIX + "econ";
     }
 
     /**
@@ -73,69 +71,43 @@ public class SQLSerializer extends DataSerializer {
      * @param gamemode The {@link org.bukkit.GameMode} to save for
      * @param player The {@link me.gnat008.perworldinventory.data.players.PWIPlayer} we are saving
      */
-    public void saveToDatabase(Group group, GameMode gamemode, PWIPlayer player) {
-        String prefix = ConfigValues.PREFIX.getString();
-
-        String dataUUID = checkIfDataExists(group, gamemode, player, prefix);
-
-        if (dataUUID != null) {
-            deleteExistingData(prefix, dataUUID);
-
-            createStatements(prefix, dataUUID, player, group, gamemode, false);
-        } else {
-            createStatements(prefix, player, group, gamemode, true);
-        }
-    }
-
-    /**
-     * Query the database to see if there is any existing data for the
-     * given player for a GameMode and Group.
-     *
-     * @param group The {@link me.gnat008.perworldinventory.groups.Group} to check for
-     * @param gamemode The GameMode to check for
-     * @param player The Player to check
-     * @param prefix The SQL table prefix
-     * @return The existing data UUID if found, or null
-     */
-    private String checkIfDataExists(Group group, GameMode gamemode, PWIPlayer player, String prefix) {
-        String findDataQuery = database.createQuery().select("data_uuid").from(prefix + "player_data").where("uuid", Operator.EQUAL)
-                .and("data_group", Operator.EQUAL).and("gamemode", Operator.EQUAL).buildQuery();
+    public void saveToDatabase(final Group group, final GameMode gamemode, final PWIPlayer player) {
+        String findDataQuery = database.createQuery().select("data_uuid").from(PREFIX + "player_data").where("uuid", Operator.EQUAL)
+                .and("data_group", Operator.EQUAL).and("gamemode", Operator.EQUAL).limit(1).buildQuery();
         PreparedStatement findData;
         try {
             findData = database.prepareStatement(findDataQuery);
-            findData.setString(1, player.getUuid().toString());
+            findData.setString(1, player.getUuid().toString().replace("-", ""));
             findData.setString(2, group.getName());
             findData.setString(3, gamemode.toString().toLowerCase());
 
-            final ConcurrentHashMap<String, String> result = new ConcurrentHashMap<>();
             database.queryDb(findData, new Database.Callback<ResultSet>() {
                 @Override
                 public void onSuccess(ResultSet done) {
                     try {
-                        if (done.next())
-                            result.put("data_uuid", done.getString(1));
-                        else
+                        if (done.next()) {
+                            plugin.getLogger().info(done.getString("data_uuid"));
+                            deleteExistingData(done.getString("data_uuid"));
+                            createStatements(done.getString("data_uuid"), player, group, gamemode, false);
+                        }
+                        else {
                             plugin.getLogger().info("No data found!");
+                            createStatements(player, group, gamemode, true);
+                        }
+
                     } catch (SQLException ex) {
-                        //TODO: Error message
+                        plugin.getLogger().severe("Error 100: Unable to check for existing data for a player: " + ex.getMessage());
                     }
                 }
 
                 @Override
                 public void onFailure(Throwable cause) {
-                    //TODO: Error message
+                    plugin.getLogger().severe("Error 101: Unable to update database: " + cause.getMessage());
                 }
             });
-
-            if (result.containsKey("data_uuid")) {
-                return result.get("data_uuid");
-            }
         } catch (ClassNotFoundException | SQLException ex) {
-            plugin.getLogger().severe("Unable to check for existing data for a player: " + ex.getMessage());
-            return null;
+            plugin.getLogger().severe("Error 102: Unable to check for existing data for a player: " + ex.getMessage());
         }
-
-        return null;
     }
 
     /**
@@ -144,17 +116,16 @@ public class SQLSerializer extends DataSerializer {
      * This is called when data already exists, so we can just
      * re-insert the changed data afterwards.
      *
-     * @param prefix The table prefix
      * @param uuid The UUID of the data to delete
      */
-    private void deleteExistingData(String prefix, String uuid) {
+    private void deleteExistingData(String uuid) {
         final PreparedStatement deleteEnderChest, deleteArmor, deleteInventory, deleteStats, deleteEcon;
 
-        String deleteECQuery = database.createQuery().delete().from(prefix + "ender_chests").where("data_uuid", Operator.EQUAL).buildQuery();
-        String deleteArmorQuery = database.createQuery().delete().from(prefix + "armor").where("data_uuid", Operator.EQUAL).buildQuery();
-        String deleteInvQuery = database.createQuery().delete().from(prefix + "inventory").where("data_uuid", Operator.EQUAL).buildQuery();
-        String deleteStatsQuery = database.createQuery().delete().from(prefix + "player_stats").where("data_uuid", Operator.EQUAL).buildQuery();
-        String deleteEconQuery = database.createQuery().delete().from(prefix + "economy").where("data_uuid", Operator.EQUAL).buildQuery();
+        String deleteECQuery = database.createQuery().delete().from(PREFIX + "ender_chests").where("data_uuid", Operator.EQUAL).buildQuery();
+        String deleteArmorQuery = database.createQuery().delete().from(PREFIX + "armor").where("data_uuid", Operator.EQUAL).buildQuery();
+        String deleteInvQuery = database.createQuery().delete().from(PREFIX + "inventory").where("data_uuid", Operator.EQUAL).buildQuery();
+        String deleteStatsQuery = database.createQuery().delete().from(PREFIX + "player_stats").where("data_uuid", Operator.EQUAL).buildQuery();
+        String deleteEconQuery = database.createQuery().delete().from(PREFIX + "econ").where("data_uuid", Operator.EQUAL).buildQuery();
 
         try {
             deleteEnderChest = database.prepareStatement(deleteECQuery);
@@ -195,42 +166,40 @@ public class SQLSerializer extends DataSerializer {
      * <p>
      * This method creates a new, random UUID for the data.
      *
-     * @param prefix The SQL table prefix
      * @param player The {@link me.gnat008.perworldinventory.data.players.PWIPlayer} to grab data from
      * @param group The {@link me.gnat008.perworldinventory.groups.Group} the player is in
      * @param gamemode The {@link org.bukkit.GameMode} we are saving
      * @param createIndexEntry If an index entry needs to be created
      */
-    private void createStatements(String prefix, PWIPlayer player, Group group, GameMode gamemode, boolean createIndexEntry) {
+    private void createStatements(PWIPlayer player, Group group, GameMode gamemode, boolean createIndexEntry) {
         String dataUUID = UUID.randomUUID().toString().replace("-", "");
 
-        createStatements(prefix, dataUUID, player, group, gamemode, createIndexEntry);
+        createStatements(dataUUID, player, group, gamemode, createIndexEntry);
     }
 
     /**
-     * Create the {@link java.sql.PreparedStatement}s to write a
+     * Create the {@link PreparedStatement}s to write a
      * player's data to the database. This method saves everything
      * regardless of the configuration options.
      *
-     * @param prefix The SQL table prefix
      * @param dataUUID The UUID to use to tie data together
-     * @param player The {@link me.gnat008.perworldinventory.data.players.PWIPlayer} to grab data from
-     * @param group The {@link me.gnat008.perworldinventory.groups.Group} the player is in
-     * @param gamemode The {@link org.bukkit.GameMode} we are saving
+     * @param player The {@link PWIPlayer} to grab data from
+     * @param group The {@link Group} the player is in
+     * @param gamemode The {@link GameMode} we are saving
      * @param createIndexEntry If an index entry needs to be created
      */
-    private void createStatements(String prefix, String dataUUID, PWIPlayer player, Group group, GameMode gamemode, boolean createIndexEntry) {
+    private void createStatements(String dataUUID, PWIPlayer player, Group group, GameMode gamemode, boolean createIndexEntry) {
         Set<PreparedStatement> statements = new HashSet<>();
         if (createIndexEntry)
-            statements.add(createIndexEntry(prefix, dataUUID, player.getUuid().toString(), group, gamemode));
+            statements.add(createIndexEntry(dataUUID, player.getUuid().toString(), group, gamemode));
         PreparedStatement insEnderChest, insArmor, insInv, insStats, insEcon;
         String insEnderChestQuery, insArmorQuery, insInvQuery, insStatsQuery, insEconQuery = null;
-        insEnderChestQuery = database.createQuery().insertInto(prefix + "ender_chests").values(3).buildQuery();
-        insArmorQuery = database.createQuery().insertInto(prefix + "armor").values(3).buildQuery();
-        insInvQuery = database.createQuery().insertInto(prefix + "inventory").values(3).buildQuery();
-        insStatsQuery = database.createQuery().insertInto(prefix + "player_stats").values(12).buildQuery();
+        insEnderChestQuery = database.createQuery().insertInto(PREFIX + "ender_chests").values(3).buildQuery();
+        insArmorQuery = database.createQuery().insertInto(PREFIX + "armor").values(3).buildQuery();
+        insInvQuery = database.createQuery().insertInto(PREFIX + "inventory").values(3).buildQuery();
+        insStatsQuery = database.createQuery().insertInto(PREFIX + "player_stats").values(12).buildQuery();
         if (ConfigValues.ECONOMY.getBoolean())
-            insEconQuery = database.createQuery().insertInto(prefix + "econ").values(4).buildQuery();
+            insEconQuery = database.createQuery().insertInto(PREFIX + "econ").values(4).buildQuery();
 
         try {
             insEnderChest = database.prepareStatement(insEnderChestQuery);
@@ -284,8 +253,8 @@ public class SQLSerializer extends DataSerializer {
         }
     }
 
-    private PreparedStatement createIndexEntry(String prefix, String dataUUID, String playerUUID, Group group, GameMode gamemode) {
-        String query = database.createQuery().insertInto(prefix + "player_data").values(5).buildQuery();
+    private PreparedStatement createIndexEntry(String dataUUID, String playerUUID, Group group, GameMode gamemode) {
+        String query = database.createQuery().insertInto(PREFIX + "player_data").values(5).buildQuery();
         try {
             PreparedStatement statement = database.prepareStatement(query);
             statement.setNull(1, Types.INTEGER);
@@ -307,23 +276,21 @@ public class SQLSerializer extends DataSerializer {
      */
     private void updateDatabase(final Set<PreparedStatement> statements) {
         for (final PreparedStatement statement : statements) {
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        database.updateDb(statement);
-                    } catch (ClassNotFoundException | SQLException ex) {
-                        plugin.getLogger().severe("Unable to update database: " + ex.getMessage());
-                    }
-                }
-            });
+            try {
+                database.updateDb(statement);
+            } catch (ClassNotFoundException | SQLException ex) {
+                plugin.getLogger().severe("Unable to update database: " + ex.getMessage());
+            }
         }
     }
 
     public void getFromDatabase(final Group group, final GameMode gamemode, final Player player) {
         String dataUUID = getDataUUID(group, gamemode, player);
-        if (dataUUID == null)
+        if (dataUUID == null) {
+            FileSerializer fs = new FileSerializer(plugin);
+            fs.getFromDatabase(group, gamemode, player);
             return;
+        }
 
         String query = database.createQuery().select("*").from(tableNames).where("data_uuid", Operator.EQUAL).buildQuery();
         PreparedStatement statement;
@@ -337,12 +304,14 @@ public class SQLSerializer extends DataSerializer {
                 public void onSuccess(ResultSet done) {
                     try {
                         if (done.isBeforeFirst()) {
-                            int i = 1;
                             while (done.next()) {
-                                results.put(done.getCursorName(), done.getObject(i));
+                                ResultSetMetaData meta = done.getMetaData();
+                                int columnCount = meta.getColumnCount();
+                                for (int i = 1; i < columnCount; i++) {
+                                    results.put(meta.getColumnName(i), done.getObject(i));
+                                }
                             }
-                        }
-                        else {
+                        } else {
                             FileSerializer fs = new FileSerializer(plugin);
                             fs.getFromDatabase(group, gamemode, player);
                         }
@@ -365,13 +334,14 @@ public class SQLSerializer extends DataSerializer {
 
     private String getDataUUID(Group group, GameMode gamemode, final Player player) {
         String dataUUID = database.createQuery().select("data_uuid").from(PREFIX + "player_data").where("uuid", Operator.EQUAL)
-                .and("data_group", Operator.EQUAL).and("gamemode", Operator.EQUAL).buildQuery();
+                .and("data_group", Operator.EQUAL).and("gamemode", Operator.EQUAL).limit(1).buildQuery();
         final PreparedStatement findData;
         try {
             findData = database.prepareStatement(dataUUID);
             findData.setString(1, player.getUniqueId().toString().replace("-", ""));
             findData.setString(2, group.getName());
             findData.setString(3, gamemode.toString().toLowerCase());
+            plugin.getLogger().info(findData.toString());
 
             final ConcurrentHashMap<String, String> result = new ConcurrentHashMap<>();
             database.queryDb(findData, new Database.Callback<ResultSet>() {
@@ -379,7 +349,7 @@ public class SQLSerializer extends DataSerializer {
                 public void onSuccess(ResultSet done) {
                     try {
                         if (done.next())
-                            result.put("data_uuid", done.getString(1));
+                            result.put("data_uuid", done.getString("data_uuid"));
                     } catch (SQLException ex) {
                         plugin.getLogger().severe("Unable to read data: " + ex.getMessage());
                     }

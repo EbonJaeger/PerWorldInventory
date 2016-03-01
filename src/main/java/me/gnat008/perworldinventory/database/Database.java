@@ -103,9 +103,7 @@ public abstract class Database {
      * Queries the database, and stores the results in a CachedRowSet.
      *
      * @param query The SQL statement to execute
-     * @return The {@link javax.sql.rowset.CachedRowSet} with the results
      * @throws SQLException If a database error occurs
-     * @throws ClassNotFoundException If the database driver is not found
      */
     public void queryDb(final PreparedStatement query, final Callback<ResultSet> callback) throws SQLException {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
@@ -131,15 +129,23 @@ public abstract class Database {
      * Update the database with information.
      * 
      * @param update The SQL statement to execute
-     * @return The number of rows affected
      * @throws SQLException If a database error occurs
      * @throws ClassNotFoundException If the database driver is not found
      */
-    public int updateDb(PreparedStatement update) throws SQLException, ClassNotFoundException {
+    public void updateDb(final PreparedStatement update) throws SQLException, ClassNotFoundException {
         if (!isConnected())
             openConnection();
         
-        return update.executeUpdate();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    update.executeUpdate();
+                } catch (SQLException ex) {
+                    plugin.getLogger().severe("Unable to update database: " + ex.getMessage());
+                }
+            }
+        });
     }
     
     /**
