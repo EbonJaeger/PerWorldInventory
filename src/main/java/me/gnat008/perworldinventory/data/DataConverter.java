@@ -76,6 +76,11 @@ public class DataConverter {
                     PlayerProfile playerData = mvgroup.getPlayerData(ProfileTypes.SURVIVAL, player1);
                     if (playerData != null) {
                         JSONObject writable = serializeMVIToNewFormat(playerData);
+                        //Ensure that the group exists first, otherwise you just get nulls
+                        if (plugin.getGroupManager().getGroup(mvgroup.getName()) == null) {
+                        	List<String> list = new ArrayList<String>( mvgroup.getWorlds());
+                        	plugin.getGroupManager().addGroup(mvgroup.getName(), list);
+                        }
                         plugin.getSerializer().writePlayerDataToFile(player1, writable, plugin.getGroupManager().getGroup(mvgroup.getName()), GameMode.SURVIVAL);
                     }
                 } catch (Exception ex) {
