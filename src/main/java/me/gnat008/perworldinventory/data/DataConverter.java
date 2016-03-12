@@ -19,6 +19,7 @@ package me.gnat008.perworldinventory.data;
 
 import com.kill3rtaco.tacoserialization.InventorySerialization;
 import com.kill3rtaco.tacoserialization.PotionEffectSerialization;
+import com.kill3rtaco.tacoserialization.Serializer;
 import com.onarandombox.multiverseinventories.MultiverseInventories;
 import com.onarandombox.multiverseinventories.ProfileTypes;
 import com.onarandombox.multiverseinventories.api.profile.PlayerProfile;
@@ -38,16 +39,19 @@ import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
 import uk.co.tggl.pluckerpluck.multiinv.api.MIAPIPlayer;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIItemStack;
 
+import java.io.File;
 import java.util.*;
 
 public class DataConverter {
 
+    private FileSerializer serializer;
     private PerWorldInventory plugin;
 
     private static DataConverter converter = null;
 
     private DataConverter(PerWorldInventory plugin) {
         this.plugin = plugin;
+        this.serializer = new FileSerializer(plugin);
     }
 
     public static DataConverter getInstance(PerWorldInventory plugin) {
@@ -78,7 +82,8 @@ public class DataConverter {
                         	List<String> list = new ArrayList<String>( mvgroup.getWorlds());
                         	plugin.getGroupManager().addGroup(mvgroup.getName(), list);
                         }
-                        plugin.getSerializer().writePlayerDataToFile(player1, writable, plugin.getGroupManager().getGroup(mvgroup.getName()), GameMode.SURVIVAL);
+                        File file = serializer.getFile(GameMode.SURVIVAL, plugin.getGroupManager().getGroup(mvgroup.getName()), player1.getUniqueId());
+                        serializer.writeData(file, Serializer.toString(writable));
                     }
                 } catch (Exception ex) {
                     plugin.getPrinter().printToConsole("Error importing inventory for player: " + player1.getName() +

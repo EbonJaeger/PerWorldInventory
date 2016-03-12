@@ -123,7 +123,7 @@ public class FileSerializer extends DataSerializer {
         }
     }
 
-    private File getFile(GameMode gamemode, Group group, UUID uuid) {
+    public File getFile(GameMode gamemode, Group group, UUID uuid) {
         File file;
         switch(gamemode) {
             case ADVENTURE:
