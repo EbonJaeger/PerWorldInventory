@@ -92,7 +92,8 @@ public class BookSerialization {
             if (meta.hasAuthor())
                 root.put("author", meta.getAuthor());
             if (meta.hasPages()) {
-                String[] pages = meta.getPages().toArray(new String[]{});
+                java.util.List<String> var = meta.getPages();
+                String[] pages = var.toArray(new String[var.size()]);
                 root.put("pages", pages);
             }
             return root;

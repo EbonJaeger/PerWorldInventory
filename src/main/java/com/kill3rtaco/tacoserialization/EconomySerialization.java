@@ -17,6 +17,7 @@
 
 package com.kill3rtaco.tacoserialization;
 
+import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.entity.Player;
 import org.json.JSONException;
@@ -27,15 +28,15 @@ public class EconomySerialization {
     protected EconomySerialization() {
     }
 
-    public static JSONObject serializeEconomy(Player player, Economy econ) {
+    public static JSONObject serializeEconomy(PWIPlayer player, Economy econ) {
         try {
             JSONObject data = new JSONObject();
 
             if (econ.bankBalance(player.getName()).transactionSuccess()) {
-                data.put("bank-balance", econ.bankBalance(player.getName()).balance);
+                data.put("bank-balance", player.getBankBalance());
             }
 
-            data.put("balance", econ.getBalance(player));
+            data.put("balance", player.getBalance());
 
             return data;
         } catch (JSONException ex) {

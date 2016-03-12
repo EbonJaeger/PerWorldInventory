@@ -45,16 +45,6 @@ public class PlayerQuitListener implements Listener {
             group = new Group(logoutWorld, null, null);
         }
 
-        if (ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean()) {
-            plugin.getSerializer().writePlayerDataToFile(player,
-                    PlayerSerialization.serializePlayer(player, plugin),
-                    group,
-                    player.getGameMode());
-        } else {
-            plugin.getSerializer().writePlayerDataToFile(player,
-                    PlayerSerialization.serializePlayer(player, plugin),
-                    group,
-                    GameMode.SURVIVAL);
-        }
+        plugin.getPlayerManager().addPlayer(player, group);
     }
 }

@@ -17,147 +17,41 @@
 
 package me.gnat008.perworldinventory.data;
 
-import com.kill3rtaco.tacoserialization.PlayerSerialization;
-import com.kill3rtaco.tacoserialization.Serializer;
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.groups.Group;
-import me.gnat008.perworldinventory.util.Printer;
 import org.bukkit.GameMode;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+public abstract class DataSerializer {
 
-public class DataSerializer {
+    protected PerWorldInventory plugin;
 
-    private PerWorldInventory plugin;
-
-    private final String FILE_PATH;
-
-    private static DataSerializer instance = null;
-
-    private DataSerializer(PerWorldInventory plugin) {
+    public DataSerializer(PerWorldInventory plugin) {
         this.plugin = plugin;
-        FILE_PATH = plugin.getDataFolder() + File.separator + "data" + File.separator;
     }
 
-    public static DataSerializer getInstance(PerWorldInventory plugin) {
-        if (instance == null) {
-            instance = new DataSerializer(plugin);
-        }
+    /**
+     * Saves a player's data to the database.
+     * <p>
+     * The database used will be different depending on the config,
+     * either flatfile (.yml), or MySQL.
+     *
+     * @param group The {@link me.gnat008.perworldinventory.groups.Group} the player was in
+     * @param gamemode The {@link org.bukkit.GameMode} the player was in
+     * @param player The {@link me.gnat008.perworldinventory.data.players.PWIPlayer} to save
+     */
+    public abstract void saveToDatabase(Group group, GameMode gamemode, PWIPlayer player);
 
-        return instance;
-    }
-
-    public static void disable() {
-        instance = null;
-    }
-
-    public void writePlayerDataToFile(OfflinePlayer player, JSONObject data, Group group, GameMode gamemode) {
-        File file;
-        switch (gamemode) {
-            case ADVENTURE:
-                file = new File(FILE_PATH + player.getUniqueId().toString(), group.getName() + "_adventure.json");
-                break;
-            case CREATIVE:
-                file = new File(FILE_PATH + player.getUniqueId().toString(), group.getName() + "_creative.json");
-                break;
-            case SPECTATOR:
-                file = new File(FILE_PATH + player.getUniqueId().toString(), group.getName() + "_creative.json");
-                break;
-            default:
-                file = new File(FILE_PATH + player.getUniqueId().toString(), group.getName() + ".json");
-                break;
-        }
-
-        try {
-            if (!file.getParentFile().exists()) {
-                file.getParentFile().mkdir();
-            }
-
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-            writeData(file, Serializer.toString(data));
-        } catch (IOException ex) {
-            Printer.getInstance(plugin).printToConsole("Error creating file '" + FILE_PATH +
-                    player.getUniqueId().toString() + File.separator + group.getName() + ".json': " + ex.getMessage(), true);
-            ex.printStackTrace();
-        }
-    }
-
-    public void writeData(final File file, final String data) {
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-            @Override
-            public void run() {
-                FileWriter writer = null;
-                try {
-                    writer = new FileWriter(file);
-                    writer.write(data);
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                } finally {
-                    try {
-                        if (writer != null) {
-                            writer.close();
-                        }
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            }
-        });
-    }
-
-    public void getPlayerDataFromFile(Player player, Group group, GameMode gamemode) {
-        File file;
-        switch(gamemode) {
-            case ADVENTURE:
-                file = new File(FILE_PATH + player.getUniqueId().toString(), group.getName() + "_adventure.json");
-                break;
-            case CREATIVE:
-                file = new File(FILE_PATH + player.getUniqueId().toString(), group.getName() + "_creative.json");
-                break;
-            case SPECTATOR:
-                file = new File(FILE_PATH + player.getUniqueId().toString(), group.getName() + "_creative.json");
-                break;
-            default:
-                file = new File(FILE_PATH + player.getUniqueId().toString(), group.getName() + ".json");
-                break;
-        }
-
-        try {
-            JSONObject data = Serializer.getObjectFromFile(file);
-            PlayerSerialization.setPlayer(data, player, plugin);
-        } catch (FileNotFoundException | JSONException ex) {
-            try {
-                if (!file.getParentFile().exists()) {
-                    file.getParentFile().createNewFile();
-                }
-                file.createNewFile();
-                JSONObject defaultGroupData = Serializer.getObjectFromFile(
-                        new File(FILE_PATH + "defaults" + File.separator + group.getName() + ".json"));
-                PlayerSerialization.setPlayer(defaultGroupData, player, plugin);
-            } catch (FileNotFoundException ex2) {
-                try {
-                    JSONObject defaultData = Serializer.getObjectFromFile(
-                            new File(FILE_PATH + "defaults" + File.separator + "__default.json"));
-                    PlayerSerialization.setPlayer(defaultData, player, plugin);
-                } catch (FileNotFoundException ex3) {
-                    plugin.getPrinter().printToPlayer(player, "Something went horribly wrong when loading your inventory! " +
-                            "Please notify a server administrator!", true);
-                    plugin.getPrinter().printToConsole("Unable to find inventory data for player '" + player.getName() +
-                            "' for group '" + group.getName() + "': " + ex3.getMessage(), true);
-                }
-            } catch (IOException exIO) {
-                Printer.getInstance(plugin).printToConsole("Error creating file '" + FILE_PATH +
-                        player.getUniqueId().toString() + File.separator + group.getName() + ".json': " + ex.getMessage(), true);
-            }
-        }
-    }
+    /**
+     * Retrieves a player's data from the database.
+     * <p>
+     * The database used will be different depending on the config,
+     * either flatfile (.yml), or MySQL.
+     *
+     * @param group The {@link me.gnat008.perworldinventory.groups.Group} the player was in
+     * @param gamemode The {@link org.bukkit.GameMode} the player was in
+     * @param player The {@link org.bukkit.entity.Player} to set the data to
+     */
+    public abstract void getFromDatabase(Group group, GameMode gamemode, Player player);
 }

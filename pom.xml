@@ -6,7 +6,7 @@
 
     <groupId>me.gnat008</groupId>
     <artifactId>perworldinventory</artifactId>
-    <version>1.5.9</version>
+    <version>1.6.0</version>
 
     <name>PerWorldInventory</name>
     <description>The multiverse inventories replacement</description>
@@ -17,12 +17,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
-        <bukkitVersion>1.8.8-R0.1-SNAPSHOT</bukkitVersion>
+        <bukkitVersion>1.9-R0.1-SNAPSHOT</bukkitVersion>
     </properties>
 
     <issueManagement>
-        <system>GitHub</system>
-        <url>https://github.com/Gnat008/PerWorldInventory/issues</url>
+        <system>Bitbucket</system>
+        <url>https://bitbucket.org/Gnat008/perworldinventory/issues</url>
     </issueManagement>
 
     <repositories>
@@ -191,8 +191,12 @@
                    <relocations>
                         <relocation>
                             <pattern>org.mcstats</pattern>
-                            <shadedPattern>me.gnat008.perworldinventory</shadedPattern>
+                            <shadedPattern>me.gnat008.perworldinventory.libs.org.mcstats</shadedPattern>
                         </relocation>
+                       <relocation>
+                           <pattern>org.json</pattern>
+                           <shadedPattern>me.gnat008.perworldinventory.libs.org.json</shadedPattern>
+                       </relocation>
                     </relocations>
                 </configuration>
                 <executions>

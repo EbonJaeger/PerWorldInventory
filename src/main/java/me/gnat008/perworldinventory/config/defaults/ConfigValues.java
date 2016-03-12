@@ -27,6 +27,7 @@ public enum ConfigValues {
     ENABLE_METRICS(true),
     MANAGE_GAMEMODES(false),
     SEPARATE_GAMEMODE_INVENTORIES(true),
+    USE_SQL(false),
 
     // Second level
     ECONOMY(false),
@@ -58,12 +59,15 @@ public enum ConfigValues {
     }
 
     public String getKey() {
-        if (this.ordinal() < 4)
+        if (this.ordinal() < 5)
             return this.toString().toLowerCase().replaceAll("_", "-");
-        else if (this.ordinal() < 8)
+        else if (this.ordinal() < 9)
             return "player." + this.toString().toLowerCase().replaceAll("_", "-");
-        else
+        else if (this.ordinal() < 20) {
             return "player.stats." + this.toString().toLowerCase().replaceAll("_", "-");
+        } else {
+            return "mysql." + this.toString().toLowerCase().replace('_', '-');
+        }
     }
 
     public void set(Object value) {
@@ -72,5 +76,13 @@ public enum ConfigValues {
 
     public boolean getBoolean() {
         return ConfigManager.getInstance().getConfig(ConfigType.CONFIG).getConfig().getBoolean(getKey(), (boolean) def);
+    }
+
+    public int getInt() {
+        return ConfigManager.getInstance().getConfig(ConfigType.CONFIG).getConfig().getInt(getKey(), (int) def);
+    }
+
+    public String getString() {
+        return ConfigManager.getInstance().getConfig(ConfigType.CONFIG).getConfig().getString(getKey(), (String) def);
     }
 }

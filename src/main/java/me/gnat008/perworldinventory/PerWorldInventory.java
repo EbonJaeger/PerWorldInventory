@@ -17,6 +17,19 @@
 
 package me.gnat008.perworldinventory;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.sql.Connection;
+
+import me.gnat008.perworldinventory.data.FileSerializer;
+import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.plugin.java.JavaPlugin;
+
 import me.gnat008.perworldinventory.commands.PerWorldInventoryCommand;
 import me.gnat008.perworldinventory.config.ConfigManager;
 import me.gnat008.perworldinventory.config.ConfigType;
@@ -28,17 +41,14 @@ import me.gnat008.perworldinventory.listeners.PlayerChangedWorldListener;
 import me.gnat008.perworldinventory.listeners.PlayerGameModeChangeListener;
 import me.gnat008.perworldinventory.listeners.PlayerQuitListener;
 import me.gnat008.perworldinventory.util.Printer;
-
 import net.milkbowl.vault.economy.Economy;
-import org.bukkit.plugin.RegisteredServiceProvider;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.mcstats.Metrics;
-
-import java.io.*;
 
 public class PerWorldInventory extends JavaPlugin {
 
     private Economy economy;
+    private Connection connection;
+    private DataSerializer serializer;
+    private PWIPlayerManager playerManager;
 
     private static PerWorldInventory instance = null;
 
@@ -61,23 +71,13 @@ public class PerWorldInventory extends JavaPlugin {
 
         getGroupManager().loadGroupsToMemory();
 
-        if (ConfigValues.ENABLE_METRICS.getBoolean()) {
-            getLogger().info("Starting metrics...");
-            try {
-                Metrics metrics = new Metrics(this);
-                metrics.start();
-            } catch (IOException e) {
-                getLogger().info("Failed to start metrics!");
-            }
-        }
+        playerManager = new PWIPlayerManager(this);
         
         getLogger().info("Registering commands...");
         getCommand("pwi").setExecutor(new PerWorldInventoryCommand(this));
         getLogger().info("Commands registered! Registering listeners...");
         getServer().getPluginManager().registerEvents(new PlayerChangedWorldListener(this), this);
-        getLogger().info("Registered PlayerChangedWorldListener.");
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(this), this);
-        getLogger().info("Registered PlayerQuitListener.");
 
         if (ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean()) {
             getServer().getPluginManager().registerEvents(new PlayerGameModeChangeListener(this), this);
@@ -95,12 +95,14 @@ public class PerWorldInventory extends JavaPlugin {
                 getLogger().warning("Unable to hook into Vault!");
             }
         }
+
+        serializer = new FileSerializer(this);
     }
 
     @Override
     public void onDisable() {
+        playerManager.onDisable();
         Printer.disable();
-        DataSerializer.disable();
         DataConverter.disable();
         getConfigManager().disable();
         getGroupManager().disable();
@@ -125,7 +127,7 @@ public class PerWorldInventory extends JavaPlugin {
     }
 
     public DataSerializer getSerializer() {
-        return DataSerializer.getInstance(this);
+        return serializer;
     }
 
     public Economy getEconomy() {
@@ -142,6 +144,10 @@ public class PerWorldInventory extends JavaPlugin {
 
     public Printer getPrinter() {
         return Printer.getInstance(this);
+    }
+
+    public PWIPlayerManager getPlayerManager() {
+        return this.playerManager;
     }
 
     public void copyFile(File from, File to) {

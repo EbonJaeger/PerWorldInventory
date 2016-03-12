@@ -5,5 +5,5 @@ public enum PWICommand {
     CONVERT,
     HELP,
     RELOAD,
-    SETWORLDDEFAULT;
+    SETWORLDDEFAULT
 }

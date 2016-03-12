@@ -20,6 +20,7 @@ package me.gnat008.perworldinventory.listeners;
 import com.kill3rtaco.tacoserialization.PlayerSerialization;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.defaults.ConfigValues;
+import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import org.bukkit.GameMode;
@@ -34,11 +35,13 @@ import java.util.ArrayList;
 public class PlayerChangedWorldListener implements Listener {
 
     private GroupManager manager;
+    private PWIPlayerManager playerManager;
     private PerWorldInventory plugin;
 
     public PlayerChangedWorldListener(PerWorldInventory plugin) {
         this.plugin = plugin;
         this.manager = plugin.getGroupManager();
+        this.playerManager = plugin.getPlayerManager();
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -53,17 +56,7 @@ public class PlayerChangedWorldListener implements Listener {
             groupFrom = new Group(worldFrom, new ArrayList<String>(), null);
         }
 
-        if (ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean()) {
-            plugin.getSerializer().writePlayerDataToFile(player,
-                    PlayerSerialization.serializePlayer(player, plugin),
-                    groupFrom,
-                    player.getGameMode());
-        } else {
-            plugin.getSerializer().writePlayerDataToFile(player,
-                    PlayerSerialization.serializePlayer(player, plugin),
-                    groupFrom,
-                    GameMode.SURVIVAL);
-        }
+        playerManager.addPlayer(player, groupFrom);
 
         if (!groupFrom.containsWorld(worldTo)) {
             if (groupTo == null) {
@@ -71,15 +64,13 @@ public class PlayerChangedWorldListener implements Listener {
             }
 
             if (ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean()) {
+                playerManager.getPlayerData(groupTo, player.getGameMode(), player);
+
                 if (ConfigValues.MANAGE_GAMEMODES.getBoolean()) {
-                    plugin.getSerializer().getPlayerDataFromFile(player, groupTo,
-                            groupTo.getGameMode());
                     player.setGameMode(groupTo.getGameMode());
-                } else {
-                    plugin.getSerializer().getPlayerDataFromFile(player, groupTo, player.getGameMode());
                 }
             } else {
-                plugin.getSerializer().getPlayerDataFromFile(player, groupTo, GameMode.SURVIVAL);
+                playerManager.getPlayerData(groupTo, GameMode.SURVIVAL, player);
             }
         }
     }

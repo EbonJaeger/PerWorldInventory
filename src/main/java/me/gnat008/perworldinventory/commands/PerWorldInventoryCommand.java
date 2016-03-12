@@ -20,6 +20,8 @@ package me.gnat008.perworldinventory.commands;
 import com.kill3rtaco.tacoserialization.PlayerSerialization;
 import com.kill3rtaco.tacoserialization.Serializer;
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.data.FileSerializer;
+import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.groups.Group;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -222,6 +224,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
     }
 
     private void setWorldDefault(Player player, Group group) {
+        FileSerializer fs = new FileSerializer(plugin);
         File file = new File(plugin.getDefaultFilesDirectory() + File.separator + group.getName() + ".json");
         if (!file.exists()) {
             plugin.getPrinter().printToPlayer(player, "Default file for this group not found!", true);
@@ -236,16 +239,17 @@ public class PerWorldInventoryCommand implements CommandExecutor {
             plugin.getPrinter().printToPlayer(player, "Could not create temporary file! Aborting!", true);
             return;
         }
-        plugin.getSerializer().writePlayerDataToFile(player, PlayerSerialization.serializePlayer(player, plugin), new Group("tmp", null, null), GameMode.SURVIVAL);
+        Group tempGroup = new Group("tmp", null, null);
+        fs.writeData(tmp, Serializer.toString(PlayerSerialization.serializePlayer(new PWIPlayer(player, tempGroup), plugin)));
 
         player.setFoodLevel(20);
         player.setHealth(20);
         player.setSaturation(20);
         player.setTotalExperience(0);
 
-        plugin.getSerializer().writeData(file, Serializer.toString(PlayerSerialization.serializePlayer(player, plugin)));
+        fs.writeData(file, Serializer.toString(PlayerSerialization.serializePlayer(new PWIPlayer(player, group), plugin)));
 
-        plugin.getSerializer().getPlayerDataFromFile(player, new Group("tmp", null, null), GameMode.SURVIVAL);
+        fs.getFromDatabase(tempGroup, GameMode.SURVIVAL, player);
         tmp.delete();
         plugin.getPrinter().printToPlayer(player, "Defaults for '" + group.getName() + "' set!", false);
     }

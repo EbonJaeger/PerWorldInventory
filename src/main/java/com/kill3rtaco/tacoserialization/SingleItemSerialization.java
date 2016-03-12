@@ -89,7 +89,8 @@ public class SingleItemSerialization {
                 if (meta.hasDisplayName())
                     name = meta.getDisplayName();
                 if (meta.hasLore()) {
-                    lore = meta.getLore().toArray(new String[]{});
+                    List<String> var = meta.getLore();
+                    lore = var.toArray(new String[var.size()]);
                 }
                 if (meta.hasEnchants())
                     enchants = EnchantmentSerialization.serializeEnchantments(meta.getEnchants());
