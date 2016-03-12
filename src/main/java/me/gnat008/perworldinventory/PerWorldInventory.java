@@ -29,7 +29,6 @@ import me.gnat008.perworldinventory.data.FileSerializer;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.mcstats.Metrics;
 
 import me.gnat008.perworldinventory.commands.PerWorldInventoryCommand;
 import me.gnat008.perworldinventory.config.ConfigManager;
@@ -73,16 +72,6 @@ public class PerWorldInventory extends JavaPlugin {
         getGroupManager().loadGroupsToMemory();
 
         playerManager = new PWIPlayerManager(this);
-
-        if (ConfigValues.ENABLE_METRICS.getBoolean()) {
-            getLogger().info("Starting metrics...");
-            try {
-                Metrics metrics = new Metrics(this);
-                metrics.start();
-            } catch (IOException e) {
-                getLogger().info("Failed to start metrics!");
-            }
-        }
         
         getLogger().info("Registering commands...");
         getCommand("pwi").setExecutor(new PerWorldInventoryCommand(this));
