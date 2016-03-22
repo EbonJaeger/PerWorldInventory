@@ -51,26 +51,9 @@ public class PWIPlayerManager {
 
     /**
      * Called when the plugin is disabled.
-     * <p>
-     * This method immediately saves any player to the database if they
-     * have not already been saved.
      */
     public void onDisable() {
         Bukkit.getScheduler().cancelTask(taskID);
-
-        for (Group group : playerCache.keySet()) {
-            for (PWIPlayer player : playerCache.get(group)) {
-                if (!player.isSaved()) {
-                    player.setSaved(true);
-                    plugin.getSerializer().saveToDatabase(
-                            group,
-                            ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean() ? player.getGamemode() : GameMode.SURVIVAL,
-                            player
-                    );
-                }
-            }
-        }
-
         playerCache.clear();
     }
 
@@ -235,7 +218,7 @@ public class PWIPlayerManager {
                         final PWIPlayer player = itr.next();
                         if (!player.isSaved()) {
                             player.setSaved(true);
-                            plugin.getSerializer().saveToDatabase(group, player.getGamemode(), player);
+                            plugin.getSerializer().saveToDatabase(group, player.getGamemode(), player, true);
                         } else {
                             itr.remove();
                         }

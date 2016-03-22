@@ -20,6 +20,7 @@ package me.gnat008.perworldinventory.data;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.groups.Group;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 
@@ -40,8 +41,22 @@ public abstract class DataSerializer {
      * @param group The {@link me.gnat008.perworldinventory.groups.Group} the player was in
      * @param gamemode The {@link org.bukkit.GameMode} the player was in
      * @param player The {@link me.gnat008.perworldinventory.data.players.PWIPlayer} to save
+     * @param async Save data asynchronously
      */
-    public abstract void saveToDatabase(Group group, GameMode gamemode, PWIPlayer player);
+    public void saveToDatabase(final Group group, final GameMode gamemode, final PWIPlayer player, boolean async) {
+        if (async) {
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+                @Override
+                public void run() {
+                    saveToDatabase(group, gamemode, player);
+                }
+            });
+        } else {
+            saveToDatabase(group, gamemode, player);
+        }
+    }
+
+    protected abstract void saveToDatabase(Group group, GameMode gamemode, PWIPlayer player);
 
     /**
      * Retrieves a player's data from the database.

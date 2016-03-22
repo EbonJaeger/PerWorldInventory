@@ -65,26 +65,21 @@ public class FileSerializer extends DataSerializer {
     }
 
     public void writeData(final File file, final String data) {
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-            @Override
-            public void run() {
-                FileWriter writer = null;
-                try {
-                    writer = new FileWriter(file);
-                    writer.write(data);
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                } finally {
-                    try {
-                        if (writer != null) {
-                            writer.close();
-                        }
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
+        FileWriter writer = null;
+        try {
+            writer = new FileWriter(file);
+            writer.write(data);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } finally {
+            try {
+                if (writer != null) {
+                    writer.close();
                 }
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
-        });
+        }
     }
 
     public void getFromDatabase(Group group, GameMode gamemode, Player player) {
