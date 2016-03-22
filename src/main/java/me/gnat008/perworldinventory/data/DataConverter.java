@@ -83,6 +83,10 @@ public class DataConverter {
                         	plugin.getGroupManager().addGroup(mvgroup.getName(), list);
                         }
                         File file = serializer.getFile(GameMode.SURVIVAL, plugin.getGroupManager().getGroup(mvgroup.getName()), player1.getUniqueId());
+                        if (!file.getParentFile().exists())
+                            file.getParentFile().mkdir();
+                        if (!file.exists())
+                            file.createNewFile();
                         serializer.writeData(file, Serializer.toString(writable));
                     }
                 } catch (Exception ex) {
