@@ -27,6 +27,7 @@ import com.onarandombox.multiverseinventories.api.profile.WorldGroupProfile;
 import com.onarandombox.multiverseinventories.api.share.Sharables;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.defaults.ConfigValues;
+import me.gnat008.perworldinventory.groups.Group;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -72,16 +73,21 @@ public class DataConverter {
         List<WorldGroupProfile> mvgroups = mvinventories.getGroupManager().getGroups();
 
         for (WorldGroupProfile mvgroup : mvgroups) {
+            //Ensure that the group exists first, otherwise you just get nulls
+            Group pwiGroup = plugin.getGroupManager().getGroup(mvgroup.getName());
+            List<String> worlds = new ArrayList<>(mvgroup.getWorlds());
+
+            if (pwiGroup == null)
+                plugin.getGroupManager().addGroup(mvgroup.getName(), worlds);
+            else
+                pwiGroup.addWorlds(worlds);
+
             for (OfflinePlayer player1 : Bukkit.getOfflinePlayers()) {
                 try {
                     PlayerProfile playerData = mvgroup.getPlayerData(ProfileTypes.SURVIVAL, player1);
                     if (playerData != null) {
                         JSONObject writable = serializeMVIToNewFormat(playerData);
-                        //Ensure that the group exists first, otherwise you just get nulls
-                        if (plugin.getGroupManager().getGroup(mvgroup.getName()) == null) {
-                        	List<String> list = new ArrayList<String>( mvgroup.getWorlds());
-                        	plugin.getGroupManager().addGroup(mvgroup.getName(), list);
-                        }
+
                         File file = serializer.getFile(GameMode.SURVIVAL, plugin.getGroupManager().getGroup(mvgroup.getName()), player1.getUniqueId());
                         if (!file.getParentFile().exists())
                             file.getParentFile().mkdir();
