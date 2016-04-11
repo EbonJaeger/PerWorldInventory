@@ -22,6 +22,7 @@ import com.kill3rtaco.tacoserialization.PotionEffectSerialization;
 import com.kill3rtaco.tacoserialization.Serializer;
 import com.onarandombox.multiverseinventories.MultiverseInventories;
 import com.onarandombox.multiverseinventories.ProfileTypes;
+import com.onarandombox.multiverseinventories.api.profile.ProfileType;
 import com.onarandombox.multiverseinventories.api.profile.PlayerProfile;
 import com.onarandombox.multiverseinventories.api.profile.WorldGroupProfile;
 import com.onarandombox.multiverseinventories.api.share.Sharables;
@@ -44,6 +45,7 @@ import java.io.File;
 import java.util.*;
 
 public class DataConverter {
+    private static final ProfileType[] MV_PROFILETYPES = { ProfileTypes.SURVIVAL, ProfileTypes.CREATIVE, ProfileTypes.ADVENTURE };
 
     private FileSerializer serializer;
     private PerWorldInventory plugin;
@@ -82,23 +84,27 @@ public class DataConverter {
             else
                 pwiGroup.addWorlds(worlds);
 
-            for (OfflinePlayer player1 : Bukkit.getOfflinePlayers()) {
-                try {
-                    PlayerProfile playerData = mvgroup.getPlayerData(ProfileTypes.SURVIVAL, player1);
-                    if (playerData != null) {
-                        JSONObject writable = serializeMVIToNewFormat(playerData);
+            for (ProfileType profileType : MV_PROFILETYPES) {
+                GameMode gameMode = GameMode.valueOf(profileType.getName());
 
-                        File file = serializer.getFile(GameMode.SURVIVAL, plugin.getGroupManager().getGroup(mvgroup.getName()), player1.getUniqueId());
-                        if (!file.getParentFile().exists())
-                            file.getParentFile().mkdir();
-                        if (!file.exists())
-                            file.createNewFile();
-                        serializer.writeData(file, Serializer.toString(writable));
+                for (OfflinePlayer player1 : Bukkit.getOfflinePlayers()) {
+                    try {
+                        PlayerProfile playerData = mvgroup.getPlayerData(profileType, player1);
+                        if (playerData != null) {
+                            JSONObject writable = serializeMVIToNewFormat(playerData);
+
+                            File file = serializer.getFile(gameMode, plugin.getGroupManager().getGroup(mvgroup.getName()), player1.getUniqueId());
+                            if (!file.getParentFile().exists())
+                                file.getParentFile().mkdir();
+                            if (!file.exists())
+                                file.createNewFile();
+                            serializer.writeData(file, Serializer.toString(writable));
+                        }
+                    } catch (Exception ex) {
+                        plugin.getPrinter().printToConsole("Error importing inventory for player: " + player1.getName() +
+                            " For group: " + mvgroup.getName() + " For gamemode: " + gameMode.name(), true);
+                        ex.printStackTrace();
                     }
-                } catch (Exception ex) {
-                    plugin.getPrinter().printToConsole("Error importing inventory for player: " + player1.getName() +
-                            " For group: " + mvgroup.getName(), true);
-                    ex.printStackTrace();
                 }
             }
         }
