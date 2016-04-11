@@ -97,6 +97,7 @@ public class DataConverter {
             }
         }
 
+        plugin.getGroupManager().saveGroupsToDisk();
         plugin.getPrinter().printToConsole("Data conversion complete! Disabling Multiverse-Inventories...", false);
         plugin.getServer().getPluginManager().disablePlugin(mvinventories);
         plugin.getPrinter().printToConsole("Multiverse-Inventories disabled! Don't forget to remove the .jar!", false);
@@ -124,6 +125,7 @@ public class DataConverter {
             }
         }*/
 
+        plugin.getGroupManager().saveGroupsToDisk();
         plugin.getPrinter().printToConsole("Data conversion complete! Disabling MultiInv...", false);
         plugin.getServer().getPluginManager().disablePlugin(multiinv);
         plugin.getPrinter().printToConsole("MultiInv disabled! Don't forget to remove the .jar!", false);
