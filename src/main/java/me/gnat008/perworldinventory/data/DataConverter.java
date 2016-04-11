@@ -156,6 +156,10 @@ public class DataConverter {
             JSONArray armor = InventorySerialization.serializeInventory(data.get(Sharables.ARMOR));
             inv.put("armor", armor);
         }
+        if (data.get(Sharables.ENDER_CHEST) != null) {
+            JSONArray enderChest = InventorySerialization.serializeInventory(data.get(Sharables.ENDER_CHEST));
+            root.put("ender-chest", enderChest);
+        }
 
         JSONObject stats = new JSONObject();
         if (data.get(Sharables.EXHAUSTION) != null)
