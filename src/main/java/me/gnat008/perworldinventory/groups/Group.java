@@ -48,4 +48,10 @@ public class Group {
     public boolean containsWorld(String world) {
         return this.worlds.contains(world);
     }
+
+    public void addWorlds(List<String> worlds) {
+        for (String world : worlds)
+            if (!this.worlds.contains(world))
+                this.worlds.add(world);
+    }
 }
