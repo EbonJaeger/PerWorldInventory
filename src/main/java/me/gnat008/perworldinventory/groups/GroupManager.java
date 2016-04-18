@@ -18,6 +18,7 @@
 package me.gnat008.perworldinventory.groups;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.config.ConfigFile;
 import me.gnat008.perworldinventory.config.ConfigManager;
 import me.gnat008.perworldinventory.config.ConfigType;
 import me.gnat008.perworldinventory.config.defaults.ConfigValues;
@@ -25,6 +26,7 @@ import org.bukkit.GameMode;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,6 +104,27 @@ public class GroupManager {
             }
 
             setDefaultsFile(key);
+        }
+    }
+
+    public void saveGroupsToDisk() {
+        ConfigFile groupsConfig = ConfigManager.getInstance().getConfig(ConfigType.WORLDS);
+        FileConfiguration groupsConfigFile = groupsConfig.getConfig();
+        groupsConfigFile.set("groups", null);
+
+        for (Group group : groups.values()) {
+            String groupKey = "groups." + group.getName();
+            groupsConfigFile.set(groupKey, null);
+            groupsConfigFile.set(groupKey + ".worlds", group.getWorlds());
+            // Saving gamemode regardless of management; might be saving after convert
+            groupsConfigFile.set(groupKey + ".default-gamemode", group.getGameMode().name());
+        }
+
+        try {
+            groupsConfig.save();
+        } catch (IOException ex) {
+            plugin.getPrinter().printToConsole("Could not save the groups config to disk!", true);
+            ex.printStackTrace();
         }
     }
 
