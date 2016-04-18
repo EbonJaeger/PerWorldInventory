@@ -46,7 +46,12 @@ public enum ConfigValues {
     HEALTH(true),
     LEVEL(true),
     POTION_EFFECTS(true),
-    SATURATION(true);
+    SATURATION(true),
+    LOCATION(true),
+    FALL_DISTANCE(true),
+    FIRE_TICKS(true),
+    REMAINING_AIR(true),
+    MAXIMUM_AIR(true);
 
     private final Object def;
 

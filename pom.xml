@@ -43,12 +43,6 @@
     </repositories>
 
     <dependencies>
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20140107</version>
-            <scope>compile</scope>
-        </dependency>
 
         <dependency>
             <groupId>org.spigotmc</groupId>
@@ -166,15 +160,7 @@
                             <include>org.mcstats.*:*</include>
                         </includes>
                     </artifactSet>
-                   <relocations>
-                        <relocation>
-                            <pattern>org.mcstats</pattern>
-                            <shadedPattern>me.gnat008.perworldinventory.libs.org.mcstats</shadedPattern>
-                        </relocation>
-                       <relocation>
-                           <pattern>org.json</pattern>
-                           <shadedPattern>me.gnat008.perworldinventory.libs.org.json</shadedPattern>
-                       </relocation>
+                    <relocations>
                     </relocations>
                 </configuration>
                 <executions>

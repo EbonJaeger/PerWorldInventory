@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015  Gnat008
+ * Copyright (C) 2014-2016  Gnat008
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
 
 package me.gnat008.perworldinventory.data;
 
-import com.kill3rtaco.tacoserialization.InventorySerialization;
-import com.kill3rtaco.tacoserialization.PotionEffectSerialization;
-import com.kill3rtaco.tacoserialization.Serializer;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.onarandombox.multiverseinventories.MultiverseInventories;
 import com.onarandombox.multiverseinventories.ProfileTypes;
 import com.onarandombox.multiverseinventories.api.profile.ProfileType;
@@ -28,6 +28,8 @@ import com.onarandombox.multiverseinventories.api.profile.WorldGroupProfile;
 import com.onarandombox.multiverseinventories.api.share.Sharables;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.defaults.ConfigValues;
+import me.gnat008.perworldinventory.data.serializers.InventorySerializer;
+import me.gnat008.perworldinventory.data.serializers.PotionEffectSerializer;
 import me.gnat008.perworldinventory.groups.Group;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -35,8 +37,6 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
 import uk.co.tggl.pluckerpluck.multiinv.api.MIAPIPlayer;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIItemStack;
@@ -73,6 +73,7 @@ public class DataConverter {
         plugin.getPrinter().printToConsole("Beginning data conversion. This may take awhile...", false);
         MultiverseInventories mvinventories = (MultiverseInventories) plugin.getServer().getPluginManager().getPlugin("Multiverse-Inventories");
         List<WorldGroupProfile> mvgroups = mvinventories.getGroupManager().getGroups();
+        Gson gson = new Gson();
 
         for (WorldGroupProfile mvgroup : mvgroups) {
             //Ensure that the group exists first, otherwise you just get nulls
@@ -91,14 +92,14 @@ public class DataConverter {
                     try {
                         PlayerProfile playerData = mvgroup.getPlayerData(profileType, player1);
                         if (playerData != null) {
-                            JSONObject writable = serializeMVIToNewFormat(playerData);
+                            JsonObject writable = serializeMVIToNewFormat(playerData);
 
                             File file = serializer.getFile(gameMode, plugin.getGroupManager().getGroup(mvgroup.getName()), player1.getUniqueId());
                             if (!file.getParentFile().exists())
                                 file.getParentFile().mkdir();
                             if (!file.exists())
                                 file.createNewFile();
-                            serializer.writeData(file, Serializer.toString(writable));
+                            serializer.writeData(file, gson.toJson(writable));
                         }
                     } catch (Exception ex) {
                         plugin.getPrinter().printToConsole("Error importing inventory for player: " + player1.getName() +
@@ -143,55 +144,55 @@ public class DataConverter {
         plugin.getPrinter().printToConsole("MultiInv disabled! Don't forget to remove the .jar!", false);
     }
 
-    private JSONObject serializeMVIToNewFormat(PlayerProfile data) {
-        JSONObject root = new JSONObject();
-        root.put("data-format", 1);
+    private JsonObject serializeMVIToNewFormat(PlayerProfile data) {
+        JsonObject root = new JsonObject();
+        root.addProperty("data-format", 1);
 
-        JSONObject inv = new JSONObject();
+        JsonObject inv = new JsonObject();
         if (data.get(Sharables.INVENTORY) != null) {
-            JSONArray inventory = InventorySerialization.serializeInventory(data.get(Sharables.INVENTORY));
-            inv.put("inventory", inventory);
+            JsonArray inventory = InventorySerializer.serializeInventory(data.get(Sharables.INVENTORY));
+            inv.add("inventory", inventory);
         }
         if (data.get(Sharables.ARMOR) != null) {
-            JSONArray armor = InventorySerialization.serializeInventory(data.get(Sharables.ARMOR));
-            inv.put("armor", armor);
+            JsonArray armor = InventorySerializer.serializeInventory(data.get(Sharables.ARMOR));
+            inv.add("armor", armor);
         }
         if (data.get(Sharables.ENDER_CHEST) != null) {
-            JSONArray enderChest = InventorySerialization.serializeInventory(data.get(Sharables.ENDER_CHEST));
-            root.put("ender-chest", enderChest);
+            JsonArray enderChest = InventorySerializer.serializeInventory(data.get(Sharables.ENDER_CHEST));
+            root.add("ender-chest", enderChest);
         }
 
-        JSONObject stats = new JSONObject();
+        JsonObject stats = new JsonObject();
         if (data.get(Sharables.EXHAUSTION) != null)
-            stats.put("exhaustion", data.get(Sharables.EXHAUSTION));
+            stats.addProperty("exhaustion", data.get(Sharables.EXHAUSTION));
         if (data.get(Sharables.EXPERIENCE) != null)
-            stats.put("exp", data.get(Sharables.EXPERIENCE));
+            stats.addProperty("exp", data.get(Sharables.EXPERIENCE));
         if (data.get(Sharables.FOOD_LEVEL) != null)
-            stats.put("food", data.get(Sharables.FOOD_LEVEL));
+            stats.addProperty("food", data.get(Sharables.FOOD_LEVEL));
         if (data.get(Sharables.HEALTH) != null)
-            stats.put("health", data.get(Sharables.HEALTH));
+            stats.addProperty("health", data.get(Sharables.HEALTH));
         if (data.get(Sharables.LEVEL) != null)
-            stats.put("level", data.get(Sharables.LEVEL));
+            stats.addProperty("level", data.get(Sharables.LEVEL));
         if (data.get(Sharables.POTIONS) != null) {
             PotionEffect[] effects = data.get(Sharables.POTIONS);
             Collection<PotionEffect> potionEffects = new LinkedList<>();
             Collections.addAll(potionEffects, effects);
-            stats.put("potion-effects", PotionEffectSerialization.serializeEffects(potionEffects));
+            stats.addProperty("potion-effects", PotionEffectSerializer.serialize(potionEffects));
         }
         if (data.get(Sharables.SATURATION) != null)
-            stats.put("saturation", data.get(Sharables.SATURATION));
+            stats.addProperty("saturation", data.get(Sharables.SATURATION));
 
-        root.put("inventory", inv);
-        root.put("stats", stats);
+        root.add("inventory", inv);
+        root.add("stats", stats);
 
         return root;
     }
 
-    private JSONObject serializeMIToNewFormat(MIAPIPlayer player) {
-        JSONObject root = new JSONObject();
-        root.put("data-format", 1);
+    private JsonObject serializeMIToNewFormat(MIAPIPlayer player) {
+        JsonObject root = new JsonObject();
+        root.addProperty("data-format", 1);
 
-        JSONObject inventory = new JSONObject();
+        JsonObject inventory = new JsonObject();
 
         List<ItemStack> items = new ArrayList<>();
         for (MIItemStack item : player.getInventory().getInventoryContents()) {
@@ -203,8 +204,8 @@ public class DataConverter {
         }
         ItemStack[] invArray = new ItemStack[items.size()];
         invArray = items.toArray(invArray);
-        JSONArray inv = InventorySerialization.serializeInventory(invArray);
-        inventory.put("inventory", inv);
+        JsonArray inv = InventorySerializer.serializeInventory(invArray);
+        inventory.add("inventory", inv);
 
         List<ItemStack> armorList = new ArrayList<>();
         for (MIItemStack item : player.getInventory().getArmorContents()) {
@@ -216,8 +217,8 @@ public class DataConverter {
         }
         ItemStack[] armorArray = new ItemStack[armorList.size()];
         armorArray = armorList.toArray(armorArray);
-        JSONArray armor = InventorySerialization.serializeInventory(armorArray);
-        inventory.put("armor", armor);
+        JsonArray armor = InventorySerializer.serializeInventory(armorArray);
+        inventory.add("armor", armor);
 
         List<ItemStack> enderChestList = new ArrayList<>();
         for (MIItemStack item : player.getEnderchest().getInventoryContents()) {
@@ -229,25 +230,19 @@ public class DataConverter {
         }
         ItemStack[] endArray = new ItemStack[enderChestList.size()];
         endArray = enderChestList.toArray(endArray);
-        JSONArray enderChest = InventorySerialization.serializeInventory(endArray);
-        root.put("ender-chest", enderChest);
+        JsonArray enderChest = InventorySerializer.serializeInventory(endArray);
+        root.add("ender-chest", enderChest);
 
-        JSONObject stats = new JSONObject();
-        if (ConfigValues.EXP.getBoolean())
-            stats.put("exp", player.getXp());
-        if (ConfigValues.FOOD.getBoolean())
-            stats.put("food", player.getFoodlevel());
-        if (ConfigValues.GAMEMODE.getBoolean())
-            stats.put("gamemode", player.getGm().toString());
-        if (ConfigValues.HEALTH.getBoolean())
-            stats.put("health", player.getHealth());
-        if (ConfigValues.LEVEL.getBoolean())
-            stats.put("level", player.getXpLevel());
-        if (ConfigValues.SATURATION.getBoolean())
-            stats.put("saturation", player.getSaturation());
+        JsonObject stats = new JsonObject();
+        stats.addProperty("exp", player.getXp());
+        stats.addProperty("food", player.getFoodlevel());
+        stats.addProperty("gamemode", player.getGm().toString());
+        stats.addProperty("health", player.getHealth());
+        stats.addProperty("level", player.getXpLevel());
+        stats.addProperty("saturation", player.getSaturation());
 
-        root.put("inventory", inventory);
-        root.put("stats", stats);
+        root.add("inventory", inventory);
+        root.add("stats", stats);
 
         return root;
     }

@@ -17,21 +17,18 @@
 
 package me.gnat008.perworldinventory.data;
 
-import com.kill3rtaco.tacoserialization.PlayerSerialization;
-import com.kill3rtaco.tacoserialization.Serializer;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
+import me.gnat008.perworldinventory.data.serializers.PlayerSerializer;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.util.Printer;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.UUID;
 
 public class FileSerializer extends DataSerializer {
@@ -56,8 +53,8 @@ public class FileSerializer extends DataSerializer {
                 file.createNewFile();
             }
 
-            JSONObject data = PlayerSerialization.serializePlayer(player, plugin);
-            writeData(file, Serializer.toString(data));
+            String data = PlayerSerializer.serialize(plugin, player);
+            writeData(file, data);
         } catch (IOException ex) {
             Printer.getInstance(plugin).printToConsole("Error creating file '" + FILE_PATH +
                     player.getUuid() + File.separator + group.getName() + ".json': " + ex.getMessage(), true);
@@ -85,36 +82,48 @@ public class FileSerializer extends DataSerializer {
     public void getFromDatabase(Group group, GameMode gamemode, Player player) {
         File file = getFile(gamemode, group, player.getUniqueId());
 
-        try {
-            JSONObject data = Serializer.getObjectFromFile(file);
-            PlayerSerialization.setPlayer(data, player, plugin);
-        } catch (FileNotFoundException | JSONException ex) {
+        try (JsonReader reader = new JsonReader(new FileReader(file))) {
+            JsonParser parser = new JsonParser();
+            JsonObject data = parser.parse(reader).getAsJsonObject();
+            PlayerSerializer.deserialize(data, player, plugin);
+        } catch (FileNotFoundException ex) {
             if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdir();
             }
 
             getFromDefaults(group, player);
+        } catch (IOException exIO) {
+            plugin.getLogger().severe("Unable to read data for '" + player.getName() + "' for group '" + group.getName() +
+                    "' in gamemode '" + gamemode.toString() + "' for reason: " + exIO.getMessage());
         }
     }
 
     public void getFromDefaults(Group group, Player player) {
         File file = new File(FILE_PATH + "defaults", group.getName() + ".json");
 
-        try {
-            JSONObject defaultGroupData = Serializer.getObjectFromFile(file);
-            PlayerSerialization.setPlayer(defaultGroupData, player, plugin);
+        try (JsonReader reader = new JsonReader(new FileReader(file))) {
+            JsonParser parser = new JsonParser();
+            JsonObject data = parser.parse(reader).getAsJsonObject();
+            PlayerSerializer.deserialize(data, player, plugin);
         } catch (FileNotFoundException ex) {
             file = new File(FILE_PATH + "defaults", "__default.json");
 
-            try {
-                JSONObject defaultGroupData = Serializer.getObjectFromFile(file);
-                PlayerSerialization.setPlayer(defaultGroupData, player, plugin);
+            try (JsonReader reader = new JsonReader(new FileReader(file))) {
+                JsonParser parser = new JsonParser();
+                JsonObject data = parser.parse(reader).getAsJsonObject();
+                PlayerSerializer.deserialize(data, player, plugin);
             } catch (FileNotFoundException ex2) {
                 plugin.getPrinter().printToPlayer(player, "Something went horribly wrong when loading your inventory! " +
                         "Please notify a server administrator!", true);
                 plugin.getLogger().severe("Unable to find inventory data for player '" + player.getName() +
                         "' for group '" + group.getName() + "': " + ex2.getMessage());
+            } catch (IOException exIO) {
+                plugin.getLogger().severe("Unable to read data for '" + player.getName() + "' for group '" + group.getName() +
+                        "' for reason: " + exIO.getMessage());
             }
+        } catch (IOException exIO) {
+            plugin.getLogger().severe("Unable to read data for '" + player.getName() + "' for group '" + group.getName() +
+                    "' for reason: " + exIO.getMessage());
         }
     }
 

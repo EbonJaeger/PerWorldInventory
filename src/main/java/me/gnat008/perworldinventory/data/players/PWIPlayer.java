@@ -20,12 +20,12 @@ package me.gnat008.perworldinventory.data.players;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.groups.Group;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -56,11 +56,16 @@ public class PWIPlayer {
     private int level;
     private float saturationLevel;
     private Collection<PotionEffect> potionEffects;
+    private float fallDistance;
+    private int fireTicks;
+    private int maxAir;
+    private int remainingAir;
 
     /* ECONOMY */
     private double bankBalance;
     private double balance;
 
+    private Location location;
     private UUID uuid;
     private String name;
 
@@ -72,6 +77,7 @@ public class PWIPlayer {
     public PWIPlayer(Player player, Group group) {
         this.uuid = player.getUniqueId();
         this.name = player.getName();
+        this.location = player.getLocation();
         this.dataFileDirectory = new File(PerWorldInventory.getInstance().getDataFolder() + File.separator + "data" + File.separator + uuid.toString());
         if (!dataFileDirectory.exists()) {
             dataFileDirectory.mkdir();
@@ -95,6 +101,10 @@ public class PWIPlayer {
         this.level = player.getLevel();
         this.saturationLevel = player.getSaturation();
         this.potionEffects = player.getActivePotionEffects();
+        this.fallDistance = player.getFallDistance();
+        this.fireTicks = player.getFireTicks();
+        this.maxAir = player.getMaximumAir();
+        this.remainingAir = player.getRemainingAir();
 
         if (PerWorldInventory.getInstance().getEconomy() != null) {
             this.bankBalance = PerWorldInventory.getInstance().getEconomy().bankBalance(name).balance;
@@ -444,5 +454,55 @@ public class PWIPlayer {
      */
     public void setSaved(boolean saved) {
         this.saved = saved;
+    }
+
+    /**
+     * Get the location of the player.
+     *
+     * @return The player's location
+     */
+    public Location getLocation() {
+        return location;
+    }
+
+    /**
+     * Set the player's location
+     *
+     * @param location The new location
+     */
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    public float getFallDistance() {
+        return fallDistance;
+    }
+
+    public void setFallDistance(float fallDistance) {
+        this.fallDistance = fallDistance;
+    }
+
+    public int getFireTicks() {
+        return fireTicks;
+    }
+
+    public void setFireTicks(int fireTicks) {
+        this.fireTicks = fireTicks;
+    }
+
+    public int getMaxAir() {
+        return maxAir;
+    }
+
+    public void setMaxAir(int maxAir) {
+        this.maxAir = maxAir;
+    }
+
+    public int getRemainingAir() {
+        return remainingAir;
+    }
+
+    public void setRemainingAir(int remainingAir) {
+        this.remainingAir = remainingAir;
     }
 }

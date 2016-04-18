@@ -17,11 +17,11 @@
 
 package me.gnat008.perworldinventory.commands;
 
-import com.kill3rtaco.tacoserialization.PlayerSerialization;
-import com.kill3rtaco.tacoserialization.Serializer;
+import com.google.gson.Gson;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.data.FileSerializer;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
+import me.gnat008.perworldinventory.data.serializers.PlayerSerializer;
 import me.gnat008.perworldinventory.groups.Group;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -225,6 +225,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
 
     private void setWorldDefault(Player player, Group group) {
         FileSerializer fs = new FileSerializer(plugin);
+        Gson gson = new Gson();
         File file = new File(plugin.getDefaultFilesDirectory() + File.separator + group.getName() + ".json");
         if (!file.exists()) {
             plugin.getPrinter().printToPlayer(player, "Default file for this group not found!", true);
@@ -240,14 +241,16 @@ public class PerWorldInventoryCommand implements CommandExecutor {
             return;
         }
         Group tempGroup = new Group("tmp", null, null);
-        fs.writeData(tmp, Serializer.toString(PlayerSerialization.serializePlayer(new PWIPlayer(player, tempGroup), plugin)));
+        String writable = gson.toJson(PlayerSerializer.serialize(plugin, new PWIPlayer(player, tempGroup)));
+        fs.writeData(tmp, writable);
 
         player.setFoodLevel(20);
         player.setHealth(20);
         player.setSaturation(20);
         player.setTotalExperience(0);
 
-        fs.writeData(file, Serializer.toString(PlayerSerialization.serializePlayer(new PWIPlayer(player, group), plugin)));
+        writable = gson.toJson(PlayerSerializer.serialize(plugin, new PWIPlayer(player, group)));
+        fs.writeData(file, writable);
 
         fs.getFromDatabase(tempGroup, GameMode.SURVIVAL, player);
         tmp.delete();
