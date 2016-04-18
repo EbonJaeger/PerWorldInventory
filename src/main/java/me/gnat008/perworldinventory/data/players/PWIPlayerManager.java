@@ -19,7 +19,6 @@ package me.gnat008.perworldinventory.data.players;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.defaults.ConfigValues;
-import me.gnat008.perworldinventory.data.DataSerializer;
 import me.gnat008.perworldinventory.groups.Group;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -41,7 +40,8 @@ public class PWIPlayerManager {
     private PerWorldInventory plugin;
     private int taskID;
 
-    private Map<Group, Set<PWIPlayer>> playerCache = new ConcurrentHashMap<>();
+    // Key format: uuid.group.gamemode
+    private Map<String, PWIPlayer> playerCache = new ConcurrentHashMap<>();
 
     public PWIPlayerManager(PerWorldInventory plugin) {
         this.plugin = plugin;
@@ -69,51 +69,23 @@ public class PWIPlayerManager {
      * @param group The Group the player is in
      */
     public void addPlayer(Player player, Group group) {
-        Set<PWIPlayer> players = playerCache.get(group);
-        if (players == null) {
-            players = new HashSet<>();
+        String key = player.getUniqueId().toString() + "." + group.getName() + ".";
+        if (ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean())
+            key += player.getGameMode().toString().toLowerCase();
+        else
+            key += "survival";
 
-            players.add(new PWIPlayer(player, group));
-            playerCache.put(group, players);
-        } else {
-            PWIPlayer cachedPlayer = getCachedPlayer(group, player.getGameMode(), player.getUniqueId());
-            if (cachedPlayer != null) {
-                updateCache(player, cachedPlayer);
-            } else {
-                players.add(new PWIPlayer(player, group));
-                playerCache.put(group, players);
-            }
-        }
-    }
-
-    /**
-     * Removes a player from the cache.
-     * <p>
-     * This method will only remove a player with the given GameMode, leaving
-     * any other instances of the same player alone.
-     *
-     * @param group The {@link me.gnat008.perworldinventory.groups.Group} to remove
-     * @param gameMode The {@link org.bukkit.GameMode} to remove
-     */
-    public void removePlayer(Group group, GameMode gameMode, UUID uuid) {
-        if (playerCache.containsKey(group)) {
-            Set<PWIPlayer> players = playerCache.get(group);
-            Iterator<PWIPlayer> itr = players.iterator();
-            while (itr.hasNext()) {
-                PWIPlayer cachedPlayer = itr.next();
-                if (cachedPlayer.getUuid().equals(uuid) && cachedPlayer.getGamemode() == gameMode) {
-                    itr.remove();
-                }
-            }
-        }
+        if (playerCache.containsKey(key))
+            updateCache(player, playerCache.get(key));
+        else
+            playerCache.put(key, new PWIPlayer(player, group));
     }
 
     public void getPlayerData(Group group, GameMode gamemode, Player player) {
         boolean isInCache = getDataFromCache(group, gamemode, player);
 
-        if(!isInCache) {
+        if(!isInCache)
             plugin.getSerializer().getFromDatabase(group, gamemode, player);
-        }
     }
 
     private boolean getDataFromCache(Group group, GameMode gamemode, Player player) {
@@ -182,17 +154,13 @@ public class PWIPlayerManager {
      * @return The PWIPlayer
      */
     private PWIPlayer getCachedPlayer(Group group, GameMode gameMode, UUID uuid) {
-        if (playerCache.containsKey(group)) {
-            Set<PWIPlayer> players = playerCache.get(group);
-            for (PWIPlayer player : players) {
-                if (player.getUuid().equals(uuid) &&
-                        player.getGamemode() == gameMode ||
-                        !ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean())
-                    return player;
-            }
-        }
+        String key = uuid.toString() + "." + group.getName() + ".";
+        if (ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean())
+            key += gameMode.toString().toLowerCase();
+        else
+            key += "survival";
 
-        return null;
+        return playerCache.get(key);
     }
 
     /**
@@ -211,17 +179,17 @@ public class PWIPlayerManager {
         return Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
             @Override
             public void run() {
-                for (final Group group : playerCache.keySet()) {
-                    Set<PWIPlayer> players = playerCache.get(group);
-                    Iterator<PWIPlayer> itr = players.iterator();
-                    while (itr.hasNext()) {
-                        final PWIPlayer player = itr.next();
-                        if (!player.isSaved()) {
-                            player.setSaved(true);
-                            plugin.getSerializer().saveToDatabase(group, player.getGamemode(), player, true);
-                        } else {
-                            itr.remove();
-                        }
+                for (String key : playerCache.keySet()) {
+                    PWIPlayer player = playerCache.get(key);
+                    if (!player.isSaved()) {
+                        String[] parts = key.split("\\.");
+                        Group group = plugin.getGroupManager().getGroup(parts[1]);
+                        GameMode gamemode = GameMode.valueOf(parts[2].toUpperCase());
+
+                        player.setSaved(true);
+                        plugin.getSerializer().saveToDatabase(group, gamemode, player, true);
+                    } else {
+                        playerCache.remove(key);
                     }
                 }
             }
