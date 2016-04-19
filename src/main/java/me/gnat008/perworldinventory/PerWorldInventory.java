@@ -69,7 +69,7 @@ public class PerWorldInventory extends JavaPlugin {
         }
 
         saveDefaultConfig();
-        if (!(new File(getDataFolder() + "worlds.yml").exists()))
+        if (!(new File(getDataFolder() + File.separator + "worlds.yml").exists()))
             saveResource("worlds.yml", false);
         Settings.reloadSettings(getConfig());
         if (Settings.getInt("config-version") < 1) {
