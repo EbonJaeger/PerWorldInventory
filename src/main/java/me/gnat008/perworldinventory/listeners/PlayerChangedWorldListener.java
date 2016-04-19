@@ -57,7 +57,7 @@ public class PlayerChangedWorldListener implements Listener {
 
         playerManager.addPlayer(player, groupFrom);
 
-        if (player.hasPermission("perworldinventory.bypass"))
+        if (player.hasPermission("perworldinventory.bypass.world"))
             return;
 
         if (!groupFrom.containsWorld(worldTo)) {

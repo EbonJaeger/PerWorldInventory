@@ -16,11 +16,18 @@ permissions:
       perworldinventory.convert: true
       perworldinventory.reload: true
       perworldinventory.setdefaults: true
+  perworldinventory.bypass.*:
+    default: false
+    children:
+      perworldinventory.bypass.gamemode: true
+      perworldinventory.bypass.world: true
   perworldinventory.convert:
     default: false
   perworldinventory.reload:
     default: false
   perworldinventory.setdefaults:
     default: false
-  perworldinventory.bypass:
+  perworldinventory.bypass.gamemode:
+    default: false
+  perworldinventory.bypass.world:
     default: false
