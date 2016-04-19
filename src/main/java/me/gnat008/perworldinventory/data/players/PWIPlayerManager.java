@@ -18,7 +18,7 @@
 package me.gnat008.perworldinventory.data.players;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.config.defaults.ConfigValues;
+import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.groups.Group;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -70,7 +70,7 @@ public class PWIPlayerManager {
      */
     public void addPlayer(Player player, Group group) {
         String key = player.getUniqueId().toString() + "." + group.getName() + ".";
-        if (ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean())
+        if (Settings.getBoolean("separate-gamemode-inventories"))
             key += player.getGameMode().toString().toLowerCase();
         else
             key += "survival";
@@ -93,45 +93,51 @@ public class PWIPlayerManager {
         if (cachedPlayer == null)
             return false;
 
-        if (ConfigValues.ENDER_CHEST.getBoolean())
+        if (Settings.getBoolean("player.ender-chest"))
             player.getEnderChest().setContents(cachedPlayer.getEnderChest());
-        if (ConfigValues.INVENTORY.getBoolean()) {
+        if (Settings.getBoolean("player.inventory")) {
             player.getInventory().setContents(cachedPlayer.getInventory());
             player.getInventory().setArmorContents(cachedPlayer.getArmor());
         }
-        if (ConfigValues.STATS.getBoolean()) {
-            if (ConfigValues.CAN_FLY.getBoolean())
-                player.setAllowFlight(cachedPlayer.getCanFly());
-            if (ConfigValues.DISPLAY_NAME.getBoolean())
-                player.setDisplayName(cachedPlayer.getDisplayName());
-            if (ConfigValues.EXHAUSTION.getBoolean())
-                player.setExhaustion(cachedPlayer.getExhaustion());
-            if (ConfigValues.EXP.getBoolean())
-                player.setExp(cachedPlayer.getExperience());
-            if (ConfigValues.FLYING.getBoolean())
-                player.setFlying(cachedPlayer.isFlying());
-            if (ConfigValues.FOOD.getBoolean())
-                player.setFoodLevel(cachedPlayer.getFoodLevel());
-            if (ConfigValues.HEALTH.getBoolean()) {
-                if (cachedPlayer.getHealth() <= player.getMaxHealth())
-                    player.setHealth(cachedPlayer.getHealth());
-                else
-                    player.setHealth(player.getMaxHealth());
-            }
-            if (ConfigValues.GAMEMODE.getBoolean() && (!ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean()))
-                player.setGameMode(cachedPlayer.getGamemode());
-            if (ConfigValues.LEVEL.getBoolean())
-                player.setLevel(cachedPlayer.getLevel());
-            if (ConfigValues.POTION_EFFECTS.getBoolean()) {
-                for (PotionEffect effect : player.getActivePotionEffects()) {
-                    player.removePotionEffect(effect.getType());
-                }
-                player.addPotionEffects(cachedPlayer.getPotionEffects());
-            }
-            if (ConfigValues.SATURATION.getBoolean())
-                player.setSaturation(cachedPlayer.getSaturationLevel());
+        if (Settings.getBoolean("player.stats.can-fly"))
+            player.setAllowFlight(cachedPlayer.getCanFly());
+        if (Settings.getBoolean("player.stats.display-name"))
+            player.setDisplayName(cachedPlayer.getDisplayName());
+        if (Settings.getBoolean("player.stats.exhaustion"))
+            player.setExhaustion(cachedPlayer.getExhaustion());
+        if (Settings.getBoolean("player.stats.exp"))
+            player.setExp(cachedPlayer.getExperience());
+        if (Settings.getBoolean("player.stats.flying"))
+            player.setFlying(cachedPlayer.isFlying());
+        if (Settings.getBoolean("player.stats.food"))
+            player.setFoodLevel(cachedPlayer.getFoodLevel());
+        if (Settings.getBoolean("player.stats.health")) {
+            if (cachedPlayer.getHealth() <= player.getMaxHealth())
+                player.setHealth(cachedPlayer.getHealth());
+            else
+                player.setHealth(player.getMaxHealth());
         }
-        if (ConfigValues.ECONOMY.getBoolean()) {
+        if (Settings.getBoolean("player.stats.gamemode") && (!Settings.getBoolean("separate-gamemode-inventories")))
+            player.setGameMode(cachedPlayer.getGamemode());
+        if (Settings.getBoolean("player.stats.level"))
+            player.setLevel(cachedPlayer.getLevel());
+        if (Settings.getBoolean("player.stats.potion-effects")) {
+            for (PotionEffect effect : player.getActivePotionEffects()) {
+                player.removePotionEffect(effect.getType());
+            }
+            player.addPotionEffects(cachedPlayer.getPotionEffects());
+        }
+        if (Settings.getBoolean("player.stats.saturation"))
+            player.setSaturation(cachedPlayer.getSaturationLevel());
+        if (Settings.getBoolean("player.stats.fall-distance"))
+            player.setFallDistance(cachedPlayer.getFallDistance());
+        if (Settings.getBoolean("player.stats.fire-ticks"))
+            player.setFireTicks(cachedPlayer.getFireTicks());
+        if (Settings.getBoolean("player.stats.max-air"))
+            player.setMaximumAir(cachedPlayer.getMaxAir());
+        if (Settings.getBoolean("player.stats.remaining-air"))
+            player.setRemainingAir(cachedPlayer.getRemainingAir());
+        if (Settings.getBoolean("player.economy")) {
             Economy econ = plugin.getEconomy();
             econ.bankWithdraw(player.getName(), econ.bankBalance(player.getName()).balance);
             econ.bankDeposit(player.getName(), cachedPlayer.getBankBalance());
@@ -155,7 +161,7 @@ public class PWIPlayerManager {
      */
     private PWIPlayer getCachedPlayer(Group group, GameMode gameMode, UUID uuid) {
         String key = uuid.toString() + "." + group.getName() + ".";
-        if (ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean())
+        if (Settings.getBoolean("separate-gamemode-inventories"))
             key += gameMode.toString().toLowerCase();
         else
             key += "survival";
@@ -219,6 +225,10 @@ public class PWIPlayerManager {
         currentPlayer.setLevel(newData.getLevel());
         currentPlayer.setSaturationLevel(newData.getSaturation());
         currentPlayer.setPotionEffects(newData.getActivePotionEffects());
+        currentPlayer.setFallDistance(newData.getFallDistance());
+        currentPlayer.setFireTicks(newData.getFireTicks());
+        currentPlayer.setMaxAir(newData.getMaximumAir());
+        currentPlayer.setRemainingAir(newData.getRemainingAir());
 
         if (PerWorldInventory.getInstance().getEconomy() != null) {
             currentPlayer.setBankBalance(PerWorldInventory.getInstance().getEconomy().bankBalance(newData.getName()).balance);

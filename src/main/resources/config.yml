@@ -1,0 +1,60 @@
+##########################################
+#  PerWorldInventory configuration file  #
+#                                        #
+#  If new values are added to the        #
+#  config, they will not automatically   #
+#  be added here. They will default to   #
+#  false if not present.                 #
+##########################################
+
+# Version of the config. DO NOT CHANGE!!!!!
+config-version: 1
+
+# If true, the plugin will change player's gamemodes when entering a world
+# The gamemode set is configured in the worlds.yml file
+manage-gamemodes: false
+
+# If true, players will have different inventories for each gamemode
+separate-gamemode-inventories: true
+
+# All settings for players are here:
+player:
+  # Save and Load players' economy balances. Requires Vault!
+  economy: false
+  # Load players' ender chests
+  ender-chest: true
+  # Load players' inventory
+  inventory: true
+  # All options for player stats are here:
+  stats:
+    # Load if a player is able to fly
+    can-fly: true
+    # Load the player's display name
+    display-name: false
+    # Load a player's exhaustion level
+    exhaustion: true
+    # Load how much exp a player has
+    exp: true
+    # Load a player's hunger level
+    food: true
+    # Load if a player is flying
+    flying: true
+    # Load what gamemode a player is in. This is shadow-set to false if
+    # 'manage-gamemodes' is true, to stop infinite loop
+    gamemode: false
+    # Load how much health a player has
+    health: true
+    # Load what level the player is
+    level: true
+    # Load all the potion effects of the player
+    potion-effects: true
+    # Load the saturation level of the player
+    saturation: true
+    # Load a player's fall distance
+    fall-distance: true
+    # Load the fire ticks a player has
+    fire-ticks: true
+    # Load the maximum amount of air a player can have
+    max-air: true
+    # Load the current remaining air a player has
+    remaining-air: true

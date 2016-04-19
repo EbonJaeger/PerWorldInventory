@@ -18,7 +18,7 @@
 package me.gnat008.perworldinventory.data.serializers;
 
 import com.google.gson.JsonObject;
-import me.gnat008.perworldinventory.config.defaults.ConfigValues;
+import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -62,26 +62,25 @@ public class StatSerializer {
      * @param stats  The stats to apply
      */
     public static void deserialize(Player player,JsonObject stats) {
-        if (ConfigValues.CAN_FLY.getBoolean() && stats.has("can-fly"))
+        if (Settings.getBoolean("player.stats.can-fly") && stats.has("can-fly"))
             player.setAllowFlight(stats.get("can-fly").getAsBoolean());
-        if (ConfigValues.DISPLAY_NAME.getBoolean() && stats.has("display-name"))
+        if (Settings.getBoolean("player.stats.display-name") && stats.has("display-name"))
             player.setDisplayName(stats.get("display-name").getAsString());
-        if (ConfigValues.EXHAUSTION.getBoolean() && stats.has("exhaustion"))
+        if (Settings.getBoolean("player.stats.exhaustion") && stats.has("exhaustion"))
             player.setExhaustion((float) stats.get("exhaustion").getAsDouble());
-        if (ConfigValues.EXP.getBoolean() && stats.has("exp"))
+        if (Settings.getBoolean("player.stats.exp") && stats.has("exp"))
             player.setExp((float) stats.get("exp").getAsDouble());
-        if (ConfigValues.FLYING.getBoolean() && stats.has("flying"))
+        if (Settings.getBoolean("player.stats.flying") && stats.has("flying"))
             player.setFlying(stats.get("flying").getAsBoolean());
-        if (ConfigValues.FOOD.getBoolean() && stats.has("food"))
+        if (Settings.getBoolean("player.stats.food") && stats.has("food"))
             player.setFoodLevel(stats.get("food").getAsInt());
-        if (ConfigValues.HEALTH.getBoolean() && stats.has("health")) {
-            if (stats.get("health").getAsDouble() <= player.getMaxHealth()) {
+        if (Settings.getBoolean("player.stats.health") && stats.has("health")) {
+            if (stats.get("health").getAsDouble() <= player.getMaxHealth())
                 player.setHealth(stats.get("health").getAsDouble());
-            } else {
+            else
                 player.setHealth(player.getMaxHealth());
-            }
         }
-        if (ConfigValues.GAMEMODE.getBoolean() && (!ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean()) && stats.has("gamemode")) {
+        if (Settings.getBoolean("player.stats.gamemode") && (!Settings.getBoolean("separate-gamemode-inventories")) && stats.has("gamemode")) {
             if (stats.get("gamemode").getAsString().length() > 1) {
                 player.setGameMode(GameMode.valueOf(stats.get("gamemode").getAsString()));
             } else {
@@ -102,19 +101,19 @@ public class StatSerializer {
                 }
             }
         }
-        if (ConfigValues.LEVEL.getBoolean() && stats.has("level"))
+        if (Settings.getBoolean("player.stats.level") && stats.has("level"))
             player.setLevel(stats.get("level").getAsInt());
-        if (ConfigValues.POTION_EFFECTS.getBoolean() && stats.has("potion-effects"))
+        if (Settings.getBoolean("player.stats.potion-effects") && stats.has("potion-effects"))
             PotionEffectSerializer.setPotionEffects(stats.get("potion-effects").getAsString(), player);
-        if (ConfigValues.SATURATION.getBoolean() && stats.has("saturation"))
+        if (Settings.getBoolean("player.stats.saturation") && stats.has("saturation"))
             player.setSaturation((float) stats.get("saturation").getAsDouble());
-        if (ConfigValues.FALL_DISTANCE.getBoolean() && stats.has("fallDistance"))
+        if (Settings.getBoolean("player.stats.fall-distance") && stats.has("fallDistance"))
             player.setFallDistance(stats.get("fallDistance").getAsFloat());
-        if (ConfigValues.FIRE_TICKS.getBoolean() && stats.has("fireTicks"))
+        if (Settings.getBoolean("player.stats.fire-ticks") && stats.has("fireTicks"))
             player.setFireTicks(stats.get("fireTicks").getAsInt());
-        if (ConfigValues.MAXIMUM_AIR.getBoolean() && stats.has("maxAir"))
+        if (Settings.getBoolean("player.stats.max-air") && stats.has("maxAir"))
             player.setMaximumAir(stats.get("maxAir").getAsInt());
-        if (ConfigValues.REMAINING_AIR.getBoolean() && stats.has("remainingAir"))
+        if (Settings.getBoolean("player.stats.remaining-air") && stats.has("remainingAir"))
             player.setRemainingAir(stats.get("remainingAir").getAsInt());
     }
 }

@@ -16,6 +16,7 @@ permissions:
       perworldinventory.convert: true
       perworldinventory.reload: true
       perworldinventory.setdefaults: true
+      perworldinventory.notify: true
   perworldinventory.bypass.*:
     default: false
     children:
@@ -26,6 +27,8 @@ permissions:
   perworldinventory.reload:
     default: false
   perworldinventory.setdefaults:
+    default: false
+  perworldinventory.notify:
     default: false
   perworldinventory.bypass.gamemode:
     default: false

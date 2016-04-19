@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015  Gnat008
+ * Copyright (C) 2014-2016  EbonJaguar
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -19,35 +19,25 @@ package me.gnat008.perworldinventory.listeners;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.Settings;
-import me.gnat008.perworldinventory.data.players.PWIPlayer;
-import me.gnat008.perworldinventory.groups.Group;
-import org.bukkit.GameMode;
-import org.bukkit.entity.Player;
+import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 
-public class PlayerQuitListener implements Listener {
+public class PlayerJoinListener implements Listener {
 
     private PerWorldInventory plugin;
 
-    public PlayerQuitListener(PerWorldInventory plugin) {
+    public PlayerJoinListener(PerWorldInventory plugin) {
         this.plugin = plugin;
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerQuit(PlayerQuitEvent event) {
-        Player player = event.getPlayer();
-        String logoutWorld = player.getWorld().getName();
-        Group group = plugin.getGroupManager().getGroupFromWorld(logoutWorld);
-        if (group == null) {
-            group = new Group(logoutWorld, null, null);
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        if (event.getPlayer().hasPermission("perworldinventory.notify") && Settings.getInt("config-version") < 1) {
+            event.getPlayer().sendMessage(ChatColor.BLUE + "Your PerWorldInventory config is out of date! Some options may be missing.");
+            event.getPlayer().sendMessage(ChatColor.BLUE + "Copy the new options from here: " + ChatColor.WHITE + "https://www.spigotmc.org/resources/per-world-inventory.4482/");
         }
-
-        plugin.getSerializer().saveToDatabase(group,
-                Settings.getBoolean("separate-gamemode-inventories") ? player.getGameMode() : GameMode.SURVIVAL,
-                new PWIPlayer(player, group),
-                true);
     }
 }

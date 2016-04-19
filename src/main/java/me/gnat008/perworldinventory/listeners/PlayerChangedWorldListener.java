@@ -18,7 +18,7 @@
 package me.gnat008.perworldinventory.listeners;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.config.defaults.ConfigValues;
+import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
@@ -65,10 +65,10 @@ public class PlayerChangedWorldListener implements Listener {
                 groupTo = new Group(worldTo, null, GameMode.SURVIVAL);
             }
 
-            if (ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean()) {
+            if (Settings.getBoolean("separate-gamemode-inventories")) {
                 playerManager.getPlayerData(groupTo, player.getGameMode(), player);
 
-                if (ConfigValues.MANAGE_GAMEMODES.getBoolean()) {
+                if (Settings.getBoolean("manage-gamemodes")) {
                     player.setGameMode(groupTo.getGameMode());
                 }
             } else {

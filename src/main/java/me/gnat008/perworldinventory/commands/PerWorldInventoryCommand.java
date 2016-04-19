@@ -19,6 +19,7 @@ package me.gnat008.perworldinventory.commands;
 
 import com.google.gson.Gson;
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.FileSerializer;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.data.serializers.PlayerSerializer;
@@ -219,8 +220,12 @@ public class PerWorldInventoryCommand implements CommandExecutor {
     }
 
     private void reloadConfigFiles() {
-        plugin.getConfigManager().reloadConfigs();
-        plugin.getGroupManager().loadGroupsToMemory();
+        Settings.reloadSettings(plugin.getConfig());
+        if (Settings.getInt("config-version") < 1) {
+            plugin.getLogger().warning("Your PerWorldInventory config is out of date! Some options may be missing.");
+            plugin.getLogger().warning("Copy the new options from here: https://www.spigotmc.org/resources/per-world-inventory.4482/");
+        }
+        plugin.getGroupManager().loadGroupsToMemory(plugin.getWorldsConfig());
     }
 
     private void setWorldDefault(Player player, Group group) {

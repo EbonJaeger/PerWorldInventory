@@ -20,7 +20,7 @@ package me.gnat008.perworldinventory.data.serializers;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.config.defaults.ConfigValues;
+import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import org.bukkit.entity.Player;
 
@@ -45,7 +45,7 @@ public class PlayerSerializer {
         root.add("inventory", InventorySerializer.serializePlayerInventory(player));
         root.add("stats", StatSerializer.serialize(player));
 
-        if (ConfigValues.ECONOMY.getBoolean())
+        if (Settings.getBoolean("player.economy"))
             root.add("economy", EconomySerializer.serialize(player, plugin.getEconomy()));
 
         return gson.toJson(root);
@@ -63,14 +63,14 @@ public class PlayerSerializer {
         if (data.has("data-format"))
             format = data.get("data-format").getAsInt();
 
-        if (ConfigValues.ENDER_CHEST.getBoolean() && data.has("ender-chest"))
+        if (Settings.getBoolean("player.ender-chest") && data.has("ender-chest"))
             player.getEnderChest().setContents(InventorySerializer.deserializeInventory(data.getAsJsonArray("ender-chest"),
                     player.getEnderChest().getSize(), format));
-        if (ConfigValues.INVENTORY.getBoolean() && data.has("inventory"))
+        if (Settings.getBoolean("player.inventory") && data.has("inventory"))
             InventorySerializer.setInventory(player, data.getAsJsonObject("inventory"), format);
-        if (ConfigValues.STATS.getBoolean() && data.has("stats"))
+        if (data.has("stats"))
             StatSerializer.deserialize(player, data.getAsJsonObject("stats"));
-        if (ConfigValues.ECONOMY.getBoolean() && data.has("economy"))
+        if (Settings.getBoolean("player.economy") && data.has("economy"))
             EconomySerializer.deserialize(plugin.getEconomy(), data.getAsJsonObject("economy"), player);
     }
 }

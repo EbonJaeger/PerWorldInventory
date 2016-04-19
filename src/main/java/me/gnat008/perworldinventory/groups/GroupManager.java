@@ -18,10 +18,7 @@
 package me.gnat008.perworldinventory.groups;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.config.ConfigFile;
-import me.gnat008.perworldinventory.config.ConfigManager;
-import me.gnat008.perworldinventory.config.ConfigType;
-import me.gnat008.perworldinventory.config.defaults.ConfigValues;
+import me.gnat008.perworldinventory.config.Settings;
 import org.bukkit.GameMode;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -33,27 +30,16 @@ import java.util.Map;
 
 public class GroupManager {
 
-    private static GroupManager instance = null;
-
     private Map<String, Group> groups = new HashMap<>();
 
     private PerWorldInventory plugin;
 
-    private GroupManager(PerWorldInventory plugin) {
+    public GroupManager(PerWorldInventory plugin) {
         this.plugin = plugin;
-    }
-
-    public static GroupManager getInstance(PerWorldInventory plugin) {
-        if (instance == null) {
-            instance = new GroupManager(plugin);
-        }
-
-        return instance;
     }
 
     public void disable() {
         groups.clear();
-        instance = null;
     }
 
     public void addGroup(String name, List<String> worlds) {
@@ -79,25 +65,24 @@ public class GroupManager {
         return result;
     }
 
-    public void loadGroupsToMemory() {
+    public void loadGroupsToMemory(FileConfiguration config) {
         groups.clear();
 
-        FileConfiguration groupsConfig = ConfigManager.getInstance().getConfig(ConfigType.WORLDS).getConfig();
-        for (String key : groupsConfig.getConfigurationSection("groups.").getKeys(false)) {
+        for (String key : config.getConfigurationSection("groups.").getKeys(false)) {
             List<String> worlds;
-            if (groupsConfig.contains("groups." + key + ".worlds")) {
-                worlds = groupsConfig.getStringList("groups." + key + ".worlds");
+            if (config.contains("groups." + key + ".worlds")) {
+                worlds = config.getStringList("groups." + key + ".worlds");
             } else {
-                worlds = groupsConfig.getStringList("groups." + key);
-                groupsConfig.set("groups." + key, null);
-                groupsConfig.set("groups." + key + ".worlds", worlds);
-                if (ConfigValues.MANAGE_GAMEMODES.getBoolean()) {
-                    groupsConfig.set("groups." + key + ".default-gamemode", "SURVIVAL");
+                worlds = config.getStringList("groups." + key);
+                config.set("groups." + key, null);
+                config.set("groups." + key + ".worlds", worlds);
+                if (Settings.getBoolean("separate-gamemode-inventories")) {
+                    config.set("groups." + key + ".default-gamemode", "SURVIVAL");
                 }
             }
 
-            if (ConfigValues.MANAGE_GAMEMODES.getBoolean()) {
-                GameMode gameMode = GameMode.valueOf(groupsConfig.getString("groups." + key + ".default-gamemode").toUpperCase());
+            if (Settings.getBoolean("manage-gamemodes")) {
+                GameMode gameMode = GameMode.valueOf(config.getString("groups." + key + ".default-gamemode").toUpperCase());
                 addGroup(key, worlds, gameMode);
             } else {
                 addGroup(key, worlds);
@@ -108,8 +93,7 @@ public class GroupManager {
     }
 
     public void saveGroupsToDisk() {
-        ConfigFile groupsConfig = ConfigManager.getInstance().getConfig(ConfigType.WORLDS);
-        FileConfiguration groupsConfigFile = groupsConfig.getConfig();
+        FileConfiguration groupsConfigFile = plugin.getWorldsConfig();
         groupsConfigFile.set("groups", null);
 
         for (Group group : groups.values()) {
@@ -121,7 +105,7 @@ public class GroupManager {
         }
 
         try {
-            groupsConfig.save();
+            groupsConfigFile.save(plugin.getDataFolder() + "worlds.yml");
         } catch (IOException ex) {
             plugin.getPrinter().printToConsole("Could not save the groups config to disk!", true);
             ex.printStackTrace();

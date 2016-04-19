@@ -25,15 +25,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Connection;
 
+import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.FileSerializer;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
+import me.gnat008.perworldinventory.listeners.PlayerJoinListener;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import me.gnat008.perworldinventory.commands.PerWorldInventoryCommand;
-import me.gnat008.perworldinventory.config.ConfigManager;
-import me.gnat008.perworldinventory.config.ConfigType;
-import me.gnat008.perworldinventory.config.defaults.ConfigValues;
 import me.gnat008.perworldinventory.data.DataConverter;
 import me.gnat008.perworldinventory.data.DataSerializer;
 import me.gnat008.perworldinventory.groups.GroupManager;
@@ -48,6 +49,7 @@ public class PerWorldInventory extends JavaPlugin {
     private Economy economy;
     private Connection connection;
     private DataSerializer serializer;
+    private GroupManager groupManager;
     private PWIPlayerManager playerManager;
 
     private static PerWorldInventory instance = null;
@@ -66,10 +68,18 @@ public class PerWorldInventory extends JavaPlugin {
             dFile.renameTo(new File(getDefaultFilesDirectory() + File.separator + "__default.json"));
         }
 
-        getConfigManager().addConfig(ConfigType.CONFIG, new File(getDataFolder() + File.separator + "config.yml"));
-        getConfigManager().addConfig(ConfigType.WORLDS, new File(getDataFolder() + File.separator + "worlds.yml"));
+        saveDefaultConfig();
+        if (!(new File(getDataFolder() + "worlds.yml").exists()))
+            saveResource("worlds.yml", false);
+        Settings.reloadSettings(getConfig());
+        if (Settings.getInt("config-version") < 1) {
+            getLogger().warning("Your PerWorldInventory config is out of date! Some options may be missing.");
+            getLogger().warning("Copy the new options from here: https://www.spigotmc.org/resources/per-world-inventory.4482/");
+        }
 
-        getGroupManager().loadGroupsToMemory();
+        groupManager = new GroupManager(this);
+        FileConfiguration worldsConfig = getWorldsConfig();
+        groupManager.loadGroupsToMemory(worldsConfig);
 
         playerManager = new PWIPlayerManager(this);
         
@@ -78,8 +88,9 @@ public class PerWorldInventory extends JavaPlugin {
         getLogger().info("Commands registered! Registering listeners...");
         getServer().getPluginManager().registerEvents(new PlayerChangedWorldListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(this), this);
+        getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
 
-        if (ConfigValues.SEPARATE_GAMEMODE_INVENTORIES.getBoolean()) {
+        if (Settings.getBoolean("separate-gamemode-inventories")) {
             getServer().getPluginManager().registerEvents(new PlayerGameModeChangeListener(this), this);
             getLogger().info("Registered PlayerGameModeChangeListener.");
         }
@@ -104,7 +115,6 @@ public class PerWorldInventory extends JavaPlugin {
         playerManager.onDisable();
         Printer.disable();
         DataConverter.disable();
-        getConfigManager().disable();
         getGroupManager().disable();
         getServer().getScheduler().cancelTasks(this);
         instance = null;
@@ -116,10 +126,6 @@ public class PerWorldInventory extends JavaPlugin {
         }
 
         return instance;
-    }
-
-    public ConfigManager getConfigManager() {
-        return ConfigManager.getInstance();
     }
 
     public DataConverter getDataConverter() {
@@ -138,8 +144,12 @@ public class PerWorldInventory extends JavaPlugin {
         return new File(getDataFolder() + File.separator + "data" + File.separator + "defaults");
     }
 
+    public FileConfiguration getWorldsConfig() {
+        return YamlConfiguration.loadConfiguration(new File(getDataFolder() + File.separator + "worlds.yml"));
+    }
+
     public GroupManager getGroupManager() {
-        return GroupManager.getInstance(this);
+        return this.groupManager;
     }
 
     public Printer getPrinter() {
