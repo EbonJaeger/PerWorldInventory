@@ -57,6 +57,9 @@ public class PlayerChangedWorldListener implements Listener {
 
         playerManager.addPlayer(player, groupFrom);
 
+        if (player.hasPermission("perworldinventory.bypass"))
+            return;
+
         if (!groupFrom.containsWorld(worldTo)) {
             if (groupTo == null) {
                 groupTo = new Group(worldTo, null, GameMode.SURVIVAL);

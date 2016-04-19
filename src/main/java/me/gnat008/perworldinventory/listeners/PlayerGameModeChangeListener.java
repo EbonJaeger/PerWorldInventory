@@ -45,6 +45,7 @@ public class PlayerGameModeChangeListener implements Listener {
 
         plugin.getPlayerManager().addPlayer(player, group);
 
-        plugin.getPlayerManager().getPlayerData(group, newGameMode, player);
+        if (!player.hasPermission("perworldinventory.bypass"))
+            plugin.getPlayerManager().getPlayerData(group, newGameMode, player);
     }
 }

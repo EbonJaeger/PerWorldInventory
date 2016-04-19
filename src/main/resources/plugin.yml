@@ -22,3 +22,5 @@ permissions:
     default: false
   perworldinventory.setdefaults:
     default: false
+  perworldinventory.bypass:
+    default: false
