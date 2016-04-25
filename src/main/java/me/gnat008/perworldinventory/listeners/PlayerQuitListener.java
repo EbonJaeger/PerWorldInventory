@@ -45,6 +45,12 @@ public class PlayerQuitListener implements Listener {
             group = new Group(logoutWorld, null, null);
         }
 
+        PWIPlayer cached = plugin.getPlayerManager().getPlayer(group, player);
+        if (cached != null) {
+            plugin.getPlayerManager().updateCache(player, cached);
+            cached.setSaved(true);
+        }
+
         plugin.getSerializer().saveToDatabase(group,
                 Settings.getBoolean("separate-gamemode-inventories") ? player.getGameMode() : GameMode.SURVIVAL,
                 new PWIPlayer(player, group),

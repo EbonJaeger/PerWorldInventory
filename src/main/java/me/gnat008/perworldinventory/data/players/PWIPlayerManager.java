@@ -81,6 +81,16 @@ public class PWIPlayerManager {
             playerCache.put(key, new PWIPlayer(player, group));
     }
 
+    public PWIPlayer getPlayer(Group group, Player player) {
+        String key = player.getUniqueId().toString() + "." + group.getName() + ".";
+        if (Settings.getBoolean("separate-gamemode-inventories"))
+            key += player.getGameMode().toString().toLowerCase();
+        else
+            key += "survival";
+
+        return playerCache.get(key);
+    }
+
     public void getPlayerData(Group group, GameMode gamemode, Player player) {
         boolean isInCache = getDataFromCache(group, gamemode, player);
 
@@ -208,7 +218,7 @@ public class PWIPlayerManager {
      * @param newData The current snapshot of the Player
      * @param currentPlayer The PWIPlayer currently in the cache
      */
-    private void updateCache(Player newData, PWIPlayer currentPlayer) {
+    public void updateCache(Player newData, PWIPlayer currentPlayer) {
         currentPlayer.setSaved(false);
 
         currentPlayer.setArmor(newData.getInventory().getArmorContents());
