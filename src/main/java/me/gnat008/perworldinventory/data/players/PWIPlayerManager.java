@@ -81,6 +81,15 @@ public class PWIPlayerManager {
             playerCache.put(key, new PWIPlayer(player, group));
     }
 
+    /**
+     * Get a player from the cache. This method will
+     * return null if no player with the same group and gamemode
+     * is cached.
+     *
+     * @param group The Group the player is in
+     * @param player The Player
+     * @return The PWIPlayer in the cache, or null
+     */
     public PWIPlayer getPlayer(Group group, Player player) {
         String key = player.getUniqueId().toString() + "." + group.getName() + ".";
         if (Settings.getBoolean("separate-gamemode-inventories"))
@@ -91,6 +100,14 @@ public class PWIPlayerManager {
         return playerCache.get(key);
     }
 
+    /**
+     * Get player data from the cache and apply it to
+     * the player.
+     *
+     * @param group The Group the player is in
+     * @param gamemode The Gamemode the player is in
+     * @param player The Player to get the data for
+     */
     public void getPlayerData(Group group, GameMode gamemode, Player player) {
         boolean isInCache = getDataFromCache(group, gamemode, player);
 
