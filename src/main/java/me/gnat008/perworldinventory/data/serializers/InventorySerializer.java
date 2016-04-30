@@ -37,7 +37,7 @@ public class InventorySerializer {
      */
     public static JsonObject serializePlayerInventory(PWIPlayer player) {
         JsonObject root = new JsonObject();
-        JsonArray inventory = serializeInventory(player.getInventory());
+        JsonArray inventory = serializeInventory(player.getArmor());
         JsonArray armor = serializeInventory(player.getInventory());
 
         root.add("inventory", inventory);
