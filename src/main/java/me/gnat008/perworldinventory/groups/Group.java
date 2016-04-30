@@ -54,4 +54,8 @@ public class Group {
             if (!this.worlds.contains(world))
                 this.worlds.add(world);
     }
+
+    public void addWorld(String world) {
+        this.worlds.add(world);
+    }
 }

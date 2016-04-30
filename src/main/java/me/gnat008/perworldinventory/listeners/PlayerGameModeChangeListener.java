@@ -19,6 +19,7 @@ package me.gnat008.perworldinventory.listeners;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.groups.Group;
+import me.gnat008.perworldinventory.groups.GroupManager;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -26,21 +27,32 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PlayerGameModeChangeListener implements Listener {
 
+    private GroupManager manager;
     private PerWorldInventory plugin;
 
     public PlayerGameModeChangeListener(PerWorldInventory plugin) {
         this.plugin = plugin;
+        this.manager = plugin.getGroupManager();
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerGameModeChange(PlayerGameModeChangeEvent event) {
         Player player = event.getPlayer();
         GameMode newGameMode = event.getNewGameMode();
-        Group group = plugin.getGroupManager().getGroupFromWorld(player.getWorld().getName());
+        Group group = manager.getGroupFromWorld(player.getWorld().getName());
         if (group == null) {
-            group = new Group(player.getWorld().getName(), null, null);
+            if (manager.getGroup("__unconfigured__") != null) {
+                group = manager.getGroup("__unconfigured__");
+            } else {
+                List<String> worlds = new ArrayList<>();
+                worlds.add(player.getWorld().getName());
+                group = new Group("__unconfigured__", worlds, GameMode.SURVIVAL);
+            }
         }
 
         plugin.getPlayerManager().addPlayer(player, group);

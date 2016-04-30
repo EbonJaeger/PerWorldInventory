@@ -51,7 +51,7 @@ public class GroupManager {
     }
 
     public Group getGroup(String group) {
-        return this.groups.containsKey(group.toLowerCase()) ? this.groups.get(group.toLowerCase()) : null;
+        return this.groups.get(group);
     }
 
     public Group getGroupFromWorld(String world) {
