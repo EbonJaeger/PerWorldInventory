@@ -8,6 +8,7 @@
 ##########################################
 
 # Version of the config.
+# When updating config, copy the new verison number here.
 # Only ever change when adding new config options!
 # Used to notify administrators on config updates.
 config-version: 1
