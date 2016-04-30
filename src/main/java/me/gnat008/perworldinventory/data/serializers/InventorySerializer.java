@@ -93,7 +93,7 @@ public class InventorySerializer {
     public static ItemStack[] deserializeInventory(JsonArray inv, int size, int format) {
         ItemStack[] contents = new ItemStack[size];
 
-        for (int i = 0; i < inv.size(); i++) {
+        for (int i = 0; i < inv.size() - 1; i++) {
             JsonObject item = inv.get(i).getAsJsonObject();
             int index = item.get("index").getAsInt();
             if (index > size)
