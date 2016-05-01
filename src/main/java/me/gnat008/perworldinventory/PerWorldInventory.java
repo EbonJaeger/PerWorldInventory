@@ -114,7 +114,12 @@ public class PerWorldInventory extends JavaPlugin {
     public void onDisable() {
         playerManager.onDisable();
         Printer.disable();
-        DataConverter.disable();
+        try {
+            DataConverter.disable();
+        }
+        catch (NoClassDefFoundError ex) {
+            // To be expected if multiverse isn't loaded
+        }
         getGroupManager().disable();
         getServer().getScheduler().cancelTasks(this);
         instance = null;

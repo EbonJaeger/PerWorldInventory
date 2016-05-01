@@ -73,13 +73,19 @@ public class InventorySerializer {
      */
     public static void setInventory(Player player, JsonObject inv, int format) {
         PlayerInventory inventory = player.getInventory();
-
+        
         ItemStack[] armor = deserializeInventory(inv.getAsJsonArray("armor"), 4, format);
         ItemStack[] inventoryContents = deserializeInventory(inv.getAsJsonArray("inventory"), inventory.getSize(), format);
 
         inventory.clear();
-        inventory.setArmorContents(armor);
-        inventory.setContents(inventoryContents);
+        if (armor != null) {
+        	inventory.setArmorContents(armor);
+        }
+        
+        if (inventoryContents != null) {
+        	inventory.setContents(inventoryContents);
+        }
+       
     }
 
     /**
@@ -91,23 +97,30 @@ public class InventorySerializer {
      * @return An ItemStack array constructed from the given JsonArray
      */
     public static ItemStack[] deserializeInventory(JsonArray inv, int size, int format) {
+    	// Be tolerant if the expected JsonArray tag is missing
+    	if (inv == null) {
+    		return null;
+    	}
+    	
         ItemStack[] contents = new ItemStack[size];
-
-        for (int i = 0; i < inv.size() - 1; i++) {
-            JsonObject item = inv.get(i).getAsJsonObject();
-            int index = item.get("index").getAsInt();
-            if (index > size)
-                throw new IllegalArgumentException("Index found is greater than expected size (" + index + " > " + size + ")");
-            if (index > contents.length || index < 0)
-                throw new IllegalArgumentException("Item " + i + " - Slot " + index + " does not exist in this inventory");
-
-            ItemStack is;
-            if (format == 1)
-                is = ItemSerializer.deserializeItem(item);
-            else
-                is = ItemSerializer.getItem(item);
-
-            contents[i] = is;
+        for (int i = 0; i < inv.size(); i++) {
+        	// We don't want to risk failing to deserialize a players inventory. Try your best
+        	// to deserialize as much as possible.
+        	try {
+	            JsonObject item = inv.get(i).getAsJsonObject();
+	            int index = item.get("index").getAsInt();
+	            
+	            ItemStack is;
+	            if (format == 1)
+	                is = ItemSerializer.deserializeItem(item);
+	            else
+	                is = ItemSerializer.getItem(item);
+	
+	            contents[index] = is;
+        	}
+        	catch (Exception ex) {
+        		ex.printStackTrace();
+        	}
         }
 
         return contents;
