@@ -7,7 +7,10 @@
 #  false if not present.                 #
 ##########################################
 
-# Version of the config. DO NOT CHANGE!!!!!
+# Version of the config.
+# When updating config, copy the new verison number here.
+# Only ever change when adding new config options!
+# Used to notify administrators on config updates.
 config-version: 1
 
 # If true, the plugin will change player's gamemodes when entering a world
@@ -16,6 +19,9 @@ manage-gamemodes: false
 
 # If true, players will have different inventories for each gamemode
 separate-gamemode-inventories: true
+
+# If true, any worlds that are not in the worlds.yml configuration file will share the same inventory
+share-if-unconfigured: false
 
 # All settings for players are here:
 player:

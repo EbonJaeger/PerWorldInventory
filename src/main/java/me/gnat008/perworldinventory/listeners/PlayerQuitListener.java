@@ -21,6 +21,7 @@ import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.groups.Group;
+import me.gnat008.perworldinventory.groups.GroupManager;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -28,21 +29,33 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PlayerQuitListener implements Listener {
 
+    private GroupManager manager;
     private PerWorldInventory plugin;
 
     public PlayerQuitListener(PerWorldInventory plugin) {
         this.plugin = plugin;
+        this.manager = plugin.getGroupManager();
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         String logoutWorld = player.getWorld().getName();
-        Group group = plugin.getGroupManager().getGroupFromWorld(logoutWorld);
+        Group group = manager.getGroupFromWorld(logoutWorld);
         if (group == null) {
-            group = new Group(logoutWorld, null, null);
+            if (manager.getGroup("__unconfigured__") != null) {
+                group = manager.getGroup("__unconfigured__");
+                group.addWorld(logoutWorld);
+            } else {
+                List<String> worlds = new ArrayList<>();
+                worlds.add(logoutWorld);
+                group = new Group("__unconfigured__", worlds, GameMode.SURVIVAL);
+            }
         }
 
         PWIPlayer cached = plugin.getPlayerManager().getPlayer(group, player);
