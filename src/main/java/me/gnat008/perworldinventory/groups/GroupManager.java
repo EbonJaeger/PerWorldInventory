@@ -24,6 +24,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +60,17 @@ public class GroupManager {
         for (Group group : this.groups.values()) {
             if (group.containsWorld(world)) {
                 result = group;
+            }
+        }
+
+        if (result == null) { // If true, world is unconfigured
+            if (getGroup("__unconfigured__") != null) {
+                result = getGroup("__unconfigured__");
+                result.addWorld(world);
+            } else {
+                List<String> worlds = new ArrayList<>();
+                worlds.add(world);
+                result = new Group("__unconfigured__", worlds, GameMode.SURVIVAL);
             }
         }
 

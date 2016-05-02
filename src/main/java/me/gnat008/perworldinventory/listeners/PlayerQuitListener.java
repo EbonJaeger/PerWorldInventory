@@ -27,6 +27,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.ArrayList;
@@ -47,16 +48,6 @@ public class PlayerQuitListener implements Listener {
         Player player = event.getPlayer();
         String logoutWorld = player.getWorld().getName();
         Group group = manager.getGroupFromWorld(logoutWorld);
-        if (group == null) {
-            if (manager.getGroup("__unconfigured__") != null) {
-                group = manager.getGroup("__unconfigured__");
-                group.addWorld(logoutWorld);
-            } else {
-                List<String> worlds = new ArrayList<>();
-                worlds.add(logoutWorld);
-                group = new Group("__unconfigured__", worlds, GameMode.SURVIVAL);
-            }
-        }
 
         PWIPlayer cached = plugin.getPlayerManager().getPlayer(group, player);
         if (cached != null) {
@@ -64,9 +55,31 @@ public class PlayerQuitListener implements Listener {
             cached.setSaved(true);
         }
 
+        PWIPlayer pwiPlayer = new PWIPlayer(player, group);
         plugin.getSerializer().saveToDatabase(group,
                 Settings.getBoolean("separate-gamemode-inventories") ? player.getGameMode() : GameMode.SURVIVAL,
-                new PWIPlayer(player, group),
+                pwiPlayer,
                 true);
+        plugin.getSerializer().saveLogoutData(pwiPlayer);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerKick(PlayerKickEvent event) {
+        Player player = event.getPlayer();
+        String logoutWorld = player.getWorld().getName();
+        Group group = manager.getGroupFromWorld(logoutWorld);
+
+        PWIPlayer cached = plugin.getPlayerManager().getPlayer(group, player);
+        if (cached != null) {
+            plugin.getPlayerManager().updateCache(player, cached);
+            cached.setSaved(true);
+        }
+
+        PWIPlayer pwiPlayer = new PWIPlayer(player, group);
+        plugin.getSerializer().saveToDatabase(group,
+                Settings.getBoolean("separate-gamemode-inventories") ? player.getGameMode() : GameMode.SURVIVAL,
+                pwiPlayer,
+                true);
+        plugin.getSerializer().saveLogoutData(pwiPlayer);
     }
 }

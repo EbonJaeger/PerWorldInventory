@@ -22,10 +22,12 @@ import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
+import me.gnat008.perworldinventory.data.serializers.LocationSerializer;
 import me.gnat008.perworldinventory.data.serializers.PlayerSerializer;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.util.Printer;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.io.*;
@@ -39,6 +41,22 @@ public class FileSerializer extends DataSerializer {
         super(plugin);
 
         this.FILE_PATH = plugin.getDataFolder() + File.separator + "data" + File.separator;
+    }
+
+    public void saveLogoutData(PWIPlayer player) {
+        File file = new File(FILE_PATH + player.getUuid().toString(), "last-logout.json");
+
+        try {
+            if (!file.getParentFile().exists())
+                file.getParentFile().mkdir();
+            if (!file.exists())
+                file.createNewFile();
+
+            String data = LocationSerializer.serialize(player.getLocation());
+            writeData(file, data);
+        } catch (IOException ex) {
+            plugin.getLogger().warning("Error creating file '" + file.getPath() + "': " + ex.getMessage());
+        }
     }
 
     public void saveToDatabase(Group group, GameMode gamemode, PWIPlayer player) {
@@ -96,6 +114,26 @@ public class FileSerializer extends DataSerializer {
             plugin.getLogger().severe("Unable to read data for '" + player.getName() + "' for group '" + group.getName() +
                     "' in gamemode '" + gamemode.toString() + "' for reason: " + exIO.getMessage());
         }
+    }
+
+    public Location getLogoutData(Player player) {
+        File file = new File(FILE_PATH + player.getUniqueId().toString(), "last-logout.json");
+
+        Location location;
+        try (JsonReader reader = new JsonReader(new FileReader(file))) {
+            JsonParser parser = new JsonParser();
+            JsonObject data = parser.parse(reader).getAsJsonObject();
+            location = LocationSerializer.deserialize(data);
+        } catch (FileNotFoundException ex) {
+            // Player probably logged in for the first time, not really an error
+            location = null;
+        } catch (IOException ioEx) {
+            // Something went wrong
+            plugin.getLogger().warning("Unable to get logout location data for '" + player.getName() + "': " + ioEx.getMessage());
+            location = null;
+        }
+
+        return location;
     }
 
     public void getFromDefaults(Group group, Player player) {

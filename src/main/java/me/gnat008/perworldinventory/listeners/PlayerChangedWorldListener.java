@@ -52,17 +52,6 @@ public class PlayerChangedWorldListener implements Listener {
         Group groupFrom = manager.getGroupFromWorld(worldFrom);
         Group groupTo = manager.getGroupFromWorld(worldTo);
 
-        if (groupFrom == null) { // If true, world is unconfigured
-            if (manager.getGroup("__unconfigured__") != null) {
-                groupFrom = manager.getGroup("__unconfigured__");
-                groupFrom.addWorld(worldFrom);
-            } else {
-                List<String> worlds = new ArrayList<>();
-                worlds.add(worldFrom);
-                groupFrom = new Group("__unconfigured__", worlds, GameMode.SURVIVAL);
-            }
-        }
-
         playerManager.addPlayer(player, groupFrom);
 
         if (player.hasPermission("perworldinventory.bypass.world"))
@@ -73,16 +62,6 @@ public class PlayerChangedWorldListener implements Listener {
         }
 
         if (!groupFrom.containsWorld(worldTo)) {
-            if (groupTo == null) { // If true, world is unconfigured
-                if (manager.getGroup("__unconfigured__") != null) {
-                    groupTo = manager.getGroup("__unconfigured__");
-                    groupTo.addWorld(worldTo);
-                } else {
-                    List<String> worlds = new ArrayList<>();
-                    worlds.add(worldTo);
-                    groupTo = new Group("__unconfigured__", worlds, GameMode.SURVIVAL);
-                }
-            }
 
             if (groupTo.getName().equals("__unconfigured__") && Settings.getBoolean("share-if-unconfigured")) {
                 return;

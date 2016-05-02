@@ -22,6 +22,7 @@ import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.groups.Group;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 public abstract class DataSerializer {
@@ -31,6 +32,13 @@ public abstract class DataSerializer {
     public DataSerializer(PerWorldInventory plugin) {
         this.plugin = plugin;
     }
+
+    /**
+     * Save the location of a player when they log out or are kicked from the server.
+     *
+     * @param player The player who logged out
+     */
+    public abstract void saveLogoutData(PWIPlayer player);
 
     /**
      * Saves a player's data to the database.
@@ -69,4 +77,13 @@ public abstract class DataSerializer {
      * @param player The {@link org.bukkit.entity.Player} to set the data to
      */
     public abstract void getFromDatabase(Group group, GameMode gamemode, Player player);
+
+    /**
+     * Get the name of the world that a player logged out in.
+     * If this is their first time logging in, this method will return null instead of a location.
+     *
+     * @param player The player to get the last logout for
+     * @return The location of the player when they last logged out or null
+     */
+    public abstract Location getLogoutData(Player player);
 }

@@ -45,15 +45,6 @@ public class PlayerGameModeChangeListener implements Listener {
         Player player = event.getPlayer();
         GameMode newGameMode = event.getNewGameMode();
         Group group = manager.getGroupFromWorld(player.getWorld().getName());
-        if (group == null) {
-            if (manager.getGroup("__unconfigured__") != null) {
-                group = manager.getGroup("__unconfigured__");
-            } else {
-                List<String> worlds = new ArrayList<>();
-                worlds.add(player.getWorld().getName());
-                group = new Group("__unconfigured__", worlds, GameMode.SURVIVAL);
-            }
-        }
 
         plugin.getPlayerManager().addPlayer(player, group);
 
