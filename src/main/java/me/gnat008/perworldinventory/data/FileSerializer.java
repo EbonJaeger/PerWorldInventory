@@ -25,7 +25,7 @@ import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.data.serializers.LocationSerializer;
 import me.gnat008.perworldinventory.data.serializers.PlayerSerializer;
 import me.gnat008.perworldinventory.groups.Group;
-import me.gnat008.perworldinventory.util.Printer;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -74,8 +74,8 @@ public class FileSerializer extends DataSerializer {
             String data = PlayerSerializer.serialize(plugin, player);
             writeData(file, data);
         } catch (IOException ex) {
-            Printer.getInstance(plugin).printToConsole("Error creating file '" + FILE_PATH +
-                    player.getUuid() + File.separator + group.getName() + ".json': " + ex.getMessage(), true);
+            plugin.getLogger().severe("Error creating file '" + FILE_PATH +
+                    player.getUuid() + File.separator + group.getName() + ".json': " + ex.getMessage());
         }
     }
 
@@ -151,8 +151,8 @@ public class FileSerializer extends DataSerializer {
                 JsonObject data = parser.parse(reader).getAsJsonObject();
                 PlayerSerializer.deserialize(data, player, plugin);
             } catch (FileNotFoundException ex2) {
-                plugin.getPrinter().printToPlayer(player, "Something went horribly wrong when loading your inventory! " +
-                        "Please notify a server administrator!", true);
+                player.sendMessage(ChatColor.RED + "» " + ChatColor.GRAY + "Something went horribly wrong when loading your inventory! " +
+                        "Please notify a server administrator!");
                 plugin.getLogger().severe("Unable to find inventory data for player '" + player.getName() +
                         "' for group '" + group.getName() + "': " + ex2.getMessage());
             } catch (IOException exIO) {

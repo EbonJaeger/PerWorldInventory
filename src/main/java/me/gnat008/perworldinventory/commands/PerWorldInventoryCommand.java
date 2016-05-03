@@ -32,6 +32,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.io.IOException;
@@ -86,40 +87,57 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                         if (args.length == 2) {
                             switch (args[1].toUpperCase()) {
                                 case "MULTIVERSE":
-                                    plugin.getPrinter().printToPlayer(player, "Converting from MultiVerse-Inventories! All messages are sent to console!", false);
-                                    mvConvert();
+                                    Plugin p = plugin.getServer().getPluginManager().getPlugin("Multiverse-Inventories");
+                                    if (p == null) {
+                                        sender.sendMessage(ChatColor.RED + "I'm sorry, Multiverse-Inventories isn't loaded... Import aborted.");
+                                    } else {
+                                        mvConvert();
+                                        new FancyMessage("» ")
+                                                .color(ChatColor.BLUE)
+                                                .then("Starting data conversion, messages have been set to your terminal...")
+                                                .color(ChatColor.GRAY)
+                                                .send(player);
+                                    }
                                     break;
                                 case "MULTIINV":
-                                    plugin.getPrinter().printToPlayer(player, "Converting from MultiInv! All messages are sent to console!", false);
-                                    miConvert();
-                                    break;
+                                    p = plugin.getServer().getPluginManager().getPlugin("MultiInv");
+                                    if (p == null) {
+                                        sender.sendMessage(ChatColor.RED + "I'm sorry, MultiInv isn't loaded... Import aborted.");
+                                    } else {
+                                        mvConvert();
+                                        new FancyMessage("» ")
+                                                .color(ChatColor.BLUE)
+                                                .then("Starting data conversion, messages have been set to your terminal...")
+                                                .color(ChatColor.GRAY)
+                                                .send(player);
+                                    }
                                 default:
-                                    plugin.getPrinter().printToPlayer(player, "Valid arguments are: MULTIVERSE | MULTIINV", true);
+                                    player.sendMessage(ChatColor.RED + "» " + ChatColor.GRAY + "Valid arguments are: MULTIVERSE | MULTIINV");
                                     break;
                             }
                         } else {
-                            plugin.getPrinter().printToPlayer(player, "You must specify the plugin to convert from: MULTIVERSE | MULTIINV", true);
+                            player.sendMessage(ChatColor.RED + "» " + ChatColor.GRAY + "You must specify the plugin to convert from: MULTIVERSE | MULTIINV");
                         }
                     } else {
-                        plugin.getPrinter().printToPlayer(player, NO_PERMISSION, true);
+                        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + NO_PERMISSION);
                     }
                 } else {
                     if (args.length == 2) {
                         switch (args[1].toUpperCase()) {
                             case "MULTIVERSE":
-                                plugin.getPrinter().printToConsole("Converting from MultiVerse-Inventories!", false);
+                                plugin.getLogger().info("Converting from MultiVerse-Inventories!");
                                 mvConvert();
                                 break;
                             case "MULTIINV":
-                                plugin.getPrinter().printToConsole("Converting from MultiInv!", false);
+                                plugin.getLogger().info("Converting from MultiInv!");
                                 miConvert();
                                 break;
                             default:
-                                plugin.getPrinter().printToConsole("Valid arguments are: MULTIVERSE | MULTIINV", true);
+                                plugin.getLogger().info("Valid arguments are: MULTIVERSE | MULTIINV");
                                 break;
                         }
                     } else {
-                        plugin.getPrinter().printToConsole("You must specify the plugin to convert from: MULTIVERSE | MULTIINV", true);
+                        plugin.getLogger().info("You must specify the plugin to convert from: MULTIVERSE | MULTIINV");
                     }
                 }
 
@@ -148,7 +166,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                     if (player.hasPermission(PERMISSION_NODE + "reload")) {
                         reload(player);
                     } else {
-                        plugin.getPrinter().printToPlayer(player, NO_PERMISSION, true);
+                        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + NO_PERMISSION);
                     }
                 } else {
                     reload();
@@ -169,14 +187,14 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                                 group = plugin.getGroupManager().getGroupFromWorld(player.getWorld().getName());
                                 setWorldDefault(player, group);
                             } catch (IllegalArgumentException ex) {
-                                plugin.getPrinter().printToPlayer(player, "You are not standing in a valid world!", true);
+                                player.sendMessage(ChatColor.RED + "» " + ChatColor.GRAY + "You are not standing in a valid world!");
                             }
                         }
                     } else {
-                        plugin.getPrinter().printToPlayer(player, NO_PERMISSION, true);
+                        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + NO_PERMISSION);
                     }
                 } else {
-                    plugin.getPrinter().printToConsole("This command can only be run from ingame.", true);
+                    plugin.getLogger().warning("This command can only be run from ingame.");
                 }
 
                 return true;
@@ -230,17 +248,17 @@ public class PerWorldInventoryCommand implements CommandExecutor {
     }
 
     private void displayConsoleHelp() {
-        plugin.getPrinter().printToConsole("Available commands:", false);
-        plugin.getPrinter().printToConsole("/perworldinventory convert - Convert MultiVerse-Inventories data", false);
-        plugin.getPrinter().printToConsole("/perworldinventory help - Displays this help", false);
-        plugin.getPrinter().printToConsole("/perworldinventory version - Shows the version of the plugin", false);
-        plugin.getPrinter().printToConsole("/perworldinventory reload - Reload config and world files", false);
+        plugin.getLogger().info("Available commands:");
+        plugin.getLogger().info("/perworldinventory convert - Convert MultiVerse-Inventories data");
+        plugin.getLogger().info("/perworldinventory help - Displays this help");
+        plugin.getLogger().info("/perworldinventory version - Shows the version of the plugin");
+        plugin.getLogger().info("/perworldinventory reload - Reload config and world files");
     }
 
     private void displayPlayerHelp(Player player) {
         player.sendMessage(ChatColor.DARK_GRAY + "" + ChatColor.STRIKETHROUGH + "-----------------------------------------------------");
         new FancyMessage
-                ("             ")
+                ("                ")
                 .then("[")
                 .color(ChatColor.DARK_GRAY)
                 .then("PerWorldInventory Commands")
@@ -301,13 +319,13 @@ public class PerWorldInventoryCommand implements CommandExecutor {
     private void reload() {
         reloadConfigFiles();
 
-        plugin.getPrinter().printToConsole("Configuration files reloaded.", false);
+        plugin.getLogger().info("Configuration files reloaded.");
     }
 
     private void reload(Player player) {
         reloadConfigFiles();
 
-        plugin.getPrinter().printToPlayer(player, "Configuration files reloaded.", false);
+        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "Configuration files reloaded.");
     }
 
     private void reloadConfigFiles() {
@@ -324,7 +342,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
         Gson gson = new Gson();
         File file = new File(plugin.getDefaultFilesDirectory() + File.separator + group.getName() + ".json");
         if (!file.exists()) {
-            plugin.getPrinter().printToPlayer(player, "Default file for this group not found!", true);
+            player.sendMessage(ChatColor.RED + "» " + ChatColor.GRAY + "Default file for this group not found!");
             return;
         }
 
@@ -333,7 +351,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
             tmp.getParentFile().mkdirs();
             tmp.createNewFile();
         } catch (IOException ex) {
-            plugin.getPrinter().printToPlayer(player, "Could not create temporary file! Aborting!", true);
+            player.sendMessage(ChatColor.RED + "» " + ChatColor.GRAY +  "Could not create temporary file! Aborting!");
             return;
         }
         Group tempGroup = new Group("tmp", null, null);
@@ -350,6 +368,6 @@ public class PerWorldInventoryCommand implements CommandExecutor {
 
         fs.getFromDatabase(tempGroup, GameMode.SURVIVAL, player);
         tmp.delete();
-        plugin.getPrinter().printToPlayer(player, "Defaults for '" + group.getName() + "' set!", false);
+        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY +  "Defaults for '" + group.getName() + "' set!");
     }
 }

@@ -119,7 +119,7 @@ public class GroupManager {
         try {
             groupsConfigFile.save(plugin.getDataFolder() + "worlds.yml");
         } catch (IOException ex) {
-            plugin.getPrinter().printToConsole("Could not save the groups config to disk!", true);
+            plugin.getLogger().warning("Could not save the groups config to disk!");
             ex.printStackTrace();
         }
     }

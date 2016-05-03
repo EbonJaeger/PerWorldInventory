@@ -69,7 +69,7 @@ public class DataConverter {
     }
 
     public void convertMultiVerseData() {
-        plugin.getPrinter().printToConsole("Beginning data conversion. This may take awhile...", false);
+        plugin.getLogger().info("Beginning data conversion. This may take awhile...");
         MultiverseInventories mvinventories = (MultiverseInventories) plugin.getServer().getPluginManager().getPlugin("Multiverse-Inventories");
         List<WorldGroupProfile> mvgroups = mvinventories.getGroupManager().getGroups();
         Gson gson = new Gson();
@@ -101,8 +101,8 @@ public class DataConverter {
                             serializer.writeData(file, gson.toJson(writable));
                         }
                     } catch (Exception ex) {
-                        plugin.getPrinter().printToConsole("Error importing inventory for player: " + player1.getName() +
-                            " For group: " + mvgroup.getName() + " For gamemode: " + gameMode.name(), true);
+                        plugin.getLogger().warning("Error importing inventory for player: " + player1.getName() +
+                            " For group: " + mvgroup.getName() + " For gamemode: " + gameMode.name());
                         ex.printStackTrace();
                     }
                 }
@@ -110,13 +110,13 @@ public class DataConverter {
         }
 
         plugin.getGroupManager().saveGroupsToDisk();
-        plugin.getPrinter().printToConsole("Data conversion complete! Disabling Multiverse-Inventories...", false);
+        plugin.getLogger().info("Data conversion complete! Disabling Multiverse-Inventories...");
         plugin.getServer().getPluginManager().disablePlugin(mvinventories);
-        plugin.getPrinter().printToConsole("Multiverse-Inventories disabled! Don't forget to remove the .jar!", false);
+        plugin.getLogger().info("Multiverse-Inventories disabled! Don't forget to remove the .jar!");
     }
 
     public void convertMultiInvData() {
-        plugin.getPrinter().printToConsole("Beginning data conversion. This may take awhile...", false);
+        plugin.getLogger().info("Beginning data conversion. This may take awhile...");
         MultiInv multiinv = (MultiInv) plugin.getServer().getPluginManager().getPlugin("MultiInv");
         /*MultiInvAPI mvAPI = new MultiInvAPI(multiinv);
 
@@ -130,7 +130,7 @@ public class DataConverter {
                     try {
                         plugin.getSerializer().writePlayerDataToFile(offlinePlayer, serializeMIToNewFormat(player), mvAPI.getGroups().get(world), GameMode.SURVIVAL);
                     } catch (Exception ex) {
-                        plugin.getPrinter().printToConsole("Error importing inventory for player '" + offlinePlayer.getName() + ": " + ex.getMessage(), true);
+                        plugin.getLogger().warning("Error importing inventory for player '" + offlinePlayer.getName() + ": " + ex.getMessage(), true);
                         ex.printStackTrace();
                     }
                 }
@@ -138,9 +138,9 @@ public class DataConverter {
         }*/
 
         plugin.getGroupManager().saveGroupsToDisk();
-        plugin.getPrinter().printToConsole("Data conversion complete! Disabling MultiInv...", false);
+        plugin.getLogger().info("Data conversion complete! Disabling MultiInv...");
         plugin.getServer().getPluginManager().disablePlugin(multiinv);
-        plugin.getPrinter().printToConsole("MultiInv disabled! Don't forget to remove the .jar!", false);
+        plugin.getLogger().info("MultiInv disabled! Don't forget to remove the .jar!");
     }
 
     private JsonObject serializeMVIToNewFormat(PlayerProfile data) {
