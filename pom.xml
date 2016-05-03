@@ -162,6 +162,17 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>2.4.1</version>
                 <configuration>
+                    <artifactSet>
+                        <includes>
+                            <include>mkremins:fanciful:jar:</include>
+                        </includes>
+                    </artifactSet>
+                    <relocations>
+                        <relocation>
+                            <pattern>mkremins.fanciful</pattern>
+                            <shadedPattern>me.gnat008.perworldinventory.api.fancifullib</shadedPattern>
+                        </relocation>
+                    </relocations>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                 </configuration>
                 <executions>
