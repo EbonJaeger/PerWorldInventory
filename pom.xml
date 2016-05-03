@@ -17,7 +17,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
-        <bukkitVersion>1.9-R0.1-SNAPSHOT</bukkitVersion>
+        <bukkitVersion>1.9.2-R0.1-SNAPSHOT</bukkitVersion>
     </properties>
 
     <issueManagement>
@@ -26,6 +26,11 @@
     </issueManagement>
 
     <repositories>
+        <repository>
+            <id>fancifullib-repo</id>
+            <url>http://hub.extendedalpha.org/content/groups/public/</url>
+        </repository>
+
         <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
@@ -43,7 +48,6 @@
     </repositories>
 
     <dependencies>
-
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
@@ -102,6 +106,11 @@
                     <artifactId>craftbukkit</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>mkremins</groupId>
+            <artifactId>fanciful</artifactId>
+            <version>0.3.3-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
