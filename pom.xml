@@ -17,7 +17,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
-        <bukkitVersion>1.9-R0.1-SNAPSHOT</bukkitVersion>
+        <bukkitVersion>1.9.2-R0.1-SNAPSHOT</bukkitVersion>
     </properties>
 
     <issueManagement>
@@ -26,6 +26,11 @@
     </issueManagement>
 
     <repositories>
+        <repository>
+            <id>fancifullib-repo</id>
+            <url>http://hub.extendedalpha.org/content/groups/public/</url>
+        </repository>
+
         <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
@@ -43,7 +48,6 @@
     </repositories>
 
     <dependencies>
-
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
@@ -103,6 +107,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>mkremins</groupId>
+            <artifactId>fanciful</artifactId>
+            <version>0.3.4-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -153,15 +162,18 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>2.4.1</version>
                 <configuration>
-                    <createDependencyReducedPom>false</createDependencyReducedPom>
                     <artifactSet>
                         <includes>
-                            <include>org.json</include>
-                            <include>org.mcstats.*:*</include>
+                            <include>mkremins:fanciful:jar:</include>
                         </includes>
                     </artifactSet>
                     <relocations>
+                        <relocation>
+                            <pattern>mkremins.fanciful</pattern>
+                            <shadedPattern>me.gnat008.perworldinventory.api.fancifullib</shadedPattern>
+                        </relocation>
                     </relocations>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
                 </configuration>
                 <executions>
                     <execution>

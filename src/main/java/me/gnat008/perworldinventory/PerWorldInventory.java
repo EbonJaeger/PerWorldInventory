@@ -41,7 +41,6 @@ import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.listeners.PlayerChangedWorldListener;
 import me.gnat008.perworldinventory.listeners.PlayerGameModeChangeListener;
 import me.gnat008.perworldinventory.listeners.PlayerQuitListener;
-import me.gnat008.perworldinventory.util.Printer;
 import net.milkbowl.vault.economy.Economy;
 
 public class PerWorldInventory extends JavaPlugin {
@@ -113,7 +112,6 @@ public class PerWorldInventory extends JavaPlugin {
     @Override
     public void onDisable() {
         playerManager.onDisable();
-        Printer.disable();
         try {
             DataConverter.disable();
         }
@@ -157,10 +155,6 @@ public class PerWorldInventory extends JavaPlugin {
         return this.groupManager;
     }
 
-    public Printer getPrinter() {
-        return Printer.getInstance(this);
-    }
-
     public PWIPlayerManager getPlayerManager() {
         return this.playerManager;
     }
@@ -179,7 +173,7 @@ public class PerWorldInventory extends JavaPlugin {
                 out.write(buff, 0, len);
             }
         } catch (IOException ex) {
-            getPrinter().printToConsole("An error occurred copying file '" + from.getName() + "' to '" + to.getName() + "': " + ex.getMessage(), true);
+            getLogger().severe("An error occurred copying file '" + from.getName() + "' to '" + to.getName() + "': " + ex.getMessage());
         } finally {
             if (in != null) {
                 try {
