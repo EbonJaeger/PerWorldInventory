@@ -24,6 +24,8 @@ import me.gnat008.perworldinventory.data.FileSerializer;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.data.serializers.PlayerSerializer;
 import me.gnat008.perworldinventory.groups.Group;
+import mkremins.fanciful.FancyMessage;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.command.Command;
@@ -60,7 +62,16 @@ public class PerWorldInventoryCommand implements CommandExecutor {
             command = PWICommand.valueOf(args[0].toUpperCase());
         } catch (ArrayIndexOutOfBoundsException | IllegalArgumentException ex) {
             if (isPlayer) {
-                plugin.getPrinter().printToPlayer((Player) sender, "Not a valid command. Please type /pwi help for help.", true);
+                new FancyMessage("» ")
+                        .color(ChatColor.BLUE)
+                        .then("Not a valid command, ")
+                        .color(ChatColor.GRAY)
+                        .then("click here ")
+                        .color(ChatColor.BLUE)
+                        .suggest("/perworldinventory help")
+                        .then("for help.")
+                        .color(ChatColor.GRAY)
+                        .send(player);
             } else {
                 displayConsoleHelp();
             }
@@ -123,6 +134,15 @@ public class PerWorldInventoryCommand implements CommandExecutor {
 
                 return true;
 
+            case VERSION: {
+                if (isPlayer) {
+                    playerVersion(player);
+                } else {
+                    consoleVersion();
+                }
+                return true;
+            }
+
             case RELOAD:
                 if (isPlayer) {
                     if (player.hasPermission(PERMISSION_NODE + "reload")) {
@@ -183,28 +203,99 @@ public class PerWorldInventoryCommand implements CommandExecutor {
         });
     }
 
+    private void playerVersion(Player player) {
+        String version = plugin.getDescription().getVersion();
+        List<String> authors = plugin.getDescription().getAuthors();
+        new FancyMessage("» ")
+                .color(ChatColor.BLUE)
+                .then("Version: ")
+                .color(ChatColor.GRAY)
+                .then(version)
+                .color(ChatColor.BLUE)
+                .send(player);
+        new FancyMessage("» ")
+                .color(ChatColor.BLUE)
+                .then("Author: ")
+                .color(ChatColor.GRAY)
+                .then(String.valueOf(authors))
+                .color(ChatColor.BLUE)
+                .send(player);
+    }
+
+    private void consoleVersion() {
+        String version = plugin.getDescription().getVersion();
+        List<String> authors = plugin.getDescription().getAuthors();
+        Bukkit.getConsoleSender().sendMessage("Version: " + version);
+        Bukkit.getConsoleSender().sendMessage("Author: " + authors);
+    }
+
     private void displayConsoleHelp() {
         plugin.getPrinter().printToConsole("Available commands:", false);
-        plugin.getPrinter().printToConsole("/pwi convert - Convert MultiVerse-Inventories data", false);
-        plugin.getPrinter().printToConsole("/pwi help - Displays this help", false);
-        plugin.getPrinter().printToConsole("/pwi reload - Reload config and world files", false);
+        plugin.getPrinter().printToConsole("/perworldinventory convert - Convert MultiVerse-Inventories data", false);
+        plugin.getPrinter().printToConsole("/perworldinventory help - Displays this help", false);
+        plugin.getPrinter().printToConsole("/perworldinventory version - Shows the version of the plugin", false);
+        plugin.getPrinter().printToConsole("/perworldinventory reload - Reload config and world files", false);
     }
 
     private void displayPlayerHelp(Player player) {
-        String version = plugin.getDescription().getVersion();
-        List<String> authors = plugin.getDescription().getAuthors();
-
+        player.sendMessage(ChatColor.DARK_GRAY + "" + ChatColor.STRIKETHROUGH + "-----------------------------------------------------");
+        new FancyMessage
+                ("             ")
+                .then("[")
+                .color(ChatColor.DARK_GRAY)
+                .then("PerWorldInventory Commands")
+                .color(ChatColor.BLUE)
+                .tooltip(ChatColor.YELLOW + "To use a command without typing," + '\n' + ChatColor.YELLOW + "click on the Hover context...")
+                .then("]")
+                .color(ChatColor.DARK_GRAY)
+                .send(player);
         player.sendMessage("");
-        player.sendMessage(ChatColor.GOLD + "     PerWorldInventory Help Page:");
-        player.sendMessage("");
-        player.sendMessage(ChatColor.GOLD + "Version: " + ChatColor.GREEN + version);
-        player.sendMessage(ChatColor.GOLD + "Author: " + ChatColor.GREEN + authors);
-        player.sendMessage("");
-        player.sendMessage(ChatColor.WHITE + "/pwi convert" + ChatColor.GOLD + " - Convert data from MultiVerse-Inventories.");
-        player.sendMessage(ChatColor.WHITE + "/pwi help" + ChatColor.GOLD + " - Displays this help page.");
-        player.sendMessage(ChatColor.WHITE + "/pwi reload" + ChatColor.GOLD + " - Reloads all configuration files.");
-        player.sendMessage(ChatColor.WHITE + "/pwi setworlddefault [group]" + ChatColor.GOLD + " - Set the default inventory " +
-                "loadout for a world, or the server default. The group you are standing in will be used if no group is specified.");
+        new FancyMessage("» ")
+                .color(ChatColor.BLUE)
+                .then("/perworldinventory convert multiverse")
+                .color(ChatColor.GRAY)
+                .then(" - Hover")
+                .color(ChatColor.RED)
+                .suggest("/perworldinventory convert multiverse")
+                .tooltip(ChatColor.YELLOW + "Convert data from Multiverse-Inventories")
+                .send(player);
+        new FancyMessage("» ")
+                .color(ChatColor.BLUE)
+                .then("/perworldinventory help")
+                .color(ChatColor.GRAY)
+                .then(" - Hover")
+                .color(ChatColor.RED)
+                .suggest("/perworldinventory help")
+                .tooltip(ChatColor.YELLOW + "Shows this help page")
+                .send(player);
+        new FancyMessage("» ")
+                .color(ChatColor.BLUE)
+                .then("/perworldinventory reload")
+                .color(ChatColor.GRAY)
+                .then(" - Hover")
+                .color(ChatColor.RED)
+                .suggest("/perworldinventory reload")
+                .tooltip(ChatColor.YELLOW + "Reloads all configuration files")
+                .send(player);
+        new FancyMessage("» ")
+                .color(ChatColor.BLUE)
+                .then("/perworldinventory version")
+                .color(ChatColor.GRAY)
+                .then(" - Hover")
+                .color(ChatColor.RED)
+                .suggest("/perworldinventory version")
+                .tooltip(ChatColor.YELLOW + "Shows the version of the plugin, and authors")
+                .send(player);
+        new FancyMessage("» ")
+                .color(ChatColor.BLUE)
+                .then("/perworldinventory setworlddefault [group]")
+                .color(ChatColor.GRAY)
+                .then(" - Hover")
+                .color(ChatColor.RED)
+                .suggest("/perworldinventory setworlddefault [group]")
+                .tooltip(ChatColor.YELLOW + "Set the default inventory loadout for a world, or the server default." + '\n' + ChatColor.YELLOW + "The group you are standing in will be used if no group is specified.")
+                .send(player);
+        player.sendMessage(ChatColor.DARK_GRAY + "" + ChatColor.STRIKETHROUGH + "-----------------------------------------------------");
     }
 
     private void reload() {

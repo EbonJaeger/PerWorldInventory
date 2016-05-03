@@ -110,7 +110,7 @@
         <dependency>
             <groupId>mkremins</groupId>
             <artifactId>fanciful</artifactId>
-            <version>0.3.3-SNAPSHOT</version>
+            <version>0.3.4-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
@@ -163,14 +163,6 @@
                 <version>2.4.1</version>
                 <configuration>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
-                    <artifactSet>
-                        <includes>
-                            <include>org.json</include>
-                            <include>org.mcstats.*:*</include>
-                        </includes>
-                    </artifactSet>
-                    <relocations>
-                    </relocations>
                 </configuration>
                 <executions>
                     <execution>
