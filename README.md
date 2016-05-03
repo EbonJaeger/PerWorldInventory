@@ -1,17 +1,13 @@
 ![PerWorldInventory](http://i.imgur.com/o2HsMB5.png)
 
->PerWorldInventory Is a multiworld inventory plugin for CraftBukkit and Spigot that supports UUIDs.
->
->It's a good replacement for the outdated [Multiverse-Inventories](http://dev.bukkit.org/bukkit-plugins/multiverse-inventories/) plugin.
+> PerWorldInventory Is a multiworld inventory plugin for CraftBukkit and Spigot that supports UUIDs.
+
+> It's a good replacement for the outdated [Multiverse-Inventories](http://dev.bukkit.org/bukkit-plugins/multiverse-inventories/) plugin.
+***
 
 ## Installation and Usage
 
 [![Build Status](https://travis-ci.org/Gnat008/PerWorldInventory.svg?branch=master)](https://travis-ci.org/Gnat008/PerWorldInventory)
-
-
-[MCStats (metrics)](http://mcstats.org/plugin/PerWorldInventory):
-
-![](http://i.mcstats.org/PerWorldInventory/Global+Statistics.png)
 
 ## Building Prerequisites
 * JDK 7
@@ -38,4 +34,4 @@ Are you a talented programmer looking to contribute some code? We'd love the hel
 * Open a pull request with your changes.
 * Please note that not all pull request(s) will be accepted.
 
-Readme file made by @ExileDev
+Readme file made by @Jaryn-R
