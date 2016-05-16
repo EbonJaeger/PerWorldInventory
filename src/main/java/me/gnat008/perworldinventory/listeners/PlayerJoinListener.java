@@ -30,9 +30,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 
 public class PlayerJoinListener implements Listener {
 
@@ -52,9 +50,12 @@ public class PlayerJoinListener implements Listener {
             event.getPlayer().sendMessage(ChatColor.BLUE + "Your PerWorldInventory config is out of date! Some options may be missing.");
             event.getPlayer().sendMessage(ChatColor.BLUE + "Copy the new options from here: " + ChatColor.WHITE + "https://www.spigotmc.org/resources/per-world-inventory.4482/");
         }
+    }
 
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerSpawn(PlayerSpawnLocationEvent event) {
         Player player = event.getPlayer();
-        String spawnWorld = player.getWorld().getName();
+        String spawnWorld = event.getSpawnLocation().getWorld().getName();
 
         Location lastLogout = plugin.getSerializer().getLogoutData(player);
         if (lastLogout != null) {
