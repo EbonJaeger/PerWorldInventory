@@ -52,7 +52,7 @@ public class GroupManager {
     }
 
     public Group getGroup(String group) {
-        return this.groups.get(group);
+        return this.groups.get(group.toLowerCase());
     }
 
     public Group getGroupFromWorld(String world) {
@@ -71,6 +71,7 @@ public class GroupManager {
                 List<String> worlds = new ArrayList<>();
                 worlds.add(world);
                 result = new Group("__unconfigured__", worlds, GameMode.SURVIVAL);
+                this.groups.put("__unconfigured__", result);
             }
         }
 
