@@ -11,7 +11,7 @@
 # When updating config, copy the new verison number here.
 # Only ever change when adding new config options!
 # Used to notify administrators on config updates.
-config-version: 1
+config-version: 2
 
 # If true, the plugin will change player's gamemodes when entering a world
 # The gamemode set is configured in the worlds.yml file
@@ -64,3 +64,9 @@ player:
     max-air: true
     # Load the current remaining air a player has
     remaining-air: true
+
+# Config Version 2 below this line #
+
+# Configure the amount of time between saves, in seconds
+# Default is 5 minutes (300 seconds)
+save-interval: 300

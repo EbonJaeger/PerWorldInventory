@@ -38,6 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PWIPlayerManager {
 
     private PerWorldInventory plugin;
+    private int interval;
     private int taskID;
 
     // Key format: uuid.group.gamemode
@@ -45,7 +46,8 @@ public class PWIPlayerManager {
 
     public PWIPlayerManager(PerWorldInventory plugin) {
         this.plugin = plugin;
-
+        int setting = Settings.getInt("save-interval");
+        this.interval = (setting != -1 ? setting : 300) * 20;
         this.taskID = scheduleRepeatingTask();
     }
 
@@ -226,7 +228,7 @@ public class PWIPlayerManager {
                     }
                 }
             }
-        }, 6000L, 6000L);
+        }, interval, interval);
     }
 
     /**
