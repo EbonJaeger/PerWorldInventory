@@ -23,12 +23,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.Connection;
 
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.FileSerializer;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
-import me.gnat008.perworldinventory.listeners.PlayerJoinListener;
+import me.gnat008.perworldinventory.listeners.*;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -38,15 +38,11 @@ import me.gnat008.perworldinventory.commands.PerWorldInventoryCommand;
 import me.gnat008.perworldinventory.data.DataConverter;
 import me.gnat008.perworldinventory.data.DataSerializer;
 import me.gnat008.perworldinventory.groups.GroupManager;
-import me.gnat008.perworldinventory.listeners.PlayerChangedWorldListener;
-import me.gnat008.perworldinventory.listeners.PlayerGameModeChangeListener;
-import me.gnat008.perworldinventory.listeners.PlayerQuitListener;
 import net.milkbowl.vault.economy.Economy;
 
 public class PerWorldInventory extends JavaPlugin {
 
     private Economy economy;
-    private Connection connection;
     private DataSerializer serializer;
     private GroupManager groupManager;
     private PWIPlayerManager playerManager;
@@ -61,7 +57,7 @@ public class PerWorldInventory extends JavaPlugin {
             new File(getDataFolder() + File.separator + "data" + File.separator + "defaults").mkdirs();
         }
 
-        if (!(new File(getDataFolder() + File.separator + "__default.json").exists())) {
+        if ((!(new File(getDataFolder() + File.separator + "__default.json").exists()))) {
             saveResource("default.json", false);
             File dFile = new File(getDataFolder() + File.separator + "default.json");
             dFile.renameTo(new File(getDefaultFilesDirectory() + File.separator + "__default.json"));
@@ -88,6 +84,13 @@ public class PerWorldInventory extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerChangedWorldListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
+
+        // Check the server version to see if PlayerSpawnLocationEvent exists (at least 1.9.2)
+        String cbVersionRaw = Bukkit.getVersion();
+        String cbVersion = cbVersionRaw.substring(cbVersionRaw.length() - 6, cbVersionRaw.length() - 1);
+        String[] parts = cbVersion.split("\\.");
+        if ((Integer.parseInt(parts[0]) >= 1) && (Integer.parseInt(parts[1]) >= 9) && (Integer.parseInt(parts[2]) >= 2))
+            getServer().getPluginManager().registerEvents(new PlayerSpawnLocationListener(this), this);
 
         if (Settings.getBoolean("separate-gamemode-inventories")) {
             getServer().getPluginManager().registerEvents(new PlayerGameModeChangeListener(this), this);
