@@ -53,16 +53,19 @@ public class PerWorldInventory extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
+        // Make the data folders
         if (!(new File(getDataFolder() + File.separator + "data" + File.separator + "defaults").exists())) {
             new File(getDataFolder() + File.separator + "data" + File.separator + "defaults").mkdirs();
         }
 
+        // Copy over the server default loadout file
         if ((!(new File(getDataFolder() + File.separator + "__default.json").exists()))) {
             saveResource("default.json", false);
             File dFile = new File(getDataFolder() + File.separator + "default.json");
             dFile.renameTo(new File(getDefaultFilesDirectory() + File.separator + "__default.json"));
         }
 
+        // Save the default config files if they do not exist
         saveDefaultConfig();
         if (!(new File(getDataFolder() + File.separator + "worlds.yml").exists()))
             saveResource("worlds.yml", false);
@@ -72,14 +75,18 @@ public class PerWorldInventory extends JavaPlugin {
             getLogger().warning("Copy the new options from here: https://www.spigotmc.org/resources/per-world-inventory.4482/");
         }
 
+        // Load world groups
         groupManager = new GroupManager(this);
         FileConfiguration worldsConfig = getWorldsConfig();
         groupManager.loadGroupsToMemory(worldsConfig);
 
         playerManager = new PWIPlayerManager(this);
-        
+
+        // Register commands
         getLogger().info("Registering commands...");
         getCommand("pwi").setExecutor(new PerWorldInventoryCommand(this));
+
+        // Register listeners
         getLogger().info("Commands registered! Registering listeners...");
         getServer().getPluginManager().registerEvents(new PlayerChangedWorldListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(this), this);
@@ -98,6 +105,7 @@ public class PerWorldInventory extends JavaPlugin {
         }
         getLogger().info("Listeners enabled!");
 
+        // Register Vault if present
         if (getServer().getPluginManager().getPlugin("Vault") != null) {
             getLogger().info("Vault found! Hooking into it...");
             RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
