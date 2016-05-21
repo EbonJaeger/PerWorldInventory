@@ -22,6 +22,7 @@ import com.google.gson.JsonObject;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public class PlayerSerializer {
@@ -57,7 +58,7 @@ public class PlayerSerializer {
      * @param data   The stats to set
      * @param player The affected player
      */
-    public static void deserialize(JsonObject data, Player player, PerWorldInventory plugin) {
+    public static void deserialize(final JsonObject data, final Player player, final PerWorldInventory plugin) {
         // Formats: 0 == TacoSerialization, 1 == Base64 serialization
         int format = 0;
         if (data.has("data-format"))
@@ -70,7 +71,13 @@ public class PlayerSerializer {
             InventorySerializer.setInventory(player, data.getAsJsonObject("inventory"), format);
         if (data.has("stats"))
             StatSerializer.deserialize(player, data.getAsJsonObject("stats"));
-        if (Settings.getBoolean("player.economy") && data.has("economy"))
-            EconomySerializer.deserialize(plugin.getEconomy(), data.getAsJsonObject("economy"), player);
+        if (Settings.getBoolean("player.economy") && data.has("economy")) {
+            Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+                @Override
+                public void run() {
+                    EconomySerializer.deserialize(plugin.getEconomy(), data.getAsJsonObject("economy"), player);
+                }
+            }, 1L);
+        }
     }
 }

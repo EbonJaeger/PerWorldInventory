@@ -20,6 +20,7 @@ package me.gnat008.perworldinventory.data.serializers;
 import com.google.gson.JsonObject;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public class EconomySerializer {
@@ -42,9 +43,17 @@ public class EconomySerializer {
         if (data.has("bank-balance")) {
             econ.bankWithdraw(player.getName(), econ.bankBalance(player.getName()).balance);
             econ.bankDeposit(player.getName(), data.get("bank-balance").getAsDouble());
+        } else {
+            econ.bankWithdraw(player.getName(), econ.bankBalance(player.getName()).balance);
         }
 
-        econ.withdrawPlayer(player, econ.getBalance(player));
-        econ.depositPlayer(player, data.get("balance").getAsDouble());
+        if (data.has("balance")) {
+            if (econ.withdrawPlayer(player, econ.getBalance(player)).transactionSuccess()) {
+                player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "Transaction successful! Withdrew " + econ.getBalance(player) + " moneys!");
+                econ.depositPlayer(player, data.get("balance").getAsDouble());
+            }
+        } else {
+            econ.withdrawPlayer(player, econ.getBalance(player));
+        }
     }
 }
