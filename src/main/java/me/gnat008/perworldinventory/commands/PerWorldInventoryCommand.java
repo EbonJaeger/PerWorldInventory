@@ -17,7 +17,6 @@
 
 package me.gnat008.perworldinventory.commands;
 
-import com.google.gson.Gson;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.FileSerializer;
@@ -339,7 +338,6 @@ public class PerWorldInventoryCommand implements CommandExecutor {
 
     private void setWorldDefault(Player player, Group group) {
         FileSerializer fs = new FileSerializer(plugin);
-        Gson gson = new Gson();
         File file = new File(plugin.getDefaultFilesDirectory() + File.separator + group.getName() + ".json");
         if (!file.exists()) {
             player.sendMessage(ChatColor.RED + "» " + ChatColor.GRAY + "Default file for this group not found!");
@@ -355,16 +353,14 @@ public class PerWorldInventoryCommand implements CommandExecutor {
             return;
         }
         Group tempGroup = new Group("tmp", null, null);
-        String writable = gson.toJson(PlayerSerializer.serialize(plugin, new PWIPlayer(player, tempGroup)));
-        fs.writeData(tmp, writable);
+        fs.writeData(tmp, PlayerSerializer.serialize(plugin, new PWIPlayer(player, tempGroup)));
 
         player.setFoodLevel(20);
         player.setHealth(20);
         player.setSaturation(20);
         player.setTotalExperience(0);
 
-        writable = gson.toJson(PlayerSerializer.serialize(plugin, new PWIPlayer(player, group)));
-        fs.writeData(file, writable);
+        fs.writeData(file, PlayerSerializer.serialize(plugin, new PWIPlayer(player, group)));
 
         fs.getFromDatabase(tempGroup, GameMode.SURVIVAL, player);
         tmp.delete();
