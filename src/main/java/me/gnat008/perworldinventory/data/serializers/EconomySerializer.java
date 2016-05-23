@@ -18,8 +18,11 @@
 package me.gnat008.perworldinventory.data.serializers;
 
 import com.google.gson.JsonObject;
+import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public class EconomySerializer {
@@ -39,12 +42,10 @@ public class EconomySerializer {
     }
 
     public static void deserialize(Economy econ, JsonObject data, Player player) {
-        if (data.has("bank-balance")) {
-            econ.bankWithdraw(player.getName(), econ.bankBalance(player.getName()).balance);
+        if (data.has("bank-balance"))
             econ.bankDeposit(player.getName(), data.get("bank-balance").getAsDouble());
-        }
 
-        econ.withdrawPlayer(player, econ.getBalance(player));
-        econ.depositPlayer(player, data.get("balance").getAsDouble());
+        if (data.has("balance"))
+            econ.depositPlayer(player, data.get("balance").getAsDouble());
     }
 }

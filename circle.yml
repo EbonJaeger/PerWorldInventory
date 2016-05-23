@@ -7,3 +7,8 @@ general:
 test:
   override:
     - mvn clean install -B
+notify:
+  webhooks:
+    # A list of hook hashes, containing the url field
+    # gitter hook
+    - url: https://webhooks.gitter.im/e/c13a07e4c0fc4c4f4e50
