@@ -41,7 +41,7 @@ public class PlayerJoinListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        if (event.getPlayer().hasPermission("perworldinventory.notify") && Settings.getInt("config-version") < 2) {
+        if (event.getPlayer().hasPermission("perworldinventory.notify") && Settings.getInt("config-version") < 3) {
             event.getPlayer().sendMessage(ChatColor.BLUE + "Your PerWorldInventory config is out of date! Some options may be missing.");
             event.getPlayer().sendMessage(ChatColor.BLUE + "Copy the new options from here: " + ChatColor.WHITE + "https://www.spigotmc.org/resources/per-world-inventory.4482/");
         }

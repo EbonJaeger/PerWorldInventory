@@ -70,3 +70,10 @@ player:
 # Configure the amount of time between saves, in seconds
 # Default is 5 minutes (300 seconds)
 save-interval: 300
+
+# Config Version 3 Additions below this line #
+
+# Attempt to figure out which world a player last logged off in
+# and save/load the correct data if that world is different.
+# REQUIRES MC 1.9.2 OR NEWER
+load-data-on-join: false

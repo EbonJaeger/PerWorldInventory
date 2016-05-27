@@ -44,6 +44,9 @@ public class PlayerSpawnLocationListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerSpawn(PlayerSpawnLocationEvent event) {
+        if (!Settings.getBoolean("load-data-on-join"))
+            return;
+
         Player player = event.getPlayer();
         String spawnWorld = event.getSpawnLocation().getWorld().getName();
 
