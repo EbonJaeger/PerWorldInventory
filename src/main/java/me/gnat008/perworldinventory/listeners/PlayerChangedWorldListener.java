@@ -52,10 +52,16 @@ public class PlayerChangedWorldListener implements Listener {
         Group groupFrom = manager.getGroupFromWorld(worldFrom);
         Group groupTo = manager.getGroupFromWorld(worldTo);
 
+        if (Settings.getBoolean("debug-mode"))
+            PerWorldInventory.printDebug("Player '" + player.getName() + "' going from world '" + worldFrom + "' to world '" + worldTo + "'");
+
         playerManager.addPlayer(player, groupFrom);
 
-        if (player.hasPermission("perworldinventory.bypass.world"))
+        if (player.hasPermission("perworldinventory.bypass.world")) {
+            if (Settings.getBoolean("debug-mode"))
+                PerWorldInventory.printDebug("Player '" + player.getName() + "' has 'perworldinventory.bypass.world' permission! Returning");
             return;
+        }
 
         if (groupFrom.getName().equals("__unconfigured__") && Settings.getBoolean("share-if-unconfigured")) {
             return;
@@ -67,13 +73,22 @@ public class PlayerChangedWorldListener implements Listener {
                 return;
             }
 
+            if (Settings.getBoolean("debug-mode"))
+                PerWorldInventory.printDebug("Different groups!");
+
             if (Settings.getBoolean("separate-gamemode-inventories")) {
+                if (Settings.getBoolean("debug-mode"))
+                    PerWorldInventory.printDebug("Gamemodes are separated! Loading data for player '" + player.getName() + "' for group '" + groupTo.getName() + "' in gamemode '" + player.getGameMode().name() + "'");
+
                 playerManager.getPlayerData(groupTo, player.getGameMode(), player);
 
                 if (Settings.getBoolean("manage-gamemodes")) {
                     player.setGameMode(groupTo.getGameMode());
                 }
             } else {
+                if (Settings.getBoolean("debug-mode"))
+                    PerWorldInventory.printDebug("Loading data for player '" + player.getName() + "' for group '" + groupTo.getName() + "'");
+
                 playerManager.getPlayerData(groupTo, GameMode.SURVIVAL, player);
             }
         }

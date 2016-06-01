@@ -50,16 +50,28 @@ public class PlayerSpawnLocationListener implements Listener {
         Player player = event.getPlayer();
         String spawnWorld = event.getSpawnLocation().getWorld().getName();
 
+        if (Settings.getBoolean("debug-mode"))
+            PerWorldInventory.printDebug("Player '" + player.getName() + "' joining! Spawning in world '" + spawnWorld + "'. Getting last logout location");
+
         Location lastLogout = plugin.getSerializer().getLogoutData(player);
         if (lastLogout != null) {
+            if (Settings.getBoolean("debug-mode"))
+                PerWorldInventory.printDebug("Logout location found for player '" + player.getName() + "'!");
+
             if (!lastLogout.getWorld().getName().equals(spawnWorld)) {
                 Group spawnGroup = groupManager.getGroupFromWorld(spawnWorld);
                 Group logoutGroup = groupManager.getGroupFromWorld(lastLogout.getWorld().getName());
 
                 if (!spawnGroup.equals(logoutGroup)) {
+                    if (Settings.getBoolean("debug-mode"))
+                        PerWorldInventory.printDebug("Logout world groups are different! Saving data for player '" + player.getName() + "' for group '" + logoutGroup.getName() + "'");
+
                     playerManager.addPlayer(player, logoutGroup);
 
-                    if (event.getPlayer().hasPermission("perworldinventory.bypass")) {
+                    if (event.getPlayer().hasPermission("perworldinventory.bypass.world")) {
+                        if (Settings.getBoolean("debug-mode"))
+                            PerWorldInventory.printDebug("Player '" + player.getName() + "' has permission to bypass worlds. Returning");
+
                         return;
                     }
 
@@ -68,12 +80,18 @@ public class PlayerSpawnLocationListener implements Listener {
                     }
 
                     if (Settings.getBoolean("separate-gamemode-inventories")) {
+                        if (Settings.getBoolean("debug-mode"))
+                            PerWorldInventory.printDebug("Gamemodes are separated! Loading data for player '" + player.getName() + "' for group '" + spawnGroup.getName() + "' in gamemode '" + player.getGameMode().name() + "'");
+
                         playerManager.getPlayerData(spawnGroup, player.getGameMode(), player);
 
                         if (Settings.getBoolean("manage-gamemodes")) {
                             player.setGameMode(spawnGroup.getGameMode());
                         }
                     } else {
+                        if (Settings.getBoolean("debug-mode"))
+                            PerWorldInventory.printDebug("Loading data for player '" + player.getName() + "' for group '" + spawnGroup.getName() + "'");
+
                         playerManager.getPlayerData(spawnGroup, GameMode.SURVIVAL, player);
                     }
                 }

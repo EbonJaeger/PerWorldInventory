@@ -77,10 +77,16 @@ public class PWIPlayerManager {
         else
             key += "survival";
 
-        if (playerCache.containsKey(key))
+        if (Settings.getBoolean("debug-mode"))
+            PerWorldInventory.printDebug("Adding player '" + player.getName() + "' to cache; key is '" + key + "'");
+
+        if (playerCache.containsKey(key)) {
+            if (Settings.getBoolean("debug-mode"))
+                PerWorldInventory.printDebug("Player '" + player.getName() + "' found in cache! Updating cache");
             updateCache(player, playerCache.get(key));
-        else
+        } else {
             playerCache.put(key, new PWIPlayer(player, group));
+        }
     }
 
     /**
@@ -111,16 +117,30 @@ public class PWIPlayerManager {
      * @param player The Player to get the data for
      */
     public void getPlayerData(Group group, GameMode gamemode, Player player) {
+        if (Settings.getBoolean("debug-mode"))
+            PerWorldInventory.printDebug("Trying to get data from cache for player '" + player.getName() + "'");
+
         boolean isInCache = getDataFromCache(group, gamemode, player);
 
-        if(!isInCache)
+        if(!isInCache) {
+            if (Settings.getBoolean("debug-mode"))
+                PerWorldInventory.printDebug("Player was not in cache! Loading from file" +
+                        "");
             plugin.getSerializer().getFromDatabase(group, gamemode, player);
+        }
     }
 
     private boolean getDataFromCache(Group group, GameMode gamemode, Player player) {
         PWIPlayer cachedPlayer = getCachedPlayer(group, gamemode, player.getUniqueId());
-        if (cachedPlayer == null)
+        if (cachedPlayer == null) {
+            if (Settings.getBoolean("debug-mode"))
+                PerWorldInventory.printDebug("No data for player '" + player.getName() + "' found in cache");
+
             return false;
+        }
+
+        if (Settings.getBoolean("debug-mode"))
+            PerWorldInventory.printDebug("Player '" + player.getName() + "' found in cache! Setting their data");
 
         if (Settings.getBoolean("player.ender-chest"))
             player.getEnderChest().setContents(cachedPlayer.getEnderChest());
@@ -195,6 +215,9 @@ public class PWIPlayerManager {
         else
             key += "survival";
 
+        if (Settings.getBoolean("debug-mode"))
+            PerWorldInventory.printDebug("Looking for cached data with key '" + key + "'");
+
         return playerCache.get(key);
     }
 
@@ -221,9 +244,15 @@ public class PWIPlayerManager {
                         Group group = plugin.getGroupManager().getGroup(parts[1]);
                         GameMode gamemode = GameMode.valueOf(parts[2].toUpperCase());
 
+                        if (Settings.getBoolean("debug-mode"))
+                            PerWorldInventory.printDebug("Saving cached player '" + player.getName() + "' for group '" + group.getName() + "' with gamemdde '" + gamemode.name() + "'");
+
                         player.setSaved(true);
                         plugin.getSerializer().saveToDatabase(group, gamemode, player, true);
                     } else {
+                        if (Settings.getBoolean("debug-mode"))
+                            PerWorldInventory.printDebug("Removing player '" + player.getName() + "' from cache");
+
                         playerCache.remove(key);
                     }
                 }
@@ -238,6 +267,9 @@ public class PWIPlayerManager {
      * @param currentPlayer The PWIPlayer currently in the cache
      */
     public void updateCache(Player newData, PWIPlayer currentPlayer) {
+        if (Settings.getBoolean("debug-mode"))
+            PerWorldInventory.printDebug("Updating player '" + newData.getName() + "' in the cache");
+
         currentPlayer.setSaved(false);
 
         currentPlayer.setArmor(newData.getInventory().getArmorContents());

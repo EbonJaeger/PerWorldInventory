@@ -18,6 +18,7 @@
 package me.gnat008.perworldinventory.listeners;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import org.bukkit.GameMode;
@@ -42,13 +43,23 @@ public class PlayerGameModeChangeListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerGameModeChange(PlayerGameModeChangeEvent event) {
+        if (!Settings.getBoolean("separate-gamemode-inventories"))
+            return;
+
         Player player = event.getPlayer();
         GameMode newGameMode = event.getNewGameMode();
         Group group = manager.getGroupFromWorld(player.getWorld().getName());
 
+        if (Settings.getBoolean("debug-mode"))
+            PerWorldInventory.printDebug("Player '" + player.getName() + "' changed to gamemode '" + newGameMode.name() + "' in group '" + group.getName() + "'");
+
         plugin.getPlayerManager().addPlayer(player, group);
 
-        if (!player.hasPermission("perworldinventory.bypass.gamemode"))
+        if (!player.hasPermission("perworldinventory.bypass.gamemode")) {
+            if (Settings.getBoolean("debug-mode"))
+                PerWorldInventory.printDebug("Player '" + player.getName() + "' does not have gamemode bypass permission! Loading data");
+
             plugin.getPlayerManager().getPlayerData(group, newGameMode, player);
+        }
     }
 }

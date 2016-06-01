@@ -23,6 +23,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.logging.Logger;
 
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.FileSerializer;
@@ -47,11 +48,13 @@ public class PerWorldInventory extends JavaPlugin {
     private GroupManager groupManager;
     private PWIPlayerManager playerManager;
 
+    private static Logger logger;
     private static PerWorldInventory instance = null;
 
     @Override
     public void onEnable() {
         instance = this;
+        logger = getLogger();
 
         // Make the data folders
         if (!(new File(getDataFolder() + File.separator + "data" + File.separator + "defaults").exists())) {
@@ -118,6 +121,9 @@ public class PerWorldInventory extends JavaPlugin {
         }
 
         serializer = new FileSerializer(this);
+
+        if (Settings.getBoolean("debug-mode"))
+            printDebug("PerWorldInventory is enabled and debug-mode is active!");
     }
 
     @Override
@@ -140,6 +146,10 @@ public class PerWorldInventory extends JavaPlugin {
         }
 
         return instance;
+    }
+
+    public static void printDebug(String message) {
+        logger.info("[DEBUG] " + message);
     }
 
     public DataConverter getDataConverter() {

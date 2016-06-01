@@ -49,11 +49,20 @@ public class PlayerQuitListener implements Listener {
         String logoutWorld = player.getWorld().getName();
         Group group = manager.getGroupFromWorld(logoutWorld);
 
+        if (Settings.getBoolean("debug-mode"))
+            PerWorldInventory.printDebug("Player '" + player.getName() + "' quit! Checking cache");
+
         PWIPlayer cached = plugin.getPlayerManager().getPlayer(group, player);
         if (cached != null) {
+            if (Settings.getBoolean("debug-mode"))
+                PerWorldInventory.printDebug("Cached data for player '" + player.getName() + "' found! Updating and setting them as saved");
+
             plugin.getPlayerManager().updateCache(player, cached);
             cached.setSaved(true);
         }
+
+        if (Settings.getBoolean("debug-mode"))
+            PerWorldInventory.printDebug("Saving logout data for player '" + player.getName() + "'");
 
         PWIPlayer pwiPlayer = new PWIPlayer(player, group);
         plugin.getSerializer().saveToDatabase(group,
@@ -69,11 +78,20 @@ public class PlayerQuitListener implements Listener {
         String logoutWorld = player.getWorld().getName();
         Group group = manager.getGroupFromWorld(logoutWorld);
 
+        if (Settings.getBoolean("debug-mode"))
+            PerWorldInventory.printDebug("Player '" + player.getName() + "' was kicked! Checking cache");
+
         PWIPlayer cached = plugin.getPlayerManager().getPlayer(group, player);
         if (cached != null) {
+            if (Settings.getBoolean("debug-mode"))
+                PerWorldInventory.printDebug("Cached data for player '" + player.getName() + "' found! Updating and setting them as saved");
+
             plugin.getPlayerManager().updateCache(player, cached);
             cached.setSaved(true);
         }
+
+        if (Settings.getBoolean("debug-mode"))
+            PerWorldInventory.printDebug("Saving logout data for player '" + player.getName() + "'");
 
         PWIPlayer pwiPlayer = new PWIPlayer(player, group);
         plugin.getSerializer().saveToDatabase(group,

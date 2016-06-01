@@ -48,6 +48,9 @@ public class GroupManager {
     }
 
     public void addGroup(String name, List<String> worlds, GameMode gamemode) {
+        if (Settings.getBoolean("debug-mode"))
+            PerWorldInventory.printDebug("Adding group to memory. Group: " + name + " Worlds: " + worlds.toString() + " Gamemode: " + gamemode.name());
+
         groups.put(name.toLowerCase(), new Group(name, worlds, gamemode));
     }
 
