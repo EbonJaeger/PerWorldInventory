@@ -121,7 +121,7 @@ public class GroupManager {
         }
 
         try {
-            groupsConfigFile.save(plugin.getDataFolder() + "worlds.yml");
+            groupsConfigFile.save(plugin.getDataFolder() + "/worlds.yml");
         } catch (IOException ex) {
             plugin.getLogger().warning("Could not save the groups config to disk!");
             ex.printStackTrace();
