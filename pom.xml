@@ -6,7 +6,7 @@
 
     <groupId>me.gnat008</groupId>
     <artifactId>perworldinventory</artifactId>
-    <version>1.7.5</version>
+    <version>1.7.4</version>
 
     <name>PerWorldInventory</name>
     <description>The multiverse inventories replacement</description>
@@ -28,7 +28,7 @@
     <repositories>
         <repository>
             <id>fancifullib-repo</id>
-            <url>http://hub.extendedalpha.org/content/groups/public/</url>
+            <url>http://repo.stealthyone.com/content/groups/public/</url>
         </repository>
 
         <repository>
@@ -107,10 +107,24 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
         <dependency>
             <groupId>mkremins</groupId>
             <artifactId>fanciful</artifactId>
-            <version>0.3.4-SNAPSHOT</version>
+            <version>0.3.3-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+            <version>2.0.5-beta</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>hamcrest-core</artifactId>
+                    <groupId>org.hamcrest</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
