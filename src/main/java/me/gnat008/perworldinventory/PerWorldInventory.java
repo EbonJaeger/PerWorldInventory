@@ -103,7 +103,7 @@ public class PerWorldInventory extends JavaPlugin {
             getServer().getPluginManager().registerEvents(new PlayerSpawnLocationListener(this), this);
 
         if (Settings.getBoolean("separate-gamemode-inventories")) {
-            getServer().getPluginManager().registerEvents(new PlayerGameModeChangeListener(this), this);
+            getServer().getPluginManager().registerEvents(new PlayerGameModeChangeListener(this, groupManager, playerManager), this);
             getLogger().info("Registered PlayerGameModeChangeListener.");
         }
         getLogger().info("Listeners enabled!");

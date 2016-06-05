@@ -178,6 +178,14 @@ public class FileSerializer extends DataSerializer {
         }
     }
 
+    /**
+     * Get the data file for a player.
+     *
+     * @param gamemode The game mode for the group we are looking for
+     * @param group The group we are looking for
+     * @param uuid The UUID of the player
+     * @return The data file
+     */
     public File getFile(GameMode gamemode, Group group, UUID uuid) {
         File file;
         switch(gamemode) {
