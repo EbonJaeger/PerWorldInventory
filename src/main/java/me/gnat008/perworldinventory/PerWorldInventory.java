@@ -97,10 +97,15 @@ public class PerWorldInventory extends JavaPlugin {
 
         // Check the server version to see if PlayerSpawnLocationEvent exists (at least 1.9.2)
         String cbVersionRaw = Bukkit.getVersion();
-        String cbVersion = cbVersionRaw.substring(cbVersionRaw.length() - 6, cbVersionRaw.length() - 1);
+        String cbVersion = cbVersionRaw.substring(cbVersionRaw.length() - 6, cbVersionRaw.length() - 1).trim();
         String[] parts = cbVersion.split("\\.");
-        if ((Integer.parseInt(parts[0]) >= 1) && (Integer.parseInt(parts[1]) >= 9) && (Integer.parseInt(parts[2]) >= 2))
-            getServer().getPluginManager().registerEvents(new PlayerSpawnLocationListener(this), this);
+        if ((Integer.parseInt(parts[0]) >= 1)) {
+            if ((Integer.parseInt(parts[1]) == 9) && (Integer.parseInt(parts[2]) >= 2)) {
+                getServer().getPluginManager().registerEvents(new PlayerSpawnLocationListener(this), this);
+            } else if (Integer.parseInt(parts[1]) == 10) {
+                getServer().getPluginManager().registerEvents(new PlayerSpawnLocationListener(this), this);
+            }
+        }
 
         if (Settings.getBoolean("separate-gamemode-inventories")) {
             getServer().getPluginManager().registerEvents(new PlayerGameModeChangeListener(this, groupManager, playerManager), this);
