@@ -73,7 +73,7 @@ public class PerWorldInventory extends JavaPlugin {
         if (!(new File(getDataFolder() + File.separator + "worlds.yml").exists()))
             saveResource("worlds.yml", false);
         Settings.reloadSettings(getConfig());
-        if (Settings.getInt("config-version") < 1) {
+        if (Settings.getInt("config-version") < 3) {
             getLogger().warning("Your PerWorldInventory config is out of date! Some options may be missing.");
             getLogger().warning("Copy the new options from here: https://www.spigotmc.org/resources/per-world-inventory.4482/");
         }

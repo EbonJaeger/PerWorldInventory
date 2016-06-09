@@ -17,10 +17,17 @@
 
 package me.gnat008.perworldinventory.groups;
 
+import com.torchmind.candle.Candle;
+import com.torchmind.candle.api.INode;
+import com.torchmind.candle.api.NodeType;
+import com.torchmind.candle.api.error.CandleException;
+import com.torchmind.candle.node.ObjectNode;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.Settings;
 import org.bukkit.GameMode;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
@@ -81,9 +88,18 @@ public class GroupManager {
         return result;
     }
 
-    public void loadGroupsToMemory(FileConfiguration config) {
+    public void loadGroupsToMemory(File file) {
         groups.clear();
 
+        // If it is not a .yml file, it is a Candle file
+        if (file.getName().equals("worlds.yml")) {
+            loadFromFile(YamlConfiguration.loadConfiguration(file));
+        } else {
+            loadFromFile(new Candle(), file);
+        }
+    }
+
+    private void loadFromFile(FileConfiguration config) {
         for (String key : config.getConfigurationSection("groups.").getKeys(false)) {
             List<String> worlds;
             if (config.contains("groups." + key + ".worlds")) {
@@ -105,6 +121,17 @@ public class GroupManager {
             }
 
             setDefaultsFile(key);
+        }
+    }
+
+    private void loadFromFile(Candle candle, File file) {
+        try {
+            candle.read(file);
+
+
+        } catch (CandleException | IOException ex) {
+            plugin.getLogger().severe("Unable to load '" + file.getName() + "'! Disabling plugin!");
+            plugin.getPluginLoader().disablePlugin(plugin);
         }
     }
 
