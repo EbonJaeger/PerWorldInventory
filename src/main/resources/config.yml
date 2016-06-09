@@ -11,7 +11,7 @@
 # When updating config, copy the new verison number here.
 # Only ever change when adding new config options!
 # Used to notify administrators on config updates.
-config-version: 4
+config-version: 3
 
 # If true, the plugin will change player's gamemodes when entering a world
 # The gamemode set is configured in the worlds.yml file
@@ -77,8 +77,6 @@ save-interval: 300
 # and save/load the correct data if that world is different.
 # REQUIRES MC 1.9.2 OR NEWER
 load-data-on-join: false
-
-# Config Version 4 Additions below this line #
 
 # Print out debug messages to the console for every event that happens in PWI
 debug-mode: false
