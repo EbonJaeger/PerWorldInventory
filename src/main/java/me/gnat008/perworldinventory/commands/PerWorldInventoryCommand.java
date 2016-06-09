@@ -17,6 +17,7 @@
 
 package me.gnat008.perworldinventory.commands;
 
+import javafx.scene.chart.Chart;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.FileSerializer;
@@ -24,6 +25,7 @@ import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.data.serializers.PlayerSerializer;
 import me.gnat008.perworldinventory.groups.Group;
 import mkremins.fanciful.FancyMessage;
+import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -36,6 +38,7 @@ import org.bukkit.plugin.Plugin;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 public class PerWorldInventoryCommand implements CommandExecutor {
 
@@ -62,7 +65,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
             command = PWICommand.valueOf(args[0].toUpperCase());
         } catch (ArrayIndexOutOfBoundsException | IllegalArgumentException ex) {
             if (isPlayer) {
-                new FancyMessage("» ")
+                /*new FancyMessage("» ")
                         .color(ChatColor.BLUE)
                         .then("Not a valid command, ")
                         .color(ChatColor.GRAY)
@@ -71,7 +74,8 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                         .suggest("/perworldinventory help")
                         .then("for help.")
                         .color(ChatColor.GRAY)
-                        .send(player);
+                        .send(player);*/
+                player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "Not a valid command. Type " + ChatColor.BLUE + "/perworldinventory help " + ChatColor.GRAY + "for help.");
             } else {
                 displayConsoleHelp();
             }
@@ -90,12 +94,13 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                                     if (p == null) {
                                         sender.sendMessage(ChatColor.RED + "I'm sorry, Multiverse-Inventories isn't loaded... Import aborted.");
                                     } else {
+                                        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "Starting data conversions. Check console for details.");
                                         mvConvert();
-                                        new FancyMessage("» ")
+                                        /*new FancyMessage("» ")
                                                 .color(ChatColor.BLUE)
                                                 .then("Starting data conversion, messages have been set to your terminal...")
                                                 .color(ChatColor.GRAY)
-                                                .send(player);
+                                                .send(player);*/
                                     }
                                     break;
                                 case "MULTIINV":
@@ -103,12 +108,13 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                                     if (p == null) {
                                         sender.sendMessage(ChatColor.RED + "I'm sorry, MultiInv isn't loaded... Import aborted.");
                                     } else {
+                                        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "Starting data conversion. Check console for details.");
                                         mvConvert();
-                                        new FancyMessage("» ")
+                                        /*new FancyMessage("» ")
                                                 .color(ChatColor.BLUE)
                                                 .then("Starting data conversion, messages have been set to your terminal...")
                                                 .color(ChatColor.GRAY)
-                                                .send(player);
+                                                .send(player);*/
                                     }
                                 default:
                                     player.sendMessage(ChatColor.RED + "» " + ChatColor.GRAY + "Valid arguments are: MULTIVERSE | MULTIINV");
@@ -222,8 +228,8 @@ public class PerWorldInventoryCommand implements CommandExecutor {
 
     private void playerVersion(Player player) {
         String version = plugin.getDescription().getVersion();
-        List<String> authors = plugin.getDescription().getAuthors();
-        new FancyMessage("» ")
+        String authors = plugin.getDescription().getAuthors().toString().replace("[", "").replace("]", "");
+        /*new FancyMessage("» ")
                 .color(ChatColor.BLUE)
                 .then("Version: ")
                 .color(ChatColor.GRAY)
@@ -236,7 +242,9 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                 .color(ChatColor.GRAY)
                 .then(String.valueOf(authors))
                 .color(ChatColor.BLUE)
-                .send(player);
+                .send(player);*/
+        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "Version: " + ChatColor.BLUE + version);
+        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "Author: " + ChatColor.BLUE + authors);
     }
 
     private void consoleVersion() {
@@ -256,7 +264,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
 
     private void displayPlayerHelp(Player player) {
         player.sendMessage(ChatColor.DARK_GRAY + "" + ChatColor.STRIKETHROUGH + "-----------------------------------------------------");
-        new FancyMessage
+        /*new FancyMessage
                 ("                ")
                 .then("[")
                 .color(ChatColor.DARK_GRAY)
@@ -265,9 +273,10 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                 .tooltip(ChatColor.YELLOW + "To use a command without typing," + '\n' + ChatColor.YELLOW + "click on the Hover context...")
                 .then("]")
                 .color(ChatColor.DARK_GRAY)
-                .send(player);
+                .send(player);*/
+        player.sendMessage(ChatColor.DARK_GRAY + "                [ " + ChatColor.BLUE + "PerWorldInventory Commands" + ChatColor.DARK_GRAY + " ]");
         player.sendMessage("");
-        new FancyMessage("» ")
+        /*new FancyMessage("» ")
                 .color(ChatColor.BLUE)
                 .then("/perworldinventory convert multiverse")
                 .color(ChatColor.GRAY)
@@ -275,8 +284,9 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                 .color(ChatColor.RED)
                 .suggest("/perworldinventory convert multiverse")
                 .tooltip(ChatColor.YELLOW + "Convert data from Multiverse-Inventories")
-                .send(player);
-        new FancyMessage("» ")
+                .send(player);*/
+        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "/perworldinventory convert multiverse" + ChatColor.BLUE + " - " + ChatColor.GRAY + "Convert data from Multiverse-Inventories");
+        /*new FancyMessage("» ")
                 .color(ChatColor.BLUE)
                 .then("/perworldinventory help")
                 .color(ChatColor.GRAY)
@@ -284,8 +294,9 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                 .color(ChatColor.RED)
                 .suggest("/perworldinventory help")
                 .tooltip(ChatColor.YELLOW + "Shows this help page")
-                .send(player);
-        new FancyMessage("» ")
+                .send(player);*/
+        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "/perworldinventory help" + ChatColor.BLUE + " - " + ChatColor.GRAY + "Shows this help page");
+        /*new FancyMessage("» ")
                 .color(ChatColor.BLUE)
                 .then("/perworldinventory reload")
                 .color(ChatColor.GRAY)
@@ -293,8 +304,9 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                 .color(ChatColor.RED)
                 .suggest("/perworldinventory reload")
                 .tooltip(ChatColor.YELLOW + "Reloads all configuration files")
-                .send(player);
-        new FancyMessage("» ")
+                .send(player);*/
+        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "/perworldinventory reload" + ChatColor.BLUE + " - " + ChatColor.GRAY + "Reloads all configuration files");
+        /*new FancyMessage("» ")
                 .color(ChatColor.BLUE)
                 .then("/perworldinventory version")
                 .color(ChatColor.GRAY)
@@ -302,8 +314,9 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                 .color(ChatColor.RED)
                 .suggest("/perworldinventory version")
                 .tooltip(ChatColor.YELLOW + "Shows the version of the plugin, and authors")
-                .send(player);
-        new FancyMessage("» ")
+                .send(player);*/
+        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "/perworldinventory version" + ChatColor.BLUE + " - " + ChatColor.GRAY + "Shows the version and authors of the plugin");
+        /*new FancyMessage("» ")
                 .color(ChatColor.BLUE)
                 .then("/perworldinventory setworlddefault [group]")
                 .color(ChatColor.GRAY)
@@ -311,7 +324,8 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                 .color(ChatColor.RED)
                 .suggest("/perworldinventory setworlddefault [group]")
                 .tooltip(ChatColor.YELLOW + "Set the default inventory loadout for a world, or the server default." + '\n' + ChatColor.YELLOW + "The group you are standing in will be used if no group is specified.")
-                .send(player);
+                .send(player);*/
+        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "/perworldinventory setworlddefault [group]" + ChatColor.BLUE + " - " + ChatColor.GRAY + "Set the default inventory loadout for a world, or the server default." + '\n' + ChatColor.YELLOW + "The group you are standing in will be used if no group is specified.");
         player.sendMessage(ChatColor.DARK_GRAY + "" + ChatColor.STRIKETHROUGH + "-----------------------------------------------------");
     }
 
