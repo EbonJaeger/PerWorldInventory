@@ -110,6 +110,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                                                 .color(ChatColor.GRAY)
                                                 .send(player);
                                     }
+                                    break;
                                 default:
                                     player.sendMessage(ChatColor.RED + "» " + ChatColor.GRAY + "Valid arguments are: MULTIVERSE | MULTIINV");
                                     break;
