@@ -13,7 +13,7 @@
 # Used to notify administrators on config updates.
 config-version: 3
 
-# If true, the plugin will change player's gamemodes when entering a world
+# If true, the server will change player's gamemodes when entering a world
 # The gamemode set is configured in the worlds.yml file
 manage-gamemodes: false
 

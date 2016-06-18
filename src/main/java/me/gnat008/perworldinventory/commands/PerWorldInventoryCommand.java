@@ -17,15 +17,14 @@
 
 package me.gnat008.perworldinventory.commands;
 
-import javafx.scene.chart.Chart;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.FileSerializer;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.data.serializers.PlayerSerializer;
 import me.gnat008.perworldinventory.groups.Group;
-import mkremins.fanciful.FancyMessage;
-import net.milkbowl.vault.chat.Chat;
+import me.gnat008.perworldinventory.permission.AdminPermission;
+import me.gnat008.perworldinventory.permission.PermissionManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -38,17 +37,17 @@ import org.bukkit.plugin.Plugin;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 
 public class PerWorldInventoryCommand implements CommandExecutor {
 
     private PerWorldInventory plugin;
+    private PermissionManager permissionManager;
 
     private final String NO_PERMISSION = "You do not have permission to do that.";
-    private final String PERMISSION_NODE = "perworldinventory.";
 
     public PerWorldInventoryCommand(PerWorldInventory plugin) {
         this.plugin = plugin;
+        this.permissionManager = plugin.getPermissionManager();
     }
 
     @Override
@@ -86,7 +85,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
         switch (command) {
             case CONVERT:
                 if (isPlayer) {
-                    if (player.hasPermission(PERMISSION_NODE + "convert")) {
+                    if (permissionManager.hasPermission(player, AdminPermission.CONVERT)) {
                         if (args.length == 2) {
                             switch (args[1].toUpperCase()) {
                                 case "MULTIVERSE":
@@ -121,7 +120,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                                     break;
                             }
                         } else {
-                            player.sendMessage(ChatColor.RED + "» " + ChatColor.GRAY + "You must specify the plugin to convert from: MULTIVERSE | MULTIINV");
+                            player.sendMessage(ChatColor.RED + "» " + ChatColor.GRAY + "You must specify the server to convert from: MULTIVERSE | MULTIINV");
                         }
                     } else {
                         player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + NO_PERMISSION);
@@ -142,7 +141,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                                 break;
                         }
                     } else {
-                        plugin.getLogger().info("You must specify the plugin to convert from: MULTIVERSE | MULTIINV");
+                        plugin.getLogger().info("You must specify the server to convert from: MULTIVERSE | MULTIINV");
                     }
                 }
 
@@ -168,7 +167,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
 
             case RELOAD:
                 if (isPlayer) {
-                    if (player.hasPermission(PERMISSION_NODE + "reload")) {
+                    if (permissionManager.hasPermission(player, AdminPermission.RELOAD)) {
                         reload(player);
                     } else {
                         player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + NO_PERMISSION);
@@ -181,7 +180,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
 
             case SETWORLDDEFAULT:
                 if (isPlayer) {
-                    if (player.hasPermission(PERMISSION_NODE + "setdefaults")) {
+                    if (permissionManager.hasPermission(player, AdminPermission.SETDEFAULTS)) {
                         Group group;
 
                         if (args.length == 2) {
@@ -258,7 +257,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
         plugin.getLogger().info("Available commands:");
         plugin.getLogger().info("/perworldinventory convert - Convert MultiVerse-Inventories data");
         plugin.getLogger().info("/perworldinventory help - Displays this help");
-        plugin.getLogger().info("/perworldinventory version - Shows the version of the plugin");
+        plugin.getLogger().info("/perworldinventory version - Shows the version of the server");
         plugin.getLogger().info("/perworldinventory reload - Reload config and world files");
     }
 
@@ -313,9 +312,9 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                 .then(" - Hover")
                 .color(ChatColor.RED)
                 .suggest("/perworldinventory version")
-                .tooltip(ChatColor.YELLOW + "Shows the version of the plugin, and authors")
+                .tooltip(ChatColor.YELLOW + "Shows the version of the server, and authors")
                 .send(player);*/
-        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "/perworldinventory version" + ChatColor.BLUE + " - " + ChatColor.GRAY + "Shows the version and authors of the plugin");
+        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "/perworldinventory version" + ChatColor.BLUE + " - " + ChatColor.GRAY + "Shows the version and authors of the server");
         /*new FancyMessage("» ")
                 .color(ChatColor.BLUE)
                 .then("/perworldinventory setworlddefault [group]")

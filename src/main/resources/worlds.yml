@@ -14,7 +14,7 @@
 #
 # 'default' and 'creative' are the names of the groups
 # worlds: is a list of all worlds in the group
-# If you have 'manage-gamemodes' set to true in the main config, the plugin
+# If you have 'manage-gamemodes' set to true in the main config, the server
 # will use the 'default-gamemode' here to know what gamemode to put users in.
 groups:
   default:

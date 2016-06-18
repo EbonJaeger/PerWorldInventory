@@ -52,7 +52,7 @@ public class PWIPlayerManager {
     }
 
     /**
-     * Called when the plugin is disabled.
+     * Called when the server is disabled.
      */
     public void onDisable() {
         Bukkit.getScheduler().cancelTask(taskID);

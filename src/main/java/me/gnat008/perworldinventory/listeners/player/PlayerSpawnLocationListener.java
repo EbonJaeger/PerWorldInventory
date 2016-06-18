@@ -15,13 +15,15 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.gnat008.perworldinventory.listeners;
+package me.gnat008.perworldinventory.listeners.player;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
+import me.gnat008.perworldinventory.permission.PermissionManager;
+import me.gnat008.perworldinventory.permission.PlayerPermission;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -34,11 +36,13 @@ public class PlayerSpawnLocationListener implements Listener {
 
     private PerWorldInventory plugin;
     private GroupManager groupManager;
+    private PermissionManager permissionManager;
     private PWIPlayerManager playerManager;
 
     public PlayerSpawnLocationListener(PerWorldInventory plugin) {
         this.plugin = plugin;
         this.groupManager = plugin.getGroupManager();
+        this.permissionManager = plugin.getPermissionManager();
         this.playerManager = plugin.getPlayerManager();
     }
 
@@ -68,7 +72,7 @@ public class PlayerSpawnLocationListener implements Listener {
 
                     playerManager.addPlayer(player, logoutGroup);
 
-                    if (event.getPlayer().hasPermission("perworldinventory.bypass.world")) {
+                    if (permissionManager.hasPermission(player, PlayerPermission.BYPASS_WORLDS)) {
                         if (Settings.getBoolean("debug-mode"))
                             PerWorldInventory.printDebug("Player '" + player.getName() + "' has permission to bypass worlds. Returning");
 
