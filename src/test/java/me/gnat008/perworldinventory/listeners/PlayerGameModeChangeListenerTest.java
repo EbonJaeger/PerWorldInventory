@@ -15,6 +15,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
+/**
+ * Test for {@link PlayerGameModeChangeListener}.
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class PlayerGameModeChangeListenerTest {
 

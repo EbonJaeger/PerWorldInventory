@@ -20,10 +20,9 @@ import java.util.UUID;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
- * Test for {@link me.gnat008.perworldinventory.data.FileSerializer}
+ * Test for {@link FileSerializer}
  */
 @RunWith(MockitoJUnitRunner.class)
 public class FileSerializerTest {
