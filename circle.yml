@@ -9,8 +9,6 @@ test:
     - mvn clean install -B
   post:
     - cp ./target/PerWorldInventory-*.jar $CIRCLE_ARTIFACTS
-after_success:
-  - mvn clean test coveralls:report
 notify:
   webhooks:
     # A list of hook hashes, containing the url field
