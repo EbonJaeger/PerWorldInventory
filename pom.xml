@@ -273,6 +273,8 @@
                 <artifactId>coveralls-maven-plugin</artifactId>
                 <version>4.2.0</version>
                 <configuration>
+                    <!-- Provided by Travis CI -->
+                    <repoToken>${env.coveralls_repo_token}</repoToken>
                     <failOnServiceError>false</failOnServiceError>
                 </configuration>
                 <!-- The secret token is provided by console! -->
