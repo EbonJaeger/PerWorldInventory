@@ -38,6 +38,7 @@ import java.io.*;
 import java.util.logging.Logger;
 
 public class PerWorldInventory extends JavaPlugin {
+    public static final int CONFIG_VERSION = 4;
 
     private Economy economy;
     private DataSerializer serializer;
@@ -69,10 +70,12 @@ public class PerWorldInventory extends JavaPlugin {
 
         // Save the default config files if they do not exist
         saveDefaultConfig();
+        reloadConfig();
+
         if (!(new File(getDataFolder() + File.separator + "worlds.yml").exists()))
             saveResource("worlds.yml", false);
         Settings.reloadSettings(getConfig());
-        if (Settings.getInt("config-version") < 3) {
+        if (Settings.getInt("config-version") < CONFIG_VERSION) {
             getLogger().warning("Your PerWorldInventory config is out of date! Some options may be missing.");
             getLogger().warning("Copy the new options from here: https://www.spigotmc.org/resources/per-world-inventory.4482/");
         }

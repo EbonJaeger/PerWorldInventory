@@ -72,7 +72,7 @@ public class PlayerSpawnLocationListener implements Listener {
 
                     playerManager.addPlayer(player, logoutGroup);
 
-                    if (permissionManager.hasPermission(player, PlayerPermission.BYPASS_WORLDS)) {
+                    if (!Settings.getBoolean("disable-bypass") && permissionManager.hasPermission(player, PlayerPermission.BYPASS_WORLDS)) {
                         if (Settings.getBoolean("debug-mode"))
                             PerWorldInventory.printDebug("Player '" + player.getName() + "' has permission to bypass worlds. Returning");
 

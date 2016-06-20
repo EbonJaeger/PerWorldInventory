@@ -17,6 +17,7 @@
 
 package me.gnat008.perworldinventory.listeners.player;
 
+import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.permission.AdminPermission;
 import me.gnat008.perworldinventory.permission.PermissionManager;
@@ -36,7 +37,7 @@ public class PlayerJoinListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        if (permissionManager.hasPermission(event.getPlayer(), AdminPermission.NOTIFY) && Settings.getInt("config-version") < 3) {
+        if (permissionManager.hasPermission(event.getPlayer(), AdminPermission.NOTIFY) && Settings.getInt("config-version") < PerWorldInventory.CONFIG_VERSION) {
             event.getPlayer().sendMessage(ChatColor.BLUE + "Your PerWorldInventory config is out of date! Some options may be missing.");
             event.getPlayer().sendMessage(ChatColor.BLUE + "Copy the new options from here: " + ChatColor.WHITE + "https://www.spigotmc.org/resources/per-world-inventory.4482/");
         }

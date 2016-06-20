@@ -11,7 +11,7 @@
 # When updating config, copy the new verison number here.
 # Only ever change when adding new config options!
 # Used to notify administrators on config updates.
-config-version: 3
+config-version: 4
 
 # If true, the server will change player's gamemodes when entering a world
 # The gamemode set is configured in the worlds.yml file
@@ -80,3 +80,9 @@ load-data-on-join: false
 
 # Print out debug messages to the console for every event that happens in PWI
 debug-mode: false
+
+# Config Version 4 additions below this line #
+
+# Disables bypass regardless of permission
+# Defaults to false
+disable-bypass: false
