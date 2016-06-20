@@ -56,7 +56,7 @@ public class PlayerChangedWorldListener implements Listener {
 
         playerManager.addPlayer(player, groupFrom);
 
-        if (permissionManager.hasPermission(player, PlayerPermission.BYPASS_WORLDS)) {
+        if (!Settings.getBoolean("disable-bypass") && permissionManager.hasPermission(player, PlayerPermission.BYPASS_WORLDS)) {
             if (Settings.getBoolean("debug-mode"))
                 PerWorldInventory.printDebug("Player '" + player.getName() + "' has '" + PlayerPermission.BYPASS_WORLDS.getNode() + "' permission! Returning");
             return;

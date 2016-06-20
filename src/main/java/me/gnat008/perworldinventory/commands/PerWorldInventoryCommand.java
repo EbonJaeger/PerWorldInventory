@@ -342,8 +342,9 @@ public class PerWorldInventoryCommand implements CommandExecutor {
     }
 
     private void reloadConfigFiles() {
+    	plugin.reloadConfig();
         Settings.reloadSettings(plugin.getConfig());
-        if (Settings.getInt("config-version") < 1) {
+        if (Settings.getInt("config-version") < PerWorldInventory.CONFIG_VERSION) {
             plugin.getLogger().warning("Your PerWorldInventory config is out of date! Some options may be missing.");
             plugin.getLogger().warning("Copy the new options from here: https://www.spigotmc.org/resources/per-world-inventory.4482/");
         }
