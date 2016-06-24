@@ -33,14 +33,14 @@ import org.bukkit.event.player.PlayerChangedWorldEvent;
 
 public class PlayerChangedWorldListener implements Listener {
 
-    private GroupManager manager;
+    private GroupManager groupManager;
     private PermissionManager permissionManager;
     private PWIPlayerManager playerManager;
 
-    public PlayerChangedWorldListener(PerWorldInventory plugin) {
-        this.manager = plugin.getGroupManager();
-        this.permissionManager = plugin.getPermissionManager();
-        this.playerManager = plugin.getPlayerManager();
+    public PlayerChangedWorldListener(GroupManager groupManager, PermissionManager permissionManager, PWIPlayerManager playerManager) {
+        this.groupManager = groupManager;
+        this.permissionManager = permissionManager;
+        this.playerManager = playerManager;
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -48,8 +48,8 @@ public class PlayerChangedWorldListener implements Listener {
         Player player = event.getPlayer();
         String worldFrom = event.getFrom().getName();
         String worldTo = player.getWorld().getName();
-        Group groupFrom = manager.getGroupFromWorld(worldFrom);
-        Group groupTo = manager.getGroupFromWorld(worldTo);
+        Group groupFrom = groupManager.getGroupFromWorld(worldFrom);
+        Group groupTo = groupManager.getGroupFromWorld(worldTo);
 
         if (Settings.getBoolean("debug-mode"))
             PerWorldInventory.printDebug("Player '" + player.getName() + "' going from world '" + worldFrom + "' to world '" + worldTo + "'");

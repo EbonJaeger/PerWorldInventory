@@ -94,7 +94,7 @@ public class PerWorldInventory extends JavaPlugin {
         // Register listeners
         getLogger().info("Commands registered! Registering listeners...");
         getServer().getPluginManager().registerEvents(new PluginListener(permissionManager), this);
-        getServer().getPluginManager().registerEvents(new PlayerChangedWorldListener(this), this);
+        getServer().getPluginManager().registerEvents(new PlayerChangedWorldListener(groupManager, permissionManager, playerManager), this);
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(permissionManager), this);
 
