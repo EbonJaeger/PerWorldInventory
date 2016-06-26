@@ -82,6 +82,9 @@ public class PlayerChangedWorldListener implements Listener {
                 playerManager.getPlayerData(groupTo, player.getGameMode(), player);
 
                 if (Settings.getBoolean("manage-gamemodes")) {
+                    if (Settings.getBoolean("debug-mode"))
+                        PerWorldInventory.printDebug("PWI manages gamemodes! Setting player '" + player.getName() + "' to gamemode " + groupTo.getGameMode().name());
+
                     player.setGameMode(groupTo.getGameMode());
                 }
             } else {
