@@ -90,6 +90,20 @@ public class PWIPlayerManager {
     }
 
     /**
+     * Removes a player from the cache. They key will be made from the player's UUID,
+     * the group they are in, and the gamemode of the player.
+     *
+     * @param player The player to remove from the cache
+     */
+    public void removePlayer(Player player) {
+        for (String key : playerCache.keySet()) {
+            if (key.startsWith(player.getUniqueId().toString())) {
+                playerCache.remove(key);
+            }
+        }
+    }
+
+    /**
      * Get a player from the cache. This method will
      * return null if no player with the same group and gamemode
      * is cached.

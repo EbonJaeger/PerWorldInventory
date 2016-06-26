@@ -95,7 +95,7 @@ public class PerWorldInventory extends JavaPlugin {
         getLogger().info("Commands registered! Registering listeners...");
         getServer().getPluginManager().registerEvents(new PluginListener(permissionManager), this);
         getServer().getPluginManager().registerEvents(new PlayerChangedWorldListener(groupManager, permissionManager, playerManager), this);
-        getServer().getPluginManager().registerEvents(new PlayerQuitListener(this), this);
+        getServer().getPluginManager().registerEvents(new PlayerQuitListener(serializer, groupManager, playerManager), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(permissionManager), this);
 
         // Check the server version to see if PlayerSpawnLocationEvent exists (at least 1.9.2)
