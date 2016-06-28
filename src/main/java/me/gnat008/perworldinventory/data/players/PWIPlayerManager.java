@@ -52,7 +52,7 @@ public class PWIPlayerManager {
     }
 
     /**
-     * Called when the plugin is disabled.
+     * Called when the server is disabled.
      */
     public void onDisable() {
         Bukkit.getScheduler().cancelTask(taskID);
@@ -86,6 +86,20 @@ public class PWIPlayerManager {
             updateCache(player, playerCache.get(key));
         } else {
             playerCache.put(key, new PWIPlayer(player, group));
+        }
+    }
+
+    /**
+     * Removes a player from the cache. They key will be made from the player's UUID,
+     * the group they are in, and the gamemode of the player.
+     *
+     * @param player The player to remove from the cache
+     */
+    public void removePlayer(Player player) {
+        for (String key : playerCache.keySet()) {
+            if (key.startsWith(player.getUniqueId().toString())) {
+                playerCache.remove(key);
+            }
         }
     }
 

@@ -23,7 +23,8 @@ import me.gnat008.perworldinventory.data.FileSerializer;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.data.serializers.PlayerSerializer;
 import me.gnat008.perworldinventory.groups.Group;
-import mkremins.fanciful.FancyMessage;
+import me.gnat008.perworldinventory.permission.AdminPermission;
+import me.gnat008.perworldinventory.permission.PermissionManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -40,12 +41,13 @@ import java.util.List;
 public class PerWorldInventoryCommand implements CommandExecutor {
 
     private PerWorldInventory plugin;
+    private PermissionManager permissionManager;
 
     private final String NO_PERMISSION = "You do not have permission to do that.";
-    private final String PERMISSION_NODE = "perworldinventory.";
 
     public PerWorldInventoryCommand(PerWorldInventory plugin) {
         this.plugin = plugin;
+        this.permissionManager = plugin.getPermissionManager();
     }
 
     @Override
@@ -62,7 +64,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
             command = PWICommand.valueOf(args[0].toUpperCase());
         } catch (ArrayIndexOutOfBoundsException | IllegalArgumentException ex) {
             if (isPlayer) {
-                new FancyMessage("» ")
+                /*new FancyMessage("» ")
                         .color(ChatColor.BLUE)
                         .then("Not a valid command, ")
                         .color(ChatColor.GRAY)
@@ -71,7 +73,8 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                         .suggest("/perworldinventory help")
                         .then("for help.")
                         .color(ChatColor.GRAY)
-                        .send(player);
+                        .send(player);*/
+                player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "Not a valid command. Type " + ChatColor.BLUE + "/perworldinventory help " + ChatColor.GRAY + "for help.");
             } else {
                 displayConsoleHelp();
             }
@@ -82,7 +85,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
         switch (command) {
             case CONVERT:
                 if (isPlayer) {
-                    if (player.hasPermission(PERMISSION_NODE + "convert")) {
+                    if (permissionManager.hasPermission(player, AdminPermission.CONVERT)) {
                         if (args.length == 2) {
                             switch (args[1].toUpperCase()) {
                                 case "MULTIVERSE":
@@ -90,12 +93,13 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                                     if (p == null) {
                                         sender.sendMessage(ChatColor.RED + "I'm sorry, Multiverse-Inventories isn't loaded... Import aborted.");
                                     } else {
+                                        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "Starting data conversions. Check console for details.");
                                         mvConvert();
-                                        new FancyMessage("» ")
+                                        /*new FancyMessage("» ")
                                                 .color(ChatColor.BLUE)
                                                 .then("Starting data conversion, messages have been set to your terminal...")
                                                 .color(ChatColor.GRAY)
-                                                .send(player);
+                                                .send(player);*/
                                     }
                                     break;
                                 case "MULTIINV":
@@ -103,12 +107,13 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                                     if (p == null) {
                                         sender.sendMessage(ChatColor.RED + "I'm sorry, MultiInv isn't loaded... Import aborted.");
                                     } else {
+                                        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "Starting data conversion. Check console for details.");
                                         mvConvert();
-                                        new FancyMessage("» ")
+                                        /*new FancyMessage("» ")
                                                 .color(ChatColor.BLUE)
                                                 .then("Starting data conversion, messages have been set to your terminal...")
                                                 .color(ChatColor.GRAY)
-                                                .send(player);
+                                                .send(player);*/
                                     }
                                     break;
                                 default:
@@ -116,7 +121,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                                     break;
                             }
                         } else {
-                            player.sendMessage(ChatColor.RED + "» " + ChatColor.GRAY + "You must specify the plugin to convert from: MULTIVERSE | MULTIINV");
+                            player.sendMessage(ChatColor.RED + "» " + ChatColor.GRAY + "You must specify the server to convert from: MULTIVERSE | MULTIINV");
                         }
                     } else {
                         player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + NO_PERMISSION);
@@ -137,7 +142,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                                 break;
                         }
                     } else {
-                        plugin.getLogger().info("You must specify the plugin to convert from: MULTIVERSE | MULTIINV");
+                        plugin.getLogger().info("You must specify the server to convert from: MULTIVERSE | MULTIINV");
                     }
                 }
 
@@ -163,7 +168,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
 
             case RELOAD:
                 if (isPlayer) {
-                    if (player.hasPermission(PERMISSION_NODE + "reload")) {
+                    if (permissionManager.hasPermission(player, AdminPermission.RELOAD)) {
                         reload(player);
                     } else {
                         player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + NO_PERMISSION);
@@ -176,7 +181,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
 
             case SETWORLDDEFAULT:
                 if (isPlayer) {
-                    if (player.hasPermission(PERMISSION_NODE + "setdefaults")) {
+                    if (permissionManager.hasPermission(player, AdminPermission.SETDEFAULTS)) {
                         Group group;
 
                         if (args.length == 2) {
@@ -223,8 +228,8 @@ public class PerWorldInventoryCommand implements CommandExecutor {
 
     private void playerVersion(Player player) {
         String version = plugin.getDescription().getVersion();
-        List<String> authors = plugin.getDescription().getAuthors();
-        new FancyMessage("» ")
+        String authors = plugin.getDescription().getAuthors().toString().replace("[", "").replace("]", "");
+        /*new FancyMessage("» ")
                 .color(ChatColor.BLUE)
                 .then("Version: ")
                 .color(ChatColor.GRAY)
@@ -237,7 +242,9 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                 .color(ChatColor.GRAY)
                 .then(String.valueOf(authors))
                 .color(ChatColor.BLUE)
-                .send(player);
+                .send(player);*/
+        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "Version: " + ChatColor.BLUE + version);
+        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "Author: " + ChatColor.BLUE + authors);
     }
 
     private void consoleVersion() {
@@ -251,13 +258,13 @@ public class PerWorldInventoryCommand implements CommandExecutor {
         plugin.getLogger().info("Available commands:");
         plugin.getLogger().info("/perworldinventory convert - Convert MultiVerse-Inventories data");
         plugin.getLogger().info("/perworldinventory help - Displays this help");
-        plugin.getLogger().info("/perworldinventory version - Shows the version of the plugin");
+        plugin.getLogger().info("/perworldinventory version - Shows the version of the server");
         plugin.getLogger().info("/perworldinventory reload - Reload config and world files");
     }
 
     private void displayPlayerHelp(Player player) {
         player.sendMessage(ChatColor.DARK_GRAY + "" + ChatColor.STRIKETHROUGH + "-----------------------------------------------------");
-        new FancyMessage
+        /*new FancyMessage
                 ("                ")
                 .then("[")
                 .color(ChatColor.DARK_GRAY)
@@ -266,9 +273,10 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                 .tooltip(ChatColor.YELLOW + "To use a command without typing," + '\n' + ChatColor.YELLOW + "click on the Hover context...")
                 .then("]")
                 .color(ChatColor.DARK_GRAY)
-                .send(player);
+                .send(player);*/
+        player.sendMessage(ChatColor.DARK_GRAY + "                [ " + ChatColor.BLUE + "PerWorldInventory Commands" + ChatColor.DARK_GRAY + " ]");
         player.sendMessage("");
-        new FancyMessage("» ")
+        /*new FancyMessage("» ")
                 .color(ChatColor.BLUE)
                 .then("/perworldinventory convert multiverse")
                 .color(ChatColor.GRAY)
@@ -276,8 +284,9 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                 .color(ChatColor.RED)
                 .suggest("/perworldinventory convert multiverse")
                 .tooltip(ChatColor.YELLOW + "Convert data from Multiverse-Inventories")
-                .send(player);
-        new FancyMessage("» ")
+                .send(player);*/
+        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "/perworldinventory convert multiverse" + ChatColor.BLUE + " - " + ChatColor.GRAY + "Convert data from Multiverse-Inventories");
+        /*new FancyMessage("» ")
                 .color(ChatColor.BLUE)
                 .then("/perworldinventory help")
                 .color(ChatColor.GRAY)
@@ -285,8 +294,9 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                 .color(ChatColor.RED)
                 .suggest("/perworldinventory help")
                 .tooltip(ChatColor.YELLOW + "Shows this help page")
-                .send(player);
-        new FancyMessage("» ")
+                .send(player);*/
+        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "/perworldinventory help" + ChatColor.BLUE + " - " + ChatColor.GRAY + "Shows this help page");
+        /*new FancyMessage("» ")
                 .color(ChatColor.BLUE)
                 .then("/perworldinventory reload")
                 .color(ChatColor.GRAY)
@@ -294,17 +304,19 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                 .color(ChatColor.RED)
                 .suggest("/perworldinventory reload")
                 .tooltip(ChatColor.YELLOW + "Reloads all configuration files")
-                .send(player);
-        new FancyMessage("» ")
+                .send(player);*/
+        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "/perworldinventory reload" + ChatColor.BLUE + " - " + ChatColor.GRAY + "Reloads all configuration files");
+        /*new FancyMessage("» ")
                 .color(ChatColor.BLUE)
                 .then("/perworldinventory version")
                 .color(ChatColor.GRAY)
                 .then(" - Hover")
                 .color(ChatColor.RED)
                 .suggest("/perworldinventory version")
-                .tooltip(ChatColor.YELLOW + "Shows the version of the plugin, and authors")
-                .send(player);
-        new FancyMessage("» ")
+                .tooltip(ChatColor.YELLOW + "Shows the version of the server, and authors")
+                .send(player);*/
+        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "/perworldinventory version" + ChatColor.BLUE + " - " + ChatColor.GRAY + "Shows the version and authors of the server");
+        /*new FancyMessage("» ")
                 .color(ChatColor.BLUE)
                 .then("/perworldinventory setworlddefault [group]")
                 .color(ChatColor.GRAY)
@@ -312,7 +324,8 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                 .color(ChatColor.RED)
                 .suggest("/perworldinventory setworlddefault [group]")
                 .tooltip(ChatColor.YELLOW + "Set the default inventory loadout for a world, or the server default." + '\n' + ChatColor.YELLOW + "The group you are standing in will be used if no group is specified.")
-                .send(player);
+                .send(player);*/
+        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "/perworldinventory setworlddefault [group]" + ChatColor.BLUE + " - " + ChatColor.GRAY + "Set the default inventory loadout for a world, or the server default." + '\n' + ChatColor.YELLOW + "The group you are standing in will be used if no group is specified.");
         player.sendMessage(ChatColor.DARK_GRAY + "" + ChatColor.STRIKETHROUGH + "-----------------------------------------------------");
     }
 
@@ -329,8 +342,9 @@ public class PerWorldInventoryCommand implements CommandExecutor {
     }
 
     private void reloadConfigFiles() {
+    	plugin.reloadConfig();
         Settings.reloadSettings(plugin.getConfig());
-        if (Settings.getInt("config-version") < 1) {
+        if (Settings.getInt("config-version") < PerWorldInventory.CONFIG_VERSION) {
             plugin.getLogger().warning("Your PerWorldInventory config is out of date! Some options may be missing.");
             plugin.getLogger().warning("Copy the new options from here: https://www.spigotmc.org/resources/per-world-inventory.4482/");
         }

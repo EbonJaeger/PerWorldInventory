@@ -15,13 +15,15 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.gnat008.perworldinventory.listeners;
+package me.gnat008.perworldinventory.listeners.player;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
+import me.gnat008.perworldinventory.permission.PermissionManager;
+import me.gnat008.perworldinventory.permission.PlayerPermission;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -32,12 +34,12 @@ import org.bukkit.event.player.PlayerGameModeChangeEvent;
 public class PlayerGameModeChangeListener implements Listener {
 
     private GroupManager manager;
-    private PerWorldInventory plugin;
+    private PermissionManager permissionManager;
     private PWIPlayerManager playerManager;
 
-    public PlayerGameModeChangeListener(PerWorldInventory plugin, GroupManager manager, PWIPlayerManager playerManager) {
-        this.plugin = plugin;
+    public PlayerGameModeChangeListener(GroupManager manager, PermissionManager permissionManager, PWIPlayerManager playerManager) {
         this.manager = manager;
+        this.permissionManager = permissionManager;
         this.playerManager = playerManager;
     }
 
@@ -55,7 +57,7 @@ public class PlayerGameModeChangeListener implements Listener {
 
         playerManager.addPlayer(player, group);
 
-        if (!player.hasPermission("perworldinventory.bypass.gamemode")) {
+        if (!permissionManager.hasPermission(player, PlayerPermission.BYPASS_GAMEMODE)) {
             if (Settings.getBoolean("debug-mode"))
                 PerWorldInventory.printDebug("Player '" + player.getName() + "' does not have gamemode bypass permission! Loading data");
 

@@ -128,9 +128,9 @@ public class DataConverter {
                 if (player != null && player.getInventory() != null && player.getInventory().getInventoryContents() != null) {
                     System.out.println("MIAPIPlayer: " + player.getPlayername());
                     try {
-                        plugin.getSerializer().writePlayerDataToFile(offlinePlayer, serializeMIToNewFormat(player), mvAPI.getGroups().get(world), GameMode.SURVIVAL);
+                        server.getSerializer().writePlayerDataToFile(offlinePlayer, serializeMIToNewFormat(player), mvAPI.getGroups().get(world), GameMode.SURVIVAL);
                     } catch (Exception ex) {
-                        plugin.getLogger().warning("Error importing inventory for player '" + offlinePlayer.getName() + ": " + ex.getMessage(), true);
+                        server.getLogger().warning("Error importing inventory for player '" + offlinePlayer.getName() + ": " + ex.getMessage(), true);
                         ex.printStackTrace();
                     }
                 }

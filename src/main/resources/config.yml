@@ -13,7 +13,7 @@
 # Used to notify administrators on config updates.
 config-version: 4
 
-# If true, the plugin will change player's gamemodes when entering a world
+# If true, the server will change player's gamemodes when entering a world
 # The gamemode set is configured in the worlds.yml file
 manage-gamemodes: false
 
@@ -78,7 +78,11 @@ save-interval: 300
 # REQUIRES MC 1.9.2 OR NEWER
 load-data-on-join: false
 
-# Config Version 4 Additions below this line #
-
 # Print out debug messages to the console for every event that happens in PWI
 debug-mode: false
+
+# Config Version 4 additions below this line #
+
+# Disables bypass regardless of permission
+# Defaults to false
+disable-bypass: false

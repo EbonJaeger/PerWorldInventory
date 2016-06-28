@@ -98,7 +98,11 @@ public class GroupManager {
             }
 
             if (Settings.getBoolean("manage-gamemodes")) {
-                GameMode gameMode = GameMode.valueOf(config.getString("groups." + key + ".default-gamemode").toUpperCase());
+                GameMode gameMode = GameMode.SURVIVAL;
+                if (config.getString("groups." + key + ".default-gamemode") != null) {
+                    gameMode = GameMode.valueOf(config.getString("groups." + key + ".default-gamemode").toUpperCase());
+                }
+
                 addGroup(key, worlds, gameMode);
             } else {
                 addGroup(key, worlds);

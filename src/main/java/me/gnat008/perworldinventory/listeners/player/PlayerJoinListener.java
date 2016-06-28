@@ -15,12 +15,12 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.gnat008.perworldinventory.listeners;
+package me.gnat008.perworldinventory.listeners.player;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.Settings;
-import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
-import me.gnat008.perworldinventory.groups.GroupManager;
+import me.gnat008.perworldinventory.permission.AdminPermission;
+import me.gnat008.perworldinventory.permission.PermissionManager;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -29,19 +29,15 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 public class PlayerJoinListener implements Listener {
 
-    private GroupManager groupManager;
-    private PWIPlayerManager playerManager;
-    private PerWorldInventory plugin;
+    private PermissionManager permissionManager;
 
-    public PlayerJoinListener(PerWorldInventory plugin) {
-        this.plugin = plugin;
-        this.groupManager = plugin.getGroupManager();
-        this.playerManager = plugin.getPlayerManager();
+    public PlayerJoinListener(PermissionManager permissionManager) {
+        this.permissionManager = permissionManager;
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        if (event.getPlayer().hasPermission("perworldinventory.notify") && Settings.getInt("config-version") < 3) {
+        if (permissionManager.hasPermission(event.getPlayer(), AdminPermission.NOTIFY) && Settings.getInt("config-version") < PerWorldInventory.CONFIG_VERSION) {
             event.getPlayer().sendMessage(ChatColor.BLUE + "Your PerWorldInventory config is out of date! Some options may be missing.");
             event.getPlayer().sendMessage(ChatColor.BLUE + "Copy the new options from here: " + ChatColor.WHITE + "https://www.spigotmc.org/resources/per-world-inventory.4482/");
         }

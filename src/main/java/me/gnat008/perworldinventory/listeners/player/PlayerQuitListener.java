@@ -15,11 +15,13 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.gnat008.perworldinventory.listeners;
+package me.gnat008.perworldinventory.listeners.player;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.Settings;
+import me.gnat008.perworldinventory.data.DataSerializer;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
+import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import org.bukkit.GameMode;
@@ -30,17 +32,16 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class PlayerQuitListener implements Listener {
 
+    private DataSerializer serializer;
     private GroupManager manager;
-    private PerWorldInventory plugin;
+    private PWIPlayerManager playerManager;
 
-    public PlayerQuitListener(PerWorldInventory plugin) {
-        this.plugin = plugin;
-        this.manager = plugin.getGroupManager();
+    public PlayerQuitListener(DataSerializer serializer, GroupManager groupManager, PWIPlayerManager playerManager) {
+        this.serializer = serializer;
+        this.manager = groupManager;
+        this.playerManager = playerManager;
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -52,12 +53,12 @@ public class PlayerQuitListener implements Listener {
         if (Settings.getBoolean("debug-mode"))
             PerWorldInventory.printDebug("Player '" + player.getName() + "' quit! Checking cache");
 
-        PWIPlayer cached = plugin.getPlayerManager().getPlayer(group, player);
+        PWIPlayer cached = playerManager.getPlayer(group, player);
         if (cached != null) {
             if (Settings.getBoolean("debug-mode"))
                 PerWorldInventory.printDebug("Cached data for player '" + player.getName() + "' found! Updating and setting them as saved");
 
-            plugin.getPlayerManager().updateCache(player, cached);
+            playerManager.updateCache(player, cached);
             cached.setSaved(true);
         }
 
@@ -65,11 +66,13 @@ public class PlayerQuitListener implements Listener {
             PerWorldInventory.printDebug("Saving logout data for player '" + player.getName() + "'");
 
         PWIPlayer pwiPlayer = new PWIPlayer(player, group);
-        plugin.getSerializer().saveToDatabase(group,
+        serializer.saveToDatabase(group,
                 Settings.getBoolean("separate-gamemode-inventories") ? player.getGameMode() : GameMode.SURVIVAL,
                 pwiPlayer,
                 true);
-        plugin.getSerializer().saveLogoutData(pwiPlayer);
+        serializer.saveLogoutData(pwiPlayer);
+
+        playerManager.removePlayer(player);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -81,12 +84,12 @@ public class PlayerQuitListener implements Listener {
         if (Settings.getBoolean("debug-mode"))
             PerWorldInventory.printDebug("Player '" + player.getName() + "' was kicked! Checking cache");
 
-        PWIPlayer cached = plugin.getPlayerManager().getPlayer(group, player);
+        PWIPlayer cached = playerManager.getPlayer(group, player);
         if (cached != null) {
             if (Settings.getBoolean("debug-mode"))
                 PerWorldInventory.printDebug("Cached data for player '" + player.getName() + "' found! Updating and setting them as saved");
 
-            plugin.getPlayerManager().updateCache(player, cached);
+            playerManager.updateCache(player, cached);
             cached.setSaved(true);
         }
 
@@ -94,10 +97,12 @@ public class PlayerQuitListener implements Listener {
             PerWorldInventory.printDebug("Saving logout data for player '" + player.getName() + "'");
 
         PWIPlayer pwiPlayer = new PWIPlayer(player, group);
-        plugin.getSerializer().saveToDatabase(group,
+        serializer.saveToDatabase(group,
                 Settings.getBoolean("separate-gamemode-inventories") ? player.getGameMode() : GameMode.SURVIVAL,
                 pwiPlayer,
                 true);
-        plugin.getSerializer().saveLogoutData(pwiPlayer);
+        serializer.saveLogoutData(pwiPlayer);
+
+        playerManager.removePlayer(player);
     }
 }

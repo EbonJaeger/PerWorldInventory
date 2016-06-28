@@ -22,9 +22,12 @@ import org.bukkit.configuration.file.FileConfiguration;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Settings {
+public final class Settings {
 
     private static Map<String, Object> settings = new HashMap<>();
+
+    private Settings() {
+    }
 
     public static void reloadSettings(FileConfiguration config) {
         settings.clear();
