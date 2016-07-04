@@ -75,10 +75,14 @@ public class StatSerializer {
         if (Settings.getBoolean("player.stats.food") && stats.has("food"))
             player.setFoodLevel(stats.get("food").getAsInt());
         if (Settings.getBoolean("player.stats.health") && stats.has("health")) {
-            if (stats.get("health").getAsDouble() <= player.getMaxHealth())
-                player.setHealth(stats.get("health").getAsDouble());
-            else
+            double health = stats.get("health").getAsDouble();
+            if (health <= player.getMaxHealth()) {
+                player.setHealth(health);
+            } else if (health <= 0) {
                 player.setHealth(player.getMaxHealth());
+            } else {
+                player.setHealth(player.getMaxHealth());
+            }
         }
         if (Settings.getBoolean("player.stats.gamemode") && (!Settings.getBoolean("separate-gamemode-inventories")) && stats.has("gamemode")) {
             if (stats.get("gamemode").getAsString().length() > 1) {
