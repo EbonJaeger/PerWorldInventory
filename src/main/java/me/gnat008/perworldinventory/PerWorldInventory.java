@@ -99,7 +99,7 @@ public class PerWorldInventory extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(permissionManager), this);
 
         // Check the server version to see if PlayerSpawnLocationEvent exists (at least 1.9.2)
-        if (checkServerVersion())
+        if (Utils.checkServerVersion(Bukkit.getVersion()))
             getServer().getPluginManager().registerEvents(new PlayerSpawnLocationListener(this), this);
 
         if (Settings.getBoolean("separate-gamemode-inventories")) {
@@ -184,55 +184,5 @@ public class PerWorldInventory extends JavaPlugin {
         return this.playerManager;
     }
 
-    public void copyFile(File from, File to) {
-        InputStream in = null;
-        OutputStream out = null;
 
-        try {
-            in = new FileInputStream(from);
-            out = new FileOutputStream(to);
-
-            byte[] buff = new byte[1024];
-            int len;
-            while ((len = in.read(buff)) > 0) {
-                out.write(buff, 0, len);
-            }
-        } catch (IOException ex) {
-            getLogger().severe("An error occurred copying file '" + from.getName() + "' to '" + to.getName() + "': " + ex.getMessage());
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException ignored) {
-                }
-            }
-
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException ignored) {
-                }
-            }
-        }
-    }
-
-    private boolean checkServerVersion() {
-        String cbVersionRaw = Bukkit.getVersion();
-        String cbVersion = cbVersionRaw.substring(cbVersionRaw.indexOf(".") - 1, cbVersionRaw.length() - 1).trim();
-        String[] parts = cbVersion.split("\\.");
-
-        try {
-            if ((Integer.parseInt(parts[0]) >= 1)) {
-                if ((Integer.parseInt(parts[1]) == 9) && (Integer.parseInt(parts[2]) >= 2)) {
-                    return true;
-                } else if (Integer.parseInt(parts[1]) == 10) {
-                    return true;
-                }
-            }
-        } catch (NumberFormatException ex) {
-            return false;
-        }
-
-        return false;
-    }
 }
