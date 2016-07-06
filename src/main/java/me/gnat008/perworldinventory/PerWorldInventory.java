@@ -38,6 +38,7 @@ import java.io.*;
 import java.util.logging.Logger;
 
 public class PerWorldInventory extends JavaPlugin {
+
     public static final int CONFIG_VERSION = 4;
 
     private Economy economy;
