@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.gnat008.perworldinventory.data;
+package me.gnat008.perworldinventory.data.converters;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -27,9 +27,11 @@ import com.onarandombox.multiverseinventories.api.profile.PlayerProfile;
 import com.onarandombox.multiverseinventories.api.profile.WorldGroupProfile;
 import com.onarandombox.multiverseinventories.api.share.Sharables;
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.data.FileSerializer;
 import me.gnat008.perworldinventory.data.serializers.InventorySerializer;
 import me.gnat008.perworldinventory.data.serializers.PotionEffectSerializer;
 import me.gnat008.perworldinventory.groups.Group;
+import me.gnat008.perworldinventory.groups.GroupManager;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -40,33 +42,21 @@ import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
 import uk.co.tggl.pluckerpluck.multiinv.api.MIAPIPlayer;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIItemStack;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.util.*;
 
 public class DataConverter {
     private static final ProfileType[] MV_PROFILETYPES = { ProfileTypes.SURVIVAL, ProfileTypes.CREATIVE, ProfileTypes.ADVENTURE };
 
+    @Inject
     private FileSerializer serializer;
+    @Inject
+    private GroupManager groupManager;
+    @Inject
     private PerWorldInventory plugin;
 
-    private static DataConverter converter = null;
-
-    private DataConverter(PerWorldInventory plugin) {
-        this.plugin = plugin;
-        this.serializer = new FileSerializer(plugin);
-    }
-
-    public static DataConverter getInstance(PerWorldInventory plugin) {
-        if (converter == null) {
-            converter = new DataConverter(plugin);
-        }
-
-        return converter;
-    }
-
-    public static void disable() {
-        converter = null;
-    }
+    DataConverter() {}
 
     public void convertMultiVerseData() {
         plugin.getLogger().info("Beginning data conversion. This may take awhile...");
@@ -76,11 +66,11 @@ public class DataConverter {
 
         for (WorldGroupProfile mvgroup : mvgroups) {
             //Ensure that the group exists first, otherwise you just get nulls
-            Group pwiGroup = plugin.getGroupManager().getGroup(mvgroup.getName());
+            Group pwiGroup = groupManager.getGroup(mvgroup.getName());
             List<String> worlds = new ArrayList<>(mvgroup.getWorlds());
 
             if (pwiGroup == null)
-                plugin.getGroupManager().addGroup(mvgroup.getName(), worlds);
+                groupManager.addGroup(mvgroup.getName(), worlds);
             else
                 pwiGroup.addWorlds(worlds);
 
@@ -93,7 +83,7 @@ public class DataConverter {
                         if (playerData != null) {
                             JsonObject writable = serializeMVIToNewFormat(playerData);
 
-                            File file = serializer.getFile(gameMode, plugin.getGroupManager().getGroup(mvgroup.getName()), player1.getUniqueId());
+                            File file = serializer.getFile(gameMode, groupManager.getGroup(mvgroup.getName()), player1.getUniqueId());
                             if (!file.getParentFile().exists())
                                 file.getParentFile().mkdir();
                             if (!file.exists())
@@ -109,7 +99,7 @@ public class DataConverter {
             }
         }
 
-        plugin.getGroupManager().saveGroupsToDisk();
+        groupManager.saveGroupsToDisk();
         plugin.getLogger().info("Data conversion complete! Disabling Multiverse-Inventories...");
         plugin.getServer().getPluginManager().disablePlugin(mvinventories);
         plugin.getLogger().info("Multiverse-Inventories disabled! Don't forget to remove the .jar!");
@@ -137,7 +127,7 @@ public class DataConverter {
             }
         }*/
 
-        plugin.getGroupManager().saveGroupsToDisk();
+        groupManager.saveGroupsToDisk();
         plugin.getLogger().info("Data conversion complete! Disabling MultiInv...");
         plugin.getServer().getPluginManager().disablePlugin(multiinv);
         plugin.getLogger().info("MultiInv disabled! Don't forget to remove the .jar!");

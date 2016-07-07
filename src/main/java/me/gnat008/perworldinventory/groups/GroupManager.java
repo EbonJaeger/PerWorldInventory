@@ -23,6 +23,7 @@ import me.gnat008.perworldinventory.config.Settings;
 import org.bukkit.GameMode;
 import org.bukkit.configuration.file.FileConfiguration;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,11 +35,10 @@ public class GroupManager {
 
     private Map<String, Group> groups = new HashMap<>();
 
+    @Inject
     private PerWorldInventory plugin;
 
-    public GroupManager(PerWorldInventory plugin) {
-        this.plugin = plugin;
-    }
+    GroupManager() {}
 
     public void disable() {
         groups.clear();

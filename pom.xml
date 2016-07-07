@@ -6,10 +6,10 @@
 
     <groupId>me.gnat008</groupId>
     <artifactId>perworldinventory</artifactId>
-    <version>1.7.7</version>
+    <version>1.8.0</version>
 
     <name>PerWorldInventory</name>
-    <description>The multiverse inventories replacement</description>
+    <description>Have a different inventory for each world.</description>
     
     <packaging>jar</packaging>
 
@@ -168,6 +168,13 @@
             <version>1</version>
             <scope>compile</scope>
             <optional>true</optional>
+        </dependency>
+
+        <!-- Dependency Injector -->
+        <dependency>
+            <groupId>ch.jalu</groupId>
+            <artifactId>injector</artifactId>
+            <version>0.1</version>
         </dependency>
     </dependencies>
 
