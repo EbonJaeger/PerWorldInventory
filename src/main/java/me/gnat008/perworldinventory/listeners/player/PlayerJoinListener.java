@@ -27,11 +27,14 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
+import javax.inject.Inject;
+
 public class PlayerJoinListener implements Listener {
 
     private PermissionManager permissionManager;
 
-    public PlayerJoinListener(PermissionManager permissionManager) {
+    @Inject
+    PlayerJoinListener(PermissionManager permissionManager) {
         this.permissionManager = permissionManager;
     }
 
