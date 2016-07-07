@@ -31,13 +31,16 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 
+import javax.inject.Inject;
+
 public class PlayerChangedWorldListener implements Listener {
 
     private GroupManager groupManager;
     private PermissionManager permissionManager;
     private PWIPlayerManager playerManager;
 
-    public PlayerChangedWorldListener(GroupManager groupManager, PermissionManager permissionManager, PWIPlayerManager playerManager) {
+    @Inject
+    PlayerChangedWorldListener(GroupManager groupManager, PermissionManager permissionManager, PWIPlayerManager playerManager) {
         this.groupManager = groupManager;
         this.permissionManager = permissionManager;
         this.playerManager = playerManager;

@@ -19,10 +19,12 @@ package me.gnat008.perworldinventory.commands;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.Settings;
+import me.gnat008.perworldinventory.data.converters.DataConverter;
 import me.gnat008.perworldinventory.data.FileSerializer;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.data.serializers.PlayerSerializer;
 import me.gnat008.perworldinventory.groups.Group;
+import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.permission.AdminPermission;
 import me.gnat008.perworldinventory.permission.PermissionManager;
 import org.bukkit.Bukkit;
@@ -34,20 +36,27 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 public class PerWorldInventoryCommand implements CommandExecutor {
 
+    @Inject
     private PerWorldInventory plugin;
+    @Inject
+    private DataConverter dataConverter;
+    @Inject
+    private FileSerializer fileSerializer;
+    @Inject
+    private GroupManager groupManager;
+    @Inject
     private PermissionManager permissionManager;
 
     private final String NO_PERMISSION = "You do not have permission to do that.";
 
-    public PerWorldInventoryCommand(PerWorldInventory plugin) {
-        this.plugin = plugin;
-        this.permissionManager = plugin.getPermissionManager();
+    PerWorldInventoryCommand() {
     }
 
     @Override
@@ -185,11 +194,11 @@ public class PerWorldInventoryCommand implements CommandExecutor {
                         Group group;
 
                         if (args.length == 2) {
-                            group = args[1].equalsIgnoreCase("default") ? new Group("__default", null, null) : plugin.getGroupManager().getGroup(args[1]);
+                            group = args[1].equalsIgnoreCase("default") ? new Group("__default", null, null) : groupManager.getGroup(args[1]);
                             setWorldDefault(player, group);
                         } else {
                             try {
-                                group = plugin.getGroupManager().getGroupFromWorld(player.getWorld().getName());
+                                group = groupManager.getGroupFromWorld(player.getWorld().getName());
                                 setWorldDefault(player, group);
                             } catch (IllegalArgumentException ex) {
                                 player.sendMessage(ChatColor.RED + "» " + ChatColor.GRAY + "You are not standing in a valid world!");
@@ -212,7 +221,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
             @Override
             public void run() {
-                plugin.getDataConverter().convertMultiVerseData();
+                dataConverter.convertMultiVerseData();
             }
         });
     }
@@ -221,7 +230,7 @@ public class PerWorldInventoryCommand implements CommandExecutor {
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
             @Override
             public void run() {
-                plugin.getDataConverter().convertMultiInvData();
+                dataConverter.convertMultiInvData();
             }
         });
     }
@@ -348,11 +357,10 @@ public class PerWorldInventoryCommand implements CommandExecutor {
             plugin.getLogger().warning("Your PerWorldInventory config is out of date! Some options may be missing.");
             plugin.getLogger().warning("Copy the new options from here: https://www.spigotmc.org/resources/per-world-inventory.4482/");
         }
-        plugin.getGroupManager().loadGroupsToMemory(plugin.getWorldsConfig());
+        groupManager.loadGroupsToMemory(plugin.getWorldsConfig());
     }
 
     private void setWorldDefault(Player player, Group group) {
-        FileSerializer fs = new FileSerializer(plugin);
         File file = new File(plugin.getDefaultFilesDirectory() + File.separator + group.getName() + ".json");
         if (!file.exists()) {
             player.sendMessage(ChatColor.RED + "» " + ChatColor.GRAY + "Default file for this group not found!");
@@ -368,16 +376,16 @@ public class PerWorldInventoryCommand implements CommandExecutor {
             return;
         }
         Group tempGroup = new Group("tmp", null, null);
-        fs.writeData(tmp, PlayerSerializer.serialize(plugin, new PWIPlayer(player, tempGroup)));
+        fileSerializer.writeData(tmp, PlayerSerializer.serialize(plugin, new PWIPlayer(plugin, player, tempGroup)));
 
         player.setFoodLevel(20);
         player.setHealth(20);
         player.setSaturation(20);
         player.setTotalExperience(0);
 
-        fs.writeData(file, PlayerSerializer.serialize(plugin, new PWIPlayer(player, group)));
+        fileSerializer.writeData(file, PlayerSerializer.serialize(plugin, new PWIPlayer(plugin, player, group)));
 
-        fs.getFromDatabase(tempGroup, GameMode.SURVIVAL, player);
+        fileSerializer.getFromDatabase(tempGroup, GameMode.SURVIVAL, player);
         tmp.delete();
         player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY +  "Defaults for '" + group.getName() + "' set!");
     }

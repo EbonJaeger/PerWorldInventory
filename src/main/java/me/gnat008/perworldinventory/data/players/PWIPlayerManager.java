@@ -19,13 +19,16 @@ package me.gnat008.perworldinventory.data.players;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.Settings;
+import me.gnat008.perworldinventory.data.DataSerializer;
 import me.gnat008.perworldinventory.groups.Group;
+import me.gnat008.perworldinventory.groups.GroupManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 
+import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -37,15 +40,20 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class PWIPlayerManager {
 
+    @Inject
     private PerWorldInventory plugin;
+    @Inject
+    private DataSerializer dataSerializer;
+    @Inject
+    private GroupManager groupManager;
+
     private int interval;
     private int taskID;
 
     // Key format: uuid.group.gamemode
     private Map<String, PWIPlayer> playerCache = new ConcurrentHashMap<>();
 
-    public PWIPlayerManager(PerWorldInventory plugin) {
-        this.plugin = plugin;
+    PWIPlayerManager() {
         int setting = Settings.getInt("save-interval");
         this.interval = (setting != -1 ? setting : 300) * 20;
         this.taskID = scheduleRepeatingTask();
@@ -85,7 +93,7 @@ public class PWIPlayerManager {
                 PerWorldInventory.printDebug("Player '" + player.getName() + "' found in cache! Updating cache");
             updateCache(player, playerCache.get(key));
         } else {
-            playerCache.put(key, new PWIPlayer(player, group));
+            playerCache.put(key, new PWIPlayer(plugin, player, group));
         }
     }
 
@@ -140,7 +148,7 @@ public class PWIPlayerManager {
             if (Settings.getBoolean("debug-mode"))
                 PerWorldInventory.printDebug("Player was not in cache! Loading from file" +
                         "");
-            plugin.getSerializer().getFromDatabase(group, gamemode, player);
+            dataSerializer.getFromDatabase(group, gamemode, player);
         }
     }
 
@@ -255,14 +263,14 @@ public class PWIPlayerManager {
                     PWIPlayer player = playerCache.get(key);
                     if (!player.isSaved()) {
                         String[] parts = key.split("\\.");
-                        Group group = plugin.getGroupManager().getGroup(parts[1]);
+                        Group group = groupManager.getGroup(parts[1]);
                         GameMode gamemode = GameMode.valueOf(parts[2].toUpperCase());
 
                         if (Settings.getBoolean("debug-mode"))
                             PerWorldInventory.printDebug("Saving cached player '" + player.getName() + "' for group '" + group.getName() + "' with gamemdde '" + gamemode.name() + "'");
 
                         player.setSaved(true);
-                        plugin.getSerializer().saveToDatabase(group, gamemode, player, true);
+                        dataSerializer.saveToDatabase(group, gamemode, player, true);
                     } else {
                         if (Settings.getBoolean("debug-mode"))
                             PerWorldInventory.printDebug("Removing player '" + player.getName() + "' from cache");
@@ -305,9 +313,9 @@ public class PWIPlayerManager {
         currentPlayer.setMaxAir(newData.getMaximumAir());
         currentPlayer.setRemainingAir(newData.getRemainingAir());
 
-        if (PerWorldInventory.getInstance().getEconomy() != null) {
-            currentPlayer.setBankBalance(PerWorldInventory.getInstance().getEconomy().bankBalance(newData.getName()).balance);
-            currentPlayer.setBalance(PerWorldInventory.getInstance().getEconomy().getBalance(newData));
+        if (plugin.getEconomy() != null) {
+            currentPlayer.setBankBalance(plugin.getEconomy().bankBalance(newData.getName()).balance);
+            currentPlayer.setBalance(plugin.getEconomy().getBalance(newData));
         }
     }
 }

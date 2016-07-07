@@ -31,6 +31,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import javax.inject.Inject;
 import java.io.*;
 import java.util.UUID;
 
@@ -38,7 +39,8 @@ public class FileSerializer extends DataSerializer {
 
     private final String FILE_PATH;
 
-    public FileSerializer(PerWorldInventory plugin) {
+    @Inject
+    FileSerializer(PerWorldInventory plugin) {
         super(plugin);
 
         this.FILE_PATH = plugin.getDataFolder() + File.separator + "data" + File.separator;

@@ -31,13 +31,16 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 
+import javax.inject.Inject;
+
 public class PlayerGameModeChangeListener implements Listener {
 
     private GroupManager manager;
     private PermissionManager permissionManager;
     private PWIPlayerManager playerManager;
 
-    public PlayerGameModeChangeListener(GroupManager manager, PermissionManager permissionManager, PWIPlayerManager playerManager) {
+    @Inject
+    PlayerGameModeChangeListener(GroupManager manager, PermissionManager permissionManager, PWIPlayerManager playerManager) {
         this.manager = manager;
         this.permissionManager = permissionManager;
         this.playerManager = playerManager;

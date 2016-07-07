@@ -32,15 +32,20 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import javax.inject.Inject;
+
 public class PlayerQuitListener implements Listener {
 
     private DataSerializer serializer;
     private GroupManager manager;
+    private PerWorldInventory plugin;
     private PWIPlayerManager playerManager;
 
-    public PlayerQuitListener(DataSerializer serializer, GroupManager groupManager, PWIPlayerManager playerManager) {
+    @Inject
+    PlayerQuitListener(DataSerializer serializer, GroupManager groupManager, PerWorldInventory plugin, PWIPlayerManager playerManager) {
         this.serializer = serializer;
         this.manager = groupManager;
+        this.plugin = plugin;
         this.playerManager = playerManager;
     }
 
@@ -65,7 +70,7 @@ public class PlayerQuitListener implements Listener {
         if (Settings.getBoolean("debug-mode"))
             PerWorldInventory.printDebug("Saving logout data for player '" + player.getName() + "'");
 
-        PWIPlayer pwiPlayer = new PWIPlayer(player, group);
+        PWIPlayer pwiPlayer = new PWIPlayer(plugin, player, group);
         serializer.saveToDatabase(group,
                 Settings.getBoolean("separate-gamemode-inventories") ? player.getGameMode() : GameMode.SURVIVAL,
                 pwiPlayer,
@@ -96,7 +101,7 @@ public class PlayerQuitListener implements Listener {
         if (Settings.getBoolean("debug-mode"))
             PerWorldInventory.printDebug("Saving logout data for player '" + player.getName() + "'");
 
-        PWIPlayer pwiPlayer = new PWIPlayer(player, group);
+        PWIPlayer pwiPlayer = new PWIPlayer(plugin, player, group);
         serializer.saveToDatabase(group,
                 Settings.getBoolean("separate-gamemode-inventories") ? player.getGameMode() : GameMode.SURVIVAL,
                 pwiPlayer,

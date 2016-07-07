@@ -17,9 +17,10 @@
 
 package me.gnat008.perworldinventory;
 
+import ch.jalu.injector.Injector;
+import ch.jalu.injector.InjectorBuilder;
 import me.gnat008.perworldinventory.commands.PerWorldInventoryCommand;
 import me.gnat008.perworldinventory.config.Settings;
-import me.gnat008.perworldinventory.data.DataConverter;
 import me.gnat008.perworldinventory.data.DataSerializer;
 import me.gnat008.perworldinventory.data.FileSerializer;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
@@ -29,8 +30,10 @@ import me.gnat008.perworldinventory.listeners.server.PluginListener;
 import me.gnat008.perworldinventory.permission.PermissionManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.Server;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -48,15 +51,10 @@ public class PerWorldInventory extends JavaPlugin {
     private PWIPlayerManager playerManager;
 
     private static Logger logger;
-    private static PerWorldInventory instance = null;
 
     @Override
     public void onEnable() {
-        instance = this;
         logger = getLogger();
-        serializer = new FileSerializer(this);
-
-        this.permissionManager = new PermissionManager(this, getServer(), getServer().getPluginManager());
 
         // Make the data folders
         if (!(new File(getDataFolder() + File.separator + "data" + File.separator + "defaults").exists())) {
@@ -82,33 +80,23 @@ public class PerWorldInventory extends JavaPlugin {
             getLogger().warning("Copy the new options from here: https://www.spigotmc.org/resources/per-world-inventory.4482/");
         }
 
+        /* Initialization */
+        Injector injector = new InjectorBuilder().addDefaultHandlers("me.gnat008.perworldinventory").create();
+        injector.register(PerWorldInventory.class, this);
+        injector.register(Server.class, getServer());
+        injector.register(PluginManager.class, getServer().getPluginManager());
+        injector.provide(DataFolder.class, getDataFolder());
+        injectServices(injector);
+        registerEventListeners(injector);
+
         // Load world groups
-        groupManager = new GroupManager(this);
         FileConfiguration worldsConfig = getWorldsConfig();
         groupManager.loadGroupsToMemory(worldsConfig);
 
-        playerManager = new PWIPlayerManager(this);
-
         // Register commands
         getLogger().info("Registering commands...");
-        getCommand("pwi").setExecutor(new PerWorldInventoryCommand(this));
-
-        // Register listeners
-        getLogger().info("Commands registered! Registering listeners...");
-        getServer().getPluginManager().registerEvents(new PluginListener(permissionManager), this);
-        getServer().getPluginManager().registerEvents(new PlayerChangedWorldListener(groupManager, permissionManager, playerManager), this);
-        getServer().getPluginManager().registerEvents(new PlayerQuitListener(serializer, groupManager, playerManager), this);
-        getServer().getPluginManager().registerEvents(new PlayerJoinListener(permissionManager), this);
-
-        // Check the server version to see if PlayerSpawnLocationEvent exists (at least 1.9.2)
-        if (Utils.checkServerVersion(Bukkit.getVersion()))
-            getServer().getPluginManager().registerEvents(new PlayerSpawnLocationListener(this), this);
-
-        if (Settings.getBoolean("separate-gamemode-inventories")) {
-            getServer().getPluginManager().registerEvents(new PlayerGameModeChangeListener(groupManager, permissionManager, playerManager), this);
-            getLogger().info("Registered PlayerGameModeChangeListener.");
-        }
-        getLogger().info("Listeners enabled!");
+        getCommand("pwi").setExecutor(injector.getSingleton(PerWorldInventoryCommand.class));
+        getLogger().info("Commands registered!");
 
         // Register Vault if present
         if (getServer().getPluginManager().getPlugin("Vault") != null) {
@@ -129,35 +117,37 @@ public class PerWorldInventory extends JavaPlugin {
     @Override
     public void onDisable() {
         playerManager.onDisable();
-        try {
-            DataConverter.disable();
-        }
-        catch (NoClassDefFoundError ex) {
-            // To be expected if multiverse isn't loaded
-        }
-        getGroupManager().disable();
+        groupManager.disable();
         getServer().getScheduler().cancelTasks(this);
-        instance = null;
     }
 
-    public static PerWorldInventory getInstance() {
-        if (instance == null) {
-            throw new IllegalStateException("Cannot get instance before onEnable() has been called!");
-        }
+    protected void injectServices(Injector injector) {
+        groupManager = injector.getSingleton(GroupManager.class);
+        permissionManager = injector.getSingleton(PermissionManager.class);
+        playerManager = injector.getSingleton(PWIPlayerManager.class);
+        serializer = injector.getSingleton(FileSerializer.class);
+    }
 
-        return instance;
+    protected void registerEventListeners(Injector injector) {
+        getLogger().info("Registering listeners...");
+
+        PluginManager pluginManager = getServer().getPluginManager();
+
+        pluginManager.registerEvents(injector.getSingleton(PluginListener.class), this);
+
+        pluginManager.registerEvents(injector.getSingleton(PlayerChangedWorldListener.class), this);
+        pluginManager.registerEvents(injector.getSingleton(PlayerGameModeChangeListener.class), this);
+        pluginManager.registerEvents(injector.getSingleton(PlayerJoinListener.class), this);
+        pluginManager.registerEvents(injector.getSingleton(PlayerQuitListener.class), this);
+
+        if (Utils.checkServerVersion(Bukkit.getVersion())) {
+            pluginManager.registerEvents(injector.getSingleton(PlayerSpawnLocationListener.class), this);
+        }
+        getLogger().info("Listeners registered!");
     }
 
     public static void printDebug(String message) {
         logger.info("[DEBUG] " + message);
-    }
-
-    public DataConverter getDataConverter() {
-        return DataConverter.getInstance(this);
-    }
-
-    public DataSerializer getSerializer() {
-        return serializer;
     }
 
     public Economy getEconomy() {
@@ -171,18 +161,4 @@ public class PerWorldInventory extends JavaPlugin {
     public FileConfiguration getWorldsConfig() {
         return YamlConfiguration.loadConfiguration(new File(getDataFolder() + File.separator + "worlds.yml"));
     }
-
-    public GroupManager getGroupManager() {
-        return this.groupManager;
-    }
-
-    public PermissionManager getPermissionManager() {
-        return this.permissionManager;
-    }
-
-    public PWIPlayerManager getPlayerManager() {
-        return this.playerManager;
-    }
-
-
 }
