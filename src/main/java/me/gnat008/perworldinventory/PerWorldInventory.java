@@ -34,7 +34,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.*;
+import java.io.File;
 import java.util.logging.Logger;
 
 public class PerWorldInventory extends JavaPlugin {
@@ -54,6 +54,7 @@ public class PerWorldInventory extends JavaPlugin {
     public void onEnable() {
         instance = this;
         logger = getLogger();
+        serializer = new FileSerializer(this);
 
         this.permissionManager = new PermissionManager(this, getServer(), getServer().getPluginManager());
 
@@ -120,8 +121,6 @@ public class PerWorldInventory extends JavaPlugin {
                 getLogger().warning("Unable to hook into Vault!");
             }
         }
-
-        serializer = new FileSerializer(this);
 
         if (Settings.getBoolean("debug-mode"))
             printDebug("PerWorldInventory is enabled and debug-mode is active!");
