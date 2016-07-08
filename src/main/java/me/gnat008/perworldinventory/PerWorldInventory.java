@@ -19,7 +19,7 @@ package me.gnat008.perworldinventory;
 
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
-import me.gnat008.perworldinventory.commands.PerWorldInventoryCommand;
+import me.gnat008.perworldinventory.commands.*;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.DataSerializer;
 import me.gnat008.perworldinventory.data.FileSerializer;
@@ -31,6 +31,8 @@ import me.gnat008.perworldinventory.permission.PermissionManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.PluginManager;
@@ -38,6 +40,9 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class PerWorldInventory extends JavaPlugin {
@@ -49,6 +54,8 @@ public class PerWorldInventory extends JavaPlugin {
     private GroupManager groupManager;
     private PermissionManager permissionManager;
     private PWIPlayerManager playerManager;
+
+    private final HashMap<String, ExecutableCommand> commands = new HashMap<>();
 
     private static Logger logger;
 
@@ -95,8 +102,7 @@ public class PerWorldInventory extends JavaPlugin {
 
         // Register commands
         getLogger().info("Registering commands...");
-        getCommand("pwi").setExecutor(injector.getSingleton(PerWorldInventoryCommand.class));
-        getLogger().info("Commands registered!");
+        registerCommands(injector);
 
         // Register Vault if present
         if (getServer().getPluginManager().getPlugin("Vault") != null) {
@@ -146,6 +152,16 @@ public class PerWorldInventory extends JavaPlugin {
         getLogger().info("Listeners registered!");
     }
 
+    protected void registerCommands(Injector injector) {
+        commands.put("pwi", injector.getSingleton(PerWorldInventoryCommand.class));
+        commands.put("convert", injector.getSingleton(ConvertCommand.class));
+        commands.put("help", injector.getSingleton(HelpCommand.class));
+        commands.put("reload", injector.getSingleton(ReloadCommand.class));
+        commands.put("setworlddefault", injector.getSingleton(SetWorldDefaultCommand.class));
+        commands.put("version", injector.getSingleton(VersionCommand.class));
+        getLogger().info("Commands registered!");
+    }
+
     public static void printDebug(String message) {
         logger.info("[DEBUG] " + message);
     }
@@ -160,5 +176,32 @@ public class PerWorldInventory extends JavaPlugin {
 
     public FileConfiguration getWorldsConfig() {
         return YamlConfiguration.loadConfiguration(new File(getDataFolder() + File.separator + "worlds.yml"));
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String... args) {
+        if (command.getName().equalsIgnoreCase("pwi")) {
+            if (args.length == 0) {
+                commands.get(command.getName()).executeCommand(sender, new ArrayList<String>());
+                return true;
+            }
+
+            if (commands.containsKey(args[0])) {
+                // Add all args excluding the first one
+                List<String> argsList = new ArrayList<>();
+                for (int i = 1; i < args.length; i++) {
+                    argsList.add(args[i]);
+                }
+
+                // Execute the command
+                commands.get(args[0]).executeCommand(sender, argsList);
+                return true;
+            } else {
+                commands.get("pwi").executeCommand(sender, new ArrayList<String>());
+                return true;
+            }
+        }
+
+        return false;
     }
 }

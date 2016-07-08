@@ -207,4 +207,47 @@ public class FileSerializer extends DataSerializer {
 
         return file;
     }
+
+    /**
+     * Set the default inventory loadout for a group. This is the inventory that will
+     * be given to a player the first time they enter a world in the group.
+     * <p>
+     * A snapshot of the player will be taken and saved to a temp file to be deleted after.
+     * This is so some stats are set to max, e.g. health. The snapshot will be restored to
+     * the player after the default loadout has been saved.
+     *
+     * @param player The player performing the command.
+     * @param group The group to write the defaults for.
+     */
+    public void setGroupDefault(Player player, Group group) {
+        File file = new File(plugin.getDefaultFilesDirectory() + File.separator + group.getName() + ".json");
+        if (!file.exists()) {
+            player.sendMessage(ChatColor.DARK_RED + "» " + ChatColor.GRAY + "Default file for this group not found!");
+            return;
+        }
+
+        File tmp = new File(plugin.getDataFolder() + File.separator + "data" + File.separator + player.getUniqueId() + File.separator + "tmp.json");
+        try {
+            tmp.getParentFile().mkdirs();
+            tmp.createNewFile();
+        } catch (IOException ex) {
+            player.sendMessage(ChatColor.DARK_RED + "» " + ChatColor.GRAY +  "Could not create temporary file! Aborting!");
+            return;
+        }
+        Group tempGroup = new Group("tmp", null, null);
+        writeData(tmp, PlayerSerializer.serialize(plugin, new PWIPlayer(plugin, player, tempGroup)));
+
+        player.setFoodLevel(20);
+        player.setHealth(player.getMaxHealth());
+        player.setSaturation(20);
+        player.setTotalExperience(0);
+        player.setRemainingAir(player.getMaximumAir());
+        player.setFireTicks(0);
+
+        writeData(file, PlayerSerializer.serialize(plugin, new PWIPlayer(plugin, player, group)));
+
+        getFromDatabase(tempGroup, GameMode.SURVIVAL, player);
+        tmp.delete();
+        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY +  "Defaults for '" + group.getName() + "' set!");
+    }
 }
