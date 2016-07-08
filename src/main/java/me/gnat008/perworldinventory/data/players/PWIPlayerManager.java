@@ -19,7 +19,7 @@ package me.gnat008.perworldinventory.data.players;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.Settings;
-import me.gnat008.perworldinventory.data.DataSerializer;
+import me.gnat008.perworldinventory.data.DataWriter;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import net.milkbowl.vault.economy.Economy;
@@ -43,7 +43,7 @@ public class PWIPlayerManager {
     @Inject
     private PerWorldInventory plugin;
     @Inject
-    private DataSerializer dataSerializer;
+    private DataWriter dataWriter;
     @Inject
     private GroupManager groupManager;
 
@@ -148,7 +148,7 @@ public class PWIPlayerManager {
             if (Settings.getBoolean("debug-mode"))
                 PerWorldInventory.printDebug("Player was not in cache! Loading from file" +
                         "");
-            dataSerializer.getFromDatabase(group, gamemode, player);
+            dataWriter.getFromDatabase(group, gamemode, player);
         }
     }
 
@@ -270,7 +270,7 @@ public class PWIPlayerManager {
                             PerWorldInventory.printDebug("Saving cached player '" + player.getName() + "' for group '" + group.getName() + "' with gamemdde '" + gamemode.name() + "'");
 
                         player.setSaved(true);
-                        dataSerializer.saveToDatabase(group, gamemode, player, true);
+                        dataWriter.saveToDatabase(group, gamemode, player, true);
                     } else {
                         if (Settings.getBoolean("debug-mode"))
                             PerWorldInventory.printDebug("Removing player '" + player.getName() + "' from cache");

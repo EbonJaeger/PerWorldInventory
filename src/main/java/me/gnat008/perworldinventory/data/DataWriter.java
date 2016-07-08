@@ -17,28 +17,20 @@
 
 package me.gnat008.perworldinventory.data;
 
-import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.groups.Group;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-public abstract class DataSerializer {
-
-    protected PerWorldInventory plugin;
-
-    public DataSerializer(PerWorldInventory plugin) {
-        this.plugin = plugin;
-    }
+public interface DataWriter {
 
     /**
      * Save the location of a player when they log out or are kicked from the server.
      *
      * @param player The player who logged out
      */
-    public abstract void saveLogoutData(PWIPlayer player);
+    void saveLogoutData(PWIPlayer player);
 
     /**
      * Saves a player's data to the database.
@@ -51,20 +43,9 @@ public abstract class DataSerializer {
      * @param player The {@link me.gnat008.perworldinventory.data.players.PWIPlayer} to save
      * @param async Save data asynchronously
      */
-    public void saveToDatabase(final Group group, final GameMode gamemode, final PWIPlayer player, boolean async) {
-        if (async) {
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-                @Override
-                public void run() {
-                    saveToDatabase(group, gamemode, player);
-                }
-            });
-        } else {
-            saveToDatabase(group, gamemode, player);
-        }
-    }
+    void saveToDatabase(final Group group, final GameMode gamemode, final PWIPlayer player, boolean async);
 
-    protected abstract void saveToDatabase(Group group, GameMode gamemode, PWIPlayer player);
+    void saveToDatabase(Group group, GameMode gamemode, PWIPlayer player);
 
     /**
      * Retrieves a player's data from the database.
@@ -76,7 +57,7 @@ public abstract class DataSerializer {
      * @param gamemode The {@link org.bukkit.GameMode} the player was in
      * @param player The {@link org.bukkit.entity.Player} to set the data to
      */
-    public abstract void getFromDatabase(Group group, GameMode gamemode, Player player);
+    void getFromDatabase(Group group, GameMode gamemode, Player player);
 
     /**
      * Get the name of the world that a player logged out in.
@@ -85,5 +66,5 @@ public abstract class DataSerializer {
      * @param player The player to get the last logout for
      * @return The location of the player when they last logged out or null
      */
-    public abstract Location getLogoutData(Player player);
+    Location getLogoutData(Player player);
 }

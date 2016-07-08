@@ -19,7 +19,7 @@ package me.gnat008.perworldinventory.listeners.player;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.Settings;
-import me.gnat008.perworldinventory.data.DataSerializer;
+import me.gnat008.perworldinventory.data.DataWriter;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
@@ -38,16 +38,16 @@ import javax.inject.Inject;
 public class PlayerSpawnLocationListener implements Listener {
 
     private PerWorldInventory plugin;
-    private DataSerializer dataSerializer;
+    private DataWriter dataWriter;
     private GroupManager groupManager;
     private PermissionManager permissionManager;
     private PWIPlayerManager playerManager;
 
     @Inject
-    PlayerSpawnLocationListener(PerWorldInventory plugin, DataSerializer dataSerializer, GroupManager groupManager,
-                                       PermissionManager permissionManager, PWIPlayerManager playerManager) {
+    PlayerSpawnLocationListener(PerWorldInventory plugin, DataWriter dataWriter, GroupManager groupManager,
+                                PermissionManager permissionManager, PWIPlayerManager playerManager) {
         this.plugin = plugin;
-        this.dataSerializer = dataSerializer;
+        this.dataWriter = dataWriter;
         this.groupManager = groupManager;
         this.permissionManager = permissionManager;
         this.playerManager = playerManager;
@@ -64,7 +64,7 @@ public class PlayerSpawnLocationListener implements Listener {
         if (Settings.getBoolean("debug-mode"))
             PerWorldInventory.printDebug("Player '" + player.getName() + "' joining! Spawning in world '" + spawnWorld + "'. Getting last logout location");
 
-        Location lastLogout = dataSerializer.getLogoutData(player);
+        Location lastLogout = dataWriter.getLogoutData(player);
         if (lastLogout != null) {
             if (Settings.getBoolean("debug-mode"))
                 PerWorldInventory.printDebug("Logout location found for player '" + player.getName() + "'!");

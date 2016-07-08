@@ -21,8 +21,8 @@ import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
 import me.gnat008.perworldinventory.commands.*;
 import me.gnat008.perworldinventory.config.Settings;
-import me.gnat008.perworldinventory.data.DataSerializer;
-import me.gnat008.perworldinventory.data.FileSerializer;
+import me.gnat008.perworldinventory.data.DataWriter;
+import me.gnat008.perworldinventory.data.FileWriter;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.listeners.player.*;
@@ -35,6 +35,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -50,7 +51,7 @@ public class PerWorldInventory extends JavaPlugin {
     public static final int CONFIG_VERSION = 4;
 
     private Economy economy;
-    private DataSerializer serializer;
+    private DataWriter serializer;
     private GroupManager groupManager;
     private PermissionManager permissionManager;
     private PWIPlayerManager playerManager;
@@ -130,8 +131,9 @@ public class PerWorldInventory extends JavaPlugin {
     protected void injectServices(Injector injector) {
         groupManager = injector.getSingleton(GroupManager.class);
         permissionManager = injector.getSingleton(PermissionManager.class);
+        serializer = injector.getSingleton(FileWriter.class);
+        injector.register(DataWriter.class, serializer);
         playerManager = injector.getSingleton(PWIPlayerManager.class);
-        serializer = injector.getSingleton(FileSerializer.class);
     }
 
     protected void registerEventListeners(Injector injector) {

@@ -26,6 +26,7 @@ import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.data.serializers.LocationSerializer;
 import me.gnat008.perworldinventory.data.serializers.PlayerSerializer;
 import me.gnat008.perworldinventory.groups.Group;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -35,17 +36,20 @@ import javax.inject.Inject;
 import java.io.*;
 import java.util.UUID;
 
-public class FileSerializer extends DataSerializer {
+public class FileWriter implements DataWriter {
 
     private final String FILE_PATH;
 
+    private PerWorldInventory plugin;
+
     @Inject
-    FileSerializer(PerWorldInventory plugin) {
-        super(plugin);
+    FileWriter(PerWorldInventory plugin) {
+        this.plugin = plugin;
 
         this.FILE_PATH = plugin.getDataFolder() + File.separator + "data" + File.separator;
     }
 
+    @Override
     public void saveLogoutData(PWIPlayer player) {
         File file = new File(FILE_PATH + player.getUuid().toString(), "last-logout.json");
 
@@ -62,6 +66,21 @@ public class FileSerializer extends DataSerializer {
         }
     }
 
+    @Override
+    public void saveToDatabase(final Group group, final GameMode gamemode, final PWIPlayer player, boolean async) {
+        if (async) {
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+                @Override
+                public void run() {
+                    saveToDatabase(group, gamemode, player);
+                }
+            });
+        } else {
+            saveToDatabase(group, gamemode, player);
+        }
+    }
+
+    @Override
     public void saveToDatabase(Group group, GameMode gamemode, PWIPlayer player) {
         File file = getFile(gamemode, group, player.getUuid());
 
@@ -89,9 +108,9 @@ public class FileSerializer extends DataSerializer {
     }
 
     public void writeData(final File file, final String data) {
-        FileWriter writer = null;
+        java.io.FileWriter writer = null;
         try {
-            writer = new FileWriter(file);
+            writer = new java.io.FileWriter(file);
             writer.write(data);
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -106,6 +125,7 @@ public class FileSerializer extends DataSerializer {
         }
     }
 
+    @Override
     public void getFromDatabase(Group group, GameMode gamemode, Player player) {
         File file = getFile(gamemode, group, player.getUniqueId());
 
@@ -131,6 +151,7 @@ public class FileSerializer extends DataSerializer {
         }
     }
 
+    @Override
     public Location getLogoutData(Player player) {
         File file = new File(FILE_PATH + player.getUniqueId().toString(), "last-logout.json");
 

@@ -27,7 +27,7 @@ import com.onarandombox.multiverseinventories.api.profile.PlayerProfile;
 import com.onarandombox.multiverseinventories.api.profile.WorldGroupProfile;
 import com.onarandombox.multiverseinventories.api.share.Sharables;
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.data.FileSerializer;
+import me.gnat008.perworldinventory.data.FileWriter;
 import me.gnat008.perworldinventory.data.serializers.InventorySerializer;
 import me.gnat008.perworldinventory.data.serializers.PotionEffectSerializer;
 import me.gnat008.perworldinventory.groups.Group;
@@ -50,7 +50,7 @@ public class DataConverter {
     private static final ProfileType[] MV_PROFILETYPES = { ProfileTypes.SURVIVAL, ProfileTypes.CREATIVE, ProfileTypes.ADVENTURE };
 
     @Inject
-    private FileSerializer serializer;
+    private FileWriter serializer;
     @Inject
     private GroupManager groupManager;
     @Inject

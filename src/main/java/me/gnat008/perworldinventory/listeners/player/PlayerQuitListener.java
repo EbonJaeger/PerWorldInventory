@@ -19,7 +19,7 @@ package me.gnat008.perworldinventory.listeners.player;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.Settings;
-import me.gnat008.perworldinventory.data.DataSerializer;
+import me.gnat008.perworldinventory.data.DataWriter;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.Group;
@@ -36,13 +36,13 @@ import javax.inject.Inject;
 
 public class PlayerQuitListener implements Listener {
 
-    private DataSerializer serializer;
+    private DataWriter serializer;
     private GroupManager manager;
     private PerWorldInventory plugin;
     private PWIPlayerManager playerManager;
 
     @Inject
-    PlayerQuitListener(DataSerializer serializer, GroupManager groupManager, PerWorldInventory plugin, PWIPlayerManager playerManager) {
+    PlayerQuitListener(DataWriter serializer, GroupManager groupManager, PerWorldInventory plugin, PWIPlayerManager playerManager) {
         this.serializer = serializer;
         this.manager = groupManager;
         this.plugin = plugin;

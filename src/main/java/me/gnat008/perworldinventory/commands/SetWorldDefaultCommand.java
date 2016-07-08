@@ -1,7 +1,7 @@
 package me.gnat008.perworldinventory.commands;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.data.FileSerializer;
+import me.gnat008.perworldinventory.data.FileWriter;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.permission.AdminPermission;
@@ -19,7 +19,7 @@ public class SetWorldDefaultCommand implements ExecutableCommand {
     @Inject
     private PerWorldInventory plugin;
     @Inject
-    private FileSerializer fileSerializer;
+    private FileWriter fileSerializer;
     @Inject
     private GroupManager groupManager;
     @Inject
