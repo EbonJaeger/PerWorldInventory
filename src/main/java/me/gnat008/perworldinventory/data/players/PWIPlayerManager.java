@@ -77,8 +77,10 @@ public class PWIPlayerManager {
      *
      * @param player The Player to add
      * @param group The Group the player is in
+     *
+     * @return The key used to get the player data.
      */
-    public void addPlayer(Player player, Group group) {
+    public String addPlayer(Player player, Group group) {
         String key = player.getUniqueId().toString() + "." + group.getName() + ".";
         if (Settings.getBoolean("separate-gamemode-inventories"))
             key += player.getGameMode().toString().toLowerCase();
@@ -95,6 +97,8 @@ public class PWIPlayerManager {
         } else {
             playerCache.put(key, new PWIPlayer(plugin, player, group));
         }
+
+        return key;
     }
 
     /**

@@ -111,7 +111,7 @@ public class PWIPlayer {
         this.maxAir = player.getMaximumAir();
         this.remainingAir = player.getRemainingAir();
 
-        if (plugin.getEconomy() != null) {
+        if (plugin.isEconEnabled()) {
             this.bankBalance = plugin.getEconomy().bankBalance(name).balance;
             this.balance = plugin.getEconomy().getBalance(player);
         }

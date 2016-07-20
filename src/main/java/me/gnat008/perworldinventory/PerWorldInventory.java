@@ -179,6 +179,17 @@ public class PerWorldInventory extends JavaPlugin {
         return YamlConfiguration.loadConfiguration(new File(getDataFolder() + File.separator + "worlds.yml"));
     }
 
+    /**
+     * Get whether the economy function of PWI is enabled.
+     * Vault has to be hooked and the setting has to be enabled in the
+     * config for this method to return true.
+     *
+     * @return If the plugin's economy feature is enabled.
+     */
+    public boolean isEconEnabled() {
+        return economy != null && Settings.getBoolean("player.economy");
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String... args) {
         if (command.getName().equalsIgnoreCase("pwi")) {
