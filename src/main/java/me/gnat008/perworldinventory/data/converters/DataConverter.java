@@ -15,58 +15,40 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.gnat008.perworldinventory.data;
+package me.gnat008.perworldinventory.data.converters;
 
+import ch.jalu.injector.annotations.NoMethodScan;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.onarandombox.multiverseinventories.MultiverseInventories;
 import com.onarandombox.multiverseinventories.ProfileTypes;
-import com.onarandombox.multiverseinventories.api.profile.ProfileType;
 import com.onarandombox.multiverseinventories.api.profile.PlayerProfile;
+import com.onarandombox.multiverseinventories.api.profile.ProfileType;
 import com.onarandombox.multiverseinventories.api.profile.WorldGroupProfile;
-import com.onarandombox.multiverseinventories.api.share.Sharables;
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.data.serializers.InventorySerializer;
-import me.gnat008.perworldinventory.data.serializers.PotionEffectSerializer;
+import me.gnat008.perworldinventory.data.FileWriter;
 import me.gnat008.perworldinventory.groups.Group;
+import me.gnat008.perworldinventory.groups.GroupManager;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
-import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
-import uk.co.tggl.pluckerpluck.multiinv.api.MIAPIPlayer;
-import uk.co.tggl.pluckerpluck.multiinv.inventory.MIItemStack;
 
+import javax.inject.Inject;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
+@NoMethodScan
 public class DataConverter {
-    private static final ProfileType[] MV_PROFILETYPES = { ProfileTypes.SURVIVAL, ProfileTypes.CREATIVE, ProfileTypes.ADVENTURE };
 
-    private FileSerializer serializer;
+    @Inject
+    private FileWriter serializer;
+    @Inject
+    private GroupManager groupManager;
+    @Inject
     private PerWorldInventory plugin;
 
-    private static DataConverter converter = null;
-
-    private DataConverter(PerWorldInventory plugin) {
-        this.plugin = plugin;
-        this.serializer = new FileSerializer(plugin);
-    }
-
-    public static DataConverter getInstance(PerWorldInventory plugin) {
-        if (converter == null) {
-            converter = new DataConverter(plugin);
-        }
-
-        return converter;
-    }
-
-    public static void disable() {
-        converter = null;
-    }
+    DataConverter() {}
 
     public void convertMultiVerseData() {
         plugin.getLogger().info("Beginning data conversion. This may take awhile...");
@@ -76,14 +58,15 @@ public class DataConverter {
 
         for (WorldGroupProfile mvgroup : mvgroups) {
             //Ensure that the group exists first, otherwise you just get nulls
-            Group pwiGroup = plugin.getGroupManager().getGroup(mvgroup.getName());
+            Group pwiGroup = groupManager.getGroup(mvgroup.getName());
             List<String> worlds = new ArrayList<>(mvgroup.getWorlds());
 
             if (pwiGroup == null)
-                plugin.getGroupManager().addGroup(mvgroup.getName(), worlds);
+                groupManager.addGroup(mvgroup.getName(), worlds);
             else
                 pwiGroup.addWorlds(worlds);
 
+            ProfileType[] MV_PROFILETYPES = { ProfileTypes.SURVIVAL, ProfileTypes.CREATIVE, ProfileTypes.ADVENTURE };
             for (ProfileType profileType : MV_PROFILETYPES) {
                 GameMode gameMode = GameMode.valueOf(profileType.getName());
 
@@ -91,14 +74,14 @@ public class DataConverter {
                     try {
                         PlayerProfile playerData = mvgroup.getPlayerData(profileType, player1);
                         if (playerData != null) {
-                            JsonObject writable = serializeMVIToNewFormat(playerData);
+                            //JsonObject writable = serializeMVIToNewFormat(playerData);
 
-                            File file = serializer.getFile(gameMode, plugin.getGroupManager().getGroup(mvgroup.getName()), player1.getUniqueId());
+                            File file = serializer.getFile(gameMode, groupManager.getGroup(mvgroup.getName()), player1.getUniqueId());
                             if (!file.getParentFile().exists())
                                 file.getParentFile().mkdir();
                             if (!file.exists())
                                 file.createNewFile();
-                            serializer.writeData(file, gson.toJson(writable));
+                            //serializer.writeData(file, gson.toJson(writable));
                         }
                     } catch (Exception ex) {
                         plugin.getLogger().warning("Error importing inventory for player: " + player1.getName() +
@@ -109,7 +92,7 @@ public class DataConverter {
             }
         }
 
-        plugin.getGroupManager().saveGroupsToDisk();
+        groupManager.saveGroupsToDisk();
         plugin.getLogger().info("Data conversion complete! Disabling Multiverse-Inventories...");
         plugin.getServer().getPluginManager().disablePlugin(mvinventories);
         plugin.getLogger().info("Multiverse-Inventories disabled! Don't forget to remove the .jar!");
@@ -137,13 +120,13 @@ public class DataConverter {
             }
         }*/
 
-        plugin.getGroupManager().saveGroupsToDisk();
+        groupManager.saveGroupsToDisk();
         plugin.getLogger().info("Data conversion complete! Disabling MultiInv...");
         plugin.getServer().getPluginManager().disablePlugin(multiinv);
         plugin.getLogger().info("MultiInv disabled! Don't forget to remove the .jar!");
     }
 
-    private JsonObject serializeMVIToNewFormat(PlayerProfile data) {
+    /*private JsonObject serializeMVIToNewFormat(PlayerProfile data) {
         JsonObject root = new JsonObject();
         root.addProperty("data-format", 1);
 
@@ -244,5 +227,5 @@ public class DataConverter {
         root.add("stats", stats);
 
         return root;
-    }
+    }*/
 }

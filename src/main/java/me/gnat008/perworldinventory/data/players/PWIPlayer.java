@@ -17,6 +17,7 @@
 
 package me.gnat008.perworldinventory.data.players;
 
+import me.gnat008.perworldinventory.DataFolder;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.groups.Group;
 import org.bukkit.GameMode;
@@ -70,15 +71,19 @@ public class PWIPlayer {
     private String name;
 
     /* PERWORLDINVENTORY STUFF */
+    private PerWorldInventory plugin;
     private boolean saved;
+    @DataFolder
+    private File dataFolder;
     private File dataFileDirectory;
     private Group group;
 
-    public PWIPlayer(Player player, Group group) {
+    public PWIPlayer(PerWorldInventory plugin, Player player, Group group) {
+        this.plugin = plugin;
         this.uuid = player.getUniqueId();
         this.name = player.getName();
         this.location = player.getLocation();
-        this.dataFileDirectory = new File(PerWorldInventory.getInstance().getDataFolder() + File.separator + "data" + File.separator + uuid.toString());
+        this.dataFileDirectory = new File(dataFolder + File.separator + "data" + File.separator + uuid.toString());
         if (!dataFileDirectory.exists()) {
             dataFileDirectory.mkdir();
         }
@@ -106,9 +111,9 @@ public class PWIPlayer {
         this.maxAir = player.getMaximumAir();
         this.remainingAir = player.getRemainingAir();
 
-        if (PerWorldInventory.getInstance().getEconomy() != null) {
-            this.bankBalance = PerWorldInventory.getInstance().getEconomy().bankBalance(name).balance;
-            this.balance = PerWorldInventory.getInstance().getEconomy().getBalance(player);
+        if (plugin.getEconomy() != null) {
+            this.bankBalance = plugin.getEconomy().bankBalance(name).balance;
+            this.balance = plugin.getEconomy().getBalance(player);
         }
     }
 

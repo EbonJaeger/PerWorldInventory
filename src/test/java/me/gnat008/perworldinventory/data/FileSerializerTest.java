@@ -22,13 +22,13 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 /**
- * Test for {@link FileSerializer}
+ * Test for {@link FileWriter}
  */
 @RunWith(MockitoJUnitRunner.class)
 public class FileSerializerTest {
 
     @InjectMocks
-    private FileSerializer fileSerializer;
+    private FileWriter fileSerializer;
 
     @Mock
     private PerWorldInventory plugin;

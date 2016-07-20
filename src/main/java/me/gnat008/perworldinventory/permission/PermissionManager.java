@@ -1,25 +1,25 @@
 package me.gnat008.perworldinventory.permission;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
-import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
+import javax.inject.Inject;
+
 public class PermissionManager {
 
-    private final Server server;
     private final PluginManager pluginManager;
 
+    private PerWorldInventory plugin;
+
     private boolean usingPermissionsPlugin;
-    private PerWorldInventory pwi;
 
-    public PermissionManager(PerWorldInventory pwi, Server server, PluginManager pluginManager) {
-        this.server = server;
+    @Inject
+    PermissionManager(PerWorldInventory plugin, PluginManager pluginManager) {
+        this.plugin = plugin;
         this.pluginManager = pluginManager;
-        this.pwi = pwi;
-
         checkForPlugins();
     }
 
@@ -66,7 +66,7 @@ public class PermissionManager {
 
                 this.usingPermissionsPlugin = true;
             } catch (Exception ex) {
-                pwi.getLogger().warning("Error encountered while checking for permission plugin: " + ex.getMessage());
+                plugin.getLogger().warning("Error encountered while checking for permission plugin: " + ex.getMessage());
             }
         }
     }

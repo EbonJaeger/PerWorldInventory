@@ -26,24 +26,30 @@ import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.data.serializers.LocationSerializer;
 import me.gnat008.perworldinventory.data.serializers.PlayerSerializer;
 import me.gnat008.perworldinventory.groups.Group;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import javax.inject.Inject;
 import java.io.*;
 import java.util.UUID;
 
-public class FileSerializer extends DataSerializer {
+public class FileWriter implements DataWriter {
 
     private final String FILE_PATH;
 
-    public FileSerializer(PerWorldInventory plugin) {
-        super(plugin);
+    private PerWorldInventory plugin;
+
+    @Inject
+    FileWriter(PerWorldInventory plugin) {
+        this.plugin = plugin;
 
         this.FILE_PATH = plugin.getDataFolder() + File.separator + "data" + File.separator;
     }
 
+    @Override
     public void saveLogoutData(PWIPlayer player) {
         File file = new File(FILE_PATH + player.getUuid().toString(), "last-logout.json");
 
@@ -60,6 +66,21 @@ public class FileSerializer extends DataSerializer {
         }
     }
 
+    @Override
+    public void saveToDatabase(final Group group, final GameMode gamemode, final PWIPlayer player, boolean async) {
+        if (async) {
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+                @Override
+                public void run() {
+                    saveToDatabase(group, gamemode, player);
+                }
+            });
+        } else {
+            saveToDatabase(group, gamemode, player);
+        }
+    }
+
+    @Override
     public void saveToDatabase(Group group, GameMode gamemode, PWIPlayer player) {
         File file = getFile(gamemode, group, player.getUuid());
 
@@ -87,9 +108,9 @@ public class FileSerializer extends DataSerializer {
     }
 
     public void writeData(final File file, final String data) {
-        FileWriter writer = null;
+        java.io.FileWriter writer = null;
         try {
-            writer = new FileWriter(file);
+            writer = new java.io.FileWriter(file);
             writer.write(data);
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -104,6 +125,7 @@ public class FileSerializer extends DataSerializer {
         }
     }
 
+    @Override
     public void getFromDatabase(Group group, GameMode gamemode, Player player) {
         File file = getFile(gamemode, group, player.getUniqueId());
 
@@ -129,6 +151,7 @@ public class FileSerializer extends DataSerializer {
         }
     }
 
+    @Override
     public Location getLogoutData(Player player) {
         File file = new File(FILE_PATH + player.getUniqueId().toString(), "last-logout.json");
 
@@ -204,5 +227,48 @@ public class FileSerializer extends DataSerializer {
         }
 
         return file;
+    }
+
+    /**
+     * Set the default inventory loadout for a group. This is the inventory that will
+     * be given to a player the first time they enter a world in the group.
+     * <p>
+     * A snapshot of the player will be taken and saved to a temp file to be deleted after.
+     * This is so some stats are set to max, e.g. health. The snapshot will be restored to
+     * the player after the default loadout has been saved.
+     *
+     * @param player The player performing the command.
+     * @param group The group to write the defaults for.
+     */
+    public void setGroupDefault(Player player, Group group) {
+        File file = new File(plugin.getDefaultFilesDirectory() + File.separator + group.getName() + ".json");
+        if (!file.exists()) {
+            player.sendMessage(ChatColor.DARK_RED + "» " + ChatColor.GRAY + "Default file for this group not found!");
+            return;
+        }
+
+        File tmp = new File(plugin.getDataFolder() + File.separator + "data" + File.separator + player.getUniqueId() + File.separator + "tmp.json");
+        try {
+            tmp.getParentFile().mkdirs();
+            tmp.createNewFile();
+        } catch (IOException ex) {
+            player.sendMessage(ChatColor.DARK_RED + "» " + ChatColor.GRAY +  "Could not create temporary file! Aborting!");
+            return;
+        }
+        Group tempGroup = new Group("tmp", null, null);
+        writeData(tmp, PlayerSerializer.serialize(plugin, new PWIPlayer(plugin, player, tempGroup)));
+
+        player.setFoodLevel(20);
+        player.setHealth(player.getMaxHealth());
+        player.setSaturation(20);
+        player.setTotalExperience(0);
+        player.setRemainingAir(player.getMaximumAir());
+        player.setFireTicks(0);
+
+        writeData(file, PlayerSerializer.serialize(plugin, new PWIPlayer(plugin, player, group)));
+
+        getFromDatabase(tempGroup, GameMode.SURVIVAL, player);
+        tmp.delete();
+        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY +  "Defaults for '" + group.getName() + "' set!");
     }
 }

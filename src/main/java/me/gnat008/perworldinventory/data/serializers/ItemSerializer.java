@@ -29,6 +29,7 @@ import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
+import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -37,7 +38,10 @@ import java.util.Map;
 
 public class ItemSerializer {
 
-    protected ItemSerializer() {}
+    @Inject
+    private static PerWorldInventory plugin;
+
+    ItemSerializer() {}
 
     public static JsonObject serializeInventoryItem(ItemStack item, int index) {
         return serializeItem(item, true, index);
@@ -56,7 +60,7 @@ public class ItemSerializer {
         if (item.getType() == Material.SKULL_ITEM) {
             SkullMeta meta = (SkullMeta) item.getItemMeta();
             if (meta.hasOwner() && (meta.getOwner() == null || meta.getOwner().isEmpty())) {
-                item.setItemMeta(PerWorldInventory.getInstance().getServer().getItemFactory().getItemMeta(Material.SKULL_ITEM));
+                item.setItemMeta(plugin.getServer().getItemFactory().getItemMeta(Material.SKULL_ITEM));
             }
         }
 
@@ -73,9 +77,9 @@ public class ItemSerializer {
 
             values.addProperty("item", Base64Coder.encodeLines(outputStream.toByteArray()));
         } catch (IOException ex) {
-            PerWorldInventory.getInstance().getLogger().severe("Error saving an item:");
-            PerWorldInventory.getInstance().getLogger().severe("Item: " + item.getType().toString());
-            PerWorldInventory.getInstance().getLogger().severe("Reason: " + ex.getMessage());
+            plugin.getLogger().severe("Error saving an item:");
+            plugin.getLogger().severe("Item: " + item.getType().toString());
+            plugin.getLogger().severe("Reason: " + ex.getMessage());
             return null;
         }
 
@@ -88,7 +92,7 @@ public class ItemSerializer {
                 BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream)) {
             return (ItemStack) dataInput.readObject();
         } catch (IOException | ClassNotFoundException ex) {
-            PerWorldInventory.getInstance().getLogger().severe("Error loading an item:" + ex.getMessage());
+            plugin.getLogger().severe("Error loading an item:" + ex.getMessage());
             return new ItemStack(Material.AIR);
         }
     }
