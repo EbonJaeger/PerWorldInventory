@@ -187,7 +187,7 @@ public class PerWorldInventory extends JavaPlugin {
                 return true;
             }
 
-            if (commands.containsKey(args[0])) {
+            if (commands.containsKey(args[0].toLowerCase())) {
                 // Add all args excluding the first one
                 List<String> argsList = new ArrayList<>();
                 for (int i = 1; i < args.length; i++) {
@@ -195,7 +195,7 @@ public class PerWorldInventory extends JavaPlugin {
                 }
 
                 // Execute the command
-                commands.get(args[0]).executeCommand(sender, argsList);
+                commands.get(args[0].toLowerCase()).executeCommand(sender, argsList);
                 return true;
             } else {
                 commands.get("pwi").executeCommand(sender, new ArrayList<String>());
