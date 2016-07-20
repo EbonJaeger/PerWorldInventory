@@ -28,6 +28,7 @@ import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -56,7 +57,6 @@ public class PWIPlayerManager {
     PWIPlayerManager() {
         int setting = Settings.getInt("save-interval");
         this.interval = (setting != -1 ? setting : 300) * 20;
-        this.taskID = scheduleRepeatingTask();
     }
 
     /**
@@ -255,8 +255,9 @@ public class PWIPlayerManager {
      *
      * @return The task ID number
      */
-    private int scheduleRepeatingTask() {
-        return Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
+    @PostConstruct
+    private void scheduleRepeatingTask() {
+        this.taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
             @Override
             public void run() {
                 for (String key : playerCache.keySet()) {

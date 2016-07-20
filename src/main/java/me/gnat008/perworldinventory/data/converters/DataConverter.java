@@ -17,37 +17,29 @@
 
 package me.gnat008.perworldinventory.data.converters;
 
+import ch.jalu.injector.annotations.NoMethodScan;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.onarandombox.multiverseinventories.MultiverseInventories;
 import com.onarandombox.multiverseinventories.ProfileTypes;
-import com.onarandombox.multiverseinventories.api.profile.ProfileType;
 import com.onarandombox.multiverseinventories.api.profile.PlayerProfile;
+import com.onarandombox.multiverseinventories.api.profile.ProfileType;
 import com.onarandombox.multiverseinventories.api.profile.WorldGroupProfile;
-import com.onarandombox.multiverseinventories.api.share.Sharables;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.data.FileWriter;
-import me.gnat008.perworldinventory.data.serializers.InventorySerializer;
-import me.gnat008.perworldinventory.data.serializers.PotionEffectSerializer;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
-import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
-import uk.co.tggl.pluckerpluck.multiinv.api.MIAPIPlayer;
-import uk.co.tggl.pluckerpluck.multiinv.inventory.MIItemStack;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
+@NoMethodScan
 public class DataConverter {
-    private static final ProfileType[] MV_PROFILETYPES = { ProfileTypes.SURVIVAL, ProfileTypes.CREATIVE, ProfileTypes.ADVENTURE };
 
     @Inject
     private FileWriter serializer;
@@ -74,6 +66,7 @@ public class DataConverter {
             else
                 pwiGroup.addWorlds(worlds);
 
+            ProfileType[] MV_PROFILETYPES = { ProfileTypes.SURVIVAL, ProfileTypes.CREATIVE, ProfileTypes.ADVENTURE };
             for (ProfileType profileType : MV_PROFILETYPES) {
                 GameMode gameMode = GameMode.valueOf(profileType.getName());
 
@@ -81,14 +74,14 @@ public class DataConverter {
                     try {
                         PlayerProfile playerData = mvgroup.getPlayerData(profileType, player1);
                         if (playerData != null) {
-                            JsonObject writable = serializeMVIToNewFormat(playerData);
+                            //JsonObject writable = serializeMVIToNewFormat(playerData);
 
                             File file = serializer.getFile(gameMode, groupManager.getGroup(mvgroup.getName()), player1.getUniqueId());
                             if (!file.getParentFile().exists())
                                 file.getParentFile().mkdir();
                             if (!file.exists())
                                 file.createNewFile();
-                            serializer.writeData(file, gson.toJson(writable));
+                            //serializer.writeData(file, gson.toJson(writable));
                         }
                     } catch (Exception ex) {
                         plugin.getLogger().warning("Error importing inventory for player: " + player1.getName() +
@@ -133,7 +126,7 @@ public class DataConverter {
         plugin.getLogger().info("MultiInv disabled! Don't forget to remove the .jar!");
     }
 
-    private JsonObject serializeMVIToNewFormat(PlayerProfile data) {
+    /*private JsonObject serializeMVIToNewFormat(PlayerProfile data) {
         JsonObject root = new JsonObject();
         root.addProperty("data-format", 1);
 
@@ -234,5 +227,5 @@ public class DataConverter {
         root.add("stats", stats);
 
         return root;
-    }
+    }*/
 }
