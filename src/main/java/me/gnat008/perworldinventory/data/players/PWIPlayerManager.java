@@ -30,7 +30,8 @@ import org.bukkit.potion.PotionEffect;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import java.util.*;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -146,23 +147,85 @@ public class PWIPlayerManager {
         if (Settings.getBoolean("debug-mode"))
             PerWorldInventory.printDebug("Trying to get data from cache for player '" + player.getName() + "'");
 
-        boolean isInCache = getDataFromCache(group, gamemode, player);
-
-        if(!isInCache) {
+        if(isPlayerCached(group, gamemode, player)) {
+            getDataFromCache(group, gamemode, player);
+        } else {
             if (Settings.getBoolean("debug-mode"))
-                PerWorldInventory.printDebug("Player was not in cache! Loading from file" +
-                        "");
+                PerWorldInventory.printDebug("Player was not in cache! Loading from file");
             dataWriter.getFromDatabase(group, gamemode, player);
         }
     }
 
-    private boolean getDataFromCache(Group group, GameMode gamemode, Player player) {
+    /**
+     * Save all cached instances of a player to the disk.
+     *
+     * @param group The Group the player is currently in.
+     * @param player The player to save.
+     */
+    public void savePlayer(Group group, Player player) {
+        String key = player.getUniqueId().toString() + "." + group.getName() + ".";
+        if (Settings.getBoolean("separate-gamemode-inventories"))
+            key += player.getGameMode().toString().toLowerCase();
+        else
+            key += "survival";
+
+        // Remove any entry with the current key, if one exists
+        // Should remove the possibility of having to write the same data twice
+        playerCache.remove(key);
+
+        for (String cachedKey : playerCache.keySet()) {
+            if (cachedKey.startsWith(player.getUniqueId().toString())) {
+                PWIPlayer cached = playerCache.get(cachedKey);
+                if (cached.isSaved()) {
+                    continue;
+                }
+
+                String[] parts = cachedKey.split("\\.");
+                Group groupKey = groupManager.getGroup(parts[1]);
+                GameMode gamemode = GameMode.valueOf(parts[2].toUpperCase());
+
+                if (Settings.getBoolean("debug-mode"))
+                    PerWorldInventory.printDebug("Saving cached player '" + cached.getName() + "' for group '" + groupKey.getName() + "' with gamemdde '" + gamemode.name() + "'");
+
+                cached.setSaved(true);
+                dataWriter.saveToDatabase(groupKey, gamemode, cached, true);
+            }
+        }
+
+        PWIPlayer pwiPlayer = new PWIPlayer(plugin, player, group);
+        dataWriter.saveToDatabase(group,
+                Settings.getBoolean("separate-gamemode-inventories") ? player.getGameMode() : GameMode.SURVIVAL,
+                pwiPlayer,
+                true);
+        dataWriter.saveLogoutData(pwiPlayer);
+        removePlayer(player);
+    }
+
+    /**
+     * Return whether a player in a given group is currently cached.
+     *
+     * @param group The group the player was in.
+     * @param player The player to check for.
+     *
+     * @return True if a {@link PWIPlayer} is cached.
+     */
+    public boolean isPlayerCached(Group group, GameMode gameMode, Player player) {
+        String key = player.getUniqueId().toString() + "." + group.getName() + ".";
+        if (Settings.getBoolean("separate-gamemode-inventories"))
+            key += gameMode.toString().toLowerCase();
+        else
+            key += "survival";
+
+        return playerCache.containsKey(key);
+    }
+
+    private void getDataFromCache(Group group, GameMode gamemode, Player player) {
         PWIPlayer cachedPlayer = getCachedPlayer(group, gamemode, player.getUniqueId());
         if (cachedPlayer == null) {
             if (Settings.getBoolean("debug-mode"))
                 PerWorldInventory.printDebug("No data for player '" + player.getName() + "' found in cache");
 
-            return false;
+            return;
         }
 
         if (Settings.getBoolean("debug-mode"))
@@ -220,8 +283,6 @@ public class PWIPlayerManager {
             econ.withdrawPlayer(player, econ.getBalance(player));
             econ.depositPlayer(player, cachedPlayer.getBalance());
         }
-
-        return true;
     }
 
     /**
