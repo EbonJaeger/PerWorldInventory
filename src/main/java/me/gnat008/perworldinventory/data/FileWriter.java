@@ -42,11 +42,9 @@ public class FileWriter implements DataWriter {
     private final String FILE_PATH;
 
     private PerWorldInventory plugin;
-    @DataFolder
-    private File dataFolder;
 
     @Inject
-    FileWriter(PerWorldInventory plugin) {
+    FileWriter(PerWorldInventory plugin, @DataFolder File dataFolder) {
         this.plugin = plugin;
 
         this.FILE_PATH = dataFolder + File.separator + "data" + File.separator;
@@ -156,7 +154,7 @@ public class FileWriter implements DataWriter {
 
     @Override
     public Location getLogoutData(Player player) {
-        File file = new File(FILE_PATH + player.getUniqueId().toString(), "last-logout.json");
+        File file = new File(FILE_PATH, player.getUniqueId().toString() + File.separator + "last-logout.json");
         System.out.println(file.getPath());
 
         Location location;
@@ -251,7 +249,7 @@ public class FileWriter implements DataWriter {
             return;
         }
 
-        File tmp = new File(plugin.getDataFolder() + File.separator + "data" + File.separator + player.getUniqueId() + File.separator + "tmp.json");
+        File tmp = new File(FILE_PATH + player.getUniqueId() + File.separator + "tmp.json");
         try {
             tmp.getParentFile().mkdirs();
             tmp.createNewFile();
