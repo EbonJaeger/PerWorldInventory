@@ -1,19 +1,25 @@
 package me.gnat008.perworldinventory.data;
 
+import ch.jalu.injector.testing.BeforeInjecting;
+import ch.jalu.injector.testing.DelayedInjectionRunner;
+import ch.jalu.injector.testing.InjectDelayed;
+import com.google.common.io.Files;
+import me.gnat008.perworldinventory.DataFolder;
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.TestHelper;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.groups.Group;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -24,14 +30,28 @@ import static org.mockito.Mockito.mock;
 /**
  * Test for {@link FileWriter}
  */
-@RunWith(MockitoJUnitRunner.class)
-public class FileSerializerTest {
+@RunWith(DelayedInjectionRunner.class)
+public class FileWriterTest {
 
-    @InjectMocks
+    @InjectDelayed
     private FileWriter fileSerializer;
 
     @Mock
     private PerWorldInventory plugin;
+
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+    @DataFolder
+    private File testFolder;
+
+    @BeforeInjecting
+    public void setup() throws IOException {
+        testFolder = temporaryFolder.newFolder();
+        File source = TestHelper.getJarFile(TestHelper.PROJECT_ROOT + "data/7f7c909b-24f1-49a4-817f-baa4f4973980/last-logout.json");
+        File destination = new File(testFolder, "last-logout.json");
+        Files.copy(source, destination);
+    }
 
     @Test
     public void shouldGetSurvivalFile() {
@@ -94,7 +114,6 @@ public class FileSerializerTest {
     }
 
     @Test
-    @Ignore
     public void lastLogoutLocationExists() {
         // given
         Player player = mock(Player.class);
