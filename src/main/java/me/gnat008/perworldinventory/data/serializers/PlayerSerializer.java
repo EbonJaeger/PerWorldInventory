@@ -31,17 +31,23 @@ public class PlayerSerializer {
 
     /**
      * Serialize a Player into a JsonObject. The player's EnderChest, inventory (including armor) and stats
-     * such as experience and potion effects will be saved unless disabled.
+     * such as experience and potion effects will be saved unless disabled. A data format number is included
+     * to tell which methods to use for some serializations/deserializations.
+     * <p>
+     *     Formats:
+     *     0: Deserialize items with the old TacoSerialization methods
+     *     1: Deserialize items with Base64
+     *     2: Serialize/Deserialize PotionEffects as JsonObjects
+     * </p>
      *
-     * @param player The player to serialize
-     * @return The serialized stats
+     * @param player The player to serialize.
+     * @return The serialized stats.
      */
     public static String serialize(PerWorldInventory plugin, PWIPlayer player) {
         Gson gson = new Gson();
         JsonObject root = new JsonObject();
 
-        // Formats: 0 == old serialization, 1 == new serialization
-        root.addProperty("data-format", 1);
+        root.addProperty("data-format", 2);
         root.add("ender-chest", InventorySerializer.serializeInventory(player.getEnderChest()));
         root.add("inventory", InventorySerializer.serializePlayerInventory(player));
         root.add("stats", StatSerializer.serialize(player));
@@ -53,13 +59,13 @@ public class PlayerSerializer {
     }
 
     /**
-     * Set a player's meta information with desired stats
+     * Deserialize all aspects of a player, and apply their data. See {@link PlayerSerializer#serialize(PerWorldInventory, PWIPlayer)}
+     * for an explanation of the data format number.
      *
-     * @param data   The stats to set
-     * @param player The affected player
+     * @param data   The saved player information.
+     * @param player The Player to apply the deserialized information to.
      */
     public static void deserialize(final JsonObject data, final Player player, final PerWorldInventory plugin) {
-        // Formats: 0 == TacoSerialization, 1 == Base64 serialization
         int format = 0;
         if (data.has("data-format"))
             format = data.get("data-format").getAsInt();
@@ -70,7 +76,7 @@ public class PlayerSerializer {
         if (Settings.getBoolean("player.inventory") && data.has("inventory"))
             InventorySerializer.setInventory(player, data.getAsJsonObject("inventory"), format);
         if (data.has("stats"))
-            StatSerializer.deserialize(player, data.getAsJsonObject("stats"));
+            StatSerializer.deserialize(player, data.getAsJsonObject("stats"), format);
         if (Settings.getBoolean("player.economy")) {
             Economy econ = plugin.getEconomy();
             if (econ == null) {

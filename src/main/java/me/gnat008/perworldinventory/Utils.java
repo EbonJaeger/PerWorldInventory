@@ -7,6 +7,13 @@ import java.io.*;
  */
 public final class Utils {
 
+    /**
+     * Check if a server's version is 1.9.2 or higher.
+     *
+     * @param version The server's version.
+     *
+     * @return True if the server is running 1.9.2 or higher.
+     */
     public static boolean checkServerVersion(String version) {
         String versionNum = version.substring(version.indexOf(".") - 1, version.length() - 1).trim();
         String[] parts = versionNum.split("\\.");
@@ -26,6 +33,13 @@ public final class Utils {
         return false;
     }
 
+    /**
+     * Copy a file from one location to another. The file will not be deleted.
+     *
+     * @param from The original location of the file.
+     * @param to The location the file will be copied to.
+     * @throws IOException If an error is encountered while copying.
+     */
     public static void copyFile(File from, File to) throws IOException {
         try (InputStream in = new FileInputStream(from);
              OutputStream out = new FileOutputStream(to)) {

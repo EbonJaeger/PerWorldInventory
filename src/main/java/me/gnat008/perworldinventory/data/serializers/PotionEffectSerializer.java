@@ -17,6 +17,9 @@
 
 package me.gnat008.perworldinventory.data.serializers;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import org.bukkit.Color;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -25,36 +28,38 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * A class to help with the serialization of PotionEffects. The serialization technique is similar to that
- * of serializing enchantments. The process can be as explained as such:
- * <br/><br/>
- * <pre>
- * String serializedEffects = "";
- * for(PotionEffect e : effects){
- *     serializedEffects += e.getType().getId() + ":" + e.getDuration() + ":" + e.getAmplifier() + ";";
- * }
- * </pre>
- * <br/>
- * So that it would follow this pattern:<br/>
- * <pre>id:duration:amplifier;...</pre>
+ * A class to help with the serialization of PotionEffects.
  */
 public class PotionEffectSerializer {
 
     protected PotionEffectSerializer() {}
 
     /**
-     * Serialize a Collection of PotionEffects into a string that follows the regex
-     * <pre>([0-9]+:[0-9]+:[0-9]+;)+</pre>
+     * Serialize a Collection of PotionEffects into a JsonArray of JsonObjects. Each
+     * JsonObject contains the type, amplifier, duration and color of a potion effect.
+     * The color is saved in the RGB format.
      *
      * @param effects The PotionEffects to serialize
-     * @return The serialized PotionEffects
+     * @return A JsonArray of JsonObjects of serialized PotionEffects.
      */
-    public static String serialize(Collection<PotionEffect> effects) {
-        String serialized = "";
-        for (PotionEffect e : effects) {
-            serialized += e.getType().getId() + ":" + e.getDuration() + ":" + e.getAmplifier() + ";";
+    public static JsonArray serialize(Collection<PotionEffect> effects) {
+        JsonArray all = new JsonArray();
+
+        for (PotionEffect effect : effects) {
+            JsonObject pot = new JsonObject();
+            pot.addProperty("type", effect.getType().getName());
+            pot.addProperty("amp", effect.getAmplifier());
+            pot.addProperty("duration", effect.getDuration());
+            pot.addProperty("ambient", effect.isAmbient());
+            pot.addProperty("particles", effect.hasParticles());
+            if (effect.getColor() != null) {
+                pot.addProperty("color", effect.getColor().asRGB());
+            }
+
+            all.add(pot);
         }
-        return serialized;
+
+        return all;
     }
 
     /**
@@ -62,7 +67,10 @@ public class PotionEffectSerializer {
      *
      * @param serializedEffects The potion effect code to decode from
      * @return A Collection of PotionEffects from the given potion effect code
+     *
+     * @deprecated Uses deprecated methods that may be removed. Additionally, may not have all the data.
      */
+    @Deprecated
     public static Collection<PotionEffect> deserialize(String serializedEffects) {
         ArrayList<PotionEffect> effects = new ArrayList<>();
         if (serializedEffects.isEmpty())
@@ -91,25 +99,91 @@ public class PotionEffectSerializer {
     }
 
     /**
-     * Add the given PotionEffects to a LivingEntity
+     * Return a deserialized Collection of PotionEffects from a given JsonArray.
      *
-     * @param code   The PotionEffects to add
-     * @param entity The entity to add the PotionEffects
+     * @param serialized The serialized PotionEffects in a JsonArray.
+     * @return The PotionEffects.
      */
+    public static Collection<PotionEffect> deserialize(JsonArray serialized) {
+        ArrayList<PotionEffect> effects = new ArrayList<>();
+        for (int i = 0; i < serialized.size(); i++) {
+            JsonObject s_effect = serialized.get(i).getAsJsonObject();
+            PotionEffect effect;
+
+            PotionEffectType type = PotionEffectType.getByName(s_effect.get("type").getAsString());
+            int amplifier = s_effect.get("amp").getAsInt();
+            int duration = s_effect.get("duration").getAsInt();
+            boolean ambient = s_effect.get("ambient").getAsBoolean();
+            boolean particles = s_effect.get("particles").getAsBoolean();
+
+            if (s_effect.has("color") && particles) {
+                Color color = Color.fromRGB(s_effect.get("color").getAsInt());
+                effect = new PotionEffect(type, duration, amplifier, ambient, particles, color);
+            } else {
+                effect = new PotionEffect(type, duration, amplifier, ambient, particles);
+            }
+
+            effects.add(effect);
+        }
+
+        return effects;
+    }
+
+    /**
+     * Add the given PotionEffects to a LivingEntity.
+     *
+     * @param code   The PotionEffects to add.
+     * @param entity The entity to add the PotionEffects.
+     *
+     * @deprecated Magic numbers.
+     */
+    @Deprecated
     public static void addPotionEffects(String code, LivingEntity entity) {
         entity.addPotionEffects(deserialize(code));
     }
 
     /**
-     * Remove any current PotionEffects from a LivingEntity then add the given effects
+     * Deserialize the given PotionEffects and apply them to a LivingEntity.
      *
-     * @param code   The PotionEffects to add
-     * @param entity The entity to set the PotionEffects
+     * @param effects The PotionEffects to add.
+     * @param entity The entity to apply the effects to.
      */
+    public static void addPotionEffects(JsonArray effects, LivingEntity entity) {
+        entity.addPotionEffects(deserialize(effects));
+    }
+
+    /**
+     * Remove any current PotionEffects from a LivingEntity then add the given effects.
+     *
+     * @param code   The PotionEffects to add.
+     * @param entity The entity to set the PotionEffects.
+     *
+     * @deprecated Magic numbers.
+     */
+    @Deprecated
     public static void setPotionEffects(String code, LivingEntity entity) {
-        for (PotionEffect effect : entity.getActivePotionEffects()) {
-            entity.removePotionEffect(effect.getType());
+        if (entity.getActivePotionEffects() != null && !entity.getActivePotionEffects().isEmpty()) {
+            for (PotionEffect effect : entity.getActivePotionEffects()) {
+                entity.removePotionEffect(effect.getType());
+            }
         }
+
         addPotionEffects(code, entity);
+    }
+
+    /**
+     * Remove any PotionEffects the entity currently has, then apply the new effects.
+     *
+     * @param effects The PotionEffects to apply.
+     * @param entity The entity to apply the effects to.
+     */
+    public static void setPotionEffects(JsonArray effects, LivingEntity entity) {
+        if (entity.getActivePotionEffects() != null && !entity.getActivePotionEffects().isEmpty()) {
+            for (PotionEffect effect : entity.getActivePotionEffects()) {
+                entity.removePotionEffect(effect.getType());
+            }
+        }
+
+        addPotionEffects(effects, entity);
     }
 }

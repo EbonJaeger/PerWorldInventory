@@ -18,6 +18,7 @@
 package me.gnat008.perworldinventory.data.serializers;
 
 import com.google.gson.JsonObject;
+import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import org.bukkit.GameMode;
@@ -45,7 +46,7 @@ public class StatSerializer {
         root.addProperty("gamemode", player.getGamemode().toString());
         root.addProperty("health", player.getHealth());
         root.addProperty("level", player.getLevel());
-        root.addProperty("potion-effects", PotionEffectSerializer.serialize(player.getPotionEffects()));
+        root.add("potion-effects", PotionEffectSerializer.serialize(player.getPotionEffects()));
         root.addProperty("saturation", player.getSaturationLevel());
         root.addProperty("fallDistance", player.getFallDistance());
         root.addProperty("fireTicks", player.getFireTicks());
@@ -56,12 +57,13 @@ public class StatSerializer {
     }
 
     /**
-     * Apply stats to a player
+     * Apply stats to a player.
      *
-     * @param player The player to affect
-     * @param stats  The stats to apply
+     * @param player The Player to apply the stats to.
+     * @param stats  The stats to apply.
+     * @param dataFormat See {@link PlayerSerializer#serialize(PerWorldInventory, PWIPlayer)}.
      */
-    public static void deserialize(Player player,JsonObject stats) {
+    public static void deserialize(Player player,JsonObject stats, int dataFormat) {
         if (Settings.getBoolean("player.stats.can-fly") && stats.has("can-fly"))
             player.setAllowFlight(stats.get("can-fly").getAsBoolean());
         if (Settings.getBoolean("player.stats.display-name") && stats.has("display-name"))
@@ -107,8 +109,13 @@ public class StatSerializer {
         }
         if (Settings.getBoolean("player.stats.level") && stats.has("level"))
             player.setLevel(stats.get("level").getAsInt());
-        if (Settings.getBoolean("player.stats.potion-effects") && stats.has("potion-effects"))
-            PotionEffectSerializer.setPotionEffects(stats.get("potion-effects").getAsString(), player);
+        if (Settings.getBoolean("player.stats.potion-effects") && stats.has("potion-effects")) {
+            if (dataFormat < 2) {
+                PotionEffectSerializer.setPotionEffects(stats.get("potion-effects").getAsString(), player);
+            } else {
+                PotionEffectSerializer.setPotionEffects(stats.getAsJsonArray("potion-effects"), player);
+            }
+        }
         if (Settings.getBoolean("player.stats.saturation") && stats.has("saturation"))
             player.setSaturation((float) stats.get("saturation").getAsDouble());
         if (Settings.getBoolean("player.stats.fall-distance") && stats.has("fallDistance"))
