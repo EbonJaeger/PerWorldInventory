@@ -155,7 +155,6 @@ public class FileWriter implements DataWriter {
     @Override
     public Location getLogoutData(Player player) {
         File file = new File(FILE_PATH, player.getUniqueId().toString() + File.separator + "last-logout.json");
-        System.out.println(file.getPath());
 
         Location location;
         try (JsonReader reader = new JsonReader(new FileReader(file))) {

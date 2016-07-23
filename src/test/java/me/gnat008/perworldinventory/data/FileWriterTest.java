@@ -59,6 +59,10 @@ public class FileWriterTest {
         userFolder.mkdirs();
         File destination = new File(userFolder, "last-logout.json");
         Files.copy(source, destination);
+
+        File data = TestHelper.getJarFile(TestHelper.PROJECT_ROOT + userDataPath + "test-group.json");
+        destination = new File(userFolder, "test-group.json");
+        Files.copy(data, destination);
     }
 
     @Test
@@ -135,6 +139,20 @@ public class FileWriterTest {
         // then
         assertTrue(result != null);
         assertTrue(result.getWorld().equals(world));
+    }
+
+    @Test
+    public void lastLogoutLocationDoesNotExist() throws ReflectiveOperationException {
+        // given
+        Player player = mock(Player.class);
+        UUID randUUID = UUID.randomUUID();
+        given(player.getUniqueId()).willReturn(randUUID);
+
+        // when
+        Location result = fileSerializer.getLogoutData(player);
+
+        // then
+        assertTrue(result == null);
     }
 
     /**
