@@ -9,8 +9,11 @@ import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.TestHelper;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.groups.Group;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Server;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.junit.Rule;
 import org.junit.Test;
@@ -20,11 +23,13 @@ import org.mockito.Mock;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.UUID;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -48,8 +53,11 @@ public class FileWriterTest {
     @BeforeInjecting
     public void setup() throws IOException {
         testFolder = temporaryFolder.newFolder();
-        File source = TestHelper.getJarFile(TestHelper.PROJECT_ROOT + "data/7f7c909b-24f1-49a4-817f-baa4f4973980/last-logout.json");
-        File destination = new File(testFolder, "last-logout.json");
+        String userDataPath = "data/7f7c909b-24f1-49a4-817f-baa4f4973980/";
+        File source = TestHelper.getJarFile(TestHelper.PROJECT_ROOT + userDataPath + "last-logout.json");
+        File userFolder = new File(testFolder, userDataPath);
+        userFolder.mkdirs();
+        File destination = new File(userFolder, "last-logout.json");
         Files.copy(source, destination);
     }
 
@@ -114,15 +122,34 @@ public class FileWriterTest {
     }
 
     @Test
-    public void lastLogoutLocationExists() {
+    public void lastLogoutLocationExists() throws ReflectiveOperationException {
         // given
         Player player = mock(Player.class);
         given(player.getUniqueId()).willReturn(UUID.fromString("7f7c909b-24f1-49a4-817f-baa4f4973980"));
+        World world = mock(World.class);
+        setUpWorldReturnedByBukkit(world);
 
         // when
         Location result = fileSerializer.getLogoutData(player);
 
         // then
         assertTrue(result != null);
+        assertTrue(result.getWorld().equals(world));
+    }
+
+    /**
+     * Sets the {@link Server} field in the Bukkit class with a mock and makes it return
+     * the given World object for {@link Bukkit#getWorld(String)}.
+     *
+     * @throws ReflectiveOperationException if an error occurred during reflections
+     */
+    private static void setUpWorldReturnedByBukkit(World world) throws ReflectiveOperationException {
+        Server server = mock(Server.class);
+        given(server.getWorld(anyString())).willReturn(world);
+
+        Field serverField = Bukkit.class.getDeclaredField("server");
+        serverField.setAccessible(true);
+        // static field, so instance is null
+        serverField.set(null, server);
     }
 }
