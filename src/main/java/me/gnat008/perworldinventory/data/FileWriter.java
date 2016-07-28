@@ -20,6 +20,7 @@ package me.gnat008.perworldinventory.data;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
+import me.gnat008.perworldinventory.DataFolder;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
@@ -43,10 +44,10 @@ public class FileWriter implements DataWriter {
     private PerWorldInventory plugin;
 
     @Inject
-    FileWriter(PerWorldInventory plugin) {
+    FileWriter(PerWorldInventory plugin, @DataFolder File dataFolder) {
         this.plugin = plugin;
 
-        this.FILE_PATH = plugin.getDataFolder() + File.separator + "data" + File.separator;
+        this.FILE_PATH = dataFolder + File.separator + "data" + File.separator;
     }
 
     @Override
@@ -153,7 +154,7 @@ public class FileWriter implements DataWriter {
 
     @Override
     public Location getLogoutData(Player player) {
-        File file = new File(FILE_PATH + player.getUniqueId().toString(), "last-logout.json");
+        File file = new File(FILE_PATH, player.getUniqueId().toString() + File.separator + "last-logout.json");
 
         Location location;
         try (JsonReader reader = new JsonReader(new FileReader(file))) {
@@ -247,7 +248,7 @@ public class FileWriter implements DataWriter {
             return;
         }
 
-        File tmp = new File(plugin.getDataFolder() + File.separator + "data" + File.separator + player.getUniqueId() + File.separator + "tmp.json");
+        File tmp = new File(FILE_PATH + player.getUniqueId() + File.separator + "tmp.json");
         try {
             tmp.getParentFile().mkdirs();
             tmp.createNewFile();
