@@ -111,10 +111,10 @@ public class InventorySerializer {
 	            int index = item.get("index").getAsInt();
 	            
 	            ItemStack is;
-	            if (format == 1)
-	                is = ItemSerializer.deserializeItem(item);
+	            if (format <= 1)
+	            	is = ItemSerializer.getItem(item);
 	            else
-	                is = ItemSerializer.getItem(item);
+	            	is = ItemSerializer.deserializeItem(item);
 	
 	            contents[index] = is;
         	}
