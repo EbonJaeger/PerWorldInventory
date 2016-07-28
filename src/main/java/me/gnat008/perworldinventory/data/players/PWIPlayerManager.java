@@ -64,6 +64,7 @@ public class PWIPlayerManager {
      * Called when the server is disabled.
      */
     public void onDisable() {
+    	flushPlayerCache(false);
         Bukkit.getScheduler().cancelTask(taskID);
         playerCache.clear();
     }
@@ -309,14 +310,41 @@ public class PWIPlayerManager {
     }
 
     /**
-     * Starts a synchronized repeating task to iterate through all PWIPlayers in the player
-     * cache. If the player has not yet been saved to a database, they will be saved.
+     * Flush all players in the cache to disk.
      * <p>
      * Additionally, if a player is still in the cache, but they have already been saved,
      * remove them from the cache.
      * <p>
      * By default, this task will execute once every 5 minutes. This will likely be
      * configurable in the future.
+     *
+     * @param async When this is true, saves will be done asynchronously
+     */
+    private void flushPlayerCache(boolean async) {
+        for (String key : playerCache.keySet()) {
+            PWIPlayer player = playerCache.get(key);
+            if (!player.isSaved()) {
+                String[] parts = key.split("\\.");
+                Group group = groupManager.getGroup(parts[1]);
+                GameMode gamemode = GameMode.valueOf(parts[2].toUpperCase());
+
+                if (Settings.getBoolean("debug-mode"))
+                    PerWorldInventory.printDebug("Saving cached player '" + player.getName() + "' for group '" + group.getName() + "' with gamemdde '" + gamemode.name() + "'");
+
+                player.setSaved(true);
+                
+                dataWriter.saveToDatabase(group, gamemode, player, async);
+            } else {
+                if (Settings.getBoolean("debug-mode"))
+                    PerWorldInventory.printDebug("Removing player '" + player.getName() + "' from cache");
+
+                playerCache.remove(key);
+            }
+        }
+    }
+    
+    /**
+     * Schedule a cache flush to execute on a timer.
      *
      * @return The task ID number
      */
@@ -325,25 +353,7 @@ public class PWIPlayerManager {
         this.taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
             @Override
             public void run() {
-                for (String key : playerCache.keySet()) {
-                    PWIPlayer player = playerCache.get(key);
-                    if (!player.isSaved()) {
-                        String[] parts = key.split("\\.");
-                        Group group = groupManager.getGroup(parts[1]);
-                        GameMode gamemode = GameMode.valueOf(parts[2].toUpperCase());
-
-                        if (Settings.getBoolean("debug-mode"))
-                            PerWorldInventory.printDebug("Saving cached player '" + player.getName() + "' for group '" + group.getName() + "' with gamemdde '" + gamemode.name() + "'");
-
-                        player.setSaved(true);
-                        dataWriter.saveToDatabase(group, gamemode, player, true);
-                    } else {
-                        if (Settings.getBoolean("debug-mode"))
-                            PerWorldInventory.printDebug("Removing player '" + player.getName() + "' from cache");
-
-                        playerCache.remove(key);
-                    }
-                }
+            	flushPlayerCache(true);
             }
         }, interval, interval);
     }
