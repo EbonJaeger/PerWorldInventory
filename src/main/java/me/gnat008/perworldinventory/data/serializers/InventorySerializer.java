@@ -17,7 +17,6 @@
 
 package me.gnat008.perworldinventory.data.serializers;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
@@ -111,7 +110,7 @@ public class InventorySerializer {
 	            int index = item.get("index").getAsInt();
 	            
 	            ItemStack is;
-	            if (format == 1)
+	            if (format >= 1)
 	                is = ItemSerializer.deserializeItem(item);
 	            else
 	                is = ItemSerializer.getItem(item);
