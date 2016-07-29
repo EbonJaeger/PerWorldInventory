@@ -52,7 +52,7 @@ public class GroupManager {
         if (Settings.getBoolean("debug-mode"))
             PerWorldInventory.printDebug("Adding group to memory. Group: " + name + " Worlds: " + worlds.toString() + " Gamemode: " + gamemode.name());
 
-        groups.put(name.toLowerCase(), new Group(name, worlds, gamemode));
+        groups.put(name.toLowerCase(), new Group(name, worlds, gamemode, true));
     }
 
     public Group getGroup(String group) {
@@ -67,16 +67,13 @@ public class GroupManager {
             }
         }
 
-        if (result == null) { // If true, world is unconfigured
-            if (getGroup("__unconfigured__") != null) {
-                result = getGroup("__unconfigured__");
-                result.addWorld(world);
-            } else {
-                List<String> worlds = new ArrayList<>();
-                worlds.add(world);
-                result = new Group("__unconfigured__", worlds, GameMode.SURVIVAL);
-                this.groups.put("__unconfigured__", result);
-            }
+        if (result == null) { // If true, world was not defined in worlds.yml
+            List<String> worlds = new ArrayList<>();
+            worlds.add(world);
+            worlds.add(world + "_nether");
+            worlds.add(world + "_the_end");
+            result = new Group(world, worlds, GameMode.SURVIVAL, false);
+            this.groups.put(world, result);
         }
 
         return result;

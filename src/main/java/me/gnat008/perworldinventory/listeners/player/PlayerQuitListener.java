@@ -17,12 +17,7 @@
 
 package me.gnat008.perworldinventory.listeners.player;
 
-import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.config.Settings;
-import me.gnat008.perworldinventory.data.players.PWIPlayer;
-import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
-import me.gnat008.perworldinventory.groups.Group;
-import me.gnat008.perworldinventory.groups.GroupManager;
+import me.gnat008.perworldinventory.process.PlayerQuitProcess;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -34,58 +29,22 @@ import javax.inject.Inject;
 
 public class PlayerQuitListener implements Listener {
 
-    private GroupManager manager;
-    private PWIPlayerManager playerManager;
+    private PlayerQuitProcess process;
 
     @Inject
-    PlayerQuitListener(GroupManager groupManager, PWIPlayerManager playerManager) {
-        this.manager = groupManager;
-        this.playerManager = playerManager;
+    PlayerQuitListener(PlayerQuitProcess process) {
+        this.process = process;
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        String logoutWorld = player.getWorld().getName();
-        Group group = manager.getGroupFromWorld(logoutWorld);
-
-        if (Settings.getBoolean("debug-mode"))
-            PerWorldInventory.printDebug("Player '" + player.getName() + "' quit! Checking cache");
-
-        PWIPlayer cached = playerManager.getPlayer(group, player);
-        if (cached != null) {
-            if (Settings.getBoolean("debug-mode"))
-                PerWorldInventory.printDebug("Cached data for player '" + player.getName() + "' found! Updating and setting them as saved");
-
-            playerManager.updateCache(player, cached);
-            cached.setSaved(true);
-        }
-
-        if (Settings.getBoolean("debug-mode"))
-            PerWorldInventory.printDebug("Saving logout data for player '" + player.getName() + "'...");
-        playerManager.savePlayer(group, player);
+        process.processPlayerLeave(player);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerKick(PlayerKickEvent event) {
         Player player = event.getPlayer();
-        String logoutWorld = player.getWorld().getName();
-        Group group = manager.getGroupFromWorld(logoutWorld);
-
-        if (Settings.getBoolean("debug-mode"))
-            PerWorldInventory.printDebug("Player '" + player.getName() + "' was kicked! Checking cache");
-
-        PWIPlayer cached = playerManager.getPlayer(group, player);
-        if (cached != null) {
-            if (Settings.getBoolean("debug-mode"))
-                PerWorldInventory.printDebug("Cached data for player '" + player.getName() + "' found! Updating and setting them as saved");
-
-            playerManager.updateCache(player, cached);
-            cached.setSaved(true);
-        }
-
-        if (Settings.getBoolean("debug-mode"))
-            PerWorldInventory.printDebug("Saving logout data for player '" + player.getName() + "'...");
-        playerManager.savePlayer(group, player);
+        process.processPlayerLeave(player);
     }
 }

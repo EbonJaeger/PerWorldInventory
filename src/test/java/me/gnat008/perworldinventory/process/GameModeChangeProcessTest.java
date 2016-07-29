@@ -1,10 +1,9 @@
-package me.gnat008.perworldinventory.listeners;
+package me.gnat008.perworldinventory.process;
 
 import me.gnat008.perworldinventory.config.SettingsMocker;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
-import me.gnat008.perworldinventory.listeners.player.PlayerGameModeChangeListener;
 import me.gnat008.perworldinventory.permission.PermissionManager;
 import me.gnat008.perworldinventory.permission.PlayerPermission;
 import org.bukkit.GameMode;
@@ -22,27 +21,25 @@ import java.util.List;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 /**
- * Test for {@link PlayerGameModeChangeListener}.
+ * Tests for {@link GameModeChangeProcess}.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class PlayerGameModeChangeListenerTest {
+public class GameModeChangeProcessTest {
 
     @InjectMocks
-    private PlayerGameModeChangeListener listener;
+    private GameModeChangeProcess process;
 
     @Mock
     private GroupManager groupManager;
 
     @Mock
-    private PWIPlayerManager playerManager;
+    private PermissionManager permissionManager;
 
     @Mock
-    private PermissionManager permissionManager;
+    private PWIPlayerManager playerManager;
 
     @Test
     public void shouldBypass() {
@@ -58,7 +55,7 @@ public class PlayerGameModeChangeListenerTest {
         SettingsMocker.create().set("separate-gamemode-inventories", true).save();
 
         // when
-        listener.onPlayerGameModeChange(event);
+        process.processGameModeChange(event);
 
         // then
         verify(playerManager).addPlayer(player, group);
@@ -81,11 +78,35 @@ public class PlayerGameModeChangeListenerTest {
         SettingsMocker.create().set("separate-gamemode-inventories", true).save();
 
         // when
-        listener.onPlayerGameModeChange(event);
+        process.processGameModeChange(event);
 
         // then
         verify(playerManager).addPlayer(player, group);
         verify(playerManager).getPlayerData(group, newGameMode, player);
+    }
+
+    @Test
+    public void shouldDoNothingBecauseDisabled() {
+        // given
+        World world = mock(World.class);
+        String worldName = "world";
+        given(world.getName()).willReturn(worldName);
+        Player player = mock(Player.class);
+        given(player.getWorld()).willReturn(world);
+        Group group = getTestGroup();
+        GameMode newGameMode = GameMode.CREATIVE;
+        PlayerGameModeChangeEvent event = new PlayerGameModeChangeEvent(player, newGameMode);
+        given(groupManager.getGroupFromWorld(worldName)).willReturn(group);
+        given(permissionManager.hasPermission(player, PlayerPermission.BYPASS_GAMEMODE)).willReturn(false);
+        SettingsMocker.create().set("separate-gamemode-inventories", false).save();
+
+        // when
+        process.processGameModeChange(event);
+
+        // then
+        verifyZeroInteractions(groupManager);
+        verifyZeroInteractions(permissionManager);
+        verifyZeroInteractions(playerManager);
     }
 
     private static Group getTestGroup() {
