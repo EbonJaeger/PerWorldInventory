@@ -19,13 +19,23 @@ package me.gnat008.perworldinventory;
 
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
-import me.gnat008.perworldinventory.commands.*;
+import me.gnat008.perworldinventory.commands.ConvertCommand;
+import me.gnat008.perworldinventory.commands.ExecutableCommand;
+import me.gnat008.perworldinventory.commands.HelpCommand;
+import me.gnat008.perworldinventory.commands.PerWorldInventoryCommand;
+import me.gnat008.perworldinventory.commands.ReloadCommand;
+import me.gnat008.perworldinventory.commands.SetWorldDefaultCommand;
+import me.gnat008.perworldinventory.commands.VersionCommand;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.DataWriter;
 import me.gnat008.perworldinventory.data.FileWriter;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.GroupManager;
-import me.gnat008.perworldinventory.listeners.player.*;
+import me.gnat008.perworldinventory.listeners.player.PlayerChangedWorldListener;
+import me.gnat008.perworldinventory.listeners.player.PlayerGameModeChangeListener;
+import me.gnat008.perworldinventory.listeners.player.PlayerJoinListener;
+import me.gnat008.perworldinventory.listeners.player.PlayerQuitListener;
+import me.gnat008.perworldinventory.listeners.player.PlayerSpawnLocationListener;
 import me.gnat008.perworldinventory.listeners.server.PluginListener;
 import me.gnat008.perworldinventory.permission.PermissionManager;
 import net.milkbowl.vault.economy.Economy;
@@ -35,6 +45,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -58,6 +70,20 @@ public class PerWorldInventory extends JavaPlugin {
     private final HashMap<String, ExecutableCommand> commands = new HashMap<>();
 
     private static Logger logger;
+
+    /**
+     * Constructor.
+     */
+    public PerWorldInventory() {
+    }
+
+    /*
+     * Constructor for testing purposes.
+     */
+    protected PerWorldInventory(final PluginLoader loader, final Server server, final PluginDescriptionFile description,
+                                final File dataFolder, final File file) {
+        super(loader, server, description, dataFolder, file);
+    }
 
     @Override
     public void onEnable() {
