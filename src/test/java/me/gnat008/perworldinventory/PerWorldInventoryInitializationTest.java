@@ -33,10 +33,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import static me.gnat008.perworldinventory.TestHelper.getField;
+import static me.gnat008.perworldinventory.TestHelper.setField;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
@@ -71,7 +72,7 @@ public class PerWorldInventoryInitializationTest {
     private File dataFolder;
 
     @Before
-    public void setUpPlugin() throws IOException, ReflectiveOperationException {
+    public void setUpPlugin() throws IOException {
         dataFolder = temporaryFolder.newFolder();
 
         // Wire various Bukkit components
@@ -89,7 +90,7 @@ public class PerWorldInventoryInitializationTest {
     }
 
     @Test
-    public void shouldInitializeAllServices() throws ReflectiveOperationException {
+    public void shouldInitializeAllServices() {
         // given
         Injector injector = new InjectorBuilder().addDefaultHandlers("me.gnat008.perworldinventory").create();
         injector.register(PerWorldInventory.class, plugin);
@@ -117,20 +118,6 @@ public class PerWorldInventoryInitializationTest {
         commandVerifier.assertHasCommand("setworlddefault", SetWorldDefaultCommand.class);
     }
 
-    private static <T> T getField(Class<?> clazz, String fieldName, Object instance)
-                                  throws NoSuchFieldException, IllegalAccessException {
-        Field field = clazz.getDeclaredField(fieldName);
-        field.setAccessible(true);
-        return (T) field.get(instance);
-    }
-
-    private static void setField(Class<?> clazz, String fieldName, Object instance, Object value)
-                                 throws NoSuchFieldException, IllegalAccessException {
-        Field field = clazz.getDeclaredField(fieldName);
-        field.setAccessible(true);
-        field.set(instance, value);
-    }
-
     private void verifyRegisteredListener(Class<? extends Listener> listenerClass) {
         verify(pluginManager).registerEvents(
             argThat(Matchers.<Listener>instanceOf(listenerClass)), eq(plugin));
@@ -142,7 +129,7 @@ public class PerWorldInventoryInitializationTest {
         private final Injector injector;
         private final Map<String, ExecutableCommand> commands;
 
-        CommandVerifier(PerWorldInventory plugin, Injector injector) throws ReflectiveOperationException {
+        CommandVerifier(PerWorldInventory plugin, Injector injector) {
             this.injector = injector;
             this.commands = getField(PerWorldInventory.class, "commands", plugin);
         }
