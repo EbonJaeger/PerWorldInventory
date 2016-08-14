@@ -18,16 +18,13 @@
 package me.gnat008.perworldinventory.data.serializers;
 
 import com.google.gson.JsonObject;
-import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import net.milkbowl.vault.economy.Economy;
-import net.milkbowl.vault.economy.EconomyResponse;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public class EconomySerializer {
 
-    protected EconomySerializer() {}
+    private EconomySerializer() {}
 
     public static JsonObject serialize(PWIPlayer player, Economy econ) {
         JsonObject data = new JsonObject();

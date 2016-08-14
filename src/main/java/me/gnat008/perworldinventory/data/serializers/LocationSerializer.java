@@ -25,7 +25,7 @@ import org.bukkit.World;
 
 public class LocationSerializer {
 
-    protected LocationSerializer() {}
+    private LocationSerializer() {}
 
     /**
      * Serialize a Location into a JsonObject.

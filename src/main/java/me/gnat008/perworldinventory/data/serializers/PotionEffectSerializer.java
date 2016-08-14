@@ -32,7 +32,7 @@ import java.util.Collection;
  */
 public class PotionEffectSerializer {
 
-    protected PotionEffectSerializer() {}
+    private PotionEffectSerializer() {}
 
     /**
      * Serialize a Collection of PotionEffects into a JsonArray of JsonObjects. Each

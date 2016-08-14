@@ -38,7 +38,7 @@ import java.util.Map;
 @Deprecated
 public class DeprecatedMethodUtil {
 
-    protected DeprecatedMethodUtil() {}
+    private DeprecatedMethodUtil() {}
 
     /**
      * Get a Map of Enchantments and their levels from an enchantment serialization string
@@ -262,7 +262,7 @@ public class DeprecatedMethodUtil {
      * @return True if the given material is Material.LEATHER_HELMET, Material.LEATHER_CHESTPLATE,
      * Material.LEATHER_LEGGINGS, or  Material.LEATHER_BOOTS;
      */
-    protected static boolean isLeatherArmor(Material material) {
+    public static boolean isLeatherArmor(Material material) {
         return material == Material.LEATHER_HELMET || material == Material.LEATHER_CHESTPLATE ||
                 material == Material.LEATHER_LEGGINGS || material == Material.LEATHER_BOOTS;
     }

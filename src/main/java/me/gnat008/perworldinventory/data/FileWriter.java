@@ -34,20 +34,23 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import javax.inject.Inject;
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.UUID;
 
 public class FileWriter implements DataWriter {
 
     private final String FILE_PATH;
-
-    private PerWorldInventory plugin;
+    private final PerWorldInventory plugin;
+    private final PlayerSerializer playerSerializer;
 
     @Inject
-    FileWriter(PerWorldInventory plugin, @DataFolder File dataFolder) {
+    FileWriter(PerWorldInventory plugin, @DataFolder File dataFolder, PlayerSerializer playerSerializer) {
         this.plugin = plugin;
-
         this.FILE_PATH = dataFolder + File.separator + "data" + File.separator;
+        this.playerSerializer = playerSerializer;
     }
 
     @Override
@@ -100,7 +103,7 @@ public class FileWriter implements DataWriter {
             if (Settings.getBoolean("debug-mode"))
                 PerWorldInventory.printDebug("Writing player data for player '" + player.getName() + "' to file");
 
-            String data = PlayerSerializer.serialize(plugin, player);
+            String data = playerSerializer.serialize(plugin, player);
             writeData(file, data);
         } catch (IOException ex) {
             plugin.getLogger().severe("Error creating file '" + FILE_PATH +
@@ -136,7 +139,7 @@ public class FileWriter implements DataWriter {
         try (JsonReader reader = new JsonReader(new FileReader(file))) {
             JsonParser parser = new JsonParser();
             JsonObject data = parser.parse(reader).getAsJsonObject();
-            PlayerSerializer.deserialize(data, player, plugin);
+            playerSerializer.deserialize(data, player, plugin);
         } catch (FileNotFoundException ex) {
             if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdir();
@@ -179,14 +182,14 @@ public class FileWriter implements DataWriter {
         try (JsonReader reader = new JsonReader(new FileReader(file))) {
             JsonParser parser = new JsonParser();
             JsonObject data = parser.parse(reader).getAsJsonObject();
-            PlayerSerializer.deserialize(data, player, plugin);
+            playerSerializer.deserialize(data, player, plugin);
         } catch (FileNotFoundException ex) {
             file = new File(FILE_PATH + "defaults", "__default.json");
 
             try (JsonReader reader = new JsonReader(new FileReader(file))) {
                 JsonParser parser = new JsonParser();
                 JsonObject data = parser.parse(reader).getAsJsonObject();
-                PlayerSerializer.deserialize(data, player, plugin);
+                playerSerializer.deserialize(data, player, plugin);
             } catch (FileNotFoundException ex2) {
                 player.sendMessage(ChatColor.RED + "» " + ChatColor.GRAY + "Something went horribly wrong when loading your inventory! " +
                         "Please notify a server administrator!");
@@ -257,7 +260,7 @@ public class FileWriter implements DataWriter {
             return;
         }
         Group tempGroup = new Group("tmp", null, null);
-        writeData(tmp, PlayerSerializer.serialize(plugin, new PWIPlayer(plugin, player, tempGroup)));
+        writeData(tmp, playerSerializer.serialize(plugin, new PWIPlayer(plugin, player, tempGroup)));
 
         player.setFoodLevel(20);
         player.setHealth(player.getMaxHealth());
@@ -266,7 +269,7 @@ public class FileWriter implements DataWriter {
         player.setRemainingAir(player.getMaximumAir());
         player.setFireTicks(0);
 
-        writeData(file, PlayerSerializer.serialize(plugin, new PWIPlayer(plugin, player, group)));
+        writeData(file, playerSerializer.serialize(plugin, new PWIPlayer(plugin, player, group)));
 
         getFromDatabase(tempGroup, GameMode.SURVIVAL, player);
         tmp.delete();
