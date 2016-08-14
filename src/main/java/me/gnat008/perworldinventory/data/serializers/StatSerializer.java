@@ -26,7 +26,7 @@ import org.bukkit.entity.Player;
 
 public class StatSerializer {
 
-    protected StatSerializer() {}
+    private StatSerializer() {}
 
     /**
      * Serialize a player's stats

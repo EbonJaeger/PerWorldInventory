@@ -24,9 +24,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
+import javax.inject.Inject;
+
 public class InventorySerializer {
 
-    protected InventorySerializer() {}
+    @Inject
+    private ItemSerializer itemSerializer;
+
+    InventorySerializer() {}
 
     /**
      * Serialize a PlayerInventory. This will save the armor contents of the inventory as well
@@ -34,7 +39,7 @@ public class InventorySerializer {
      * @param player The player to serialize
      * @return A JsonObject representing the serialized Inventory.
      */
-    public static JsonObject serializePlayerInventory(PWIPlayer player) {
+    public JsonObject serializePlayerInventory(PWIPlayer player) {
         JsonObject root = new JsonObject();
         JsonArray inventory = serializeInventory(player.getInventory());
         JsonArray armor = serializeInventory(player.getArmor());
@@ -51,11 +56,11 @@ public class InventorySerializer {
      * @param contents The items in the inventory
      * @return A JsonArray representing the serialized ItemStack array
      */
-    public static JsonArray serializeInventory(ItemStack[] contents) {
+    public JsonArray serializeInventory(ItemStack[] contents) {
         JsonArray inventory = new JsonArray();
 
         for (int i = 0; i < contents.length; i++) {
-            JsonObject values = ItemSerializer.serializeInventoryItem(contents[i], i);
+            JsonObject values = itemSerializer.serializeInventoryItem(contents[i], i);
             if (values != null)
                 inventory.add(values);
         }
@@ -70,7 +75,7 @@ public class InventorySerializer {
      * @param inv    The reference JsonArray
      * @param format Data format being used; 0 is old, 1 is new
      */
-    public static void setInventory(Player player, JsonObject inv, int format) {
+    public void setInventory(Player player, JsonObject inv, int format) {
         PlayerInventory inventory = player.getInventory();
         
         ItemStack[] armor = deserializeInventory(inv.getAsJsonArray("armor"), 4, format);
@@ -95,7 +100,7 @@ public class InventorySerializer {
      * @param format Data format being used; 0 is old, 1 is new
      * @return An ItemStack array constructed from the given JsonArray
      */
-    public static ItemStack[] deserializeInventory(JsonArray inv, int size, int format) {
+    public ItemStack[] deserializeInventory(JsonArray inv, int size, int format) {
     	// Be tolerant if the expected JsonArray tag is missing
     	if (inv == null) {
     		return null;
@@ -111,9 +116,9 @@ public class InventorySerializer {
 	            
 	            ItemStack is;
 	            if (format >= 1)
-	                is = ItemSerializer.deserializeItem(item);
+	                is = itemSerializer.deserializeItem(item);
 	            else
-	                is = ItemSerializer.getItem(item);
+	                is = itemSerializer.getItem(item);
 	
 	            contents[index] = is;
         	}

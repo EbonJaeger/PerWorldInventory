@@ -39,15 +39,15 @@ import java.util.Map;
 public class ItemSerializer {
 
     @Inject
-    private static PerWorldInventory plugin;
+    private PerWorldInventory plugin;
 
     ItemSerializer() {}
 
-    public static JsonObject serializeInventoryItem(ItemStack item, int index) {
+    public JsonObject serializeInventoryItem(ItemStack item, int index) {
         return serializeItem(item, true, index);
     }
 
-    public static JsonObject serializeItem(ItemStack item, boolean useIndex, int index) {
+    public JsonObject serializeItem(ItemStack item, boolean useIndex, int index) {
         JsonObject values = new JsonObject();
         if (item == null)
             return null;
@@ -86,7 +86,7 @@ public class ItemSerializer {
         return values;
     }
 
-    public static ItemStack deserializeItem(JsonObject data) {
+    public ItemStack deserializeItem(JsonObject data) {
         try (
                 ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data.get("item").getAsString()));
                 BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream)) {
@@ -105,7 +105,7 @@ public class ItemSerializer {
      * @deprecated Kept for compatibility reasons. Use ItemSerializer#deserializeItem(JsonObject data) whenever possible
      */
     @Deprecated
-    public static ItemStack getItem(JsonObject item) {
+    public ItemStack getItem(JsonObject item) {
         int id = item.get("id").getAsInt();
         int amount = item.get("amount").getAsInt();
         short data = item.get("data").getAsShort();

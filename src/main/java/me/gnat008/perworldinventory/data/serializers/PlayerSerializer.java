@@ -25,9 +25,14 @@ import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.entity.Player;
 
+import javax.inject.Inject;
+
 public class PlayerSerializer {
 
-    protected PlayerSerializer() {}
+    @Inject
+    private InventorySerializer inventorySerializer;
+
+    PlayerSerializer() {}
 
     /**
      * Serialize a Player into a JsonObject. The player's EnderChest, inventory (including armor) and stats
@@ -43,13 +48,13 @@ public class PlayerSerializer {
      * @param player The player to serialize.
      * @return The serialized stats.
      */
-    public static String serialize(PerWorldInventory plugin, PWIPlayer player) {
+    public String serialize(PerWorldInventory plugin, PWIPlayer player) {
         Gson gson = new Gson();
         JsonObject root = new JsonObject();
 
         root.addProperty("data-format", 2);
-        root.add("ender-chest", InventorySerializer.serializeInventory(player.getEnderChest()));
-        root.add("inventory", InventorySerializer.serializePlayerInventory(player));
+        root.add("ender-chest", inventorySerializer.serializeInventory(player.getEnderChest()));
+        root.add("inventory", inventorySerializer.serializePlayerInventory(player));
         root.add("stats", StatSerializer.serialize(player));
 
         if (Settings.getBoolean("player.economy"))
@@ -65,16 +70,16 @@ public class PlayerSerializer {
      * @param data   The saved player information.
      * @param player The Player to apply the deserialized information to.
      */
-    public static void deserialize(final JsonObject data, final Player player, final PerWorldInventory plugin) {
+    public void deserialize(final JsonObject data, final Player player, final PerWorldInventory plugin) {
         int format = 0;
         if (data.has("data-format"))
             format = data.get("data-format").getAsInt();
 
         if (Settings.getBoolean("player.ender-chest") && data.has("ender-chest"))
-            player.getEnderChest().setContents(InventorySerializer.deserializeInventory(data.getAsJsonArray("ender-chest"),
+            player.getEnderChest().setContents(inventorySerializer.deserializeInventory(data.getAsJsonArray("ender-chest"),
                     player.getEnderChest().getSize(), format));
         if (Settings.getBoolean("player.inventory") && data.has("inventory"))
-            InventorySerializer.setInventory(player, data.getAsJsonObject("inventory"), format);
+            inventorySerializer.setInventory(player, data.getAsJsonObject("inventory"), format);
         if (data.has("stats"))
             StatSerializer.deserialize(player, data.getAsJsonObject("stats"), format);
         if (Settings.getBoolean("player.economy")) {
