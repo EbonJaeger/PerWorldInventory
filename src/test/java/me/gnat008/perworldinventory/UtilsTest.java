@@ -22,56 +22,56 @@ public class UtilsTest {
     private final String VERSION_1_10_2 = "git-Spigot-8a048fe-3c19fef (MC: 1.10.2)";
 
     @Test
-    public void shouldReturnFalseFor1_8_8() {
+    public void shouldReturnTrueSameMinorVersion() {
         // given/when
-        boolean result = Utils.checkServerVersion(VERSION_1_8_8);
+        boolean result = Utils.checkServerVersion(VERSION_1_9, 1, 9, 0);
+
+        // then
+        assertThat(result, equalTo(true));
+    }
+
+    @Test
+    public void shouldReturnTrueSameMinorSamePatchVersion() {
+        // given/when
+        boolean result = Utils.checkServerVersion(VERSION_1_9_2, 1, 9, 2);
+
+        // then
+        assertThat(result, equalTo(true));
+    }
+
+    @Test
+    public void shouldReturnTrueSameMinorHigherPatchVersion() {
+        // given/when
+        boolean result = Utils.checkServerVersion(VERSION_1_9_4, 1, 9, 2);
+
+        // then
+        assertThat(result, equalTo(true));
+    }
+
+    @Test
+    public void shouldReturnTrueHigherMinorVersion() {
+        // given/when
+        boolean result = Utils.checkServerVersion(VERSION_1_10_2, 1, 9, 2);
+
+        // then
+        assertThat(result, equalTo(true));
+    }
+
+    @Test
+    public void shouldReturnFalseLowerMinorVersion() {
+        // given/when
+        boolean result = Utils.checkServerVersion(VERSION_1_8_8, 1, 9, 2);
 
         // then
         assertThat(result, equalTo(false));
     }
 
     @Test
-    public void shouldReturnFalseFor1_9() {
+    public void shouldReturnFalseSameMinorLowerPatchVersion() {
         // given/when
-        boolean result = Utils.checkServerVersion(VERSION_1_9);
+        boolean result = Utils.checkServerVersion(VERSION_1_9_2, 1, 9, 4);
 
         // then
         assertThat(result, equalTo(false));
-    }
-
-    @Test
-    public void shouldReturnTrueFor1_9_2() {
-        // given/when
-        boolean result = Utils.checkServerVersion(VERSION_1_9_2);
-
-        // then
-        assertThat(result, equalTo(true));
-    }
-
-    @Test
-    public void shouldReturnTrueFor1_9_4() {
-        // given/when
-        boolean result = Utils.checkServerVersion(VERSION_1_9_4);
-
-        // then
-        assertThat(result, equalTo(true));
-    }
-
-    @Test
-    public void shouldReturnTrueFor1_10() {
-        // given/when
-        boolean result = Utils.checkServerVersion(VERSION_1_10);
-
-        // then
-        assertThat(result, equalTo(true));
-    }
-
-    @Test
-    public void shouldReturnTrueFor1_10_2() {
-        // given/when
-        boolean result = Utils.checkServerVersion(VERSION_1_10_2);
-
-        // then
-        assertThat(result, equalTo(true));
     }
 }

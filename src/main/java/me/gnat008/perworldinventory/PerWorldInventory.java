@@ -175,7 +175,7 @@ public class PerWorldInventory extends JavaPlugin {
 
         // The PlayerSpawnLocationEvent is only fired in Spigot
         // As of version 1.9.2
-        if (Bukkit.getVersion().contains("Spigot") && Utils.checkServerVersion(Bukkit.getVersion())) {
+        if (Bukkit.getVersion().contains("Spigot") && Utils.checkServerVersion(Bukkit.getVersion(), 1, 9, 2)) {
             pluginManager.registerEvents(injector.getSingleton(PlayerSpawnLocationListener.class), this);
         }
         getLogger().info("Listeners registered!");
