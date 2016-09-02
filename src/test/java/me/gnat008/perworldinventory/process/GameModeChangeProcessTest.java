@@ -52,7 +52,10 @@ public class GameModeChangeProcessTest {
         Group group = getTestGroup();
         given(groupManager.getGroupFromWorld("world")).willReturn(group);
         given(permissionManager.hasPermission(player, PlayerPermission.BYPASS_GAMEMODE)).willReturn(true);
-        SettingsMocker.create().set("separate-gamemode-inventories", true).save();
+        SettingsMocker.create()
+                .set("separate-gamemode-inventories", true)
+                .set("disable-bypass", false)
+                .save();
 
         // when
         process.processGameModeChange(event);
@@ -63,7 +66,7 @@ public class GameModeChangeProcessTest {
     }
 
     @Test
-    public void shouldNotBypass() {
+    public void shouldNotBypassNoPermission() {
         // given
         World world = mock(World.class);
         String worldName = "world";
@@ -75,7 +78,36 @@ public class GameModeChangeProcessTest {
         PlayerGameModeChangeEvent event = new PlayerGameModeChangeEvent(player, newGameMode);
         given(groupManager.getGroupFromWorld(worldName)).willReturn(group);
         given(permissionManager.hasPermission(player, PlayerPermission.BYPASS_GAMEMODE)).willReturn(false);
-        SettingsMocker.create().set("separate-gamemode-inventories", true).save();
+        SettingsMocker.create()
+                .set("separate-gamemode-inventories", true)
+                .set("disable-bypass", false)
+                .save();
+
+        // when
+        process.processGameModeChange(event);
+
+        // then
+        verify(playerManager).addPlayer(player, group);
+        verify(playerManager).getPlayerData(group, newGameMode, player);
+    }
+
+    @Test
+    public void shouldNotBypassBecauseBypassDisabled() {
+        // given
+        World world = mock(World.class);
+        String worldName = "world";
+        given(world.getName()).willReturn(worldName);
+        Player player = mock(Player.class);
+        given(player.getWorld()).willReturn(world);
+        Group group = getTestGroup();
+        GameMode newGameMode = GameMode.CREATIVE;
+        PlayerGameModeChangeEvent event = new PlayerGameModeChangeEvent(player, newGameMode);
+        given(groupManager.getGroupFromWorld(worldName)).willReturn(group);
+        given(permissionManager.hasPermission(player, PlayerPermission.BYPASS_GAMEMODE)).willReturn(true);
+        SettingsMocker.create()
+                .set("separate-gamemode-inventories", true)
+                .set("disable-bypass", true)
+                .save();
 
         // when
         process.processGameModeChange(event);

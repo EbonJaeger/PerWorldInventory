@@ -45,11 +45,18 @@ public class GameModeChangeProcess {
 
         playerManager.addPlayer(player, group);
 
-        if (!permissionManager.hasPermission(player, PlayerPermission.BYPASS_GAMEMODE)) {
+        if (Settings.getBoolean("disable-bypass")) {
             if (Settings.getBoolean("debug-mode"))
-                PerWorldInventory.printDebug("Player '" + player.getName() + "' does not have gamemode bypass permission! Loading data");
+                PerWorldInventory.printDebug("Bypass system is disabled in the config, loading data");
 
             playerManager.getPlayerData(group, newGameMode, player);
+        } else {
+            if (!permissionManager.hasPermission(player, PlayerPermission.BYPASS_GAMEMODE)) {
+                if (Settings.getBoolean("debug-mode"))
+                    PerWorldInventory.printDebug("Player '" + player.getName() + "' does not have gamemode bypass permission! Loading data");
+
+                playerManager.getPlayerData(group, newGameMode, player);
+            }
         }
     }
 }
