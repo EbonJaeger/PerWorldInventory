@@ -19,7 +19,6 @@ package me.gnat008.perworldinventory.data.serializers;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.bukkit.Color;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -52,9 +51,10 @@ public class PotionEffectSerializer {
             pot.addProperty("duration", effect.getDuration());
             pot.addProperty("ambient", effect.isAmbient());
             pot.addProperty("particles", effect.hasParticles());
-            if (effect.getColor() != null) {
+            // TODO: Figure out what version of Spigot this method was added.
+            /*if (effect.getColor() != null) {
                 pot.addProperty("color", effect.getColor().asRGB());
-            }
+            }*/
 
             all.add(pot);
         }
@@ -116,12 +116,14 @@ public class PotionEffectSerializer {
             boolean ambient = s_effect.get("ambient").getAsBoolean();
             boolean particles = s_effect.get("particles").getAsBoolean();
 
-            if (s_effect.has("color") && particles) {
+            // TODO: Figure out what version of Spigot this method was added.
+            /*if (s_effect.has("color") && particles) {
                 Color color = Color.fromRGB(s_effect.get("color").getAsInt());
                 effect = new PotionEffect(type, duration, amplifier, ambient, particles, color);
             } else {
                 effect = new PotionEffect(type, duration, amplifier, ambient, particles);
-            }
+            }*/
+            effect = new PotionEffect(type, duration, amplifier, ambient, particles);
 
             effects.add(effect);
         }
