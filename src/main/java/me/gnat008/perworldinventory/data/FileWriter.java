@@ -20,7 +20,6 @@ package me.gnat008.perworldinventory.data;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
-import me.gnat008.perworldinventory.DataFolder;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
@@ -33,6 +32,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -42,15 +42,19 @@ import java.util.UUID;
 
 public class FileWriter implements DataWriter {
 
-    private final String FILE_PATH;
-    private final PerWorldInventory plugin;
-    private final PlayerSerializer playerSerializer;
+    private String FILE_PATH;
 
     @Inject
-    FileWriter(PerWorldInventory plugin, @DataFolder File dataFolder, PlayerSerializer playerSerializer) {
-        this.plugin = plugin;
-        this.FILE_PATH = dataFolder + File.separator + "data" + File.separator;
-        this.playerSerializer = playerSerializer;
+    private PerWorldInventory plugin;
+    @Inject
+    private PlayerSerializer playerSerializer;
+
+    FileWriter() {
+    }
+
+    @PostConstruct
+    protected void setup() {
+        this.FILE_PATH = new File(plugin.getDataFolder() + File.separator + "data").getPath();
     }
 
     @Override
@@ -177,7 +181,7 @@ public class FileWriter implements DataWriter {
     }
 
     public void getFromDefaults(Group group, Player player) {
-        File file = new File(FILE_PATH + "defaults", group.getName() + ".json");
+        File file = new File(FILE_PATH + File.separator + "defaults", group.getName() + ".json");
 
         try (JsonReader reader = new JsonReader(new FileReader(file))) {
             JsonParser parser = new JsonParser();
@@ -217,16 +221,16 @@ public class FileWriter implements DataWriter {
         File file;
         switch(gamemode) {
             case ADVENTURE:
-                file = new File(FILE_PATH + uuid.toString(), group.getName() + "_adventure.json");
+                file = new File(FILE_PATH + File.separator + uuid.toString(), group.getName() + "_adventure.json");
                 break;
             case CREATIVE:
-                file = new File(FILE_PATH + uuid.toString(), group.getName() + "_creative.json");
+                file = new File(FILE_PATH + File.separator + uuid.toString(), group.getName() + "_creative.json");
                 break;
             case SPECTATOR:
-                file = new File(FILE_PATH + uuid.toString(), group.getName() + "_creative.json");
+                file = new File(FILE_PATH + File.separator + uuid.toString(), group.getName() + "_creative.json");
                 break;
             default:
-                file = new File(FILE_PATH + uuid.toString(), group.getName() + ".json");
+                file = new File(FILE_PATH + File.separator + uuid.toString(), group.getName() + ".json");
                 break;
         }
 
