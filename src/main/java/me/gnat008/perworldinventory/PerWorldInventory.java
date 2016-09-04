@@ -62,8 +62,7 @@ public class PerWorldInventory extends JavaPlugin {
 
     public static final int CONFIG_VERSION = 4;
 
-    private static PerWorldInventoryAPI api;
-
+    private PerWorldInventoryAPI api;
     private Economy economy;
     private DataWriter serializer;
     private GroupManager groupManager;
@@ -201,7 +200,7 @@ public class PerWorldInventory extends JavaPlugin {
      *
      * @return The API class.
      */
-    public static PerWorldInventoryAPI getAPI() {
+    public PerWorldInventoryAPI getAPI() {
         return api;
     }
 
