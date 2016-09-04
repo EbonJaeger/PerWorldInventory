@@ -317,32 +317,27 @@ public class PWIPlayerManager {
      * <p>
      * By default, this task will execute once every 5 minutes. This will likely be
      * configurable in the future.
-     *
-     * @return The task ID number
      */
     @PostConstruct
     private void scheduleRepeatingTask() {
-        this.taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
-            @Override
-            public void run() {
-                for (String key : playerCache.keySet()) {
-                    PWIPlayer player = playerCache.get(key);
-                    if (!player.isSaved()) {
-                        String[] parts = key.split("\\.");
-                        Group group = groupManager.getGroup(parts[1]);
-                        GameMode gamemode = GameMode.valueOf(parts[2].toUpperCase());
+        this.taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
+            for (String key : playerCache.keySet()) {
+                PWIPlayer player = playerCache.get(key);
+                if (!player.isSaved()) {
+                    String[] parts = key.split("\\.");
+                    Group group = groupManager.getGroup(parts[1]);
+                    GameMode gamemode = GameMode.valueOf(parts[2].toUpperCase());
 
-                        if (Settings.getBoolean("debug-mode"))
-                            PerWorldInventory.printDebug("Saving cached player '" + player.getName() + "' for group '" + group.getName() + "' with gamemdde '" + gamemode.name() + "'");
+                    if (Settings.getBoolean("debug-mode"))
+                        PerWorldInventory.printDebug("Saving cached player '" + player.getName() + "' for group '" + group.getName() + "' with gamemdde '" + gamemode.name() + "'");
 
-                        player.setSaved(true);
-                        dataWriter.saveToDatabase(group, gamemode, player, true);
-                    } else {
-                        if (Settings.getBoolean("debug-mode"))
-                            PerWorldInventory.printDebug("Removing player '" + player.getName() + "' from cache");
+                    player.setSaved(true);
+                    dataWriter.saveToDatabase(group, gamemode, player, true);
+                } else {
+                    if (Settings.getBoolean("debug-mode"))
+                        PerWorldInventory.printDebug("Removing player '" + player.getName() + "' from cache");
 
-                        playerCache.remove(key);
-                    }
+                    playerCache.remove(key);
                 }
             }
         }, interval, interval);

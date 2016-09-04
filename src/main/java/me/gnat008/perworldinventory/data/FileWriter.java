@@ -77,12 +77,7 @@ public class FileWriter implements DataWriter {
     @Override
     public void saveToDatabase(final Group group, final GameMode gamemode, final PWIPlayer player, boolean async) {
         if (async) {
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-                @Override
-                public void run() {
-                    saveToDatabase(group, gamemode, player);
-                }
-            });
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> saveToDatabase(group, gamemode, player));
         } else {
             saveToDatabase(group, gamemode, player);
         }
