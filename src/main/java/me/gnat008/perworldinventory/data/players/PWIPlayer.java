@@ -17,7 +17,6 @@
 
 package me.gnat008.perworldinventory.data.players;
 
-import me.gnat008.perworldinventory.DataFolder;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.groups.Group;
 import org.bukkit.GameMode;
@@ -73,8 +72,6 @@ public class PWIPlayer {
     /* PERWORLDINVENTORY STUFF */
     private PerWorldInventory plugin;
     private boolean saved;
-    @DataFolder
-    private File dataFolder;
     private File dataFileDirectory;
     private Group group;
 
@@ -83,7 +80,7 @@ public class PWIPlayer {
         this.uuid = player.getUniqueId();
         this.name = player.getName();
         this.location = player.getLocation();
-        this.dataFileDirectory = new File(dataFolder + File.separator + "data" + File.separator + uuid.toString());
+        this.dataFileDirectory = new File(plugin.getDataFolder() + File.separator + "data" + File.separator + uuid.toString());
         if (!dataFileDirectory.exists()) {
             dataFileDirectory.mkdir();
         }

@@ -59,7 +59,7 @@ public class FileWriter implements DataWriter {
 
     @Override
     public void saveLogoutData(PWIPlayer player) {
-        File file = new File(FILE_PATH + player.getUuid().toString(), "last-logout.json");
+        File file = new File(player.getDataFileDirectory() + File.separator + "last-logout.json");
 
         try {
             if (!file.getParentFile().exists())
@@ -85,7 +85,7 @@ public class FileWriter implements DataWriter {
 
     @Override
     public void saveToDatabase(Group group, GameMode gamemode, PWIPlayer player) {
-        File file = getFile(gamemode, group, player.getUuid());
+        File file = getFile(gamemode, group, player);
 
         if (Settings.getBoolean("debug-mode"))
             PerWorldInventory.printDebug("Saving data for player '" + player.getName() + "' in file '" + file.getPath() + "'");
@@ -207,25 +207,57 @@ public class FileWriter implements DataWriter {
     /**
      * Get the data file for a player.
      *
-     * @param gamemode The game mode for the group we are looking for
-     * @param group The group we are looking for
-     * @param uuid The UUID of the player
-     * @return The data file
+     * @param gamemode The game mode for the group we are looking for.
+     * @param group The group we are looking for.
+     * @param player The PWIPlayer being saved.
+     *
+     * @return The data file to read from or write to.
      */
-    public File getFile(GameMode gamemode, Group group, UUID uuid) {
+    public File getFile(GameMode gamemode, Group group, PWIPlayer player) {
+        File dir = player.getDataFileDirectory();
         File file;
         switch(gamemode) {
             case ADVENTURE:
-                file = new File(FILE_PATH + File.separator + uuid.toString(), group.getName() + "_adventure.json");
+                file = new File(dir + File.separator + group.getName() + "_adventure.json");
                 break;
             case CREATIVE:
-                file = new File(FILE_PATH + File.separator + uuid.toString(), group.getName() + "_creative.json");
+                file = new File(dir + File.separator + group.getName() + "_creative.json");
                 break;
             case SPECTATOR:
-                file = new File(FILE_PATH + File.separator + uuid.toString(), group.getName() + "_creative.json");
+                file = new File(dir + File.separator + group.getName() + "_creative.json");
                 break;
             default:
-                file = new File(FILE_PATH + File.separator + uuid.toString(), group.getName() + ".json");
+                file = new File(dir + File.separator + group.getName() + ".json");
+                break;
+        }
+
+        return file;
+    }
+
+    /**
+     * Get the data file for a player.
+     *
+     * @param gamemode The game mode for the group we are looking for.
+     * @param group The group we are looking for.
+     * @param uuid The UUID of the player.
+     *
+     * @return The data file to read from or write to.
+     */
+    public File getFile(GameMode gamemode, Group group, UUID uuid) {
+        File dir = new File(FILE_PATH + File.separator + uuid.toString());
+        File file;
+        switch(gamemode) {
+            case ADVENTURE:
+                file = new File(dir + File.separator + group.getName() + "_adventure.json");
+                break;
+            case CREATIVE:
+                file = new File(dir + File.separator + group.getName() + "_creative.json");
+                break;
+            case SPECTATOR:
+                file = new File(dir + File.separator + group.getName() + "_creative.json");
+                break;
+            default:
+                file = new File(dir + File.separator + group.getName() + ".json");
                 break;
         }
 
