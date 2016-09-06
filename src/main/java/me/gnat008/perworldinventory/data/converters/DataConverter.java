@@ -19,24 +19,29 @@ package me.gnat008.perworldinventory.data.converters;
 
 import ch.jalu.injector.annotations.NoMethodScan;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.onarandombox.multiverseinventories.MultiverseInventories;
 import com.onarandombox.multiverseinventories.ProfileTypes;
 import com.onarandombox.multiverseinventories.api.profile.PlayerProfile;
 import com.onarandombox.multiverseinventories.api.profile.ProfileType;
 import com.onarandombox.multiverseinventories.api.profile.WorldGroupProfile;
+import com.onarandombox.multiverseinventories.api.share.Sharables;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.data.FileWriter;
+import me.gnat008.perworldinventory.data.serializers.InventorySerializer;
+import me.gnat008.perworldinventory.data.serializers.PotionEffectSerializer;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.potion.PotionEffect;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @NoMethodScan
 public class DataConverter {
@@ -45,6 +50,8 @@ public class DataConverter {
     private FileWriter serializer;
     @Inject
     private GroupManager groupManager;
+    @Inject
+    private InventorySerializer inventorySerializer;
     @Inject
     private PerWorldInventory plugin;
 
@@ -74,14 +81,14 @@ public class DataConverter {
                     try {
                         PlayerProfile playerData = mvgroup.getPlayerData(profileType, player1);
                         if (playerData != null) {
-                            //JsonObject writable = serializeMVIToNewFormat(playerData);
+                            String data = serializeMVIToNewFormat(playerData);
 
                             File file = serializer.getFile(gameMode, groupManager.getGroup(mvgroup.getName()), player1.getUniqueId());
                             if (!file.getParentFile().exists())
                                 file.getParentFile().mkdir();
                             if (!file.exists())
                                 file.createNewFile();
-                            //serializer.writeData(file, gson.toJson(writable));
+                            serializer.writeData(file, data);
                         }
                     } catch (Exception ex) {
                         plugin.getLogger().warning("Error importing inventory for player: " + player1.getName() +
@@ -126,21 +133,22 @@ public class DataConverter {
         plugin.getLogger().info("MultiInv disabled! Don't forget to remove the .jar!");
     }
 
-    /*private JsonObject serializeMVIToNewFormat(PlayerProfile data) {
+    private String serializeMVIToNewFormat(PlayerProfile data) {
+        Gson gson = new Gson();
         JsonObject root = new JsonObject();
-        root.addProperty("data-format", 1);
+        root.addProperty("data-format", 2);
 
         JsonObject inv = new JsonObject();
         if (data.get(Sharables.INVENTORY) != null) {
-            JsonArray inventory = InventorySerializer.serializeInventory(data.get(Sharables.INVENTORY));
+            JsonArray inventory = inventorySerializer.serializeInventory(data.get(Sharables.INVENTORY));
             inv.add("inventory", inventory);
         }
         if (data.get(Sharables.ARMOR) != null) {
-            JsonArray armor = InventorySerializer.serializeInventory(data.get(Sharables.ARMOR));
+            JsonArray armor = inventorySerializer.serializeInventory(data.get(Sharables.ARMOR));
             inv.add("armor", armor);
         }
         if (data.get(Sharables.ENDER_CHEST) != null) {
-            JsonArray enderChest = InventorySerializer.serializeInventory(data.get(Sharables.ENDER_CHEST));
+            JsonArray enderChest = inventorySerializer.serializeInventory(data.get(Sharables.ENDER_CHEST));
             root.add("ender-chest", enderChest);
         }
 
@@ -159,18 +167,32 @@ public class DataConverter {
             PotionEffect[] effects = data.get(Sharables.POTIONS);
             Collection<PotionEffect> potionEffects = new LinkedList<>();
             Collections.addAll(potionEffects, effects);
-            stats.addProperty("potion-effects", PotionEffectSerializer.serialize(potionEffects));
+            stats.add("potion-effects", PotionEffectSerializer.serialize(potionEffects));
         }
         if (data.get(Sharables.SATURATION) != null)
             stats.addProperty("saturation", data.get(Sharables.SATURATION));
+        if (data.get(Sharables.FALL_DISTANCE) != null)
+            stats.addProperty("fallDistance", data.get(Sharables.FALL_DISTANCE));
+        if (data.get(Sharables.FIRE_TICKS) != null)
+            stats.addProperty("fireTicks", data.get(Sharables.FIRE_TICKS));
+        if (data.get(Sharables.MAXIMUM_AIR) != null)
+            stats.addProperty("maxAir", data.get(Sharables.MAXIMUM_AIR));
+        if (data.get(Sharables.REMAINING_AIR) != null)
+            stats.addProperty("remainingAir", data.get(Sharables.REMAINING_AIR));
 
         root.add("inventory", inv);
         root.add("stats", stats);
 
-        return root;
+        if (data.get(Sharables.ECONOMY) != null) {
+            JsonObject econData = new JsonObject();
+            econData.addProperty("balance", data.get(Sharables.ECONOMY));
+            root.add("economy", econData);
+        }
+
+        return gson.toJson(root);
     }
 
-    private JsonObject serializeMIToNewFormat(MIAPIPlayer player) {
+    /*private JsonObject serializeMIToNewFormat(MIAPIPlayer player) {
         JsonObject root = new JsonObject();
         root.addProperty("data-format", 1);
 

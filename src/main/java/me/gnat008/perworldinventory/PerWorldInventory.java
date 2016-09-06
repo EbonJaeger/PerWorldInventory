@@ -19,6 +19,7 @@ package me.gnat008.perworldinventory;
 
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
+import me.gnat008.perworldinventory.api.PerWorldInventoryAPI;
 import me.gnat008.perworldinventory.commands.ConvertCommand;
 import me.gnat008.perworldinventory.commands.ExecutableCommand;
 import me.gnat008.perworldinventory.commands.HelpCommand;
@@ -61,6 +62,7 @@ public class PerWorldInventory extends JavaPlugin {
 
     public static final int CONFIG_VERSION = 4;
 
+    private PerWorldInventoryAPI api;
     private Economy economy;
     private DataWriter serializer;
     private GroupManager groupManager;
@@ -159,6 +161,7 @@ public class PerWorldInventory extends JavaPlugin {
         serializer = injector.getSingleton(FileWriter.class);
         injector.register(DataWriter.class, serializer);
         playerManager = injector.getSingleton(PWIPlayerManager.class);
+        api = injector.getSingleton(PerWorldInventoryAPI.class);
     }
 
     protected void registerEventListeners(Injector injector) {
@@ -189,6 +192,16 @@ public class PerWorldInventory extends JavaPlugin {
         commands.put("setworlddefault", injector.getSingleton(SetWorldDefaultCommand.class));
         commands.put("version", injector.getSingleton(VersionCommand.class));
         getLogger().info("Commands registered!");
+    }
+
+    /**
+     * Get a class for other plugins to more easily integrate with
+     * PerWorldInventory.
+     *
+     * @return The API class.
+     */
+    public PerWorldInventoryAPI getAPI() {
+        return api;
     }
 
     public static void printDebug(String message) {
