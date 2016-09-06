@@ -89,10 +89,12 @@ public class PlayerSerializer {
                 return;
             }
 
+            plugin.printDebug("[ECON] Withdrawing " + econ.getBalance(player) + " from '" + player.getName() + "'!");
             econ.withdrawPlayer(player, econ.getBalance(player));
             econ.bankWithdraw(player.getName(), econ.bankBalance(player.getName()).amount);
-            if (data.has("economy"))
+            if (data.has("economy")) {
                 EconomySerializer.deserialize(econ, data.getAsJsonObject("economy"), player);
+            }
         }
     }
 }
