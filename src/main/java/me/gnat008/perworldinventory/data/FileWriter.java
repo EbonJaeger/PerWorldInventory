@@ -176,14 +176,14 @@ public class FileWriter implements DataWriter {
     }
 
     public void getFromDefaults(Group group, Player player) {
-        File file = new File(FILE_PATH + File.separator + "defaults", group.getName() + ".json");
+        File file = new File(FILE_PATH + File.separator + "defaults" + File.separator + group.getName() + ".json");
 
         try (JsonReader reader = new JsonReader(new FileReader(file))) {
             JsonParser parser = new JsonParser();
             JsonObject data = parser.parse(reader).getAsJsonObject();
             playerSerializer.deserialize(data, player, plugin);
         } catch (FileNotFoundException ex) {
-            file = new File(FILE_PATH + "defaults", "__default.json");
+            file = new File(FILE_PATH + File.separator + "defaults" + File.separator + "__default.json");
 
             try (JsonReader reader = new JsonReader(new FileReader(file))) {
                 JsonParser parser = new JsonParser();
