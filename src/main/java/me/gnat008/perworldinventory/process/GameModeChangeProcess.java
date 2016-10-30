@@ -56,6 +56,9 @@ public class GameModeChangeProcess {
                     PerWorldInventory.printDebug("Player '" + player.getName() + "' does not have gamemode bypass permission! Loading data");
 
                 playerManager.getPlayerData(group, newGameMode, player);
+            } else {
+                if (Settings.getBoolean("debug-mode"))
+                    PerWorldInventory.printDebug("Player '" + player.getName() + "' has gamemode bypass permission!");
             }
         }
     }
