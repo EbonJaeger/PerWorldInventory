@@ -32,6 +32,7 @@ import me.gnat008.perworldinventory.data.DataWriter;
 import me.gnat008.perworldinventory.data.FileWriter;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.GroupManager;
+import me.gnat008.perworldinventory.listeners.entity.EntityPortalEventListener;
 import me.gnat008.perworldinventory.listeners.player.PlayerChangedWorldListener;
 import me.gnat008.perworldinventory.listeners.player.PlayerGameModeChangeListener;
 import me.gnat008.perworldinventory.listeners.player.PlayerJoinListener;
@@ -175,6 +176,7 @@ public class PerWorldInventory extends JavaPlugin {
         pluginManager.registerEvents(injector.getSingleton(PlayerGameModeChangeListener.class), this);
         pluginManager.registerEvents(injector.getSingleton(PlayerJoinListener.class), this);
         pluginManager.registerEvents(injector.getSingleton(PlayerQuitListener.class), this);
+        pluginManager.registerEvents(injector.getSingleton(EntityPortalEventListener.class), this);
 
         // The PlayerSpawnLocationEvent is only fired in Spigot
         // As of version 1.9.2
