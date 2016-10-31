@@ -4,7 +4,9 @@ public enum PlayerPermission implements PermissionNode {
 
     BYPASS_WORLDS("perworldinventory.bypass.world", DefaultPermission.NOT_ALLOWED),
 
-    BYPASS_GAMEMODE("perworldinventory.bypass.gamemode", DefaultPermission.NOT_ALLOWED);
+    BYPASS_GAMEMODE("perworldinventory.bypass.gamemode", DefaultPermission.NOT_ALLOWED),
+    
+    BYPASS_ENFORCEGAMEMODE("perworldinventory.bypass.enforcegamemode", DefaultPermission.NOT_ALLOWED);
 
     private String node;
     private DefaultPermission defaultPermission;
