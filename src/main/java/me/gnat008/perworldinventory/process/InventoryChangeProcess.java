@@ -134,10 +134,15 @@ public class InventoryChangeProcess {
     protected void postProcessWorldChange(Player player, Group to) {
         // Check if we should manage the player's gamemode when changing worlds
         if (Settings.getBoolean("manage-gamemodes")) {
-            if (Settings.getBoolean("debug-mode"))
-                PerWorldInventory.printDebug("PWI manages gamemodes! Setting player '" + player.getName() + "' to gamemode " + to.getGameMode().name());
+            if (permissionManager.hasPermission(player, PlayerPermission.BYPASS_ENFORCEGAMEMODE)) {
+                if (Settings.getBoolean("debug-mode"))
+                    PerWorldInventory.printDebug("Player '" + player.getName() + "' has '" + PlayerPermission.BYPASS_ENFORCEGAMEMODE.getNode() + "' permission! Not enforcing gamemode.");
+            } else {
+                if (Settings.getBoolean("debug-mode"))
+                    PerWorldInventory.printDebug("PWI manages gamemodes! Setting player '" + player.getName() + "' to gamemode " + to.getGameMode().name());
 
-            player.setGameMode(to.getGameMode());
+                player.setGameMode(to.getGameMode());
+            }
         }
     }
 }
