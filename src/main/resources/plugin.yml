@@ -17,7 +17,6 @@ permissions:
       perworldinventory.help: true
       perworldinventory.reload: true
       perworldinventory.setdefaults: true
-      perworldinventory.notify: true
       perworldinventory.version: true
   perworldinventory.bypass.*:
     default: false
@@ -31,8 +30,6 @@ permissions:
   perworldinventory.reload:
     default: false
   perworldinventory.setdefaults:
-    default: false
-  perworldinventory.notify:
     default: false
   perworldinventory.version:
     default: false

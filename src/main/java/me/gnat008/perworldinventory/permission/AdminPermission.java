@@ -6,8 +6,6 @@ public enum AdminPermission implements PermissionNode {
 
     HELP("perworldinventory.help", DefaultPermission.OP_ONLY),
 
-    NOTIFY("perworldinventory.notify", DefaultPermission.OP_ONLY),
-
     RELOAD("perworldinventory.reload", DefaultPermission.OP_ONLY),
 
     SETDEFAULTS("perworldinventory.setdefaults", DefaultPermission.OP_ONLY),

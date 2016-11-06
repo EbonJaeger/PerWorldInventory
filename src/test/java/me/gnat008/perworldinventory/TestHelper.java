@@ -7,6 +7,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.logging.Logger;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * Test utilities.
@@ -95,5 +98,11 @@ public final class TestHelper {
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new IllegalStateException("Could not set field '" + fieldName + "' on " + instance, e);
         }
+    }
+
+    public static Logger initMockLogger() {
+        Logger logger = mock(Logger.class);
+        setField(PerWorldInventory.class, "logger", null, logger);
+        return logger;
     }
 }

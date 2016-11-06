@@ -1,6 +1,7 @@
 package me.gnat008.perworldinventory.process;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.Group;
@@ -27,6 +28,9 @@ public class InventoryChangeProcess {
     @Inject
     private PWIPlayerManager playerManager;
 
+    @Inject
+    private Settings settings;
+
     InventoryChangeProcess() {
     }
 
@@ -42,8 +46,7 @@ public class InventoryChangeProcess {
         Group groupFrom = groupManager.getGroupFromWorld(worldFrom);
         Group groupTo = groupManager.getGroupFromWorld(worldTo);
 
-        if (Settings.getBoolean("debug-mode"))
-            PerWorldInventory.printDebug("Player '" + player.getName() + "' going from world '" + worldFrom + "' to world '" + worldTo + "'");
+        PerWorldInventory.printDebug("Player '" + player.getName() + "' going from world '" + worldFrom + "' to world '" + worldTo + "'");
 
         playerManager.addPlayer(player, groupFrom);
 
@@ -60,8 +63,7 @@ public class InventoryChangeProcess {
      */
     public void processWorldChangeOnSpawn(Player player, Group from, Group to) {
         if (!from.equals(to)) {
-            if (Settings.getBoolean("debug-mode"))
-                PerWorldInventory.printDebug("Logout world groups are different! Saving data for player '" + player.getName() + "' for group '" + from.getName() + "'");
+            PerWorldInventory.printDebug("Logout world groups are different! Saving data for player '" + player.getName() + "' for group '" + from.getName() + "'");
 
             playerManager.addPlayer(player, from);
 
@@ -79,45 +81,39 @@ public class InventoryChangeProcess {
      */
     protected void processWorldChange(Player player, Group from, Group to) {
         // Check of the FROM group is configured
-        if (!from.isConfigured() && Settings.getBoolean("share-if-unconfigured")) {
-            if (Settings.getBoolean("debug-mode"))
-                PerWorldInventory.printDebug("FROM group (" + from.getName() + ") is not defined, and plugin configured to share inventory");
+        if (!from.isConfigured() && settings.getProperty(PwiProperties.SHARE_IF_UNCONFIGURED)) {
+            PerWorldInventory.printDebug("FROM group (" + from.getName() + ") is not defined, and plugin configured to share inventory");
             postProcessWorldChange(player, to);
             return;
         }
 
         // Check if the groups are actually the same group
         if (from.equals(to)) {
-            if (Settings.getBoolean("debug-mode"))
-                PerWorldInventory.printDebug("Both groups are the same: '" + to.getName() + "'");
+            PerWorldInventory.printDebug("Both groups are the same: '" + to.getName() + "'");
             postProcessWorldChange(player, to);
             return;
         }
 
         // Check of the TO group is configured
-        if (!to.isConfigured() && Settings.getBoolean("share-if-unconfigured")) {
-            if (Settings.getBoolean("debug-mode"))
-                PerWorldInventory.printDebug("TO group (" + to.getName() + ") is not defined, and plugin configured to share inventory");
+        if (!to.isConfigured() && settings.getProperty(PwiProperties.SHARE_IF_UNCONFIGURED)) {
+            PerWorldInventory.printDebug("TO group (" + to.getName() + ") is not defined, and plugin configured to share inventory");
             postProcessWorldChange(player, to);
             return;
         }
 
         // Check if the player bypasses the changes
-        if (!Settings.getBoolean("disable-bypass") && permissionManager.hasPermission(player, PlayerPermission.BYPASS_WORLDS)) {
-            if (Settings.getBoolean("debug-mode"))
-                PerWorldInventory.printDebug("Player '" + player.getName() + "' has '" + PlayerPermission.BYPASS_WORLDS.getNode() + "' permission! Returning");
+        if (!settings.getProperty(PwiProperties.DISABLE_BYPASS) && permissionManager.hasPermission(player, PlayerPermission.BYPASS_WORLDS)) {
+            PerWorldInventory.printDebug("Player '" + player.getName() + "' has '" + PlayerPermission.BYPASS_WORLDS.getNode() + "' permission! Returning");
             postProcessWorldChange(player, to);
             return;
         }
 
         // Check if gamemodes have separate inventories
-        if (Settings.getBoolean("separate-gamemode-inventories")) {
-            if (Settings.getBoolean("debug-mode"))
-                PerWorldInventory.printDebug("Gamemodes are separated! Loading data for player '" + player.getName() + "' for group '" + to.getName() + "' in gamemode '" + player.getGameMode().name() + "'");
+        if (settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)) {
+            PerWorldInventory.printDebug("Gamemodes are separated! Loading data for player '" + player.getName() + "' for group '" + to.getName() + "' in gamemode '" + player.getGameMode().name() + "'");
             playerManager.getPlayerData(to, player.getGameMode(), player);
         } else {
-            if (Settings.getBoolean("debug-mode"))
-                PerWorldInventory.printDebug("Loading data for player '" + player.getName() + "' for group '" + to.getName() + "'");
+            PerWorldInventory.printDebug("Loading data for player '" + player.getName() + "' for group '" + to.getName() + "'");
             playerManager.getPlayerData(to, GameMode.SURVIVAL, player);
         }
 
@@ -133,14 +129,11 @@ public class InventoryChangeProcess {
      */
     protected void postProcessWorldChange(Player player, Group to) {
         // Check if we should manage the player's gamemode when changing worlds
-        if (Settings.getBoolean("manage-gamemodes")) {
+        if (settings.getProperty(PwiProperties.MANAGE_GAMEMODES)) {
             if (permissionManager.hasPermission(player, PlayerPermission.BYPASS_ENFORCEGAMEMODE)) {
-                if (Settings.getBoolean("debug-mode"))
-                    PerWorldInventory.printDebug("Player '" + player.getName() + "' has '" + PlayerPermission.BYPASS_ENFORCEGAMEMODE.getNode() + "' permission! Not enforcing gamemode.");
+                PerWorldInventory.printDebug("Player '" + player.getName() + "' has '" + PlayerPermission.BYPASS_ENFORCEGAMEMODE.getNode() + "' permission! Not enforcing gamemode.");
             } else {
-                if (Settings.getBoolean("debug-mode"))
-                    PerWorldInventory.printDebug("PWI manages gamemodes! Setting player '" + player.getName() + "' to gamemode " + to.getGameMode().name());
-
+                PerWorldInventory.printDebug("PWI manages gamemodes! Setting player '" + player.getName() + "' to gamemode " + to.getGameMode().name());
                 player.setGameMode(to.getGameMode());
             }
         }

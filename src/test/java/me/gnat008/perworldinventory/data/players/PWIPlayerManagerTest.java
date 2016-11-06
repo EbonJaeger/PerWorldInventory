@@ -1,20 +1,26 @@
 package me.gnat008.perworldinventory.data.players;
 
+import ch.jalu.injector.testing.BeforeInjecting;
+import ch.jalu.injector.testing.DelayedInjectionRunner;
+import ch.jalu.injector.testing.InjectDelayed;
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.config.SettingsMocker;
+import me.gnat008.perworldinventory.TestHelper;
+import me.gnat008.perworldinventory.config.PwiProperties;
+import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.DataWriter;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.scheduler.BukkitScheduler;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -27,10 +33,10 @@ import static org.mockito.Mockito.mock;
 /**
  * Tests for {@link PWIPlayerManager}.
  */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(DelayedInjectionRunner.class)
 public class PWIPlayerManagerTest {
 
-    @InjectMocks
+    @InjectDelayed
     private PWIPlayerManager playerManager;
 
     @Mock
@@ -42,16 +48,28 @@ public class PWIPlayerManagerTest {
     @Mock
     private GroupManager groupManager;
 
-    private final static UUID TEST_UUID = UUID.randomUUID();
+    @Mock
+    private Settings settings;
+
+    private static final UUID TEST_UUID = UUID.randomUUID();
+
+    @BeforeInjecting
+    public void initSettings() {
+        given(settings.getProperty(PwiProperties.SAVE_INTERVAL)).willReturn(300);
+
+        // Add mocks for Bukkit.getScheduler, called in @PostConstruct method
+        Server server = mock(Server.class);
+        TestHelper.setField(Bukkit.class, "server", null, server);
+        BukkitScheduler scheduler = mock(BukkitScheduler.class);
+        given(server.getScheduler()).willReturn(scheduler);
+    }
 
     @Test
     public void addPlayerShouldHaveSurvivalKey() {
         // given
         Player player = mockPlayer("playah", GameMode.SURVIVAL);
         Group group = new Group("test", new ArrayList<String>(), GameMode.SURVIVAL);
-        SettingsMocker.create()
-                .set("separate-gamemode-inventories", true)
-                .save();
+        given(settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)).willReturn(true);
 
         // when
         String result = playerManager.addPlayer(player, group);
@@ -66,9 +84,7 @@ public class PWIPlayerManagerTest {
         // given
         Player player = mockPlayer("playah", GameMode.CREATIVE);
         Group group = new Group("test", new ArrayList<String>(), GameMode.SURVIVAL);
-        SettingsMocker.create()
-                .set("separate-gamemode-inventories", false)
-                .save();
+        given(settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)).willReturn(false);
 
         // when
         String result = playerManager.addPlayer(player, group);
@@ -83,9 +99,7 @@ public class PWIPlayerManagerTest {
         // given
         Player player = mockPlayer("playah", GameMode.CREATIVE);
         Group group = new Group("test", new ArrayList<String>(), GameMode.SURVIVAL);
-        SettingsMocker.create()
-                .set("separate-gamemode-inventories", true)
-                .save();
+        given(settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)).willReturn(true);
 
         // when
         String result = playerManager.addPlayer(player, group);
@@ -99,9 +113,7 @@ public class PWIPlayerManagerTest {
         // given
         Player player = mockPlayer("playah", GameMode.ADVENTURE);
         Group group = new Group("test", new ArrayList<String>(), GameMode.SURVIVAL);
-        SettingsMocker.create()
-                .set("separate-gamemode-inventories", true)
-                .save();
+        given(settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)).willReturn(true);
 
         // when
         String result = playerManager.addPlayer(player, group);
@@ -116,9 +128,7 @@ public class PWIPlayerManagerTest {
         // given
         Player player = mockPlayer("playah", GameMode.SPECTATOR);
         Group group = new Group("test", new ArrayList<String>(), GameMode.SURVIVAL);
-        SettingsMocker.create()
-                .set("separate-gamemode-inventories", true)
-                .save();
+        given(settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)).willReturn(true);
 
         // when
         String result = playerManager.addPlayer(player, group);
