@@ -21,7 +21,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.data.serializers.LocationSerializer;
 import me.gnat008.perworldinventory.data.serializers.PlayerSerializer;
@@ -87,8 +86,7 @@ public class FileWriter implements DataWriter {
     public void saveToDatabase(Group group, GameMode gamemode, PWIPlayer player) {
         File file = getFile(gamemode, group, player.getUuid());
 
-        if (Settings.getBoolean("debug-mode"))
-            PerWorldInventory.printDebug("Saving data for player '" + player.getName() + "' in file '" + file.getPath() + "'");
+        PerWorldInventory.printDebug("Saving data for player '" + player.getName() + "' in file '" + file.getPath() + "'");
 
         try {
             if (!file.getParentFile().exists()) {
@@ -99,8 +97,7 @@ public class FileWriter implements DataWriter {
                 file.createNewFile();
             }
 
-            if (Settings.getBoolean("debug-mode"))
-                PerWorldInventory.printDebug("Writing player data for player '" + player.getName() + "' to file");
+            PerWorldInventory.printDebug("Writing player data for player '" + player.getName() + "' to file");
 
             String data = playerSerializer.serialize(plugin, player);
             writeData(file, data);
@@ -132,8 +129,7 @@ public class FileWriter implements DataWriter {
     public void getFromDatabase(Group group, GameMode gamemode, Player player) {
         File file = getFile(gamemode, group, player.getUniqueId());
 
-        if (Settings.getBoolean("debug-mode"))
-            PerWorldInventory.printDebug("Getting data for player '" + player.getName() + "' from file '" + file.getPath() + "'");
+        PerWorldInventory.printDebug("Getting data for player '" + player.getName() + "' from file '" + file.getPath() + "'");
 
         try (JsonReader reader = new JsonReader(new FileReader(file))) {
             JsonParser parser = new JsonParser();
@@ -144,8 +140,7 @@ public class FileWriter implements DataWriter {
                 file.getParentFile().mkdir();
             }
 
-            if (Settings.getBoolean("debug-mode"))
-                PerWorldInventory.printDebug("File not found for player '" + player.getName() + "' for group '" + group.getName() + "'. Getting data from default sources");
+            PerWorldInventory.printDebug("File not found for player '" + player.getName() + "' for group '" + group.getName() + "'. Getting data from default sources");
 
             getFromDefaults(group, player);
         } catch (IOException exIO) {
@@ -216,10 +211,8 @@ public class FileWriter implements DataWriter {
     public File getFile(GameMode gamemode, Group group, UUID uuid) {
         File dir = new File(FILE_PATH + File.separator + uuid.toString());
 
-        if (Settings.getBoolean("debug-mode")) {
-            PerWorldInventory.printDebug("Group name is: " + group.getName() != null ? group.getName() : "OOPS its null!");
-            PerWorldInventory.printDebug("Group name is: " + dir != null ? dir.getPath() : "OOPS its null!");
-        }
+        PerWorldInventory.printDebug("Group name is: " + group.getName() != null ? group.getName() : "OOPS its null!");
+        PerWorldInventory.printDebug("Group name is: " + dir != null ? dir.getPath() : "OOPS its null!");
 
         switch(gamemode) {
             case ADVENTURE:
