@@ -113,11 +113,11 @@ public class PWIPlayerManager {
      * @param player The player to remove from the cache
      */
     public void removePlayer(Player player) {
-        for (String key : playerCache.keySet()) {
+        playerCache.forEach((key, value) -> {
             if (key.startsWith(player.getUniqueId().toString())) {
                 playerCache.remove(key);
             }
-        }
+        });
     }
 
     /**
