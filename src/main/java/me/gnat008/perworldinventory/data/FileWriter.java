@@ -217,8 +217,8 @@ public class FileWriter implements DataWriter {
         File dir = player.getDataFileDirectory();
 
         if (Settings.getBoolean("debug-mode")) {
-            PerWorldInventory.printDebug("Group name is: " + group.getName() != null ? group.getName() : "OOPS its null!");
-            PerWorldInventory.printDebug("Group name is: " + dir != null ? dir.getPath() : "OOPS its null!");
+            PerWorldInventory.printDebug("Getting file for group name: " + group.getName() != null ? group.getName() : "OOPS its null!");
+            PerWorldInventory.printDebug("Getting file in directory: " + dir != null ? dir.getPath() : "OOPS its null!");
         }
 
         switch(gamemode) {
