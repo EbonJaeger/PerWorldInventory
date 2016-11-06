@@ -59,7 +59,7 @@ public class FileWriter implements DataWriter {
 
     @Override
     public void saveLogoutData(PWIPlayer player) {
-        File file = new File(player.getDataFileDirectory() + File.separator + "last-logout.json");
+        File file = new File(FILE_PATH + File.separator + player.getUuid().toString() + File.separator + "last-logout.json");
 
         try {
             if (!file.getParentFile().exists())
@@ -85,7 +85,7 @@ public class FileWriter implements DataWriter {
 
     @Override
     public void saveToDatabase(Group group, GameMode gamemode, PWIPlayer player) {
-        File file = getFile(gamemode, group, player);
+        File file = getFile(gamemode, group, player.getUuid());
 
         if (Settings.getBoolean("debug-mode"))
             PerWorldInventory.printDebug("Saving data for player '" + player.getName() + "' in file '" + file.getPath() + "'");
@@ -201,34 +201,6 @@ public class FileWriter implements DataWriter {
         } catch (IOException exIO) {
             plugin.getLogger().severe("Unable to read data for '" + player.getName() + "' for group '" + group.getName() +
                     "' for reason: " + exIO.getMessage());
-        }
-    }
-
-    /**
-     * Get the data file for a player.
-     *
-     * @param gamemode The game mode for the group we are looking for.
-     * @param group The group we are looking for.
-     * @param player The PWIPlayer being saved.
-     *
-     * @return The data file to read from or write to.
-     */
-    public File getFile(GameMode gamemode, Group group, PWIPlayer player) {
-        File dir = player.getDataFileDirectory();
-
-        if (Settings.getBoolean("debug-mode")) {
-            PerWorldInventory.printDebug("Getting file for group name: " + group.getName() != null ? group.getName() : "OOPS its null!");
-            PerWorldInventory.printDebug("Getting file in directory: " + dir != null ? dir.getPath() : "OOPS its null!");
-        }
-
-        switch(gamemode) {
-            case ADVENTURE:
-                return new File(dir + File.separator + group.getName() + "_adventure.json");
-            case SPECTATOR:
-            case CREATIVE:
-                return new File(dir + File.separator + group.getName() + "_creative.json");
-            default:
-                return new File(dir + File.separator + group.getName() + ".json");
         }
     }
 

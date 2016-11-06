@@ -72,7 +72,6 @@ public class PWIPlayer {
     /* PERWORLDINVENTORY STUFF */
     private PerWorldInventory plugin;
     private boolean saved;
-    private File dataFileDirectory;
     private Group group;
 
     public PWIPlayer(PerWorldInventory plugin, Player player, Group group) {
@@ -80,10 +79,6 @@ public class PWIPlayer {
         this.uuid = player.getUniqueId();
         this.name = player.getName();
         this.location = player.getLocation();
-        this.dataFileDirectory = new File(plugin.getDataFolder() + File.separator + "data" + File.separator + uuid.toString());
-        if (!dataFileDirectory.exists()) {
-            dataFileDirectory.mkdir();
-        }
 
         this.group = group;
         this.saved = false;
@@ -418,16 +413,6 @@ public class PWIPlayer {
      */
     public String getName() {
         return this.name;
-    }
-
-    /**
-     * Get a player's data file directory, where flat-file inventory information
-     * is stored.
-     *
-     * @return Data file directory
-     */
-    public File getDataFileDirectory() {
-        return this.dataFileDirectory;
     }
 
     /**
