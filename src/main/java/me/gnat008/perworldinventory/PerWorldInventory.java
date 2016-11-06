@@ -113,6 +113,7 @@ public class PerWorldInventory extends JavaPlugin {
         injector.register(PluginManager.class, getServer().getPluginManager());
         injector.provide(DataFolder.class, getDataFolder());
         settings = initSettings();
+        injector.register(Settings.class, settings);
         isDebugEnabled = settings.getProperty(PwiProperties.DEBUG_MODE);
         injectServices(injector);
         registerEventListeners(injector);
