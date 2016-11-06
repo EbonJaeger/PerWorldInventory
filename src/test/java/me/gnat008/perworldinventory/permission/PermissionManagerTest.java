@@ -26,13 +26,13 @@ public class PermissionManagerTest {
     private PermissionManager permissionManager;
 
     @Mock
-    PerWorldInventory plugin;
+    private PerWorldInventory plugin;
 
     @Mock
-    Server server;
+    private Server server;
 
     @Mock
-    PluginManager pluginManager;
+    private PluginManager pluginManager;
 
     @Test
     public void shouldUseDefaultPermissionForCommandSender() {
@@ -62,11 +62,10 @@ public class PermissionManagerTest {
     }
 
     @Test
-    public void shouldDenyToOpSender() {
+    public void shouldDenyToSender() {
         // given
         PermissionNode node = TestPermissions.SYSTEM_LORD;
         CommandSender sender = mock(CommandSender.class);
-        given(sender.isOp()).willReturn(true);
 
         // when
         boolean result = permissionManager.hasPermission(sender, node);
@@ -116,11 +115,10 @@ public class PermissionManagerTest {
     }
 
     @Test
-    public void shouldDenyToOpPlayer() {
+    public void shouldDenyToPlayer() {
         // given
         PermissionNode node = TestPermissions.SYSTEM_LORD;
         Player player = mock(Player.class);
-        given(player.isOp()).willReturn(true);
 
         // when
         boolean result = permissionManager.hasPermission(player, node);

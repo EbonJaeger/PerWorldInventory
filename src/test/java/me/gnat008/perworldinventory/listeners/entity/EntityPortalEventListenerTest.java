@@ -40,10 +40,8 @@ public class EntityPortalEventListenerTest {
         // given
         Pig entity = mock(Pig.class);
         World world = mock(World.class);
-        given(world.getName()).willReturn("test_group");
         Location from = new Location(world, 1, 2, 3);
         World worldNether = mock(World.class);
-        given(world.getName()).willReturn("test_group_nether");
         Location to = new Location(worldNether, 1, 2, 3);
         EntityPortalEvent event = new EntityPortalEvent(entity, from, to, mock(TravelAgent.class));
 
