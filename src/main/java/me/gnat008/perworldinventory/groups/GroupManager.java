@@ -19,6 +19,7 @@ package me.gnat008.perworldinventory.groups;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.Utils;
+import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import org.bukkit.GameMode;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -38,6 +39,9 @@ public class GroupManager {
     @Inject
     private PerWorldInventory plugin;
 
+    @Inject
+    private Settings settings;
+
     GroupManager() {}
 
     public void disable() {
@@ -49,8 +53,7 @@ public class GroupManager {
     }
 
     public void addGroup(String name, List<String> worlds, GameMode gamemode) {
-        if (Settings.getBoolean("debug-mode"))
-            PerWorldInventory.printDebug("Adding group to memory. Group: " + name + " Worlds: " + worlds.toString() + " Gamemode: " + gamemode.name());
+        PerWorldInventory.printDebug("Adding group to memory. Group: " + name + " Worlds: " + worlds.toString() + " Gamemode: " + gamemode.name());
 
         groups.put(name.toLowerCase(), new Group(name, worlds, gamemode, true));
     }
@@ -90,12 +93,12 @@ public class GroupManager {
                 worlds = config.getStringList("groups." + key);
                 config.set("groups." + key, null);
                 config.set("groups." + key + ".worlds", worlds);
-                if (Settings.getBoolean("separate-gamemode-inventories")) {
+                if (settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)) {
                     config.set("groups." + key + ".default-gamemode", "SURVIVAL");
                 }
             }
 
-            if (Settings.getBoolean("manage-gamemodes")) {
+            if (settings.getProperty(PwiProperties.MANAGE_GAMEMODES)) {
                 GameMode gameMode = GameMode.SURVIVAL;
                 if (config.getString("groups." + key + ".default-gamemode") != null) {
                     gameMode = GameMode.valueOf(config.getString("groups." + key + ".default-gamemode").toUpperCase());

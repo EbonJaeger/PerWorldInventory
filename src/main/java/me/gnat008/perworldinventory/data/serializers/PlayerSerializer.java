@@ -20,6 +20,7 @@ package me.gnat008.perworldinventory.data.serializers;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import net.milkbowl.vault.economy.Economy;
@@ -31,6 +32,10 @@ public class PlayerSerializer {
 
     @Inject
     private InventorySerializer inventorySerializer;
+    @Inject
+    private Settings settings;
+    @Inject
+    private StatSerializer statSerializer;
 
     PlayerSerializer() {}
 
@@ -57,7 +62,7 @@ public class PlayerSerializer {
         root.add("inventory", inventorySerializer.serializePlayerInventory(player));
         root.add("stats", StatSerializer.serialize(player));
 
-        if (Settings.getBoolean("player.economy"))
+        if (settings.getProperty(PwiProperties.USE_ECONOMY))
             root.add("economy", EconomySerializer.serialize(player, plugin.getEconomy()));
 
         return gson.toJson(root);
@@ -75,22 +80,21 @@ public class PlayerSerializer {
         if (data.has("data-format"))
             format = data.get("data-format").getAsInt();
 
-        if (Settings.getBoolean("player.ender-chest") && data.has("ender-chest"))
+        if (settings.getProperty(PwiProperties.LOAD_ENDER_CHESTS) && data.has("ender-chest"))
             player.getEnderChest().setContents(inventorySerializer.deserializeInventory(data.getAsJsonArray("ender-chest"),
                     player.getEnderChest().getSize(), format));
-        if (Settings.getBoolean("player.inventory") && data.has("inventory"))
+        if (settings.getProperty(PwiProperties.LOAD_INVENTORY) && data.has("inventory"))
             inventorySerializer.setInventory(player, data.getAsJsonObject("inventory"), format);
         if (data.has("stats"))
-            StatSerializer.deserialize(player, data.getAsJsonObject("stats"), format);
-        if (Settings.getBoolean("player.economy")) {
+            statSerializer.deserialize(player, data.getAsJsonObject("stats"), format);
+        if (settings.getProperty(PwiProperties.USE_ECONOMY)) {
             Economy econ = plugin.getEconomy();
             if (econ == null) {
                 plugin.getLogger().warning("Economy saving is turned on, but no economy found!");
                 return;
             }
 
-            if (Settings.getBoolean("debug-mode"))
-                plugin.printDebug("[ECON] Withdrawing " + econ.getBalance(player) + " from '" + player.getName() + "'!");
+            plugin.printDebug("[ECON] Withdrawing " + econ.getBalance(player) + " from '" + player.getName() + "'!");
             econ.withdrawPlayer(player, econ.getBalance(player));
             econ.bankWithdraw(player.getName(), econ.bankBalance(player.getName()).amount);
             if (data.has("economy")) {

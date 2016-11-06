@@ -1,6 +1,8 @@
 package me.gnat008.perworldinventory.process;
 
-import me.gnat008.perworldinventory.config.SettingsMocker;
+import me.gnat008.perworldinventory.TestHelper;
+import me.gnat008.perworldinventory.config.PwiProperties;
+import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
@@ -8,6 +10,7 @@ import me.gnat008.perworldinventory.permission.PermissionManager;
 import me.gnat008.perworldinventory.permission.PlayerPermission;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -19,7 +22,9 @@ import java.util.List;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
  * Tests for {@link InventoryChangeProcess}.
@@ -39,15 +44,22 @@ public class InventoryChangeProcessTest {
     @Mock
     private PWIPlayerManager playerManager;
 
+    @Mock
+    private Settings settings;
+
+    @BeforeClass
+    public static void initLogger() {
+        TestHelper.initMockLogger();
+    }
+
     @Test
     public void shouldNotChangeInventoryBecauseFromGroupUnconfigured() {
         // given
         Player player = mock(Player.class);
         Group from = mockGroup("test_group" ,GameMode.SURVIVAL, false);
         Group to = mockGroup("other_group" ,GameMode.SURVIVAL, true);
-        SettingsMocker.create()
-                .set("share-if-unconfigured", true)
-                .save();
+        given(settings.getProperty(PwiProperties.SHARE_IF_UNCONFIGURED)).willReturn(true);
+        given(settings.getProperty(PwiProperties.MANAGE_GAMEMODES)).willReturn(false);
 
         // when
         process.processWorldChange(player, from, to);
@@ -61,11 +73,10 @@ public class InventoryChangeProcessTest {
     public void shouldNotChangeInventoryBecauseToGroupUnconfigured() {
         // given
         Player player = mock(Player.class);
-        Group from = mockGroup("test_group" ,GameMode.SURVIVAL, true);
-        Group to = mockGroup("other_group" ,GameMode.SURVIVAL, false);
-        SettingsMocker.create()
-                .set("share-if-unconfigured", true)
-                .save();
+        Group from = mockGroup("test_group", GameMode.SURVIVAL, true);
+        Group to = mockGroup("other_group", GameMode.SURVIVAL, false);
+        given(settings.getProperty(PwiProperties.SHARE_IF_UNCONFIGURED)).willReturn(true);
+        given(settings.getProperty(PwiProperties.MANAGE_GAMEMODES)).willReturn(false);
 
         // when
         process.processWorldChange(player, from, to);
@@ -79,13 +90,13 @@ public class InventoryChangeProcessTest {
     public void shouldChangeInventoryEvenIfGroupsNotConfigured() {
         // given
         Player player = mock(Player.class);
-        Group from = mockGroup("test_group" ,GameMode.SURVIVAL, false);
-        Group to = mockGroup("other_group" ,GameMode.SURVIVAL, false);
-        SettingsMocker.create()
-                .set("share-if-unconfigured", false)
-                .set("disable-bypass", false)
-                .set("separate-gamemodeinventories", true)
-                .save();
+        given(player.getGameMode()).willReturn(GameMode.SURVIVAL);
+        Group from = mockGroup("test_group", GameMode.SURVIVAL, false);
+        Group to = mockGroup("other_group", GameMode.SURVIVAL, false);
+        given(settings.getProperty(PwiProperties.SHARE_IF_UNCONFIGURED)).willReturn(false);
+        given(settings.getProperty(PwiProperties.DISABLE_BYPASS)).willReturn(false);
+        given(settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)).willReturn(true);
+        given(settings.getProperty(PwiProperties.MANAGE_GAMEMODES)).willReturn(false);
         given(permissionManager.hasPermission(player, PlayerPermission.BYPASS_WORLDS)).willReturn(false);
 
         // when
@@ -100,8 +111,10 @@ public class InventoryChangeProcessTest {
     public void shouldNotChangeInventoryBecauseSameGroup() {
         // given
         Player player = mock(Player.class);
-        Group from = mockGroup("test_group" ,GameMode.SURVIVAL, true);
+        given(player.getGameMode()).willReturn(GameMode.SURVIVAL);
+        Group from = mockGroup("test_group", GameMode.SURVIVAL, true);
         Group to = from;
+        given(settings.getProperty(PwiProperties.MANAGE_GAMEMODES)).willReturn(false);
 
         // when
         process.processWorldChange(player, from, to);
@@ -115,11 +128,11 @@ public class InventoryChangeProcessTest {
     public void shouldNotChangeInventoryBecauseBypass() {
         // given
         Player player = mock(Player.class);
-        Group from = mockGroup("test_group" ,GameMode.SURVIVAL, true);
-        Group to = mockGroup("other_group" ,GameMode.SURVIVAL, true);
-        SettingsMocker.create()
-                .set("disable-bypass", false)
-                .save();
+        given(player.getGameMode()).willReturn(GameMode.SURVIVAL);
+        Group from = mockGroup("test_group", GameMode.SURVIVAL, true);
+        Group to = mockGroup("other_group", GameMode.SURVIVAL, true);
+        given(settings.getProperty(PwiProperties.DISABLE_BYPASS)).willReturn(false);
+        given(settings.getProperty(PwiProperties.MANAGE_GAMEMODES)).willReturn(false);
         given(permissionManager.hasPermission(player, PlayerPermission.BYPASS_WORLDS)).willReturn(true);
 
         // when
@@ -133,12 +146,12 @@ public class InventoryChangeProcessTest {
     public void shouldNotBypassBecauseNoPermission() {
         // given
         Player player = mock(Player.class);
+        given(player.getGameMode()).willReturn(GameMode.SURVIVAL);
         Group from = mockGroup("test_group", GameMode.SURVIVAL, true);
         Group to = mockGroup("other_group", GameMode.SURVIVAL, true);
-        SettingsMocker.create()
-                .set("separate-gamemode-inventories", true)
-                .set("disable-bypass", false)
-                .save();
+        given(settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)).willReturn(true);
+        given(settings.getProperty(PwiProperties.DISABLE_BYPASS)).willReturn(false);
+        given(settings.getProperty(PwiProperties.MANAGE_GAMEMODES)).willReturn(false);
         given(permissionManager.hasPermission(player, PlayerPermission.BYPASS_WORLDS)).willReturn(false);
 
         // when
@@ -152,12 +165,12 @@ public class InventoryChangeProcessTest {
     public void shouldNotBypassBecauseBypassDisabled() {
         // given
         Player player = mock(Player.class);
+        given(player.getGameMode()).willReturn(GameMode.SURVIVAL);
         Group from = mockGroup("test_group", GameMode.SURVIVAL, true);
         Group to = mockGroup("other_group", GameMode.SURVIVAL, true);
-        SettingsMocker.create()
-                .set("separate-gamemode-inventories", true)
-                .set("disable-bypass", true)
-                .save();
+        given(settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)).willReturn(true);
+        given(settings.getProperty(PwiProperties.DISABLE_BYPASS)).willReturn(true);
+        given(settings.getProperty(PwiProperties.MANAGE_GAMEMODES)).willReturn(false);
         given(permissionManager.hasPermission(player, PlayerPermission.BYPASS_WORLDS)).willReturn(true);
 
         // when

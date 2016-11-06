@@ -18,6 +18,7 @@
 package me.gnat008.perworldinventory.data.players;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.DataWriter;
 import me.gnat008.perworldinventory.groups.Group;
@@ -42,12 +43,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class PWIPlayerManager {
 
-    @Inject
     private PerWorldInventory plugin;
-    @Inject
     private DataWriter dataWriter;
-    @Inject
     private GroupManager groupManager;
+    private Settings settings;
 
     private int interval;
     private int taskID;
@@ -55,8 +54,15 @@ public class PWIPlayerManager {
     // Key format: uuid.group.gamemode
     private Map<String, PWIPlayer> playerCache = new ConcurrentHashMap<>();
 
-    PWIPlayerManager() {
-        int setting = Settings.getInt("save-interval");
+    @Inject
+    PWIPlayerManager(PerWorldInventory plugin, DataWriter dataWriter, GroupManager groupManager,
+                     Settings settings) {
+        this.plugin = plugin;
+        this.dataWriter = dataWriter;
+        this.groupManager = groupManager;
+        this.settings = settings;
+
+        int setting = settings.getProperty(PwiProperties.SAVE_INTERVAL);
         this.interval = (setting != -1 ? setting : 300) * 20;
     }
 
@@ -83,17 +89,15 @@ public class PWIPlayerManager {
      */
     public String addPlayer(Player player, Group group) {
         String key = player.getUniqueId().toString() + "." + group.getName() + ".";
-        if (Settings.getBoolean("separate-gamemode-inventories"))
+        if (settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES))
             key += player.getGameMode().toString().toLowerCase();
         else
             key += "survival";
 
-        if (Settings.getBoolean("debug-mode"))
-            PerWorldInventory.printDebug("Adding player '" + player.getName() + "' to cache; key is '" + key + "'");
+        PerWorldInventory.printDebug("Adding player '" + player.getName() + "' to cache; key is '" + key + "'");
 
         if (playerCache.containsKey(key)) {
-            if (Settings.getBoolean("debug-mode"))
-                PerWorldInventory.printDebug("Player '" + player.getName() + "' found in cache! Updating cache");
+            PerWorldInventory.printDebug("Player '" + player.getName() + "' found in cache! Updating cache");
             updateCache(player, playerCache.get(key));
         } else {
             playerCache.put(key, new PWIPlayer(plugin, player, group));
@@ -127,7 +131,7 @@ public class PWIPlayerManager {
      */
     public PWIPlayer getPlayer(Group group, Player player) {
         String key = player.getUniqueId().toString() + "." + group.getName() + ".";
-        if (Settings.getBoolean("separate-gamemode-inventories"))
+        if (settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES))
             key += player.getGameMode().toString().toLowerCase();
         else
             key += "survival";
@@ -144,14 +148,12 @@ public class PWIPlayerManager {
      * @param player The Player to get the data for
      */
     public void getPlayerData(Group group, GameMode gamemode, Player player) {
-        if (Settings.getBoolean("debug-mode"))
-            PerWorldInventory.printDebug("Trying to get data from cache for player '" + player.getName() + "'");
+        PerWorldInventory.printDebug("Trying to get data from cache for player '" + player.getName() + "'");
 
         if(isPlayerCached(group, gamemode, player)) {
             getDataFromCache(group, gamemode, player);
         } else {
-            if (Settings.getBoolean("debug-mode"))
-                PerWorldInventory.printDebug("Player was not in cache! Loading from file");
+            PerWorldInventory.printDebug("Player was not in cache! Loading from file");
             dataWriter.getFromDatabase(group, gamemode, player);
         }
     }
@@ -164,7 +166,7 @@ public class PWIPlayerManager {
      */
     public void savePlayer(Group group, Player player) {
         String key = player.getUniqueId().toString() + "." + group.getName() + ".";
-        if (Settings.getBoolean("separate-gamemode-inventories"))
+        if (settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES))
             key += player.getGameMode().toString().toLowerCase();
         else
             key += "survival";
@@ -184,8 +186,7 @@ public class PWIPlayerManager {
                 Group groupKey = groupManager.getGroup(parts[1]);
                 GameMode gamemode = GameMode.valueOf(parts[2].toUpperCase());
 
-                if (Settings.getBoolean("debug-mode"))
-                    PerWorldInventory.printDebug("Saving cached player '" + cached.getName() + "' for group '" + groupKey.getName() + "' with gamemdde '" + gamemode.name() + "'");
+                PerWorldInventory.printDebug("Saving cached player '" + cached.getName() + "' for group '" + groupKey.getName() + "' with gamemdde '" + gamemode.name() + "'");
 
                 cached.setSaved(true);
                 dataWriter.saveToDatabase(groupKey, gamemode, cached, true);
@@ -194,7 +195,7 @@ public class PWIPlayerManager {
 
         PWIPlayer pwiPlayer = new PWIPlayer(plugin, player, group);
         dataWriter.saveToDatabase(group,
-                Settings.getBoolean("separate-gamemode-inventories") ? player.getGameMode() : GameMode.SURVIVAL,
+                settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES) ? player.getGameMode() : GameMode.SURVIVAL,
                 pwiPlayer,
                 true);
         dataWriter.saveLogoutData(pwiPlayer);
@@ -211,7 +212,7 @@ public class PWIPlayerManager {
      */
     public boolean isPlayerCached(Group group, GameMode gameMode, Player player) {
         String key = player.getUniqueId().toString() + "." + group.getName() + ".";
-        if (Settings.getBoolean("separate-gamemode-inventories"))
+        if (settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES))
             key += gameMode.toString().toLowerCase();
         else
             key += "survival";
@@ -222,60 +223,58 @@ public class PWIPlayerManager {
     private void getDataFromCache(Group group, GameMode gamemode, Player player) {
         PWIPlayer cachedPlayer = getCachedPlayer(group, gamemode, player.getUniqueId());
         if (cachedPlayer == null) {
-            if (Settings.getBoolean("debug-mode"))
-                PerWorldInventory.printDebug("No data for player '" + player.getName() + "' found in cache");
+            PerWorldInventory.printDebug("No data for player '" + player.getName() + "' found in cache");
 
             return;
         }
 
-        if (Settings.getBoolean("debug-mode"))
-            PerWorldInventory.printDebug("Player '" + player.getName() + "' found in cache! Setting their data");
+        PerWorldInventory.printDebug("Player '" + player.getName() + "' found in cache! Setting their data");
 
-        if (Settings.getBoolean("player.ender-chest"))
+        if (settings.getProperty(PwiProperties.LOAD_ENDER_CHESTS))
             player.getEnderChest().setContents(cachedPlayer.getEnderChest());
-        if (Settings.getBoolean("player.inventory")) {
+        if (settings.getProperty(PwiProperties.LOAD_INVENTORY)) {
             player.getInventory().setContents(cachedPlayer.getInventory());
             player.getInventory().setArmorContents(cachedPlayer.getArmor());
         }
-        if (Settings.getBoolean("player.stats.can-fly"))
+        if (settings.getProperty(PwiProperties.LOAD_CAN_FLY))
             player.setAllowFlight(cachedPlayer.getCanFly());
-        if (Settings.getBoolean("player.stats.display-name"))
+        if (settings.getProperty(PwiProperties.LOAD_DISPLAY_NAME))
             player.setDisplayName(cachedPlayer.getDisplayName());
-        if (Settings.getBoolean("player.stats.exhaustion"))
+        if (settings.getProperty(PwiProperties.LOAD_EXHAUSTION))
             player.setExhaustion(cachedPlayer.getExhaustion());
-        if (Settings.getBoolean("player.stats.exp"))
+        if (settings.getProperty(PwiProperties.LOAD_EXP))
             player.setExp(cachedPlayer.getExperience());
-        if (Settings.getBoolean("player.stats.flying"))
+        if (settings.getProperty(PwiProperties.LOAD_FLYING))
             player.setFlying(cachedPlayer.isFlying());
-        if (Settings.getBoolean("player.stats.food"))
+        if (settings.getProperty(PwiProperties.LOAD_HUNGER))
             player.setFoodLevel(cachedPlayer.getFoodLevel());
-        if (Settings.getBoolean("player.stats.health")) {
+        if (settings.getProperty(PwiProperties.LOAD_HEALTH)) {
             if (cachedPlayer.getHealth() <= player.getMaxHealth())
                 player.setHealth(cachedPlayer.getHealth());
             else
                 player.setHealth(player.getMaxHealth());
         }
-        if (Settings.getBoolean("player.stats.gamemode") && (!Settings.getBoolean("separate-gamemode-inventories")))
+        if (settings.getProperty(PwiProperties.LOAD_GAMEMODE) && (!settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)))
             player.setGameMode(cachedPlayer.getGamemode());
-        if (Settings.getBoolean("player.stats.level"))
+        if (settings.getProperty(PwiProperties.LOAD_LEVEL))
             player.setLevel(cachedPlayer.getLevel());
-        if (Settings.getBoolean("player.stats.potion-effects")) {
+        if (settings.getProperty(PwiProperties.LOAD_POTION_EFFECTS)) {
             for (PotionEffect effect : player.getActivePotionEffects()) {
                 player.removePotionEffect(effect.getType());
             }
             player.addPotionEffects(cachedPlayer.getPotionEffects());
         }
-        if (Settings.getBoolean("player.stats.saturation"))
+        if (settings.getProperty(PwiProperties.LOAD_SATURATION))
             player.setSaturation(cachedPlayer.getSaturationLevel());
-        if (Settings.getBoolean("player.stats.fall-distance"))
+        if (settings.getProperty(PwiProperties.LOAD_FALL_DISTANCE))
             player.setFallDistance(cachedPlayer.getFallDistance());
-        if (Settings.getBoolean("player.stats.fire-ticks"))
+        if (settings.getProperty(PwiProperties.LOAD_FIRE_TICKS))
             player.setFireTicks(cachedPlayer.getFireTicks());
-        if (Settings.getBoolean("player.stats.max-air"))
+        if (settings.getProperty(PwiProperties.LOAD_MAX_AIR))
             player.setMaximumAir(cachedPlayer.getMaxAir());
-        if (Settings.getBoolean("player.stats.remaining-air"))
+        if (settings.getProperty(PwiProperties.LOAD_REMAINING_AIR))
             player.setRemainingAir(cachedPlayer.getRemainingAir());
-        if (Settings.getBoolean("player.economy")) {
+        if (settings.getProperty(PwiProperties.USE_ECONOMY)) {
             Economy econ = plugin.getEconomy();
             econ.bankWithdraw(player.getName(), econ.bankBalance(player.getName()).balance);
             econ.bankDeposit(player.getName(), cachedPlayer.getBankBalance());
@@ -297,13 +296,12 @@ public class PWIPlayerManager {
      */
     private PWIPlayer getCachedPlayer(Group group, GameMode gameMode, UUID uuid) {
         String key = uuid.toString() + "." + group.getName() + ".";
-        if (Settings.getBoolean("separate-gamemode-inventories"))
+        if (settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES))
             key += gameMode.toString().toLowerCase();
         else
             key += "survival";
 
-        if (Settings.getBoolean("debug-mode"))
-            PerWorldInventory.printDebug("Looking for cached data with key '" + key + "'");
+        PerWorldInventory.printDebug("Looking for cached data with key '" + key + "'");
 
         return playerCache.get(key);
     }
@@ -328,15 +326,12 @@ public class PWIPlayerManager {
                     Group group = groupManager.getGroup(parts[1]);
                     GameMode gamemode = GameMode.valueOf(parts[2].toUpperCase());
 
-                    if (Settings.getBoolean("debug-mode"))
-                        PerWorldInventory.printDebug("Saving cached player '" + player.getName() + "' for group '" + group.getName() + "' with gamemdde '" + gamemode.name() + "'");
+                    PerWorldInventory.printDebug("Saving cached player '" + player.getName() + "' for group '" + group.getName() + "' with gamemdde '" + gamemode.name() + "'");
 
                     player.setSaved(true);
                     dataWriter.saveToDatabase(group, gamemode, player, true);
                 } else {
-                    if (Settings.getBoolean("debug-mode"))
-                        PerWorldInventory.printDebug("Removing player '" + player.getName() + "' from cache");
-
+                    PerWorldInventory.printDebug("Removing player '" + player.getName() + "' from cache");
                     playerCache.remove(key);
                 }
             }
@@ -350,8 +345,7 @@ public class PWIPlayerManager {
      * @param currentPlayer The PWIPlayer currently in the cache
      */
     public void updateCache(Player newData, PWIPlayer currentPlayer) {
-        if (Settings.getBoolean("debug-mode"))
-            PerWorldInventory.printDebug("Updating player '" + newData.getName() + "' in the cache");
+        PerWorldInventory.printDebug("Updating player '" + newData.getName() + "' in the cache");
 
         currentPlayer.setSaved(false);
 

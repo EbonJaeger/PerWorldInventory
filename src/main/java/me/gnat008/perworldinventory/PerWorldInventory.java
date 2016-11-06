@@ -27,6 +27,7 @@ import me.gnat008.perworldinventory.commands.PerWorldInventoryCommand;
 import me.gnat008.perworldinventory.commands.ReloadCommand;
 import me.gnat008.perworldinventory.commands.SetWorldDefaultCommand;
 import me.gnat008.perworldinventory.commands.VersionCommand;
+import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.DataWriter;
 import me.gnat008.perworldinventory.data.FileWriter;
@@ -35,11 +36,9 @@ import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.listeners.entity.EntityPortalEventListener;
 import me.gnat008.perworldinventory.listeners.player.PlayerChangedWorldListener;
 import me.gnat008.perworldinventory.listeners.player.PlayerGameModeChangeListener;
-import me.gnat008.perworldinventory.listeners.player.PlayerJoinListener;
 import me.gnat008.perworldinventory.listeners.player.PlayerQuitListener;
 import me.gnat008.perworldinventory.listeners.player.PlayerSpawnLocationListener;
 import me.gnat008.perworldinventory.listeners.server.PluginListener;
-import me.gnat008.perworldinventory.permission.PermissionManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
@@ -57,22 +56,22 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class PerWorldInventory extends JavaPlugin {
-
-    public static final int CONFIG_VERSION = 4;
 
     private PerWorldInventoryAPI api;
     private Economy economy;
     private DataWriter serializer;
     private GroupManager groupManager;
-    private PermissionManager permissionManager;
     private PWIPlayerManager playerManager;
+    private static Settings settings;
 
-    private final HashMap<String, ExecutableCommand> commands = new HashMap<>();
+    private final Map<String, ExecutableCommand> commands = new HashMap<>();
 
     private static Logger logger;
+    private static boolean isDebugEnabled;
 
     /**
      * Constructor.
@@ -104,17 +103,8 @@ public class PerWorldInventory extends JavaPlugin {
             dFile.renameTo(new File(getDefaultFilesDirectory() + File.separator + "__default.json"));
         }
 
-        // Save the default config files if they do not exist
-        saveDefaultConfig();
-        reloadConfig();
-
         if (!(new File(getDataFolder() + File.separator + "worlds.yml").exists()))
             saveResource("worlds.yml", false);
-        Settings.reloadSettings(getConfig());
-        if (Settings.getInt("config-version") < CONFIG_VERSION) {
-            getLogger().warning("Your PerWorldInventory config is out of date! Some options may be missing.");
-            getLogger().warning("Copy the new options from here: https://www.spigotmc.org/resources/per-world-inventory.4482/");
-        }
 
         /* Initialization */
         Injector injector = new InjectorBuilder().addDefaultHandlers("me.gnat008.perworldinventory").create();
@@ -122,6 +112,9 @@ public class PerWorldInventory extends JavaPlugin {
         injector.register(Server.class, getServer());
         injector.register(PluginManager.class, getServer().getPluginManager());
         injector.provide(DataFolder.class, getDataFolder());
+        settings = initSettings();
+        injector.register(Settings.class, settings);
+        isDebugEnabled = settings.getProperty(PwiProperties.DEBUG_MODE);
         injectServices(injector);
         registerEventListeners(injector);
 
@@ -145,8 +138,7 @@ public class PerWorldInventory extends JavaPlugin {
             }
         }
 
-        if (Settings.getBoolean("debug-mode"))
-            printDebug("PerWorldInventory is enabled and debug-mode is active!");
+        printDebug("PerWorldInventory is enabled and debug-mode is active!");
     }
 
     @Override
@@ -158,7 +150,6 @@ public class PerWorldInventory extends JavaPlugin {
 
     protected void injectServices(Injector injector) {
         groupManager = injector.getSingleton(GroupManager.class);
-        permissionManager = injector.getSingleton(PermissionManager.class);
         serializer = injector.getSingleton(FileWriter.class);
         injector.register(DataWriter.class, serializer);
         playerManager = injector.getSingleton(PWIPlayerManager.class);
@@ -174,7 +165,6 @@ public class PerWorldInventory extends JavaPlugin {
 
         pluginManager.registerEvents(injector.getSingleton(PlayerChangedWorldListener.class), this);
         pluginManager.registerEvents(injector.getSingleton(PlayerGameModeChangeListener.class), this);
-        pluginManager.registerEvents(injector.getSingleton(PlayerJoinListener.class), this);
         pluginManager.registerEvents(injector.getSingleton(PlayerQuitListener.class), this);
         pluginManager.registerEvents(injector.getSingleton(EntityPortalEventListener.class), this);
 
@@ -207,7 +197,13 @@ public class PerWorldInventory extends JavaPlugin {
     }
 
     public static void printDebug(String message) {
-        logger.info("[DEBUG] " + message);
+        if (isDebugEnabled) {
+            logger.info("[DEBUG] " + message);
+        }
+    }
+
+    public static void reload() {
+        isDebugEnabled = settings != null && settings.getProperty(PwiProperties.DEBUG_MODE);
     }
 
     public Economy getEconomy() {
@@ -230,7 +226,7 @@ public class PerWorldInventory extends JavaPlugin {
      * @return If the plugin's economy feature is enabled.
      */
     public boolean isEconEnabled() {
-        return economy != null && Settings.getBoolean("player.economy");
+        return economy != null && settings.getProperty(PwiProperties.USE_ECONOMY);
     }
 
     @Override
@@ -258,5 +254,13 @@ public class PerWorldInventory extends JavaPlugin {
         }
 
         return false;
+    }
+
+    private Settings initSettings() {
+        File configFile = new File(getDataFolder(), "config.yml");
+        if (!configFile.exists()) {
+            saveResource("config.yml", false);
+        }
+        return new Settings(configFile);
     }
 }
