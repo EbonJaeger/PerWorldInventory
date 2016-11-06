@@ -215,23 +215,21 @@ public class FileWriter implements DataWriter {
      */
     public File getFile(GameMode gamemode, Group group, PWIPlayer player) {
         File dir = player.getDataFileDirectory();
-        File file;
-        switch(gamemode) {
-            case ADVENTURE:
-                file = new File(dir + File.separator + group.getName() + "_adventure.json");
-                break;
-            case CREATIVE:
-                file = new File(dir + File.separator + group.getName() + "_creative.json");
-                break;
-            case SPECTATOR:
-                file = new File(dir + File.separator + group.getName() + "_creative.json");
-                break;
-            default:
-                file = new File(dir + File.separator + group.getName() + ".json");
-                break;
+
+        if (Settings.getBoolean("debug-mode")) {
+            PerWorldInventory.printDebug("Group name is: " + group.getName() != null ? group.getName() : "OOPS its null!");
+            PerWorldInventory.printDebug("Group name is: " + dir != null ? dir.getPath() : "OOPS its null!");
         }
 
-        return file;
+        switch(gamemode) {
+            case ADVENTURE:
+                return new File(dir + File.separator + group.getName() + "_adventure.json");
+            case SPECTATOR:
+            case CREATIVE:
+                return new File(dir + File.separator + group.getName() + "_creative.json");
+            default:
+                return new File(dir + File.separator + group.getName() + ".json");
+        }
     }
 
     /**
@@ -245,23 +243,21 @@ public class FileWriter implements DataWriter {
      */
     public File getFile(GameMode gamemode, Group group, UUID uuid) {
         File dir = new File(FILE_PATH + File.separator + uuid.toString());
-        File file;
-        switch(gamemode) {
-            case ADVENTURE:
-                file = new File(dir + File.separator + group.getName() + "_adventure.json");
-                break;
-            case CREATIVE:
-                file = new File(dir + File.separator + group.getName() + "_creative.json");
-                break;
-            case SPECTATOR:
-                file = new File(dir + File.separator + group.getName() + "_creative.json");
-                break;
-            default:
-                file = new File(dir + File.separator + group.getName() + ".json");
-                break;
+
+        if (Settings.getBoolean("debug-mode")) {
+            PerWorldInventory.printDebug("Group name is: " + group.getName() != null ? group.getName() : "OOPS its null!");
+            PerWorldInventory.printDebug("Group name is: " + dir != null ? dir.getPath() : "OOPS its null!");
         }
 
-        return file;
+        switch(gamemode) {
+            case ADVENTURE:
+                return new File(dir + File.separator + group.getName() + "_adventure.json");
+            case SPECTATOR:
+            case CREATIVE:
+                return new File(dir + File.separator + group.getName() + "_creative.json");
+            default:
+                return new File(dir + File.separator + group.getName() + ".json");
+        }
     }
 
     /**

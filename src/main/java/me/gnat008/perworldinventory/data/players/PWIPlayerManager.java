@@ -173,6 +173,7 @@ public class PWIPlayerManager {
         // Should remove the possibility of having to write the same data twice
         playerCache.remove(key);
 
+        // Save any cached instances of this player to the disk
         for (String cachedKey : playerCache.keySet()) {
             if (cachedKey.startsWith(player.getUniqueId().toString())) {
                 PWIPlayer cached = playerCache.get(cachedKey);
@@ -192,6 +193,7 @@ public class PWIPlayerManager {
             }
         }
 
+        // Save the current snapshot of the player to the disk
         PWIPlayer pwiPlayer = new PWIPlayer(plugin, player, group);
         dataWriter.saveToDatabase(group,
                 Settings.getBoolean("separate-gamemode-inventories") ? player.getGameMode() : GameMode.SURVIVAL,
@@ -329,7 +331,7 @@ public class PWIPlayerManager {
                     GameMode gamemode = GameMode.valueOf(parts[2].toUpperCase());
 
                     if (Settings.getBoolean("debug-mode"))
-                        PerWorldInventory.printDebug("Saving cached player '" + player.getName() + "' for group '" + group.getName() + "' with gamemdde '" + gamemode.name() + "'");
+                        PerWorldInventory.printDebug("Saving cached player '" + player.getName() + "' for group '" + group.getName() + "' with gamemode '" + gamemode.name() + "'");
 
                     player.setSaved(true);
                     dataWriter.saveToDatabase(group, gamemode, player, true);
