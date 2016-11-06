@@ -19,12 +19,18 @@ package me.gnat008.perworldinventory.data.serializers;
 
 import com.google.gson.JsonObject;
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 
+import javax.inject.Inject;
+
 public class StatSerializer {
+
+    @Inject
+    private Settings settings;
 
     private StatSerializer() {}
 
@@ -63,20 +69,20 @@ public class StatSerializer {
      * @param stats  The stats to apply.
      * @param dataFormat See {@link PlayerSerializer#serialize(PerWorldInventory, PWIPlayer)}.
      */
-    public static void deserialize(Player player,JsonObject stats, int dataFormat) {
-        if (Settings.getBoolean("player.stats.can-fly") && stats.has("can-fly"))
+    public void deserialize(Player player,JsonObject stats, int dataFormat) {
+        if (settings.getProperty(PwiProperties.LOAD_CAN_FLY) && stats.has("can-fly"))
             player.setAllowFlight(stats.get("can-fly").getAsBoolean());
-        if (Settings.getBoolean("player.stats.display-name") && stats.has("display-name"))
+        if (settings.getProperty(PwiProperties.LOAD_DISPLAY_NAME) && stats.has("display-name"))
             player.setDisplayName(stats.get("display-name").getAsString());
-        if (Settings.getBoolean("player.stats.exhaustion") && stats.has("exhaustion"))
+        if (settings.getProperty(PwiProperties.LOAD_EXHAUSTION) && stats.has("exhaustion"))
             player.setExhaustion((float) stats.get("exhaustion").getAsDouble());
-        if (Settings.getBoolean("player.stats.exp") && stats.has("exp"))
+        if (settings.getProperty(PwiProperties.LOAD_EXP) && stats.has("exp"))
             player.setExp((float) stats.get("exp").getAsDouble());
-        if (Settings.getBoolean("player.stats.flying") && stats.has("flying"))
+        if (settings.getProperty(PwiProperties.LOAD_FLYING) && stats.has("flying"))
             player.setFlying(stats.get("flying").getAsBoolean());
-        if (Settings.getBoolean("player.stats.food") && stats.has("food"))
+        if (settings.getProperty(PwiProperties.LOAD_HUNGER) && stats.has("food"))
             player.setFoodLevel(stats.get("food").getAsInt());
-        if (Settings.getBoolean("player.stats.health") && stats.has("health")) {
+        if (settings.getProperty(PwiProperties.LOAD_HEALTH) && stats.has("health")) {
             double health = stats.get("health").getAsDouble();
             if (health <= player.getMaxHealth()) {
                 player.setHealth(health);
@@ -86,7 +92,7 @@ public class StatSerializer {
                 player.setHealth(player.getMaxHealth());
             }
         }
-        if (Settings.getBoolean("player.stats.gamemode") && (!Settings.getBoolean("separate-gamemode-inventories")) && stats.has("gamemode")) {
+        if (settings.getProperty(PwiProperties.LOAD_GAMEMODE) && (!settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)) && stats.has("gamemode")) {
             if (stats.get("gamemode").getAsString().length() > 1) {
                 player.setGameMode(GameMode.valueOf(stats.get("gamemode").getAsString()));
             } else {
@@ -107,24 +113,24 @@ public class StatSerializer {
                 }
             }
         }
-        if (Settings.getBoolean("player.stats.level") && stats.has("level"))
+        if (settings.getProperty(PwiProperties.LOAD_LEVEL) && stats.has("level"))
             player.setLevel(stats.get("level").getAsInt());
-        if (Settings.getBoolean("player.stats.potion-effects") && stats.has("potion-effects")) {
+        if (settings.getProperty(PwiProperties.LOAD_POTION_EFFECTS) && stats.has("potion-effects")) {
             if (dataFormat < 2) {
                 PotionEffectSerializer.setPotionEffects(stats.get("potion-effects").getAsString(), player);
             } else {
                 PotionEffectSerializer.setPotionEffects(stats.getAsJsonArray("potion-effects"), player);
             }
         }
-        if (Settings.getBoolean("player.stats.saturation") && stats.has("saturation"))
+        if (settings.getProperty(PwiProperties.LOAD_SATURATION) && stats.has("saturation"))
             player.setSaturation((float) stats.get("saturation").getAsDouble());
-        if (Settings.getBoolean("player.stats.fall-distance") && stats.has("fallDistance"))
+        if (settings.getProperty(PwiProperties.LOAD_FALL_DISTANCE) && stats.has("fallDistance"))
             player.setFallDistance(stats.get("fallDistance").getAsFloat());
-        if (Settings.getBoolean("player.stats.fire-ticks") && stats.has("fireTicks"))
+        if (settings.getProperty(PwiProperties.LOAD_FIRE_TICKS) && stats.has("fireTicks"))
             player.setFireTicks(stats.get("fireTicks").getAsInt());
-        if (Settings.getBoolean("player.stats.max-air") && stats.has("maxAir"))
+        if (settings.getProperty(PwiProperties.LOAD_MAX_AIR) && stats.has("maxAir"))
             player.setMaximumAir(stats.get("maxAir").getAsInt());
-        if (Settings.getBoolean("player.stats.remaining-air") && stats.has("remainingAir"))
+        if (settings.getProperty(PwiProperties.LOAD_REMAINING_AIR) && stats.has("remainingAir"))
             player.setRemainingAir(stats.get("remainingAir").getAsInt());
     }
 }

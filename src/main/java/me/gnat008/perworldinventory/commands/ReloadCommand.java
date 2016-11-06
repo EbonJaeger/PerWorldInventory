@@ -20,6 +20,8 @@ public class ReloadCommand implements ExecutableCommand {
     private GroupManager groupManager;
     @Inject
     private PermissionManager permissionManager;
+    @Inject
+    private Settings settings;
 
     private PermissionNode permissionNode = AdminPermission.RELOAD;
 
@@ -30,12 +32,8 @@ public class ReloadCommand implements ExecutableCommand {
             return;
         }
 
-        plugin.reloadConfig();
-        Settings.reloadSettings(plugin.getConfig());
-        if (Settings.getInt("config-version") < PerWorldInventory.CONFIG_VERSION) {
-            plugin.getLogger().warning("Your PerWorldInventory config is out of date! Some options may be missing.");
-            plugin.getLogger().warning("Copy the new options from here: https://www.spigotmc.org/resources/per-world-inventory.4482/");
-        }
+        settings.reload();
+        PerWorldInventory.reload();
         groupManager.loadGroupsToMemory(plugin.getWorldsConfig());
 
         sender.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "Configuration files reloaded!");

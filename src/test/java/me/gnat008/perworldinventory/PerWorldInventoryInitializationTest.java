@@ -2,16 +2,17 @@ package me.gnat008.perworldinventory;
 
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
+import com.github.authme.configme.properties.Property;
 import me.gnat008.perworldinventory.commands.ExecutableCommand;
 import me.gnat008.perworldinventory.commands.PerWorldInventoryCommand;
 import me.gnat008.perworldinventory.commands.ReloadCommand;
 import me.gnat008.perworldinventory.commands.SetWorldDefaultCommand;
+import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.DataWriter;
 import me.gnat008.perworldinventory.data.FileWriter;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.listeners.player.PlayerGameModeChangeListener;
-import me.gnat008.perworldinventory.listeners.player.PlayerJoinListener;
 import me.gnat008.perworldinventory.listeners.server.PluginListener;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
@@ -22,14 +23,15 @@ import org.bukkit.plugin.PluginLogger;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,8 +46,9 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -66,6 +69,9 @@ public class PerWorldInventoryInitializationTest {
     @Mock
     private PluginManager pluginManager;
 
+    @Mock
+    private Settings settings;
+
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -82,6 +88,14 @@ public class PerWorldInventoryInitializationTest {
         given(server.getPluginManager()).willReturn(pluginManager);
         given(server.getVersion()).willReturn("1.9.4-RC1");
 
+        // SettingsManager always returns the default
+        given(settings.getProperty(any(Property.class))).willAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                return ((Property<?>) invocation.getArguments()[0]).getDefaultValue();
+            }
+        });
+
         // PluginDescriptionFile is final and so cannot be mocked
         PluginDescriptionFile descriptionFile = new PluginDescriptionFile(
             "PerWorldInventory", "N/A", PerWorldInventory.class.getCanonicalName());
@@ -97,6 +111,7 @@ public class PerWorldInventoryInitializationTest {
         injector.register(Server.class, server);
         injector.register(PluginManager.class, pluginManager);
         injector.provide(DataFolder.class, dataFolder);
+        injector.register(Settings.class, settings);
 
         // when
         plugin.injectServices(injector);
@@ -110,7 +125,6 @@ public class PerWorldInventoryInitializationTest {
 
         verifyRegisteredListener(PluginListener.class);
         verifyRegisteredListener(PlayerGameModeChangeListener.class);
-        verifyRegisteredListener(PlayerJoinListener.class);
 
         CommandVerifier commandVerifier = new CommandVerifier(plugin, injector);
         commandVerifier.assertHasCommand("pwi", PerWorldInventoryCommand.class);
@@ -120,7 +134,7 @@ public class PerWorldInventoryInitializationTest {
 
     private void verifyRegisteredListener(Class<? extends Listener> listenerClass) {
         verify(pluginManager).registerEvents(
-            argThat(Matchers.<Listener>instanceOf(listenerClass)), eq(plugin));
+            argThat(instanceOf(listenerClass)), eq(plugin));
     }
 
 

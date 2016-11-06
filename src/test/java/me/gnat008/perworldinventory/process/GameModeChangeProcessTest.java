@@ -1,6 +1,7 @@
 package me.gnat008.perworldinventory.process;
 
-import me.gnat008.perworldinventory.config.SettingsMocker;
+import me.gnat008.perworldinventory.config.PwiProperties;
+import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
@@ -20,8 +21,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
  * Tests for {@link GameModeChangeProcess}.
@@ -41,6 +45,9 @@ public class GameModeChangeProcessTest {
     @Mock
     private PWIPlayerManager playerManager;
 
+    @Mock
+    private Settings settings;
+
     @Test
     public void shouldBypass() {
         // given
@@ -52,10 +59,8 @@ public class GameModeChangeProcessTest {
         Group group = getTestGroup();
         given(groupManager.getGroupFromWorld("world")).willReturn(group);
         given(permissionManager.hasPermission(player, PlayerPermission.BYPASS_GAMEMODE)).willReturn(true);
-        SettingsMocker.create()
-                .set("separate-gamemode-inventories", true)
-                .set("disable-bypass", false)
-                .save();
+        given(settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)).willReturn(true);
+        given(settings.getProperty(PwiProperties.DISABLE_BYPASS)).willReturn(false);
 
         // when
         process.processGameModeChange(event);
@@ -78,10 +83,8 @@ public class GameModeChangeProcessTest {
         PlayerGameModeChangeEvent event = new PlayerGameModeChangeEvent(player, newGameMode);
         given(groupManager.getGroupFromWorld(worldName)).willReturn(group);
         given(permissionManager.hasPermission(player, PlayerPermission.BYPASS_GAMEMODE)).willReturn(false);
-        SettingsMocker.create()
-                .set("separate-gamemode-inventories", true)
-                .set("disable-bypass", false)
-                .save();
+        given(settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)).willReturn(true);
+        given(settings.getProperty(PwiProperties.DISABLE_BYPASS)).willReturn(false);
 
         // when
         process.processGameModeChange(event);
@@ -103,11 +106,8 @@ public class GameModeChangeProcessTest {
         GameMode newGameMode = GameMode.CREATIVE;
         PlayerGameModeChangeEvent event = new PlayerGameModeChangeEvent(player, newGameMode);
         given(groupManager.getGroupFromWorld(worldName)).willReturn(group);
-        given(permissionManager.hasPermission(player, PlayerPermission.BYPASS_GAMEMODE)).willReturn(true);
-        SettingsMocker.create()
-                .set("separate-gamemode-inventories", true)
-                .set("disable-bypass", true)
-                .save();
+        given(settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)).willReturn(true);
+        given(settings.getProperty(PwiProperties.DISABLE_BYPASS)).willReturn(true);
 
         // when
         process.processGameModeChange(event);
@@ -120,17 +120,10 @@ public class GameModeChangeProcessTest {
     @Test
     public void shouldDoNothingBecauseDisabled() {
         // given
-        World world = mock(World.class);
-        String worldName = "world";
-        given(world.getName()).willReturn(worldName);
         Player player = mock(Player.class);
-        given(player.getWorld()).willReturn(world);
-        Group group = getTestGroup();
         GameMode newGameMode = GameMode.CREATIVE;
         PlayerGameModeChangeEvent event = new PlayerGameModeChangeEvent(player, newGameMode);
-        given(groupManager.getGroupFromWorld(worldName)).willReturn(group);
-        given(permissionManager.hasPermission(player, PlayerPermission.BYPASS_GAMEMODE)).willReturn(false);
-        SettingsMocker.create().set("separate-gamemode-inventories", false).save();
+        given(settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)).willReturn(false);
 
         // when
         process.processGameModeChange(event);

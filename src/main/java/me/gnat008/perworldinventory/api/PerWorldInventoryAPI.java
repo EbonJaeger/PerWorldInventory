@@ -1,6 +1,7 @@
 package me.gnat008.perworldinventory.api;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
@@ -25,6 +26,8 @@ public class PerWorldInventoryAPI {
     private PerWorldInventory plugin;
     @Inject
     private PWIPlayerManager playerManager;
+    @Inject
+    private Settings settings;
 
     /**
      * Constructor
@@ -49,7 +52,7 @@ public class PerWorldInventoryAPI {
         Group otherGroup = groupManager.getGroupFromWorld(second);
 
         if (!firstGroup.isConfigured() || !otherGroup.isConfigured()) {
-            return firstGroup.containsWorld(second) || Settings.getBoolean("share-if-unconfigured");
+            return firstGroup.containsWorld(second) || settings.getProperty(PwiProperties.SHARE_IF_UNCONFIGURED);
         } else {
             return firstGroup.containsWorld(second);
         }

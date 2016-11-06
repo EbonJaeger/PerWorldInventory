@@ -1,6 +1,5 @@
 package me.gnat008.perworldinventory.commands;
 
-import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.data.FileWriter;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
@@ -16,8 +15,6 @@ import java.util.List;
 
 public class SetWorldDefaultCommand implements ExecutableCommand {
 
-    @Inject
-    private PerWorldInventory plugin;
     @Inject
     private FileWriter fileSerializer;
     @Inject
@@ -48,7 +45,7 @@ public class SetWorldDefaultCommand implements ExecutableCommand {
         if (args.size() == 1) {
             String name = args.get(0);
             group = name.equalsIgnoreCase("serverDefault") ? new Group("__default", null, null) : groupManager.getGroup(name);
-        } else if (args.size() == 0 || args.isEmpty()) {
+        } else if (args.isEmpty()) {
             try {
                 group = groupManager.getGroupFromWorld(player.getWorld().getName());
             } catch (IllegalArgumentException ex) {

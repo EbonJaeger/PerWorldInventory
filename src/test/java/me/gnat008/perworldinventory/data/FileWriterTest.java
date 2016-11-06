@@ -28,8 +28,8 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 
 /**

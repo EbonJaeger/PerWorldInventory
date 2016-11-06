@@ -1,7 +1,6 @@
 package me.gnat008.perworldinventory.process;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.Group;
@@ -33,20 +32,17 @@ public class PlayerQuitProcess {
         String logoutWorld = player.getWorld().getName();
         Group group = groupManager.getGroupFromWorld(logoutWorld);
 
-        if (Settings.getBoolean("debug-mode"))
-            PerWorldInventory.printDebug("Player '" + player.getName() + "' quit! Checking cache");
+        PerWorldInventory.printDebug("Player '" + player.getName() + "' quit! Checking cache");
 
         PWIPlayer cached = playerManager.getPlayer(group, player);
         if (cached != null) {
-            if (Settings.getBoolean("debug-mode"))
-                PerWorldInventory.printDebug("Cached data for player '" + player.getName() + "' found! Updating and setting them as saved");
+            PerWorldInventory.printDebug("Cached data for player '" + player.getName() + "' found! Updating and setting them as saved");
 
             playerManager.updateCache(player, cached);
             cached.setSaved(true);
         }
 
-        if (Settings.getBoolean("debug-mode"))
-            PerWorldInventory.printDebug("Saving logout data for player '" + player.getName() + "'...");
+        PerWorldInventory.printDebug("Saving logout data for player '" + player.getName() + "'...");
         playerManager.savePlayer(group, player);
     }
 }
