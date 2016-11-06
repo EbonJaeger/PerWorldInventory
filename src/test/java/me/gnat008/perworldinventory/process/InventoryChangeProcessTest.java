@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -111,7 +111,6 @@ public class InventoryChangeProcessTest {
     public void shouldNotChangeInventoryBecauseSameGroup() {
         // given
         Player player = mock(Player.class);
-        given(player.getGameMode()).willReturn(GameMode.SURVIVAL);
         Group from = mockGroup("test_group", GameMode.SURVIVAL, true);
         Group to = from;
         given(settings.getProperty(PwiProperties.MANAGE_GAMEMODES)).willReturn(false);
@@ -128,7 +127,6 @@ public class InventoryChangeProcessTest {
     public void shouldNotChangeInventoryBecauseBypass() {
         // given
         Player player = mock(Player.class);
-        given(player.getGameMode()).willReturn(GameMode.SURVIVAL);
         Group from = mockGroup("test_group", GameMode.SURVIVAL, true);
         Group to = mockGroup("other_group", GameMode.SURVIVAL, true);
         given(settings.getProperty(PwiProperties.DISABLE_BYPASS)).willReturn(false);
@@ -171,7 +169,6 @@ public class InventoryChangeProcessTest {
         given(settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)).willReturn(true);
         given(settings.getProperty(PwiProperties.DISABLE_BYPASS)).willReturn(true);
         given(settings.getProperty(PwiProperties.MANAGE_GAMEMODES)).willReturn(false);
-        given(permissionManager.hasPermission(player, PlayerPermission.BYPASS_WORLDS)).willReturn(true);
 
         // when
         process.processWorldChange(player, from, to);

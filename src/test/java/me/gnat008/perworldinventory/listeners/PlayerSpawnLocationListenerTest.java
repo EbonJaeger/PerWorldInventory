@@ -7,6 +7,7 @@ import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.listeners.player.PlayerSpawnLocationListener;
 import me.gnat008.perworldinventory.process.InventoryChangeProcess;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -17,8 +18,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
@@ -108,6 +111,8 @@ public class PlayerSpawnLocationListenerTest {
         Player player = mock(Player.class);
         World world = mock(World.class);
         given(world.getName()).willReturn("world");
+        Group spawnWorldGroup = new Group("spawn", Arrays.asList("otherWorld", world.getName()), GameMode.SURVIVAL);
+        given(groupManager.getGroupFromWorld(world.getName())).willReturn(spawnWorldGroup);
         Location spawnLocation = new Location(world, 1, 2, 3);
         PlayerSpawnLocationEvent event = new PlayerSpawnLocationEvent(player, spawnLocation);
         given(settings.getProperty(PwiProperties.LOAD_DATA_ON_JOIN)).willReturn(true);
@@ -116,11 +121,13 @@ public class PlayerSpawnLocationListenerTest {
         given(oldWorld.getName()).willReturn("other_world");
         Location lastLocation = new Location(oldWorld, 4, 5, 6);
         given(dataWriter.getLogoutData(player)).willReturn(lastLocation);
+        Group oldWorldGroup = new Group("oldWorldGroup", Collections.singletonList(oldWorld.getName()), GameMode.SURVIVAL);
+        given(groupManager.getGroupFromWorld(oldWorld.getName())).willReturn(oldWorldGroup);
 
         // when
         listener.onPlayerSpawn(event);
 
         // then
-        verify(process, only()).processWorldChangeOnSpawn(any(Player.class), any(Group.class), any(Group.class));
+        verify(process, only()).processWorldChangeOnSpawn(player, oldWorldGroup, spawnWorldGroup);
     }
 }

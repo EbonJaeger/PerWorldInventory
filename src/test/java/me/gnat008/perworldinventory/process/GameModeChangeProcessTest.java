@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -106,7 +106,6 @@ public class GameModeChangeProcessTest {
         GameMode newGameMode = GameMode.CREATIVE;
         PlayerGameModeChangeEvent event = new PlayerGameModeChangeEvent(player, newGameMode);
         given(groupManager.getGroupFromWorld(worldName)).willReturn(group);
-        given(permissionManager.hasPermission(player, PlayerPermission.BYPASS_GAMEMODE)).willReturn(true);
         given(settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)).willReturn(true);
         given(settings.getProperty(PwiProperties.DISABLE_BYPASS)).willReturn(true);
 
@@ -121,16 +120,9 @@ public class GameModeChangeProcessTest {
     @Test
     public void shouldDoNothingBecauseDisabled() {
         // given
-        World world = mock(World.class);
-        String worldName = "world";
-        given(world.getName()).willReturn(worldName);
         Player player = mock(Player.class);
-        given(player.getWorld()).willReturn(world);
-        Group group = getTestGroup();
         GameMode newGameMode = GameMode.CREATIVE;
         PlayerGameModeChangeEvent event = new PlayerGameModeChangeEvent(player, newGameMode);
-        given(groupManager.getGroupFromWorld(worldName)).willReturn(group);
-        given(permissionManager.hasPermission(player, PlayerPermission.BYPASS_GAMEMODE)).willReturn(false);
         given(settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)).willReturn(false);
 
         // when
