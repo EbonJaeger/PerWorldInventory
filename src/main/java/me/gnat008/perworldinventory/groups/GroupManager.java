@@ -76,7 +76,7 @@ public class GroupManager {
             worlds.add(world + "_nether");
             worlds.add(world + "_the_end");
             result = new Group(world, worlds, GameMode.SURVIVAL, false);
-            this.groups.put(world, result);
+            this.groups.put(world.toLowerCase(), result);
         }
 
         return result;
