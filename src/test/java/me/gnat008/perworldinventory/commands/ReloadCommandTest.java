@@ -1,9 +1,9 @@
 package me.gnat008.perworldinventory.commands;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.groups.GroupManager;
-import me.gnat008.perworldinventory.permission.AdminPermission;
-import me.gnat008.perworldinventory.permission.PermissionManager;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,9 +15,9 @@ import java.util.Collections;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 /**
  * Tests for {@link ReloadCommand}.
@@ -35,18 +35,22 @@ public class ReloadCommandTest {
     private GroupManager groupManager;
 
     @Mock
-    private PermissionManager permissionManager;
+    private Settings settings;
 
     @Test
-    public void shouldNotExecuteNoPermission() {
+    public void shouldPerformReload() {
         // given
         Player player = mock(Player.class);
-        given(permissionManager.hasPermission(player, AdminPermission.RELOAD)).willReturn(false);
+        FileConfiguration worldsConfig = mock(FileConfiguration.class);
+        given(plugin.getWorldsConfig()).willReturn(worldsConfig);
 
         // when
-        command.executeCommand(player, Collections.<String>emptyList());
+        command.executeCommand(player, Collections.emptyList());
 
         // then
-        verify(player).sendMessage(argThat(containsString("You do not have permission to do that")));
+        verify(player).sendMessage(argThat(containsString("Configuration files reloaded")));
+        verify(settings).reload();
+        verify(plugin).reload();
+        verify(groupManager).loadGroupsToMemory(worldsConfig);
     }
 }

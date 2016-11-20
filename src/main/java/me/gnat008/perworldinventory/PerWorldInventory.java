@@ -39,8 +39,10 @@ import me.gnat008.perworldinventory.listeners.player.PlayerGameModeChangeListene
 import me.gnat008.perworldinventory.listeners.player.PlayerQuitListener;
 import me.gnat008.perworldinventory.listeners.player.PlayerSpawnLocationListener;
 import me.gnat008.perworldinventory.listeners.server.PluginListener;
+import me.gnat008.perworldinventory.permission.PermissionManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -67,6 +69,7 @@ public class PerWorldInventory extends JavaPlugin {
     private GroupManager groupManager;
     private PWIPlayerManager playerManager;
     private Settings settings;
+    private PermissionManager permissionManager;
 
     private final Map<String, ExecutableCommand> commands = new HashMap<>();
 
@@ -150,6 +153,7 @@ public class PerWorldInventory extends JavaPlugin {
         serializer = injector.getSingleton(FileWriter.class);
         injector.register(DataWriter.class, serializer);
         playerManager = injector.getSingleton(PWIPlayerManager.class);
+        permissionManager = injector.getSingleton(PermissionManager.class);
         api = injector.getSingleton(PerWorldInventoryAPI.class);
     }
 
@@ -230,6 +234,11 @@ public class PerWorldInventory extends JavaPlugin {
 
             ExecutableCommand mappedCommand = commands.get(args[0].toLowerCase());
             if (mappedCommand != null) {
+                if (!permissionManager.hasPermission(sender, mappedCommand.getRequiredPermission())) {
+                    sender.sendMessage(ChatColor.DARK_RED + "» " + ChatColor.GRAY + "You do not have permission to do that.");
+                    return true;
+                }
+
                 // Add all args excluding the first one
                 List<String> argsList = new ArrayList<>();
                 for (int i = 1; i < args.length; i++) {

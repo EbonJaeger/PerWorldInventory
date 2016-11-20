@@ -2,7 +2,6 @@ package me.gnat008.perworldinventory.commands;
 
 import me.gnat008.perworldinventory.data.converters.DataConverter;
 import me.gnat008.perworldinventory.permission.AdminPermission;
-import me.gnat008.perworldinventory.permission.PermissionManager;
 import me.gnat008.perworldinventory.permission.PermissionNode;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -14,27 +13,16 @@ import java.util.List;
 public class ConvertCommand implements ExecutableCommand {
 
     private final PluginManager pluginManager;
-
-    private DataConverter dataConverter;
-    private PermissionManager permissionManager;
-
-    private PermissionNode permissionNode = AdminPermission.CONVERT;
+    private final DataConverter dataConverter;
 
     @Inject
-    ConvertCommand(PluginManager pluginManager, DataConverter dataConverter, PermissionManager permissionManager) {
+    ConvertCommand(PluginManager pluginManager, DataConverter dataConverter) {
         this.pluginManager = pluginManager;
         this.dataConverter = dataConverter;
-        this.permissionManager = permissionManager;
     }
 
     @Override
     public void executeCommand(CommandSender sender, List<String> args) {
-        // Check permission
-        if (!permissionManager.hasPermission(sender, permissionNode)) {
-            sender.sendMessage(ChatColor.DARK_RED + "» " + ChatColor.GRAY + "You do not have permission to do that.");
-            return;
-        }
-
         // Check number of args
         if (args.size() != 1) {
             sender.sendMessage(ChatColor.DARK_RED + "» " + ChatColor.GRAY + "Incorrect usage. Type /pwi help for help.");
@@ -64,6 +52,11 @@ public class ConvertCommand implements ExecutableCommand {
                 sender.sendMessage(ChatColor.DARK_RED + "» " + ChatColor.GRAY + "Converting from MultiInv is unsupported at this time.");
             }
         }
+    }
+
+    @Override
+    public PermissionNode getRequiredPermission() {
+        return AdminPermission.CONVERT;
     }
 
     /**

@@ -8,6 +8,8 @@ import me.gnat008.perworldinventory.commands.PerWorldInventoryCommand;
 import me.gnat008.perworldinventory.commands.ReloadCommand;
 import me.gnat008.perworldinventory.commands.SetWorldDefaultCommand;
 import me.gnat008.perworldinventory.commands.VersionCommand;
+import me.gnat008.perworldinventory.permission.AdminPermission;
+import me.gnat008.perworldinventory.permission.PermissionManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.command.Command;
@@ -31,12 +33,15 @@ import java.util.Collections;
 import java.util.logging.Logger;
 
 import static me.gnat008.perworldinventory.TestHelper.setField;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 /**
  * Test for the command handling in {@link PerWorldInventory}.
@@ -50,6 +55,8 @@ public class PerworldInventoryCommandHandlingTest {
     private PluginLoader pluginLoader;
     @Mock
     private Server server;
+    @Mock
+    private PermissionManager permissionManager;
 
     @Mock
     private PerWorldInventoryCommand pwiCommand;
@@ -82,6 +89,7 @@ public class PerworldInventoryCommandHandlingTest {
         setField(JavaPlugin.class, "logger", plugin, mock(PluginLogger.class));
 
         Injector injector = new InjectorBuilder().addDefaultHandlers("me.gnat008.perworldinventory").create();
+        injector.register(PermissionManager.class, permissionManager);
         injector.register(ConvertCommand.class, convertCommand);
         injector.register(HelpCommand.class, helpCommand);
         injector.register(PerWorldInventoryCommand.class, pwiCommand);
@@ -89,6 +97,7 @@ public class PerworldInventoryCommandHandlingTest {
         injector.register(SetWorldDefaultCommand.class, setWorldDefaultsCommand);
         injector.register(VersionCommand.class, versionCommand);
         plugin.registerCommands(injector);
+        TestHelper.setField(PerWorldInventory.class, "permissionManager", plugin, permissionManager);
     }
 
     @Test
@@ -106,17 +115,37 @@ public class PerworldInventoryCommandHandlingTest {
     }
 
     @Test
-    public void shouldRunVersionCommand() {
+    public void shouldRunConvertCommand() {
         // given
         CommandSender sender = mock(CommandSender.class);
         Command command = newCommandWithName("Pwi");
+        given(convertCommand.getRequiredPermission()).willCallRealMethod();
+        given(permissionManager.hasPermission(sender, AdminPermission.CONVERT)).willReturn(true);
 
         // when
         boolean result = plugin.onCommand(sender, command, "pwi", "convert", "abc", "def");
 
         // then
         assertThat(result, equalTo(true));
+        verify(permissionManager).hasPermission(sender, AdminPermission.CONVERT);
         verify(convertCommand).executeCommand(sender, Arrays.asList("abc", "def"));
+    }
+
+    @Test
+    public void shouldNotExecuteForMissingPermission() {
+        // given
+        CommandSender sender = mock(CommandSender.class);
+        Command command = newCommandWithName("Pwi");
+        given(setWorldDefaultsCommand.getRequiredPermission()).willCallRealMethod();
+        given(permissionManager.hasPermission(sender, AdminPermission.SETDEFAULTS)).willReturn(false);
+
+        // when
+        boolean result = plugin.onCommand(sender, command, "pwi", "setworlddefault", "abc", "def");
+
+        // then
+        assertThat(result, equalTo(true));
+        verify(sender).sendMessage(argThat(containsString("You do not have permission to do that")));
+        verify(setWorldDefaultsCommand, only()).getRequiredPermission();
     }
 
     @Test
