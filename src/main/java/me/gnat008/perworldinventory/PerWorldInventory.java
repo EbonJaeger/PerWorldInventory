@@ -54,6 +54,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -233,11 +234,12 @@ public class PerWorldInventory extends JavaPlugin {
     public boolean onCommand(CommandSender sender, Command command, String label, String... args) {
         if (command.getName().equalsIgnoreCase("pwi")) {
             if (args.length == 0) {
-                commands.get(command.getName()).executeCommand(sender, new ArrayList<String>());
+                commands.get("pwi").executeCommand(sender, Collections.emptyList());
                 return true;
             }
 
-            if (commands.containsKey(args[0].toLowerCase())) {
+            ExecutableCommand mappedCommand = commands.get(args[0].toLowerCase());
+            if (mappedCommand != null) {
                 // Add all args excluding the first one
                 List<String> argsList = new ArrayList<>();
                 for (int i = 1; i < args.length; i++) {
@@ -245,10 +247,10 @@ public class PerWorldInventory extends JavaPlugin {
                 }
 
                 // Execute the command
-                commands.get(args[0].toLowerCase()).executeCommand(sender, argsList);
+                mappedCommand.executeCommand(sender, argsList);
                 return true;
             } else {
-                commands.get("pwi").executeCommand(sender, new ArrayList<String>());
+                commands.get("pwi").executeCommand(sender, Collections.emptyList());
                 return true;
             }
         }

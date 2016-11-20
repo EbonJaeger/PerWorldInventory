@@ -61,7 +61,6 @@ public class DataConverter {
         plugin.getLogger().info("Beginning data conversion. This may take awhile...");
         MultiverseInventories mvinventories = (MultiverseInventories) plugin.getServer().getPluginManager().getPlugin("Multiverse-Inventories");
         List<WorldGroupProfile> mvgroups = mvinventories.getGroupManager().getGroups();
-        Gson gson = new Gson();
 
         for (WorldGroupProfile mvgroup : mvgroups) {
             //Ensure that the group exists first, otherwise you just get nulls

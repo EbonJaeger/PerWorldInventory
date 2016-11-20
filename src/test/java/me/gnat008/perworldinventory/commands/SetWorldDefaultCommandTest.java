@@ -32,7 +32,7 @@ import static org.mockito.Mockito.*;
  * Tests for {@link SetWorldDefaultCommand}.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class SetWorldDefaultsCommandTest {
+public class SetWorldDefaultCommandTest {
 
     @InjectMocks
     private SetWorldDefaultCommand command;

@@ -70,13 +70,12 @@ public class PWIPlayer {
     private String name;
 
     /* PERWORLDINVENTORY STUFF */
-    private PerWorldInventory plugin;
     private boolean saved;
     private File dataFileDirectory;
     private Group group;
 
+    // TODO ljacqu 20161120: Remove plugin from being passed to constructor
     public PWIPlayer(PerWorldInventory plugin, Player player, Group group) {
-        this.plugin = plugin;
         this.uuid = player.getUniqueId();
         this.name = player.getName();
         this.location = player.getLocation();
