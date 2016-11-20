@@ -25,7 +25,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -71,7 +70,6 @@ public class PWIPlayer {
 
     /* PERWORLDINVENTORY STUFF */
     private boolean saved;
-    private File dataFileDirectory;
     private Group group;
 
     // TODO ljacqu 20161120: Remove plugin from being passed to constructor
@@ -79,10 +77,6 @@ public class PWIPlayer {
         this.uuid = player.getUniqueId();
         this.name = player.getName();
         this.location = player.getLocation();
-        this.dataFileDirectory = new File(plugin.getDataFolder() + File.separator + "data" + File.separator + uuid.toString());
-        if (!dataFileDirectory.exists()) {
-            dataFileDirectory.mkdir();
-        }
 
         this.group = group;
         this.saved = false;
@@ -417,16 +411,6 @@ public class PWIPlayer {
      */
     public String getName() {
         return this.name;
-    }
-
-    /**
-     * Get a player's data file directory, where flat-file inventory information
-     * is stored.
-     *
-     * @return Data file directory
-     */
-    public File getDataFileDirectory() {
-        return this.dataFileDirectory;
     }
 
     /**
