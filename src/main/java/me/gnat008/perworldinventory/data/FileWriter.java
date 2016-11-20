@@ -20,6 +20,7 @@ package me.gnat008.perworldinventory.data;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
+import me.gnat008.perworldinventory.DataFolder;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.data.serializers.LocationSerializer;
@@ -31,7 +32,6 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -41,19 +41,16 @@ import java.util.UUID;
 
 public class FileWriter implements DataWriter {
 
-    private String FILE_PATH;
+    private final File FILE_PATH;
+
+    private final PerWorldInventory plugin;
+    private final PlayerSerializer playerSerializer;
 
     @Inject
-    private PerWorldInventory plugin;
-    @Inject
-    private PlayerSerializer playerSerializer;
-
-    FileWriter() {
-    }
-
-    @PostConstruct
-    protected void setup() {
-        this.FILE_PATH = new File(plugin.getDataFolder() + File.separator + "data").getPath();
+    FileWriter(@DataFolder File dataFolder, PerWorldInventory plugin, PlayerSerializer playerSerializer) {
+        this.FILE_PATH = new File(dataFolder, "data");
+        this.plugin = plugin;
+        this.playerSerializer = playerSerializer;
     }
 
     @Override
@@ -101,8 +98,7 @@ public class FileWriter implements DataWriter {
             String data = playerSerializer.serialize(plugin, player);
             writeData(file, data);
         } catch (IOException ex) {
-            plugin.getLogger().severe("Error creating file '" + FILE_PATH +
-                    player.getUuid() + File.separator + group.getName() + ".json': " + ex.getMessage());
+            plugin.getLogger().severe("Error creating file '" + file + "': " + ex.getMessage());
         }
     }
 
@@ -150,7 +146,7 @@ public class FileWriter implements DataWriter {
 
     @Override
     public Location getLogoutData(Player player) {
-        File file = new File(FILE_PATH + File.separator + player.getUniqueId().toString() + File.separator + "last-logout.json");
+        File file = new File(getUserFolder(player.getUniqueId()), "last-logout.json");
 
         Location location;
         try (JsonReader reader = new JsonReader(new FileReader(file))) {
@@ -169,15 +165,15 @@ public class FileWriter implements DataWriter {
         return location;
     }
 
-    public void getFromDefaults(Group group, Player player) {
-        File file = new File(FILE_PATH + File.separator + "defaults" + File.separator + group.getName() + ".json");
+    private void getFromDefaults(Group group, Player player) {
+        File file = new File(FILE_PATH, "defaults" + File.separator + group.getName() + ".json");
 
         try (JsonReader reader = new JsonReader(new FileReader(file))) {
             JsonParser parser = new JsonParser();
             JsonObject data = parser.parse(reader).getAsJsonObject();
             playerSerializer.deserialize(data, player, plugin);
         } catch (FileNotFoundException ex) {
-            file = new File(FILE_PATH + File.separator + "defaults" + File.separator + "__default.json");
+            file = new File(FILE_PATH, "defaults" + File.separator + "__default.json");
 
             try (JsonReader reader = new JsonReader(new FileReader(file))) {
                 JsonParser parser = new JsonParser();
@@ -212,16 +208,14 @@ public class FileWriter implements DataWriter {
         File file;
         switch(gamemode) {
             case ADVENTURE:
-                file = new File(dir + File.separator + group.getName() + "_adventure.json");
+                file = new File(dir, group.getName() + "_adventure.json");
                 break;
             case CREATIVE:
-                file = new File(dir + File.separator + group.getName() + "_creative.json");
-                break;
             case SPECTATOR:
-                file = new File(dir + File.separator + group.getName() + "_creative.json");
+                file = new File(dir, group.getName() + "_creative.json");
                 break;
             default:
-                file = new File(dir + File.separator + group.getName() + ".json");
+                file = new File(dir, group.getName() + ".json");
                 break;
         }
 
@@ -250,13 +244,13 @@ public class FileWriter implements DataWriter {
      * @param group The group to write the defaults for.
      */
     public void setGroupDefault(Player player, Group group) {
-        File file = new File(plugin.getDefaultFilesDirectory() + File.separator + group.getName() + ".json");
+        File file = new File(plugin.getDefaultFilesDirectory(), group.getName() + ".json");
         if (!file.exists()) {
             player.sendMessage(ChatColor.DARK_RED + "» " + ChatColor.GRAY + "Default file for this group not found!");
             return;
         }
 
-        File tmp = new File(FILE_PATH + player.getUniqueId() + File.separator + "tmp.json");
+        File tmp = new File(getUserFolder(player.getUniqueId()), "tmp.json");
         try {
             tmp.getParentFile().mkdirs();
             tmp.createNewFile();
