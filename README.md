@@ -12,7 +12,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/Gnat008/PerWorldInventory/badge.svg?branch=master)](https://coveralls.io/github/Gnat008/PerWorldInventory?branch=master)
 
 ## Building Prerequisites
-* JDK 7
+* JDK 8
 * Maven
 
 ## Building
