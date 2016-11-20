@@ -33,7 +33,7 @@ public class ReloadCommand implements ExecutableCommand {
         }
 
         settings.reload();
-        PerWorldInventory.reload();
+        plugin.reload();
         groupManager.loadGroupsToMemory(plugin.getWorldsConfig());
 
         sender.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "Configuration files reloaded!");

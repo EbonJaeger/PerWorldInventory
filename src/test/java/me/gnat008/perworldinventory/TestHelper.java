@@ -102,7 +102,7 @@ public final class TestHelper {
 
     public static Logger initMockLogger() {
         Logger logger = mock(Logger.class);
-        setField(PerWorldInventory.class, "logger", null, logger);
+        PwiLogger.setLogger(logger);
         return logger;
     }
 }

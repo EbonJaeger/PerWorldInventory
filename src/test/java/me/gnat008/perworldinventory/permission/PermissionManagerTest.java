@@ -1,6 +1,5 @@
 package me.gnat008.perworldinventory.permission;
 
-import me.gnat008.perworldinventory.PerWorldInventory;
 import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -24,9 +23,6 @@ public class PermissionManagerTest {
 
     @InjectMocks
     private PermissionManager permissionManager;
-
-    @Mock
-    private PerWorldInventory plugin;
 
     @Mock
     private Server server;

@@ -58,7 +58,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 public class PerWorldInventory extends JavaPlugin {
 
@@ -67,12 +66,9 @@ public class PerWorldInventory extends JavaPlugin {
     private DataWriter serializer;
     private GroupManager groupManager;
     private PWIPlayerManager playerManager;
-    private static Settings settings;
+    private Settings settings;
 
     private final Map<String, ExecutableCommand> commands = new HashMap<>();
-
-    private static Logger logger;
-    private static boolean isDebugEnabled;
 
     /**
      * Constructor.
@@ -90,7 +86,7 @@ public class PerWorldInventory extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        logger = getLogger();
+        PwiLogger.setLogger(getLogger());
 
         // Make the data folders
         if (!(new File(getDataFolder() + File.separator + "data" + File.separator + "defaults").exists())) {
@@ -115,7 +111,7 @@ public class PerWorldInventory extends JavaPlugin {
         injector.provide(DataFolder.class, getDataFolder());
         settings = initSettings();
         injector.register(Settings.class, settings);
-        isDebugEnabled = settings.getProperty(PwiProperties.DEBUG_MODE);
+        PwiLogger.setUseDebug(settings.getProperty(PwiProperties.DEBUG_MODE));
         injectServices(injector);
         registerEventListeners(injector);
 
@@ -139,7 +135,7 @@ public class PerWorldInventory extends JavaPlugin {
             }
         }
 
-        printDebug("PerWorldInventory is enabled and debug-mode is active!");
+        PwiLogger.debug("PerWorldInventory is enabled and debug-mode is active!");
     }
 
     @Override
@@ -197,14 +193,8 @@ public class PerWorldInventory extends JavaPlugin {
         return api;
     }
 
-    public static void printDebug(String message) {
-        if (isDebugEnabled) {
-            logger.info("[DEBUG] " + message);
-        }
-    }
-
-    public static void reload() {
-        isDebugEnabled = settings != null && settings.getProperty(PwiProperties.DEBUG_MODE);
+    public void reload() {
+        PwiLogger.setUseDebug(settings != null && settings.getProperty(PwiProperties.DEBUG_MODE));
     }
 
     public Economy getEconomy() {

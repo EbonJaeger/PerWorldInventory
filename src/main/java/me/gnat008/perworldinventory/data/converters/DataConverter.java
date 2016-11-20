@@ -27,7 +27,7 @@ import com.onarandombox.multiverseinventories.api.profile.PlayerProfile;
 import com.onarandombox.multiverseinventories.api.profile.ProfileType;
 import com.onarandombox.multiverseinventories.api.profile.WorldGroupProfile;
 import com.onarandombox.multiverseinventories.api.share.Sharables;
-import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.PwiLogger;
 import me.gnat008.perworldinventory.data.FileWriter;
 import me.gnat008.perworldinventory.data.serializers.InventorySerializer;
 import me.gnat008.perworldinventory.data.serializers.PotionEffectSerializer;
@@ -36,6 +36,7 @@ import me.gnat008.perworldinventory.groups.GroupManager;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.potion.PotionEffect;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
 
@@ -53,13 +54,13 @@ public class DataConverter {
     @Inject
     private InventorySerializer inventorySerializer;
     @Inject
-    private PerWorldInventory plugin;
+    private PluginManager pluginManager;
 
     DataConverter() {}
 
     public void convertMultiVerseData() {
-        plugin.getLogger().info("Beginning data conversion. This may take awhile...");
-        MultiverseInventories mvinventories = (MultiverseInventories) plugin.getServer().getPluginManager().getPlugin("Multiverse-Inventories");
+        PwiLogger.info("Beginning data conversion. This may take a while...");
+        MultiverseInventories mvinventories = (MultiverseInventories) pluginManager.getPlugin("Multiverse-Inventories");
         List<WorldGroupProfile> mvgroups = mvinventories.getGroupManager().getGroups();
 
         for (WorldGroupProfile mvgroup : mvgroups) {
@@ -90,23 +91,22 @@ public class DataConverter {
                             serializer.writeData(file, data);
                         }
                     } catch (Exception ex) {
-                        plugin.getLogger().warning("Error importing inventory for player: " + player1.getName() +
-                            " For group: " + mvgroup.getName() + " For gamemode: " + gameMode.name());
-                        ex.printStackTrace();
+                        PwiLogger.warning("Error importing inventory for player: " + player1.getName() +
+                            " For group: " + mvgroup.getName() + " For gamemode: " + gameMode.name(), ex);
                     }
                 }
             }
         }
 
         groupManager.saveGroupsToDisk();
-        plugin.getLogger().info("Data conversion complete! Disabling Multiverse-Inventories...");
-        plugin.getServer().getPluginManager().disablePlugin(mvinventories);
-        plugin.getLogger().info("Multiverse-Inventories disabled! Don't forget to remove the .jar!");
+        PwiLogger.info("Data conversion complete! Disabling Multiverse-Inventories...");
+        pluginManager.disablePlugin(mvinventories);
+        PwiLogger.info("Multiverse-Inventories disabled! Don't forget to remove the .jar!");
     }
 
     public void convertMultiInvData() {
-        plugin.getLogger().info("Beginning data conversion. This may take awhile...");
-        MultiInv multiinv = (MultiInv) plugin.getServer().getPluginManager().getPlugin("MultiInv");
+        PwiLogger.info("Beginning data conversion. This may take awhile...");
+        MultiInv multiinv = (MultiInv) pluginManager.getPlugin("MultiInv");
         /*MultiInvAPI mvAPI = new MultiInvAPI(multiinv);
 
         for (String world : mvAPI.getGroups().values()) {
@@ -127,9 +127,9 @@ public class DataConverter {
         }*/
 
         groupManager.saveGroupsToDisk();
-        plugin.getLogger().info("Data conversion complete! Disabling MultiInv...");
-        plugin.getServer().getPluginManager().disablePlugin(multiinv);
-        plugin.getLogger().info("MultiInv disabled! Don't forget to remove the .jar!");
+        PwiLogger.info("Data conversion complete! Disabling MultiInv...");
+        pluginManager.disablePlugin(multiinv);
+        PwiLogger.info("MultiInv disabled! Don't forget to remove the .jar!");
     }
 
     private String serializeMVIToNewFormat(PlayerProfile data) {
