@@ -187,6 +187,9 @@ public class PWIPlayerManager {
                 Group groupKey = groupManager.getGroup(parts[1]);
                 GameMode gamemode = GameMode.valueOf(parts[2].toUpperCase());
 
+                PerWorldInventory.printDebug("Saving player key parts: " + parts.toString());
+                PerWorldInventory.printDebug("Is group null? " + (groupKey == null));
+                PerWorldInventory.printDebug("Is the GameMode null? " + (gamemode == null));
                 PerWorldInventory.printDebug("Saving cached player '" + cached.getName() + "' for group '" + groupKey.getName() + "' with gamemdde '" + gamemode.name() + "'");
 
                 cached.setSaved(true);
@@ -328,7 +331,11 @@ public class PWIPlayerManager {
                     Group group = groupManager.getGroup(parts[1]);
                     GameMode gamemode = GameMode.valueOf(parts[2].toUpperCase());
 
-                    PerWorldInventory.printDebug("Saving cached player '" + player.getName() + "' for group '" + group.getName() + "' with gamemode '" + gamemode.name() + "'");
+                    PerWorldInventory.printDebug("Saving player using key: " + key);
+                    PerWorldInventory.printDebug("Saving cached player '"
+                            + player.getName()
+                            + "' for group '" + group.getName()
+                            + "' with gamemode '" + gamemode.name() + "'");
 
                     player.setSaved(true);
                     dataWriter.saveToDatabase(group, gamemode, player, true);
