@@ -7,32 +7,26 @@ import org.bukkit.command.CommandSender;
  */
 public enum DefaultPermission {
 
-    NOT_ALLOWED("No permission") {
+    NOT_ALLOWED {
         @Override
         public boolean evaluate(CommandSender sender) {
             return false;
         }
     },
 
-    OP_ONLY("Operators only") {
+    OP_ONLY {
         @Override
         public boolean evaluate(CommandSender sender) {
             return sender.isOp();
         }
     },
 
-    ALLOWED("Everyone allowed") {
+    ALLOWED {
         @Override
         public boolean evaluate(CommandSender sender) {
             return true;
         }
     };
-
-    private final String title;
-
-    DefaultPermission(String title) {
-        this.title = title;
-    }
 
     /**
      * Evaluate whether the sender has permission.
@@ -42,12 +36,4 @@ public enum DefaultPermission {
      */
     public abstract boolean evaluate(CommandSender sender);
 
-    /**
-     * Return the textual representation.
-     *
-     * @return The textual representation of the default permission.
-     */
-    public String getTitle() {
-        return title;
-    }
 }

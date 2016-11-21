@@ -19,6 +19,7 @@ package me.gnat008.perworldinventory.data.serializers;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import me.gnat008.perworldinventory.PwiLogger;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -123,7 +124,7 @@ public class InventorySerializer {
 	            contents[index] = is;
         	}
         	catch (Exception ex) {
-        		ex.printStackTrace();
+                PwiLogger.warning("Failed to deserialize inventory:", ex);
         	}
         }
 

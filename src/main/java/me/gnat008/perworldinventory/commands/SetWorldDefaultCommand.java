@@ -4,7 +4,6 @@ import me.gnat008.perworldinventory.data.FileWriter;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.permission.AdminPermission;
-import me.gnat008.perworldinventory.permission.PermissionManager;
 import me.gnat008.perworldinventory.permission.PermissionNode;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -19,19 +18,10 @@ public class SetWorldDefaultCommand implements ExecutableCommand {
     private FileWriter fileSerializer;
     @Inject
     private GroupManager groupManager;
-    @Inject
-    private PermissionManager permissionManager;
 
-    private PermissionNode permissionNode = AdminPermission.SETDEFAULTS;
 
     @Override
     public void executeCommand(CommandSender sender, List<String> args) {
-        // Check Permission
-        if (!permissionManager.hasPermission(sender, permissionNode)) {
-            sender.sendMessage(ChatColor.DARK_RED + "» " + ChatColor.GRAY + "You do not have permission to do that.");
-            return;
-        }
-
         // Check if player
         if (!(sender instanceof Player)) {
             sender.sendMessage(ChatColor.DARK_RED + "» " + ChatColor.GRAY + "This command may only be run from ingame.");
@@ -61,5 +51,10 @@ public class SetWorldDefaultCommand implements ExecutableCommand {
         if (group != null) {
             fileSerializer.setGroupDefault(player, group);
         }
+    }
+
+    @Override
+    public PermissionNode getRequiredPermission() {
+        return AdminPermission.SETDEFAULTS;
     }
 }

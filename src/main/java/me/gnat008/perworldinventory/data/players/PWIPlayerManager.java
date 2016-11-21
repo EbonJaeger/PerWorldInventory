@@ -18,6 +18,7 @@
 package me.gnat008.perworldinventory.data.players;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.PwiLogger;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.DataWriter;
@@ -46,6 +47,7 @@ public class PWIPlayerManager {
     private PerWorldInventory plugin;
     private DataWriter dataWriter;
     private GroupManager groupManager;
+    private PWIPlayerFactory pwiPlayerFactory;
     private Settings settings;
 
     private int interval;
@@ -56,10 +58,11 @@ public class PWIPlayerManager {
 
     @Inject
     PWIPlayerManager(PerWorldInventory plugin, DataWriter dataWriter, GroupManager groupManager,
-                     Settings settings) {
+                     PWIPlayerFactory pwiPlayerFactory, Settings settings) {
         this.plugin = plugin;
         this.dataWriter = dataWriter;
         this.groupManager = groupManager;
+        this.pwiPlayerFactory = pwiPlayerFactory;
         this.settings = settings;
 
         int setting = settings.getProperty(PwiProperties.SAVE_INTERVAL);
@@ -94,13 +97,13 @@ public class PWIPlayerManager {
         else
             key += "survival";
 
-        PerWorldInventory.printDebug("Adding player '" + player.getName() + "' to cache; key is '" + key + "'");
+        PwiLogger.debug("Adding player '" + player.getName() + "' to cache; key is '" + key + "'");
 
         if (playerCache.containsKey(key)) {
-            PerWorldInventory.printDebug("Player '" + player.getName() + "' found in cache! Updating cache");
+            PwiLogger.debug("Player '" + player.getName() + "' found in cache! Updating cache");
             updateCache(player, playerCache.get(key));
         } else {
-            playerCache.put(key, new PWIPlayer(plugin, player, group));
+            playerCache.put(key, pwiPlayerFactory.create(player, group));
         }
 
         return key;
@@ -148,12 +151,12 @@ public class PWIPlayerManager {
      * @param player The Player to get the data for
      */
     public void getPlayerData(Group group, GameMode gamemode, Player player) {
-        PerWorldInventory.printDebug("Trying to get data from cache for player '" + player.getName() + "'");
+        PwiLogger.debug("Trying to get data from cache for player '" + player.getName() + "'");
 
         if(isPlayerCached(group, gamemode, player)) {
             getDataFromCache(group, gamemode, player);
         } else {
-            PerWorldInventory.printDebug("Player was not in cache! Loading from file");
+            PwiLogger.debug("Player was not in cache! Loading from file");
             dataWriter.getFromDatabase(group, gamemode, player);
         }
     }
@@ -186,14 +189,14 @@ public class PWIPlayerManager {
                 Group groupKey = groupManager.getGroup(parts[1]);
                 GameMode gamemode = GameMode.valueOf(parts[2].toUpperCase());
 
-                PerWorldInventory.printDebug("Saving cached player '" + cached.getName() + "' for group '" + groupKey.getName() + "' with gamemdde '" + gamemode.name() + "'");
+                PwiLogger.debug("Saving cached player '" + cached.getName() + "' for group '" + groupKey.getName() + "' with gamemdde '" + gamemode.name() + "'");
 
                 cached.setSaved(true);
                 dataWriter.saveToDatabase(groupKey, gamemode, cached, true);
             }
         }
 
-        PWIPlayer pwiPlayer = new PWIPlayer(plugin, player, group);
+        PWIPlayer pwiPlayer = pwiPlayerFactory.create(player, group);
         dataWriter.saveToDatabase(group,
                 settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES) ? player.getGameMode() : GameMode.SURVIVAL,
                 pwiPlayer,
@@ -223,12 +226,12 @@ public class PWIPlayerManager {
     private void getDataFromCache(Group group, GameMode gamemode, Player player) {
         PWIPlayer cachedPlayer = getCachedPlayer(group, gamemode, player.getUniqueId());
         if (cachedPlayer == null) {
-            PerWorldInventory.printDebug("No data for player '" + player.getName() + "' found in cache");
+            PwiLogger.debug("No data for player '" + player.getName() + "' found in cache");
 
             return;
         }
 
-        PerWorldInventory.printDebug("Player '" + player.getName() + "' found in cache! Setting their data");
+        PwiLogger.debug("Player '" + player.getName() + "' found in cache! Setting their data");
 
         if (settings.getProperty(PwiProperties.LOAD_ENDER_CHESTS))
             player.getEnderChest().setContents(cachedPlayer.getEnderChest());
@@ -301,7 +304,7 @@ public class PWIPlayerManager {
         else
             key += "survival";
 
-        PerWorldInventory.printDebug("Looking for cached data with key '" + key + "'");
+        PwiLogger.debug("Looking for cached data with key '" + key + "'");
 
         return playerCache.get(key);
     }
@@ -326,12 +329,12 @@ public class PWIPlayerManager {
                     Group group = groupManager.getGroup(parts[1]);
                     GameMode gamemode = GameMode.valueOf(parts[2].toUpperCase());
 
-                    PerWorldInventory.printDebug("Saving cached player '" + player.getName() + "' for group '" + group.getName() + "' with gamemdde '" + gamemode.name() + "'");
+                    PwiLogger.debug("Saving cached player '" + player.getName() + "' for group '" + group.getName() + "' with gamemdde '" + gamemode.name() + "'");
 
                     player.setSaved(true);
                     dataWriter.saveToDatabase(group, gamemode, player, true);
                 } else {
-                    PerWorldInventory.printDebug("Removing player '" + player.getName() + "' from cache");
+                    PwiLogger.debug("Removing player '" + player.getName() + "' from cache");
                     playerCache.remove(key);
                 }
             }
@@ -345,7 +348,7 @@ public class PWIPlayerManager {
      * @param currentPlayer The PWIPlayer currently in the cache
      */
     public void updateCache(Player newData, PWIPlayer currentPlayer) {
-        PerWorldInventory.printDebug("Updating player '" + newData.getName() + "' in the cache");
+        PwiLogger.debug("Updating player '" + newData.getName() + "' in the cache");
 
         currentPlayer.setSaved(false);
 

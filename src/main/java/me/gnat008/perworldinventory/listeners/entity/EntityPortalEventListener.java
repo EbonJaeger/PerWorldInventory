@@ -1,6 +1,6 @@
 package me.gnat008.perworldinventory.listeners.entity;
 
-import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.PwiLogger;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import org.bukkit.entity.Item;
@@ -25,7 +25,7 @@ public class EntityPortalEventListener implements Listener {
         if (!(event.getEntity() instanceof Item))
             return;
 
-        PerWorldInventory.printDebug("A '" + event.getEntity().getName() + "' is going through a portal!");
+        PwiLogger.debug("A '" + event.getEntity().getName() + "' is going through a portal!");
 
         String worldFrom = event.getFrom().getWorld().getName();
         String worldTo = event.getTo().getWorld().getName();
@@ -34,7 +34,7 @@ public class EntityPortalEventListener implements Listener {
 
         // If the groups are different, cancel the event
         if (!from.equals(to)) {
-            PerWorldInventory.printDebug("Group '" + from.getName() + "' and group '" + to.getName() + "' are different! Canceling event!");
+            PwiLogger.debug("Group '" + from.getName() + "' and group '" + to.getName() + "' are different! Canceling event!");
             event.setCancelled(true);
         }
     }

@@ -20,6 +20,7 @@ package me.gnat008.perworldinventory.data.serializers;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.PwiLogger;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
@@ -36,6 +37,8 @@ public class PlayerSerializer {
     private Settings settings;
     @Inject
     private StatSerializer statSerializer;
+    @Inject
+    private PerWorldInventory plugin;
 
     PlayerSerializer() {}
 
@@ -53,7 +56,7 @@ public class PlayerSerializer {
      * @param player The player to serialize.
      * @return The serialized stats.
      */
-    public String serialize(PerWorldInventory plugin, PWIPlayer player) {
+    public String serialize(PWIPlayer player) {
         Gson gson = new Gson();
         JsonObject root = new JsonObject();
 
@@ -69,13 +72,13 @@ public class PlayerSerializer {
     }
 
     /**
-     * Deserialize all aspects of a player, and apply their data. See {@link PlayerSerializer#serialize(PerWorldInventory, PWIPlayer)}
+     * Deserialize all aspects of a player, and apply their data. See {@link PlayerSerializer#serialize(PWIPlayer)}
      * for an explanation of the data format number.
      *
      * @param data   The saved player information.
      * @param player The Player to apply the deserialized information to.
      */
-    public void deserialize(final JsonObject data, final Player player, final PerWorldInventory plugin) {
+    public void deserialize(final JsonObject data, final Player player) {
         int format = 0;
         if (data.has("data-format"))
             format = data.get("data-format").getAsInt();
@@ -90,11 +93,11 @@ public class PlayerSerializer {
         if (settings.getProperty(PwiProperties.USE_ECONOMY)) {
             Economy econ = plugin.getEconomy();
             if (econ == null) {
-                plugin.getLogger().warning("Economy saving is turned on, but no economy found!");
+                PwiLogger.warning("Economy saving is turned on, but no economy found!");
                 return;
             }
 
-            plugin.printDebug("[ECON] Withdrawing " + econ.getBalance(player) + " from '" + player.getName() + "'!");
+            PwiLogger.debug("[ECON] Withdrawing " + econ.getBalance(player) + " from '" + player.getName() + "'!");
             econ.withdrawPlayer(player, econ.getBalance(player));
             econ.bankWithdraw(player.getName(), econ.bankBalance(player.getName()).amount);
             if (data.has("economy")) {

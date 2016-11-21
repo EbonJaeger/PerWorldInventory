@@ -20,6 +20,7 @@ package me.gnat008.perworldinventory.data.serializers;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.PwiLogger;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -77,9 +78,9 @@ public class ItemSerializer {
 
             values.addProperty("item", Base64Coder.encodeLines(outputStream.toByteArray()));
         } catch (IOException ex) {
-            plugin.getLogger().severe("Error saving an item:");
-            plugin.getLogger().severe("Item: " + item.getType().toString());
-            plugin.getLogger().severe("Reason: " + ex.getMessage());
+            PwiLogger.severe("Error saving an item:");
+            PwiLogger.severe("Item: " + item.getType().toString());
+            PwiLogger.severe("Reason:", ex);
             return null;
         }
 
@@ -92,7 +93,7 @@ public class ItemSerializer {
                 BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream)) {
             return (ItemStack) dataInput.readObject();
         } catch (IOException | ClassNotFoundException ex) {
-            plugin.getLogger().severe("Error loading an item:" + ex.getMessage());
+            PwiLogger.severe("Error loading an item:", ex);
             return new ItemStack(Material.AIR);
         }
     }

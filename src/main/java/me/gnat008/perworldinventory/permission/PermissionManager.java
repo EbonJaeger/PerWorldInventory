@@ -1,6 +1,6 @@
 package me.gnat008.perworldinventory.permission;
 
-import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.PwiLogger;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -12,13 +12,10 @@ public class PermissionManager {
 
     private final PluginManager pluginManager;
 
-    private PerWorldInventory plugin;
-
     private boolean usingPermissionsPlugin;
 
     @Inject
-    PermissionManager(PerWorldInventory plugin, PluginManager pluginManager) {
-        this.plugin = plugin;
+    PermissionManager(PluginManager pluginManager) {
         this.pluginManager = pluginManager;
         checkForPlugins();
     }
@@ -66,7 +63,7 @@ public class PermissionManager {
 
                 this.usingPermissionsPlugin = true;
             } catch (Exception ex) {
-                plugin.getLogger().warning("Error encountered while checking for permission plugin: " + ex.getMessage());
+                PwiLogger.warning("Error encountered while checking for permission plugin:", ex);
             }
         }
     }

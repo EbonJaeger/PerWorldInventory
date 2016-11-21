@@ -18,7 +18,7 @@ public enum PermissionSystem {
     private String pluginName;
 
     PermissionSystem(String name, String pluginName) {
-        this.name = pluginName;
+        this.name = name;
         this.pluginName = pluginName;
     }
 

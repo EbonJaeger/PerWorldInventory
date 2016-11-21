@@ -1,6 +1,6 @@
 package me.gnat008.perworldinventory.process;
 
-import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.PwiLogger;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
@@ -45,21 +45,21 @@ public class GameModeChangeProcess {
         GameMode newGameMode = event.getNewGameMode();
         Group group = groupManager.getGroupFromWorld(player.getWorld().getName());
 
-        PerWorldInventory.printDebug("Player '" + player.getName() + "' changed to gamemode '" + newGameMode.name() + "' in group '" + group.getName() + "'");
+        PwiLogger.debug("Player '" + player.getName() + "' changed to gamemode '" + newGameMode.name() + "' in group '" + group.getName() + "'");
 
         playerManager.addPlayer(player, group);
 
         if (settings.getProperty(PwiProperties.DISABLE_BYPASS)) {
-            PerWorldInventory.printDebug("Bypass system is disabled in the config, loading data");
+            PwiLogger.debug("Bypass system is disabled in the config, loading data");
 
             playerManager.getPlayerData(group, newGameMode, player);
         } else {
             if (!permissionManager.hasPermission(player, PlayerPermission.BYPASS_GAMEMODE)) {
-                PerWorldInventory.printDebug("Player '" + player.getName() + "' does not have gamemode bypass permission! Loading data");
+                PwiLogger.debug("Player '" + player.getName() + "' does not have gamemode bypass permission! Loading data");
 
                 playerManager.getPlayerData(group, newGameMode, player);
             } else {
-                PerWorldInventory.printDebug("Player '" + player.getName() + "' has gamemode bypass permission!");
+                PwiLogger.debug("Player '" + player.getName() + "' has gamemode bypass permission!");
             }
         }
     }

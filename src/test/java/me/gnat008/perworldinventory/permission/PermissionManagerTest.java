@@ -1,6 +1,5 @@
 package me.gnat008.perworldinventory.permission;
 
-import me.gnat008.perworldinventory.PerWorldInventory;
 import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -9,7 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -24,9 +23,6 @@ public class PermissionManagerTest {
 
     @InjectMocks
     private PermissionManager permissionManager;
-
-    @Mock
-    private PerWorldInventory plugin;
 
     @Mock
     private Server server;

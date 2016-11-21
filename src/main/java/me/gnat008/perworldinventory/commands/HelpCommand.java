@@ -1,29 +1,17 @@
 package me.gnat008.perworldinventory.commands;
 
 import me.gnat008.perworldinventory.permission.AdminPermission;
-import me.gnat008.perworldinventory.permission.PermissionManager;
 import me.gnat008.perworldinventory.permission.PermissionNode;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import javax.inject.Inject;
 import java.util.List;
 
 public class HelpCommand implements ExecutableCommand {
 
-    @Inject
-    private PermissionManager permissionManager;
-
-    private PermissionNode permissionNode = AdminPermission.HELP;
-
     @Override
     public void executeCommand(CommandSender sender, List<String> args) {
-        if (!permissionManager.hasPermission(sender, permissionNode)) {
-            sender.sendMessage(ChatColor.DARK_RED + "» " + ChatColor.GRAY + "You do not have permission to do that.");
-            return;
-        }
-
         if (sender instanceof Player) {
             // Send the pretty version
             sender.sendMessage(ChatColor.DARK_GRAY + "" + ChatColor.STRIKETHROUGH + "-----------------------------------------------------");
@@ -46,5 +34,10 @@ public class HelpCommand implements ExecutableCommand {
             sender.sendMessage("/perworldinventory reload - Reload config and world files");
             sender.sendMessage("-----------------------------------------------------");
         }
+    }
+
+    @Override
+    public PermissionNode getRequiredPermission() {
+        return AdminPermission.HELP;
     }
 }

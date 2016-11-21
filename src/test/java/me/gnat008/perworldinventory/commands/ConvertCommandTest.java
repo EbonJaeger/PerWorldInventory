@@ -2,16 +2,13 @@ package me.gnat008.perworldinventory.commands;
 
 import com.onarandombox.multiverseinventories.MultiverseInventories;
 import me.gnat008.perworldinventory.data.converters.DataConverter;
-import me.gnat008.perworldinventory.permission.AdminPermission;
-import me.gnat008.perworldinventory.permission.PermissionManager;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
 
 import java.util.ArrayList;
@@ -20,8 +17,10 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.verify;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
-import static org.mockito.Mockito.*;
 
 /**
  * Test for {@link ConvertCommand}.
@@ -38,27 +37,10 @@ public class ConvertCommandTest {
     @Mock
     private DataConverter dataConverter;
 
-    @Mock
-    private PermissionManager permissionManager;
-
-    @Test
-    public void shouldNotExecuteNoPermission() {
-        // given
-        Player player = mock(Player.class);
-        given(permissionManager.hasPermission(player, AdminPermission.CONVERT)).willReturn(false);
-
-        // when
-        command.executeCommand(player, Collections.<String>emptyList());
-
-        // then
-        verify(player).sendMessage(argThat(containsString("You do not have permission to do that")));
-    }
-
     @Test
     public void shouldNotExecuteNotEnoughArgs() {
         // given
         CommandSender sender = mock(CommandSender.class);
-        given(permissionManager.hasPermission(sender, AdminPermission.CONVERT)).willReturn(true);
 
         // when
         command.executeCommand(sender, Collections.<String>emptyList());
@@ -71,7 +53,6 @@ public class ConvertCommandTest {
     public void shouldNotExecuteTooManyArgs() {
         // given
         CommandSender sender = mock(CommandSender.class);
-        given(permissionManager.hasPermission(sender, AdminPermission.CONVERT)).willReturn(true);
         List<String> args = new ArrayList<>();
         args.add("1");
         args.add("2");
@@ -87,7 +68,6 @@ public class ConvertCommandTest {
     public void shouldNotExecuteWrongArgs() {
         // given
         CommandSender sender = mock(CommandSender.class);
-        given(permissionManager.hasPermission(sender, AdminPermission.CONVERT)).willReturn(true);
         List<String> args = new ArrayList<>();
         args.add("1");
 
@@ -102,9 +82,7 @@ public class ConvertCommandTest {
     public void shouldExecuteMultiverseConversion() {
         // given
         CommandSender sender = mock(CommandSender.class);
-        given(permissionManager.hasPermission(sender, AdminPermission.CONVERT)).willReturn(true);
-        List<String> args = new ArrayList<>();
-        args.add("multiverse");
+        List<String> args = Collections.singletonList("multiverse");
         MultiverseInventories mvi = mock(MultiverseInventories.class);
         given(pluginManager.getPlugin("Multiverse-Inventories")).willReturn(mvi);
         given(pluginManager.isPluginEnabled("Multiverse-Inventories")).willReturn(true);
@@ -120,9 +98,7 @@ public class ConvertCommandTest {
     public void shouldExecuteMultiInvConversion() {
         // given
         CommandSender sender = mock(CommandSender.class);
-        given(permissionManager.hasPermission(sender, AdminPermission.CONVERT)).willReturn(true);
-        List<String> args = new ArrayList<>();
-        args.add("multiinv");
+        List<String> args = Collections.singletonList("multiinv");
         MultiInv multiInv = mock(MultiInv.class);
         given(pluginManager.getPlugin("MultiInv")).willReturn(multiInv);
         given(pluginManager.isPluginEnabled("MultiInv")).willReturn(true);

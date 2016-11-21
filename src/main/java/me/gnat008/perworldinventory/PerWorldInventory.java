@@ -39,8 +39,10 @@ import me.gnat008.perworldinventory.listeners.player.PlayerGameModeChangeListene
 import me.gnat008.perworldinventory.listeners.player.PlayerQuitListener;
 import me.gnat008.perworldinventory.listeners.player.PlayerSpawnLocationListener;
 import me.gnat008.perworldinventory.listeners.server.PluginListener;
+import me.gnat008.perworldinventory.permission.PermissionManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -54,10 +56,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 public class PerWorldInventory extends JavaPlugin {
 
@@ -66,12 +68,10 @@ public class PerWorldInventory extends JavaPlugin {
     private DataWriter serializer;
     private GroupManager groupManager;
     private PWIPlayerManager playerManager;
-    private static Settings settings;
+    private Settings settings;
+    private PermissionManager permissionManager;
 
     private final Map<String, ExecutableCommand> commands = new HashMap<>();
-
-    private static Logger logger;
-    private static boolean isDebugEnabled;
 
     /**
      * Constructor.
@@ -89,7 +89,7 @@ public class PerWorldInventory extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        logger = getLogger();
+        PwiLogger.setLogger(getLogger());
 
         // Make the data folders
         if (!(new File(getDataFolder() + File.separator + "data" + File.separator + "defaults").exists())) {
@@ -114,7 +114,7 @@ public class PerWorldInventory extends JavaPlugin {
         injector.provide(DataFolder.class, getDataFolder());
         settings = initSettings();
         injector.register(Settings.class, settings);
-        isDebugEnabled = settings.getProperty(PwiProperties.DEBUG_MODE);
+        PwiLogger.setUseDebug(settings.getProperty(PwiProperties.DEBUG_MODE));
         injectServices(injector);
         registerEventListeners(injector);
 
@@ -138,7 +138,7 @@ public class PerWorldInventory extends JavaPlugin {
             }
         }
 
-        printDebug("PerWorldInventory is enabled and debug-mode is active!");
+        PwiLogger.debug("PerWorldInventory is enabled and debug-mode is active!");
     }
 
     @Override
@@ -153,6 +153,7 @@ public class PerWorldInventory extends JavaPlugin {
         serializer = injector.getSingleton(FileWriter.class);
         injector.register(DataWriter.class, serializer);
         playerManager = injector.getSingleton(PWIPlayerManager.class);
+        permissionManager = injector.getSingleton(PermissionManager.class);
         api = injector.getSingleton(PerWorldInventoryAPI.class);
     }
 
@@ -196,14 +197,8 @@ public class PerWorldInventory extends JavaPlugin {
         return api;
     }
 
-    public static void printDebug(String message) {
-        if (isDebugEnabled) {
-            logger.info("[DEBUG] " + message);
-        }
-    }
-
-    public static void reload() {
-        isDebugEnabled = settings != null && settings.getProperty(PwiProperties.DEBUG_MODE);
+    public void reload() {
+        PwiLogger.setUseDebug(settings != null && settings.getProperty(PwiProperties.DEBUG_MODE));
     }
 
     public Economy getEconomy() {
@@ -233,11 +228,17 @@ public class PerWorldInventory extends JavaPlugin {
     public boolean onCommand(CommandSender sender, Command command, String label, String... args) {
         if (command.getName().equalsIgnoreCase("pwi")) {
             if (args.length == 0) {
-                commands.get(command.getName()).executeCommand(sender, new ArrayList<String>());
+                commands.get("pwi").executeCommand(sender, Collections.emptyList());
                 return true;
             }
 
-            if (commands.containsKey(args[0].toLowerCase())) {
+            ExecutableCommand mappedCommand = commands.get(args[0].toLowerCase());
+            if (mappedCommand != null) {
+                if (!permissionManager.hasPermission(sender, mappedCommand.getRequiredPermission())) {
+                    sender.sendMessage(ChatColor.DARK_RED + "» " + ChatColor.GRAY + "You do not have permission to do that.");
+                    return true;
+                }
+
                 // Add all args excluding the first one
                 List<String> argsList = new ArrayList<>();
                 for (int i = 1; i < args.length; i++) {
@@ -245,10 +246,10 @@ public class PerWorldInventory extends JavaPlugin {
                 }
 
                 // Execute the command
-                commands.get(args[0].toLowerCase()).executeCommand(sender, argsList);
+                mappedCommand.executeCommand(sender, argsList);
                 return true;
             } else {
-                commands.get("pwi").executeCommand(sender, new ArrayList<String>());
+                commands.get("pwi").executeCommand(sender, Collections.emptyList());
                 return true;
             }
         }

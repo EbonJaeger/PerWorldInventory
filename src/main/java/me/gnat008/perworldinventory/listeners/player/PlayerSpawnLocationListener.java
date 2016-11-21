@@ -17,7 +17,7 @@
 
 package me.gnat008.perworldinventory.listeners.player;
 
-import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.PwiLogger;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.DataWriter;
@@ -57,11 +57,11 @@ public class PlayerSpawnLocationListener implements Listener {
         Player player = event.getPlayer();
         String spawnWorld = event.getSpawnLocation().getWorld().getName();
 
-        PerWorldInventory.printDebug("Player '" + player.getName() + "' joining! Spawning in world '" + spawnWorld + "'. Getting last logout location");
+        PwiLogger.debug("Player '" + player.getName() + "' joining! Spawning in world '" + spawnWorld + "'. Getting last logout location");
 
         Location lastLogout = dataWriter.getLogoutData(player);
         if (lastLogout != null) {
-            PerWorldInventory.printDebug("Logout location found for player '" + player.getName() + "'!");
+            PwiLogger.debug("Logout location found for player '" + player.getName() + "'!");
 
             if (!lastLogout.getWorld().getName().equals(spawnWorld)) {
                 Group spawnGroup = groupManager.getGroupFromWorld(spawnWorld);
