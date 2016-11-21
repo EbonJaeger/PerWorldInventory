@@ -329,7 +329,10 @@ public class PWIPlayerManager {
                     Group group = groupManager.getGroup(parts[1]);
                     GameMode gamemode = GameMode.valueOf(parts[2].toUpperCase());
 
-                    PwiLogger.debug("Saving cached player '" + player.getName() + "' for group '" + group.getName() + "' with gamemdde '" + gamemode.name() + "'");
+                    PwiLogger.debug("Saving cached player with key '" + key + "'");
+                    PwiLogger.debug("Player: " + player.getName());
+                    PwiLogger.debug("Group: " + group.getName());
+                    PwiLogger.debug("Gamemode: " + gamemode.toString());
 
                     player.setSaved(true);
                     dataWriter.saveToDatabase(group, gamemode, player, true);

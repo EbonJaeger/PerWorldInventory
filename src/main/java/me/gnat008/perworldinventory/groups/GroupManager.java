@@ -49,20 +49,48 @@ public class GroupManager {
         groups.clear();
     }
 
+    /**
+     * Add a Group to memory with a default GameMode of survival.
+     *
+     * @param name The name of the group.
+     * @param worlds A list of world names in this group.
+     */
     public void addGroup(String name, List<String> worlds) {
         addGroup(name, worlds, GameMode.SURVIVAL);
     }
 
+    /**
+     * Add a Group to memory.
+     *
+     * @param name The name of the group.
+     * @param worlds A list of world names in this group.
+     * @param gamemode The default GameMode for this group.
+     */
     public void addGroup(String name, List<String> worlds, GameMode gamemode) {
         PwiLogger.debug("Adding group to memory. Group: " + name + " Worlds: " + worlds.toString() + " Gamemode: " + gamemode.name());
 
         groups.put(name.toLowerCase(), new Group(name, worlds, gamemode, true));
     }
 
+    /**
+     * Get a group by name. This will return null if no group with the given name
+     * exists.
+     *
+     * @param group The name of the Group.
+     * @return The Group, or null.
+     */
     public Group getGroup(String group) {
-        return this.groups.get(group.toLowerCase());
+        return groups.get(group.toLowerCase());
     }
 
+    /**
+     * Get a group by the name of a world. This method iterates through the groups
+     * and checks if each one contains the name of the given world. If no groups contain
+     * the world, a new group will be created and returned.
+     *
+     * @param world The name of the world in the group.
+     * @return The group that contains the given world.
+     */
     public Group getGroupFromWorld(String world) {
         Group result = null;
         for (Group group : this.groups.values()) {
@@ -77,12 +105,18 @@ public class GroupManager {
             worlds.add(world + "_nether");
             worlds.add(world + "_the_end");
             result = new Group(world, worlds, GameMode.SURVIVAL, false);
-            this.groups.put(world, result);
+
+            groups.put(world.toLowerCase(), result);
         }
 
         return result;
     }
 
+    /**
+     * Loads the groups defined in a 'worlds.yml' file into memory.
+     *
+     * @param config The contents of the configuration file.
+     */
     public void loadGroupsToMemory(FileConfiguration config) {
         groups.clear();
 
@@ -114,6 +148,10 @@ public class GroupManager {
         }
     }
 
+    /**
+     * Clears the worlds.yml configuration file, then writes all of the groups currently in memory
+     * to it.
+     */
     public void saveGroupsToDisk() {
         FileConfiguration groupsConfigFile = plugin.getWorldsConfig();
         groupsConfigFile.set("groups", null);
