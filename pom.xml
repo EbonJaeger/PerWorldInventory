@@ -6,7 +6,7 @@
 
     <groupId>me.gnat008</groupId>
     <artifactId>perworldinventory</artifactId>
-    <version>1.8.4</version>
+    <version>1.9.0</version>
 
     <name>PerWorldInventory</name>
     <description>Have a different inventory for each world.</description>
@@ -30,7 +30,7 @@
         <bukkitplugin.authors>Gnat008</bukkitplugin.authors>
 
         <!-- Change Bukkit Version HERE! -->
-        <bukkit.version>1.10-R0.1-SNAPSHOT</bukkit.version>
+        <bukkit.version>1.11-R0.1-SNAPSHOT</bukkit.version>
     </properties>
 
     <issueManagement>

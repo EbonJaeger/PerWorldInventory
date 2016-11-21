@@ -53,6 +53,7 @@ import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.java.JavaPluginLoader;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -82,9 +83,9 @@ public class PerWorldInventory extends JavaPlugin {
     /*
      * Constructor for testing purposes.
      */
-    protected PerWorldInventory(final PluginLoader loader, final Server server, final PluginDescriptionFile description,
+    protected PerWorldInventory(final JavaPluginLoader loader, final PluginDescriptionFile description,
                                 final File dataFolder, final File file) {
-        super(loader, server, description, dataFolder, file);
+        super(loader, description, dataFolder, file);
     }
 
     @Override

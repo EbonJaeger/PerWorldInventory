@@ -15,9 +15,9 @@ import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.PluginLogger;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.java.JavaPluginLoader;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,8 +52,6 @@ public class PerworldInventoryCommandHandlingTest {
     private PerWorldInventory plugin;
 
     @Mock
-    private PluginLoader pluginLoader;
-    @Mock
     private Server server;
     @Mock
     private PermissionManager permissionManager;
@@ -85,7 +83,8 @@ public class PerworldInventoryCommandHandlingTest {
         // PluginDescriptionFile is final and so cannot be mocked
         PluginDescriptionFile descriptionFile = new PluginDescriptionFile(
             "PerWorldInventory", "N/A", PerWorldInventory.class.getCanonicalName());
-        plugin = new PerWorldInventory(pluginLoader, server, descriptionFile, dataFolder, null);
+        JavaPluginLoader pluginLoader = new JavaPluginLoader(server);
+        plugin = new PerWorldInventory(pluginLoader, descriptionFile, dataFolder, null);
         setField(JavaPlugin.class, "logger", plugin, mock(PluginLogger.class));
 
         Injector injector = new InjectorBuilder().addDefaultHandlers("me.gnat008.perworldinventory").create();
