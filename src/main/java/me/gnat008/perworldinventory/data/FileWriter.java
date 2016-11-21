@@ -108,20 +108,10 @@ public class FileWriter implements DataWriter {
     }
 
     public void writeData(final File file, final String data) {
-        java.io.FileWriter writer = null;
-        try {
-            writer = new java.io.FileWriter(file);
+        try (java.io.FileWriter writer = new java.io.FileWriter(file)) {
             writer.write(data);
         } catch (IOException ex) {
             PwiLogger.severe("Could not write data to file '" + file + "':", ex);
-        } finally {
-            try {
-                if (writer != null) {
-                    writer.close();
-                }
-            } catch (IOException ex) {
-                PwiLogger.warning("Failed to close writer for '" + file + "':", ex);
-            }
         }
     }
 
