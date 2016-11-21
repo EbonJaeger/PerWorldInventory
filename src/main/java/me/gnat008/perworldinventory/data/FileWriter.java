@@ -24,6 +24,7 @@ import me.gnat008.perworldinventory.DataFolder;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.PwiLogger;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
+import me.gnat008.perworldinventory.data.players.PWIPlayerFactory;
 import me.gnat008.perworldinventory.data.serializers.LocationSerializer;
 import me.gnat008.perworldinventory.data.serializers.PlayerSerializer;
 import me.gnat008.perworldinventory.groups.Group;
@@ -46,12 +47,15 @@ public class FileWriter implements DataWriter {
 
     private final PerWorldInventory plugin;
     private final PlayerSerializer playerSerializer;
+    private final PWIPlayerFactory pwiPlayerFactory;
 
     @Inject
-    FileWriter(@DataFolder File dataFolder, PerWorldInventory plugin, PlayerSerializer playerSerializer) {
+    FileWriter(@DataFolder File dataFolder, PerWorldInventory plugin, PlayerSerializer playerSerializer,
+               PWIPlayerFactory pwiPlayerFactory) {
         this.FILE_PATH = new File(dataFolder, "data");
         this.plugin = plugin;
         this.playerSerializer = playerSerializer;
+        this.pwiPlayerFactory = pwiPlayerFactory;
     }
 
     @Override
@@ -116,7 +120,7 @@ public class FileWriter implements DataWriter {
                     writer.close();
                 }
             } catch (IOException ex) {
-                PwiLogger.warning("Failed to clease writer for '" + file + "':", ex);
+                PwiLogger.warning("Failed to close writer for '" + file + "':", ex);
             }
         }
     }
@@ -260,7 +264,7 @@ public class FileWriter implements DataWriter {
             return;
         }
         Group tempGroup = new Group("tmp", null, null);
-        writeData(tmp, playerSerializer.serialize(new PWIPlayer(plugin, player, tempGroup)));
+        writeData(tmp, playerSerializer.serialize(pwiPlayerFactory.create(player, tempGroup)));
 
         player.setFoodLevel(20);
         player.setHealth(player.getMaxHealth());
@@ -269,7 +273,7 @@ public class FileWriter implements DataWriter {
         player.setRemainingAir(player.getMaximumAir());
         player.setFireTicks(0);
 
-        writeData(file, playerSerializer.serialize(new PWIPlayer(plugin, player, group)));
+        writeData(file, playerSerializer.serialize(pwiPlayerFactory.create(player, group)));
 
         getFromDatabase(tempGroup, GameMode.SURVIVAL, player);
         tmp.delete();

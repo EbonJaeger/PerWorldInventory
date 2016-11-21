@@ -17,8 +17,8 @@
 
 package me.gnat008.perworldinventory.data.players;
 
-import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.groups.Group;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -72,8 +72,7 @@ public class PWIPlayer {
     private boolean saved;
     private Group group;
 
-    // TODO ljacqu 20161120: Remove plugin from being passed to constructor
-    public PWIPlayer(PerWorldInventory plugin, Player player, Group group) {
+    PWIPlayer(Player player, Group group, Economy economy) {
         this.uuid = player.getUniqueId();
         this.name = player.getName();
         this.location = player.getLocation();
@@ -101,9 +100,9 @@ public class PWIPlayer {
         this.maxAir = player.getMaximumAir();
         this.remainingAir = player.getRemainingAir();
 
-        if (plugin.isEconEnabled()) {
-            this.bankBalance = plugin.getEconomy().bankBalance(name).balance;
-            this.balance = plugin.getEconomy().getBalance(player);
+        if (economy != null) {
+            this.bankBalance = economy.bankBalance(name).balance;
+            this.balance = economy.getBalance(player);
         }
     }
 

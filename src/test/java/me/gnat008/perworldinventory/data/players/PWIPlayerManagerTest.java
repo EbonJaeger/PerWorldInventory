@@ -39,6 +39,9 @@ public class PWIPlayerManagerTest {
     @InjectDelayed
     private PWIPlayerManager playerManager;
 
+    @InjectDelayed
+    private PWIPlayerFactory pwiPlayerFactory;
+
     @Mock
     private PerWorldInventory plugin;
 

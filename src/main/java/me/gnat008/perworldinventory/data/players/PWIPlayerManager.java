@@ -47,6 +47,7 @@ public class PWIPlayerManager {
     private PerWorldInventory plugin;
     private DataWriter dataWriter;
     private GroupManager groupManager;
+    private PWIPlayerFactory pwiPlayerFactory;
     private Settings settings;
 
     private int interval;
@@ -57,10 +58,11 @@ public class PWIPlayerManager {
 
     @Inject
     PWIPlayerManager(PerWorldInventory plugin, DataWriter dataWriter, GroupManager groupManager,
-                     Settings settings) {
+                     PWIPlayerFactory pwiPlayerFactory, Settings settings) {
         this.plugin = plugin;
         this.dataWriter = dataWriter;
         this.groupManager = groupManager;
+        this.pwiPlayerFactory = pwiPlayerFactory;
         this.settings = settings;
 
         int setting = settings.getProperty(PwiProperties.SAVE_INTERVAL);
@@ -101,7 +103,7 @@ public class PWIPlayerManager {
             PwiLogger.debug("Player '" + player.getName() + "' found in cache! Updating cache");
             updateCache(player, playerCache.get(key));
         } else {
-            playerCache.put(key, new PWIPlayer(plugin, player, group));
+            playerCache.put(key, pwiPlayerFactory.create(player, group));
         }
 
         return key;
@@ -194,7 +196,7 @@ public class PWIPlayerManager {
             }
         }
 
-        PWIPlayer pwiPlayer = new PWIPlayer(plugin, player, group);
+        PWIPlayer pwiPlayer = pwiPlayerFactory.create(player, group);
         dataWriter.saveToDatabase(group,
                 settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES) ? player.getGameMode() : GameMode.SURVIVAL,
                 pwiPlayer,
