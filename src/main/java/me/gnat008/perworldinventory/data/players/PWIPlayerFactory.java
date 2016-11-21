@@ -26,8 +26,15 @@ public class PWIPlayerFactory {
      * @return the created PWI player
      */
     public PWIPlayer create(Player player, Group group) {
-        Economy economy = plugin.isEconEnabled() ? plugin.getEconomy() : null;
-        return new PWIPlayer(player, group, economy);
+        double balance = 0;
+        double bankBalance = 0;
+        if (plugin.isEconEnabled()) {
+            Economy economy = plugin.getEconomy();
+            bankBalance = economy.bankBalance(player.getName()).balance;
+            balance = economy.getBalance(player);
+        }
+
+        return new PWIPlayer(player, group, bankBalance, balance);
     }
 
 }

@@ -18,7 +18,6 @@
 package me.gnat008.perworldinventory.data.players;
 
 import me.gnat008.perworldinventory.groups.Group;
-import net.milkbowl.vault.economy.Economy;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -72,7 +71,7 @@ public class PWIPlayer {
     private boolean saved;
     private Group group;
 
-    PWIPlayer(Player player, Group group, Economy economy) {
+    PWIPlayer(Player player, Group group, double bankBalance, double balance) {
         this.uuid = player.getUniqueId();
         this.name = player.getName();
         this.location = player.getLocation();
@@ -100,10 +99,8 @@ public class PWIPlayer {
         this.maxAir = player.getMaximumAir();
         this.remainingAir = player.getRemainingAir();
 
-        if (economy != null) {
-            this.bankBalance = economy.bankBalance(name).balance;
-            this.balance = economy.getBalance(player);
-        }
+        this.bankBalance = bankBalance;
+        this.balance = balance;
     }
 
     /**
