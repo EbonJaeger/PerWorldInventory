@@ -325,7 +325,7 @@ public class PWIPlayerManager {
                 PWIPlayer player = playerCache.get(key);
                 if (!player.isSaved()) {
                     String[] parts = key.split("\\.");
-                    Group group = player.getGroup();
+                    Group group = groupManager.getGroup(parts[1]);
                     GameMode gamemode = GameMode.valueOf(parts[2].toUpperCase());
 
                     PwiLogger.debug("Saving cached player with key '" + key + "'");
