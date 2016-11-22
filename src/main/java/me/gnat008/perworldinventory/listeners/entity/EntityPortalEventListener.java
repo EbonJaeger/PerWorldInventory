@@ -3,7 +3,10 @@ package me.gnat008.perworldinventory.listeners.entity;
 import me.gnat008.perworldinventory.PwiLogger;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPortalEvent;
 
@@ -21,11 +24,12 @@ public class EntityPortalEventListener implements Listener {
 
     EntityPortalEventListener() {}
 
+    @EventHandler(priority = EventPriority.NORMAL)
     public void onEntityPortalTeleport(EntityPortalEvent event) {
         if (!(event.getEntity() instanceof Item))
             return;
 
-        PwiLogger.debug("A '" + event.getEntity().getName() + "' is going through a portal!");
+        PwiLogger.debug("[ENTITYPORTALEVENT] A '" + event.getEntity().getName() + "' is going through a portal!");
 
         String worldFrom = event.getFrom().getWorld().getName();
         String worldTo = event.getTo().getWorld().getName();
@@ -34,7 +38,7 @@ public class EntityPortalEventListener implements Listener {
 
         // If the groups are different, cancel the event
         if (!from.equals(to)) {
-            PwiLogger.debug("Group '" + from.getName() + "' and group '" + to.getName() + "' are different! Canceling event!");
+            PwiLogger.debug("[ENTITYPORTALEVENT] Group '" + from.getName() + "' and group '" + to.getName() + "' are different! Canceling event!");
             event.setCancelled(true);
         }
     }

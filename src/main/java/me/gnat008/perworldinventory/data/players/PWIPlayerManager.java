@@ -316,8 +316,7 @@ public class PWIPlayerManager {
      * Additionally, if a player is still in the cache, but they have already been saved,
      * remove them from the cache.
      * <p>
-     * By default, this task will execute once every 5 minutes. This will likely be
-     * configurable in the future.
+     * By default, this task will execute once every 5 minutes.
      */
     @PostConstruct
     private void scheduleRepeatingTask() {
@@ -326,7 +325,7 @@ public class PWIPlayerManager {
                 PWIPlayer player = playerCache.get(key);
                 if (!player.isSaved()) {
                     String[] parts = key.split("\\.");
-                    Group group = groupManager.getGroup(parts[1]);
+                    Group group = player.getGroup();
                     GameMode gamemode = GameMode.valueOf(parts[2].toUpperCase());
 
                     PwiLogger.debug("Saving cached player with key '" + key + "'");
