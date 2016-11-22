@@ -37,7 +37,7 @@ public class ListenerConsistencyTest {
     private static void checkHasOnlyEventHandlerMethods(Class<?> clazz) {
         for (Method method : clazz.getDeclaredMethods()) {
             if (!Modifier.isPrivate(method.getModifiers())) {
-                assertThat("Method '" + method.getName() + "' in '" + clazz + "' should have @EntityHandler",
+                assertThat("Method '" + method.getName() + "' in '" + clazz + "' should have @EventHandler",
                     method.isAnnotationPresent(EventHandler.class), equalTo(true));
             }
         }
