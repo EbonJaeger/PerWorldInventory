@@ -3,6 +3,7 @@ package me.gnat008.perworldinventory.config;
 import com.github.authme.configme.SettingsHolder;
 import com.github.authme.configme.knownproperties.ConfigurationData;
 import com.github.authme.configme.properties.Property;
+import com.github.authme.configme.resource.YamlFileResource;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import me.gnat008.perworldinventory.ClassCollector;
@@ -33,11 +34,10 @@ public class SettingsConsistencyTest {
 
     /** Bukkit's FileConfiguration#getKeys returns all inner nodes also. We want to exclude those in tests. */
     private static final List<String> YAML_INNER_NODES = ImmutableList.of("player", "player.stats", "database");
-
-    private final ConfigurationData configData = SettingsRetriever.buildConfigurationData();
-    private final FileConfiguration ymlConfiguration = YamlConfiguration.loadConfiguration(getJarFile("/config.yml"));
-
     private static final String SETTINGS_FOLDER = TestHelper.PROJECT_ROOT + "config";
+
+    private static ConfigurationData configData;
+    private static YamlFileResource yamlResource;
     private static List<Class<? extends SettingsHolder>> classes;
 
     @BeforeClass
@@ -50,23 +50,33 @@ public class SettingsConsistencyTest {
         }
 
         System.out.println("Found " + classes.size() + " SettingsHolder implementations");
+
+        configData = SettingsRetriever.buildConfigurationData();
+        yamlResource = new YamlFileResource(getJarFile("/config.yml")); //YamlConfiguration.loadConfiguration(getJarFile("/config.yml"));
     }
 
+    /**
+     * Make sure that all properties in the config contain a default value.
+     */
     @Test
     public void shouldContainAllPropertiesWithSameDefaultValue() {
         // given / when / then
         for (Property<?> property : configData.getProperties()) {
             assertThat("config.yml does not have property for " + property,
-                ymlConfiguration.contains(property.getPath()), equalTo(true));
+                yamlResource.contains(property.getPath()), equalTo(true));
             assertThat("config.yml does not have same default value for " + property,
-                property.getDefaultValue(), equalTo(ymlConfiguration.get(property.getPath())));
+                property.getDefaultValue(), equalTo(property.getValue(yamlResource)));
         }
     }
 
+    /**
+     * Make sure that all properties defined in both the config and the code.
+     */
     @Test
     public void shouldNotHaveUnknownProperties() {
         // given
-        Set<String> keysInYml = ymlConfiguration.getKeys(true);
+        FileConfiguration yamlConfig = YamlConfiguration.loadConfiguration(getJarFile("/config.yml"));
+        Set<String> keysInYml = yamlConfig.getKeys(true);
         keysInYml.removeAll(YAML_INNER_NODES);
         Set<String> keysInCode = configData.getProperties().stream().map(Property::getPath).collect(Collectors.toSet());
 
