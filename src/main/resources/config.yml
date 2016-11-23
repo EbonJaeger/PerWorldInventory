@@ -54,13 +54,9 @@ player:
     # Load the current remaining air a player has
     remaining-air: true
 
-# Config Version 2 below this line #
-
 # Configure the amount of time between saves, in seconds
 # Default is 5 minutes (300 seconds)
 save-interval: 300
-
-# Config Version 3 Additions below this line #
 
 # Attempt to figure out which world a player last logged off in
 # and save/load the correct data if that world is different.
@@ -70,8 +66,28 @@ load-data-on-join: false
 # Print out debug messages to the console for every event that happens in PWI
 debug-mode: false
 
-# Config Version 4 additions below this line #
-
 # Disables bypass regardless of permission
 # Defaults to false
 disable-bypass: false
+
+# All database settings are here
+# If the type is set to flatfile, no other settings here will do anything
+database:
+  # Type of database to use
+  # Valid values: flatfile, sqlite, mysql
+  type: "flatfile"
+  # Enable database caching if using SQL; may improve performance
+  caching: true
+  # MySQL database host address
+  hostname: "localhost"
+  # MySQL database port number
+  port: "3306"
+  # MySQL database username
+  username: "admin"
+  # MySQL database password
+  password: "12345"
+  # Name of the database to use
+  databaseName: "perworldinventory"
+  # Override the size of the database connection pool
+  # Set to -1 for this to be determined automatically
+  poolSize: -1
