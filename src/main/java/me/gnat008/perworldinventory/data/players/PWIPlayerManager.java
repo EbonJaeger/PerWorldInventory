@@ -21,7 +21,7 @@ import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.PwiLogger;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
-import me.gnat008.perworldinventory.data.DataWriter;
+import me.gnat008.perworldinventory.data.DataSource;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import net.milkbowl.vault.economy.Economy;
@@ -45,7 +45,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PWIPlayerManager {
 
     private PerWorldInventory plugin;
-    private DataWriter dataWriter;
+    private DataSource dataSource;
     private GroupManager groupManager;
     private PWIPlayerFactory pwiPlayerFactory;
     private Settings settings;
@@ -57,10 +57,10 @@ public class PWIPlayerManager {
     private Map<String, PWIPlayer> playerCache = new ConcurrentHashMap<>();
 
     @Inject
-    PWIPlayerManager(PerWorldInventory plugin, DataWriter dataWriter, GroupManager groupManager,
+    PWIPlayerManager(PerWorldInventory plugin, DataSource dataSource, GroupManager groupManager,
                      PWIPlayerFactory pwiPlayerFactory, Settings settings) {
         this.plugin = plugin;
-        this.dataWriter = dataWriter;
+        this.dataSource = dataSource;
         this.groupManager = groupManager;
         this.pwiPlayerFactory = pwiPlayerFactory;
         this.settings = settings;
@@ -157,7 +157,7 @@ public class PWIPlayerManager {
             getDataFromCache(group, gamemode, player);
         } else {
             PwiLogger.debug("Player was not in cache! Loading from file");
-            dataWriter.getFromDatabase(group, gamemode, player);
+            dataSource.getFromDatabase(group, gamemode, player);
         }
     }
 
@@ -192,16 +192,16 @@ public class PWIPlayerManager {
                 PwiLogger.debug("Saving cached player '" + cached.getName() + "' for group '" + groupKey.getName() + "' with gamemdde '" + gamemode.name() + "'");
 
                 cached.setSaved(true);
-                dataWriter.saveToDatabase(groupKey, gamemode, cached, true);
+                dataSource.saveToDatabase(groupKey, gamemode, cached, true);
             }
         }
 
         PWIPlayer pwiPlayer = pwiPlayerFactory.create(player, group);
-        dataWriter.saveToDatabase(group,
+        dataSource.saveToDatabase(group,
                 settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES) ? player.getGameMode() : GameMode.SURVIVAL,
                 pwiPlayer,
                 true);
-        dataWriter.saveLogoutData(pwiPlayer);
+        dataSource.saveLogoutData(pwiPlayer);
         removePlayer(player);
     }
 
@@ -334,7 +334,7 @@ public class PWIPlayerManager {
                     PwiLogger.debug("Gamemode: " + gamemode.toString());
 
                     player.setSaved(true);
-                    dataWriter.saveToDatabase(group, gamemode, player, true);
+                    dataSource.saveToDatabase(group, gamemode, player, true);
                 } else {
                     PwiLogger.debug("Removing player '" + player.getName() + "' from cache");
                     playerCache.remove(key);

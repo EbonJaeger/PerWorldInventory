@@ -7,7 +7,7 @@ import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.TestHelper;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
-import me.gnat008.perworldinventory.data.DataWriter;
+import me.gnat008.perworldinventory.data.DataSource;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import org.bukkit.Bukkit;
@@ -46,7 +46,7 @@ public class PWIPlayerManagerTest {
     private PerWorldInventory plugin;
 
     @Mock
-    private DataWriter dataWriter;
+    private DataSource dataSource;
 
     @Mock
     private GroupManager groupManager;

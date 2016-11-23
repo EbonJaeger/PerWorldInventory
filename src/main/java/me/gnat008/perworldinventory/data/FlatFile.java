@@ -1,20 +1,3 @@
-/*
- * Copyright (C) 2014-2016  Gnat008
- *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
- *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
- *
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 package me.gnat008.perworldinventory.data;
 
 import com.google.gson.JsonObject;
@@ -41,21 +24,19 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.UUID;
 
-public class FileWriter implements DataWriter {
+public class FlatFile implements DataSource {
 
-    private final File FILE_PATH;
+    private final File DATA_FOLDER;
 
-    private final PerWorldInventory plugin;
-    private final PlayerSerializer playerSerializer;
-    private final PWIPlayerFactory pwiPlayerFactory;
+    private PerWorldInventory plugin;
+    private PlayerSerializer playerSerializer;
+    private PWIPlayerFactory pwiPlayerFactory;
 
-    @Inject
-    FileWriter(@DataFolder File dataFolder, PerWorldInventory plugin, PlayerSerializer playerSerializer,
-               PWIPlayerFactory pwiPlayerFactory) {
-        this.FILE_PATH = new File(dataFolder, "data");
-        this.plugin = plugin;
-        this.playerSerializer = playerSerializer;
-        this.pwiPlayerFactory = pwiPlayerFactory;
+    FlatFile(File dataFolder) throws IOException {
+        this.DATA_FOLDER = dataFolder;
+        if (!dataFolder.exists() && !dataFolder.mkdirs()) {
+            throw new IOException("Could not create data directory '" + dataFolder.getPath() + "'");
+        }
     }
 
     @Override
@@ -160,15 +141,28 @@ public class FileWriter implements DataWriter {
         return location;
     }
 
+    @Override
+    public void close() {
+    }
+
+    @Override
+    public DataSourceType getType() {
+        return DataSourceType.FLATFILE;
+    }
+
+    @Override
+    public void reload() {
+    }
+
     private void getFromDefaults(Group group, Player player) {
-        File file = new File(FILE_PATH, "defaults" + File.separator + group.getName() + ".json");
+        File file = new File(DATA_FOLDER, "defaults" + File.separator + group.getName() + ".json");
 
         try (JsonReader reader = new JsonReader(new FileReader(file))) {
             JsonParser parser = new JsonParser();
             JsonObject data = parser.parse(reader).getAsJsonObject();
             playerSerializer.deserialize(data, player);
         } catch (FileNotFoundException ex) {
-            file = new File(FILE_PATH, "defaults" + File.separator + "__default.json");
+            file = new File(DATA_FOLDER, "defaults" + File.separator + "__default.json");
 
             try (JsonReader reader = new JsonReader(new FileReader(file))) {
                 JsonParser parser = new JsonParser();
@@ -224,7 +218,7 @@ public class FileWriter implements DataWriter {
      * @return The data folder of the player
      */
     private File getUserFolder(UUID uuid) {
-        return new File(FILE_PATH, uuid.toString());
+        return new File(DATA_FOLDER, uuid.toString());
     }
 
     /**

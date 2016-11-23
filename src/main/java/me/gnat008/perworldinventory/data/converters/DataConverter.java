@@ -28,7 +28,7 @@ import com.onarandombox.multiverseinventories.api.profile.ProfileType;
 import com.onarandombox.multiverseinventories.api.profile.WorldGroupProfile;
 import com.onarandombox.multiverseinventories.api.share.Sharables;
 import me.gnat008.perworldinventory.PwiLogger;
-import me.gnat008.perworldinventory.data.FileWriter;
+import me.gnat008.perworldinventory.data.FlatFile;
 import me.gnat008.perworldinventory.data.serializers.InventorySerializer;
 import me.gnat008.perworldinventory.data.serializers.PotionEffectSerializer;
 import me.gnat008.perworldinventory.groups.Group;
@@ -48,7 +48,7 @@ import java.util.*;
 public class DataConverter {
 
     @Inject
-    private FileWriter serializer;
+    private FlatFile serializer;
     @Inject
     private GroupManager groupManager;
     @Inject

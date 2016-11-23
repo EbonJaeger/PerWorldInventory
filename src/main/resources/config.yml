@@ -88,6 +88,8 @@ database:
   password: "12345"
   # Name of the database to use
   databaseName: "perworldinventory"
+  # Database table prefix to use
+  prefix: "pwi_"
   # Override the size of the database connection pool
   # Set to -1 for this to be determined automatically
   poolSize: -1

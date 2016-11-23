@@ -1,7 +1,7 @@
 package me.gnat008.perworldinventory.commands;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.data.FileWriter;
+import me.gnat008.perworldinventory.data.FlatFile;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import org.bukkit.GameMode;
@@ -44,7 +44,7 @@ public class SetWorldDefaultCommandTest {
     private PerWorldInventory plugin;
 
     @Mock
-    private FileWriter fileSerializer;
+    private FlatFile fileSerializer;
 
     @Mock
     private GroupManager groupManager;

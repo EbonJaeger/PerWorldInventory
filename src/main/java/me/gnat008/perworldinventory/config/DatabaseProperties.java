@@ -45,6 +45,10 @@ public final class DatabaseProperties implements SettingsHolder {
     public static final Property<String> DATABASE_NAME =
             newProperty("database.databaseName", "perworldinventory");
 
+    @Comment("Database table prefix to use")
+    public static final Property<String> PREFIX =
+            newProperty("database.prefix", "pwi_");
+
     @Comment({"Override the size of the database connection pool",
         "Set to -1 for this to be determined automatically"})
     public static final Property<Integer> DATABASE_POOL_SIZE =

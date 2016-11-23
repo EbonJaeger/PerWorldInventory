@@ -20,7 +20,7 @@ package me.gnat008.perworldinventory.listeners.player;
 import me.gnat008.perworldinventory.PwiLogger;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
-import me.gnat008.perworldinventory.data.DataWriter;
+import me.gnat008.perworldinventory.data.DataSource;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.process.InventoryChangeProcess;
@@ -35,15 +35,15 @@ import javax.inject.Inject;
 
 public class PlayerSpawnLocationListener implements Listener {
 
-    private DataWriter dataWriter;
+    private DataSource dataSource;
     private GroupManager groupManager;
     private InventoryChangeProcess process;
     private Settings settings;
 
     @Inject
-    PlayerSpawnLocationListener(DataWriter dataWriter, GroupManager groupManager, InventoryChangeProcess process,
+    PlayerSpawnLocationListener(DataSource dataSource, GroupManager groupManager, InventoryChangeProcess process,
                                 Settings settings) {
-        this.dataWriter = dataWriter;
+        this.dataSource = dataSource;
         this.groupManager = groupManager;
         this.process = process;
         this.settings = settings;
@@ -59,7 +59,7 @@ public class PlayerSpawnLocationListener implements Listener {
 
         PwiLogger.debug("Player '" + player.getName() + "' joining! Spawning in world '" + spawnWorld + "'. Getting last logout location");
 
-        Location lastLogout = dataWriter.getLogoutData(player);
+        Location lastLogout = dataSource.getLogoutData(player);
         if (lastLogout != null) {
             PwiLogger.debug("Logout location found for player '" + player.getName() + "'!");
 

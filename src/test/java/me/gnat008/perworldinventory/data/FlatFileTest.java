@@ -35,15 +35,15 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 /**
- * Test for {@link FileWriter}
+ * Test for {@link FlatFile}
  */
 @RunWith(MockitoJUnitRunner.class)
-public class FileWriterTest {
+public class FlatFileTest {
 
     private static final UUID UUID_WITH_DATA = UUID.fromString("7f7c909b-24f1-49a4-817f-baa4f4973980");
 
     @InjectDelayed
-    private FileWriter fileWriter;
+    private FlatFile flatFile;
 
     @Mock
     private PerWorldInventory plugin;
@@ -73,7 +73,7 @@ public class FileWriterTest {
         injector.provide(DataFolder.class, testFolder);
         injector.register(PerWorldInventory.class, plugin);
         injector.register(Settings.class, settings);
-        fileWriter = injector.getSingleton(FileWriter.class);
+        flatFile = injector.getSingleton(FlatFile.class);
     }
 
     @Test
@@ -85,7 +85,7 @@ public class FileWriterTest {
         given(player.getUuid()).willReturn(UUID_WITH_DATA);
 
         // when
-        File result = fileWriter.getFile(gameMode, group, player.getUuid());
+        File result = flatFile.getFile(gameMode, group, player.getUuid());
 
         // then
         assertTrue(result.getName().equals("test-group.json"));
@@ -100,7 +100,7 @@ public class FileWriterTest {
         given(player.getUuid()).willReturn(UUID_WITH_DATA);
 
         // when
-        File result = fileWriter.getFile(gameMode, group, player.getUuid());
+        File result = flatFile.getFile(gameMode, group, player.getUuid());
 
         // then
         assertTrue(result.getName().equals("test-group_creative.json"));
@@ -115,7 +115,7 @@ public class FileWriterTest {
         given(player.getUuid()).willReturn(UUID_WITH_DATA);
 
         // when
-        File result = fileWriter.getFile(gameMode, group, player.getUuid());
+        File result = flatFile.getFile(gameMode, group, player.getUuid());
 
         // then
         assertTrue(result.getName().equals("test-group_adventure.json"));
@@ -130,7 +130,7 @@ public class FileWriterTest {
         given(player.getUuid()).willReturn(UUID_WITH_DATA);
 
         // when
-        File result = fileWriter.getFile(gameMode, group, player.getUuid());
+        File result = flatFile.getFile(gameMode, group, player.getUuid());
 
         // then
         assertTrue(result.getName().equals("test-group_creative.json"));
@@ -145,7 +145,7 @@ public class FileWriterTest {
         setUpWorldReturnedByBukkit(world);
 
         // when
-        Location result = fileWriter.getLogoutData(player);
+        Location result = flatFile.getLogoutData(player);
 
         // then
         assertTrue(result != null);
@@ -160,7 +160,7 @@ public class FileWriterTest {
         given(player.getUniqueId()).willReturn(randUUID);
 
         // when
-        Location result = fileWriter.getLogoutData(player);
+        Location result = flatFile.getLogoutData(player);
 
         // then
         assertTrue(result == null);

@@ -8,8 +8,8 @@ import me.gnat008.perworldinventory.commands.PerWorldInventoryCommand;
 import me.gnat008.perworldinventory.commands.ReloadCommand;
 import me.gnat008.perworldinventory.commands.SetWorldDefaultCommand;
 import me.gnat008.perworldinventory.config.Settings;
-import me.gnat008.perworldinventory.data.DataWriter;
-import me.gnat008.perworldinventory.data.FileWriter;
+import me.gnat008.perworldinventory.data.DataSource;
+import me.gnat008.perworldinventory.data.FlatFile;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.listeners.player.PlayerGameModeChangeListener;
@@ -118,7 +118,7 @@ public class PerWorldInventoryInitializationTest {
 
         // then - check various samples
         assertThat(injector.getIfAvailable(GroupManager.class), not(nullValue()));
-        assertThat(injector.getIfAvailable(DataWriter.class), instanceOf(FileWriter.class));
+        assertThat(injector.getIfAvailable(DataSource.class), instanceOf(FlatFile.class));
         assertThat(injector.getIfAvailable(PWIPlayerManager.class), not(nullValue()));
 
         verifyRegisteredListener(PluginListener.class);

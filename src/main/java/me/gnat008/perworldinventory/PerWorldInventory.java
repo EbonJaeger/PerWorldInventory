@@ -29,8 +29,8 @@ import me.gnat008.perworldinventory.commands.SetWorldDefaultCommand;
 import me.gnat008.perworldinventory.commands.VersionCommand;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
-import me.gnat008.perworldinventory.data.DataWriter;
-import me.gnat008.perworldinventory.data.FileWriter;
+import me.gnat008.perworldinventory.data.DataSource;
+import me.gnat008.perworldinventory.data.FlatFile;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.listeners.entity.EntityPortalEventListener;
@@ -49,7 +49,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -66,7 +65,7 @@ public class PerWorldInventory extends JavaPlugin {
 
     private PerWorldInventoryAPI api;
     private Economy economy;
-    private DataWriter serializer;
+    private DataSource serializer;
     private GroupManager groupManager;
     private PWIPlayerManager playerManager;
     private Settings settings;
@@ -112,7 +111,7 @@ public class PerWorldInventory extends JavaPlugin {
         injector.register(PerWorldInventory.class, this);
         injector.register(Server.class, getServer());
         injector.register(PluginManager.class, getServer().getPluginManager());
-        injector.provide(DataFolder.class, getDataFolder());
+        injector.provide(DataFolder.class, new File(getDataFolder(), "data"));
         settings = initSettings();
         injector.register(Settings.class, settings);
         PwiLogger.setUseDebug(settings.getProperty(PwiProperties.DEBUG_MODE));
@@ -151,8 +150,8 @@ public class PerWorldInventory extends JavaPlugin {
 
     protected void injectServices(Injector injector) {
         groupManager = injector.getSingleton(GroupManager.class);
-        serializer = injector.getSingleton(FileWriter.class);
-        injector.register(DataWriter.class, serializer);
+        serializer = injector.getSingleton(DataSource.class);
+        injector.register(DataSource.class, serializer);
         playerManager = injector.getSingleton(PWIPlayerManager.class);
         permissionManager = injector.getSingleton(PermissionManager.class);
         api = injector.getSingleton(PerWorldInventoryAPI.class);
