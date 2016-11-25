@@ -265,7 +265,7 @@ public class MySQL implements DataSource {
                 rs.close();
             }
         } catch (SQLException ex) {
-            PwiLogger.severe("Could not close ResultSet" + ex);
+            PwiLogger.severe("Could not close ResultSet", ex);
         }
     }
 
@@ -275,7 +275,7 @@ public class MySQL implements DataSource {
                 statement.close();
             }
         } catch (SQLException ex) {
-            PwiLogger.severe("Could not close PreparedStatement" + ex);
+            PwiLogger.severe("Could not close PreparedStatement", ex);
         }
     }
 }
