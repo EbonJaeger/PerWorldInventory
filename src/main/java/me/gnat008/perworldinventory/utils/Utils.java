@@ -1,4 +1,4 @@
-package me.gnat008.perworldinventory;
+package me.gnat008.perworldinventory.utils;
 
 import java.io.*;
 

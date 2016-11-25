@@ -2,6 +2,7 @@ package me.gnat008.perworldinventory.config;
 
 import com.github.authme.configme.SettingsHolder;
 import com.github.authme.configme.knownproperties.ConfigurationData;
+import com.github.authme.configme.knownproperties.ConfigurationDataBuilder;
 import com.github.authme.configme.properties.Property;
 import com.github.authme.configme.resource.YamlFileResource;
 import com.google.common.collect.ImmutableList;
@@ -38,25 +39,25 @@ public class SettingsConsistencyTest {
 
     private static ConfigurationData configData;
     private static YamlFileResource yamlResource;
-    private static List<Class<? extends SettingsHolder>> classes;
+    private static Class<? extends SettingsHolder>[] classes;
 
     @BeforeClass
     public static void scanForSettingsClasses() {
         ClassCollector collector = new ClassCollector(TestHelper.SOURCES_FOLDER, SETTINGS_FOLDER);
-        classes = collector.collectClasses(SettingsHolder.class);
+        classes = collector.collectClasses(SettingsHolder.class).toArray(classes);
 
-        if (classes.isEmpty()) {
+        if (classes.length == 0) {
             throw new IllegalStateException("Did not find any SettingsHolder classes. Is the folder correct?");
         }
 
-        System.out.println("Found " + classes.size() + " SettingsHolder implementations");
+        System.out.println("Found " + classes.length + " SettingsHolder implementations");
 
-        configData = SettingsRetriever.buildConfigurationData();
+        configData = ConfigurationDataBuilder.collectData(classes);
         yamlResource = new YamlFileResource(getJarFile("/config.yml")); //YamlConfiguration.loadConfiguration(getJarFile("/config.yml"));
     }
 
     /**
-     * Make sure that all properties in the config contain a default value.
+     * Make sure that all properties in the config contain the same default value as the code.
      */
     @Test
     public void shouldContainAllPropertiesWithSameDefaultValue() {
@@ -70,7 +71,8 @@ public class SettingsConsistencyTest {
     }
 
     /**
-     * Make sure that all properties defined in both the config and the code.
+     * Make sure that there are no properties in the config.yml that are not defined
+     * in the code.
      */
     @Test
     public void shouldNotHaveUnknownProperties() {
@@ -107,7 +109,7 @@ public class SettingsConsistencyTest {
     @Test
     public void shouldHaveUniquePaths() {
         Set<String> paths = new HashSet<>();
-        for (Class<?> clazz : classes) {
+        for (Class<? extends SettingsHolder> clazz : classes) {
             Field[] fields = clazz.getDeclaredFields();
             for (Field field : fields) {
                 if (Property.class.isAssignableFrom(field.getType())) {
@@ -123,7 +125,7 @@ public class SettingsConsistencyTest {
     @Test
     public void shouldHaveEmptyHiddenConstructorOnly() {
         for (Class<?> clazz : classes) {
-            TestHelper.validateHasOnlyPrivateEmptyConstructor(clazz);
+            ReflectionTestUtils.validateHasOnlyPrivateEmptyConstructor(clazz);
         }
     }
 

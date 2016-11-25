@@ -4,6 +4,7 @@ import ch.jalu.injector.testing.BeforeInjecting;
 import ch.jalu.injector.testing.DelayedInjectionRunner;
 import ch.jalu.injector.testing.InjectDelayed;
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.ReflectionTestUtils;
 import me.gnat008.perworldinventory.TestHelper;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
@@ -62,7 +63,7 @@ public class PWIPlayerManagerTest {
 
         // Add mocks for Bukkit.getScheduler, called in @PostConstruct method
         Server server = mock(Server.class);
-        TestHelper.setField(Bukkit.class, "server", null, server);
+        ReflectionTestUtils.setField(Bukkit.class, "server", null, server);
         BukkitScheduler scheduler = mock(BukkitScheduler.class);
         given(server.getScheduler()).willReturn(scheduler);
     }

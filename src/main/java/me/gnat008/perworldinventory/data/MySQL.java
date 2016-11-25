@@ -4,7 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.pool.HikariPool;
 import me.gnat008.perworldinventory.PwiLogger;
-import me.gnat008.perworldinventory.Utils;
+import me.gnat008.perworldinventory.utils.Utils;
 import me.gnat008.perworldinventory.config.DatabaseProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
@@ -255,15 +255,6 @@ public class MySQL implements DataSource {
         if (dataSource != null && !dataSource.isClosed()) {
             dataSource.close();
         }
-    }
-
-    /**
-     * Log a SQLException to the console and logs.
-     *
-     * @param ex The raised exception.
-     */
-    private static void logSQLException(SQLException ex) {
-        PwiLogger.severe("Error during SQL operation:" + ex);
     }
 
     private static void close(ResultSet rs) {

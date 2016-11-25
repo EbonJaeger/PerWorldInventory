@@ -1,5 +1,6 @@
 package me.gnat008.perworldinventory.data;
 
+import ch.jalu.injector.Injector;
 import me.gnat008.perworldinventory.DataFolder;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.PwiLogger;
@@ -27,6 +28,8 @@ public class DataSourceProvider implements Provider<DataSource> {
     private Settings settings;
     @Inject
     private PerWorldInventory plugin;
+    @Inject
+    private Injector injector;
 
     DataSourceProvider() {}
 
@@ -46,10 +49,10 @@ public class DataSourceProvider implements Provider<DataSource> {
 
         switch(type) {
             case FLATFILE:
-                dataSource = new FlatFile(dataFolder);
+                dataSource = injector.getSingleton(FlatFile.class);
                 break;
             case MYSQL:
-                dataSource = new MySQL(settings);
+                dataSource = injector.getSingleton(MySQL.class);
                 break;
             case SQLITE:
                 throw new UnsupportedOperationException("SQLite not yet implemented");

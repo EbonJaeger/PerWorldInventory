@@ -30,7 +30,7 @@ import me.gnat008.perworldinventory.commands.VersionCommand;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.DataSource;
-import me.gnat008.perworldinventory.data.FlatFile;
+import me.gnat008.perworldinventory.data.DataSourceProvider;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.listeners.entity.EntityPortalEventListener;
@@ -40,6 +40,7 @@ import me.gnat008.perworldinventory.listeners.player.PlayerQuitListener;
 import me.gnat008.perworldinventory.listeners.player.PlayerSpawnLocationListener;
 import me.gnat008.perworldinventory.listeners.server.PluginListener;
 import me.gnat008.perworldinventory.permission.PermissionManager;
+import me.gnat008.perworldinventory.utils.Utils;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -65,7 +66,6 @@ public class PerWorldInventory extends JavaPlugin {
 
     private PerWorldInventoryAPI api;
     private Economy economy;
-    private DataSource serializer;
     private GroupManager groupManager;
     private PWIPlayerManager playerManager;
     private Settings settings;
@@ -150,8 +150,7 @@ public class PerWorldInventory extends JavaPlugin {
 
     protected void injectServices(Injector injector) {
         groupManager = injector.getSingleton(GroupManager.class);
-        serializer = injector.getSingleton(DataSource.class);
-        injector.register(DataSource.class, serializer);
+        injector.registerProvider(DataSource.class, DataSourceProvider.class);
         playerManager = injector.getSingleton(PWIPlayerManager.class);
         permissionManager = injector.getSingleton(PermissionManager.class);
         api = injector.getSingleton(PerWorldInventoryAPI.class);

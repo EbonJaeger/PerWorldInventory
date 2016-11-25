@@ -32,7 +32,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.logging.Logger;
 
-import static me.gnat008.perworldinventory.TestHelper.setField;
+import static me.gnat008.perworldinventory.ReflectionTestUtils.setField;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -96,7 +96,7 @@ public class PerworldInventoryCommandHandlingTest {
         injector.register(SetWorldDefaultCommand.class, setWorldDefaultsCommand);
         injector.register(VersionCommand.class, versionCommand);
         plugin.registerCommands(injector);
-        TestHelper.setField(PerWorldInventory.class, "permissionManager", plugin, permissionManager);
+        setField(PerWorldInventory.class, "permissionManager", plugin, permissionManager);
     }
 
     @Test
