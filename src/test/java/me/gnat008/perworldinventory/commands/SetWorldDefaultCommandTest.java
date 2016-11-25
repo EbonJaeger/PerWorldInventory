@@ -1,7 +1,11 @@
 package me.gnat008.perworldinventory.commands;
 
-import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.data.FlatFile;
+import ch.jalu.injector.testing.BeforeInjecting;
+import ch.jalu.injector.testing.DelayedInjectionRunner;
+import ch.jalu.injector.testing.InjectDelayed;
+import me.gnat008.perworldinventory.DataFolder;
+import me.gnat008.perworldinventory.data.players.PWIPlayerFactory;
+import me.gnat008.perworldinventory.data.serializers.PlayerSerializer;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import org.bukkit.GameMode;
@@ -9,27 +13,26 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.ArrayList;
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 /**
@@ -37,20 +40,28 @@ import static org.mockito.hamcrest.MockitoHamcrest.argThat;
  */
 // TODO Gnat008: Fix tests so they work again
 @Ignore
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(DelayedInjectionRunner.class)
 public class SetWorldDefaultCommandTest {
 
-    @InjectMocks
+    @InjectDelayed
     private SetWorldDefaultCommand command;
 
     @Mock
-    private PerWorldInventory plugin;
-
-    @Mock
-    private FlatFile fileSerializer;
-
-    @Mock
     private GroupManager groupManager;
+    @Mock
+    private PlayerSerializer playerSerializer;
+    @Mock
+    private PWIPlayerFactory pwiPlayerFactory;
+    @DataFolder
+    private File dataFolder;
+
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+    @BeforeInjecting
+    public void setUpDataFolder() throws IOException {
+        dataFolder = temporaryFolder.newFolder();
+    }
 
     @Test
     public void shouldNotExecuteNotAPlayer() {
@@ -58,11 +69,12 @@ public class SetWorldDefaultCommandTest {
         CommandSender sender = mock(CommandSender.class);
 
         // when
-        command.executeCommand(sender, Collections.<String>emptyList());
+        command.executeCommand(sender, Collections.emptyList());
 
         // then
         verify(sender).sendMessage(argThat(containsString("This command may only be run from ingame")));
-        verifyZeroInteractions(command);
+        // Check that no file was created in the data folder
+        assertThat(dataFolder.list(), emptyArray());
     }
 
     @Test
@@ -76,31 +88,26 @@ public class SetWorldDefaultCommandTest {
 
         // then
         verify(player).sendMessage(argThat(containsString("Incorrect number of arguments")));
-        verifyZeroInteractions(fileSerializer);
     }
 
     @Test
     public void shouldSetForDefaultGroup() {
         // given
         Player player = mock(Player.class);
-        List<String> args = new ArrayList<>();
-        args.add("serverDefault");
+        List<String> args = Collections.singletonList("serverDefault");
 
         // when
         command.executeCommand(player, args);
 
         // then
-        ArgumentCaptor<Group> captor = ArgumentCaptor.forClass(Group.class);
-        //verify(fileSerializer, only()).setGroupDefault(eq(player), captor.capture());
-        assertThat(captor.getValue().getName(), equalTo("__default"));
+        // check that expected file was created (or move writing logic to another class ;))
     }
 
     @Test
     public void shouldSetForArbitraryGroup() {
         // given
         Player player = mock(Player.class);
-        List<String> args = new ArrayList<>();
-        args.add("blarg");
+        List<String> args = Collections.singletonList("blarg");
         Group group = new Group("blarg", null, null);
         given(groupManager.getGroup("blarg")).willReturn(group);
 
@@ -121,13 +128,12 @@ public class SetWorldDefaultCommandTest {
         given(player.getWorld()).willReturn(world);
         given(world.getName()).willReturn("world");
 
-        List<String> worlds = new ArrayList<>();
-        worlds.add("world");
+        List<String> worlds = Collections.singletonList("world");
         Group group = new Group("test", worlds, GameMode.SURVIVAL);
         given(groupManager.getGroupFromWorld("world")).willReturn(group);
 
         // when
-        command.executeCommand(player, Collections.<String>emptyList());
+        command.executeCommand(player, Collections.emptyList());
 
         // then
         ArgumentCaptor<Group> captor = ArgumentCaptor.forClass(Group.class);

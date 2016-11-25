@@ -3,7 +3,6 @@ package me.gnat008.perworldinventory.commands;
 import com.google.gson.JsonObject;
 import me.gnat008.perworldinventory.DataFolder;
 import me.gnat008.perworldinventory.PwiLogger;
-import me.gnat008.perworldinventory.data.FlatFile;
 import me.gnat008.perworldinventory.data.players.PWIPlayerFactory;
 import me.gnat008.perworldinventory.data.serializers.PlayerSerializer;
 import me.gnat008.perworldinventory.groups.Group;
@@ -11,7 +10,6 @@ import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.permission.AdminPermission;
 import me.gnat008.perworldinventory.permission.PermissionNode;
 import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -26,8 +24,6 @@ import static me.gnat008.perworldinventory.utils.FileUtils.writeData;
 
 public class SetWorldDefaultCommand implements ExecutableCommand {
 
-    @Inject
-    private FlatFile fileSerializer;
     @Inject
     private GroupManager groupManager;
     @Inject

@@ -4,6 +4,7 @@ import com.github.authme.configme.SettingsHolder;
 import com.github.authme.configme.knownproperties.ConfigurationData;
 import com.github.authme.configme.knownproperties.ConfigurationDataBuilder;
 import com.github.authme.configme.properties.Property;
+import com.github.authme.configme.resource.PropertyResource;
 import com.github.authme.configme.resource.YamlFileResource;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
@@ -38,13 +39,14 @@ public class SettingsConsistencyTest {
     private static final String SETTINGS_FOLDER = TestHelper.PROJECT_ROOT + "config";
 
     private static ConfigurationData configData;
-    private static YamlFileResource yamlResource;
     private static Class<? extends SettingsHolder>[] classes;
 
     @BeforeClass
+    @SuppressWarnings("unchecked")
     public static void scanForSettingsClasses() {
         ClassCollector collector = new ClassCollector(TestHelper.SOURCES_FOLDER, SETTINGS_FOLDER);
-        classes = collector.collectClasses(SettingsHolder.class).toArray(classes);
+        // TODO ConfigMe/#30: Create ConfigurationDataBuilder.collectData(Iterable<Class<...>>) to avoid unchecked array
+        classes = collector.collectClasses(SettingsHolder.class).stream().toArray(Class[]::new);
 
         if (classes.length == 0) {
             throw new IllegalStateException("Did not find any SettingsHolder classes. Is the folder correct?");
@@ -53,7 +55,6 @@ public class SettingsConsistencyTest {
         System.out.println("Found " + classes.length + " SettingsHolder implementations");
 
         configData = ConfigurationDataBuilder.collectData(classes);
-        yamlResource = new YamlFileResource(getJarFile("/config.yml")); //YamlConfiguration.loadConfiguration(getJarFile("/config.yml"));
     }
 
     /**
@@ -61,7 +62,10 @@ public class SettingsConsistencyTest {
      */
     @Test
     public void shouldContainAllPropertiesWithSameDefaultValue() {
-        // given / when / then
+        // given
+        PropertyResource yamlResource = new YamlFileResource(getJarFile("/config.yml"));
+
+        // when / then
         for (Property<?> property : configData.getProperties()) {
             assertThat("config.yml does not have property for " + property,
                 yamlResource.contains(property.getPath()), equalTo(true));
@@ -109,11 +113,11 @@ public class SettingsConsistencyTest {
     @Test
     public void shouldHaveUniquePaths() {
         Set<String> paths = new HashSet<>();
-        for (Class<? extends SettingsHolder> clazz : classes) {
+        for (Class<?> clazz : classes) {
             Field[] fields = clazz.getDeclaredFields();
             for (Field field : fields) {
                 if (Property.class.isAssignableFrom(field.getType())) {
-                    Property<?> property = ReflectionTestUtils.getFieldValue(clazz, null, field.getName());
+                    Property<?> property = ReflectionTestUtils.getFieldValue(null, field);
                     if (!paths.add(property.getPath())) {
                         fail("Path '" + property.getPath() + "' should be used by only one constant");
                     }

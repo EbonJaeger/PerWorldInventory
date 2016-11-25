@@ -1,19 +1,12 @@
 package me.gnat008.perworldinventory.utils;
 
-import ch.jalu.injector.Injector;
-import ch.jalu.injector.InjectorBuilder;
-import me.gnat008.perworldinventory.DataFolder;
-import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.TestHelper;
-import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.groups.Group;
 import org.bukkit.GameMode;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.Mock;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +23,7 @@ import static org.mockito.Mockito.mock;
 public class FileUtilsTest {
 
     @Rule
-    private TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Test
     public void shouldGetSurvivalFile() throws IOException {

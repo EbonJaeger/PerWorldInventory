@@ -29,7 +29,6 @@ import com.onarandombox.multiverseinventories.api.profile.WorldGroupProfile;
 import com.onarandombox.multiverseinventories.api.share.Sharables;
 import me.gnat008.perworldinventory.DataFolder;
 import me.gnat008.perworldinventory.PwiLogger;
-import me.gnat008.perworldinventory.data.FlatFile;
 import me.gnat008.perworldinventory.data.serializers.InventorySerializer;
 import me.gnat008.perworldinventory.data.serializers.PotionEffectSerializer;
 import me.gnat008.perworldinventory.groups.Group;
@@ -51,8 +50,6 @@ import static me.gnat008.perworldinventory.utils.FileUtils.writeData;
 @NoMethodScan
 public class DataConverter {
 
-    @Inject
-    private FlatFile serializer;
     @Inject
     private GroupManager groupManager;
     @Inject

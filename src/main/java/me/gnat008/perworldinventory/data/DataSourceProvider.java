@@ -1,16 +1,12 @@
 package me.gnat008.perworldinventory.data;
 
 import ch.jalu.injector.Injector;
-import me.gnat008.perworldinventory.DataFolder;
-import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.PwiLogger;
 import me.gnat008.perworldinventory.config.DatabaseProperties;
 import me.gnat008.perworldinventory.config.Settings;
-import org.bukkit.Bukkit;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -22,12 +18,7 @@ public class DataSourceProvider implements Provider<DataSource> {
     private static final int SQLITE_MAX_SIZE = 4000;
 
     @Inject
-    @DataFolder
-    private File dataFolder;
-    @Inject
     private Settings settings;
-    @Inject
-    private PerWorldInventory plugin;
     @Inject
     private Injector injector;
 

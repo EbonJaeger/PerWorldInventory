@@ -35,15 +35,27 @@ public final class ReflectionTestUtils {
      * @param <T> the instance's type
      * @return the field value
      */
-    @SuppressWarnings("unchecked")
     public static <V, T> V getFieldValue(Class<? super T> clazz, T instance, String fieldName) {
+        Field field = getField(clazz, instance, fieldName);
+        return getFieldValue(instance, field);
+    }
+
+    /**
+     * Gets the given field's value.
+     *
+     * @param instance the instance to get the field value for (null for static fields)
+     * @param field the field to get
+     * @param <V> the value's type
+     * @return the field value
+     */
+    @SuppressWarnings("unchecked")
+    public static <V> V getFieldValue(Object instance, Field field) {
         try {
-            Field field = clazz.getDeclaredField(fieldName);
             field.setAccessible(true);
             // Avoid forcing user to cast
             return (V) field.get(instance);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new IllegalStateException("Could not get field '" + fieldName + "' from " + instance, e);
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException("Could not read field '" + field + "' for instance " + instance, e);
         }
     }
 

@@ -7,7 +7,6 @@ import me.gnat008.perworldinventory.DataFolder;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.PwiLogger;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
-import me.gnat008.perworldinventory.data.players.PWIPlayerFactory;
 import me.gnat008.perworldinventory.data.serializers.LocationSerializer;
 import me.gnat008.perworldinventory.data.serializers.PlayerSerializer;
 import me.gnat008.perworldinventory.groups.Group;
@@ -30,18 +29,15 @@ import static me.gnat008.perworldinventory.utils.FileUtils.writeData;
 
 public class FlatFile implements DataSource {
 
-    private final File DATA_FOLDER;
+    private final File dataFolder;
+    private final PerWorldInventory plugin;
+    private final PlayerSerializer playerSerializer;
 
-    private PerWorldInventory plugin;
-    private PlayerSerializer playerSerializer;
-    private PWIPlayerFactory pwiPlayerFactory;
-
-    FlatFile(File dataFolder, PerWorldInventory plugin,
-             PlayerSerializer serializer, PWIPlayerFactory pwiPlayerFactory) throws IOException {
-        this.DATA_FOLDER = dataFolder;
+    @Inject
+    FlatFile(@DataFolder  File dataFolder, PerWorldInventory plugin, PlayerSerializer serializer) throws IOException {
+        this.dataFolder = dataFolder;
         this.plugin = plugin;
         this.playerSerializer = serializer;
-        this.pwiPlayerFactory = pwiPlayerFactory;
 
         if (!dataFolder.exists() && !dataFolder.mkdirs()) {
             throw new IOException("Could not create data directory '" + dataFolder.getPath() + "'");
@@ -76,7 +72,7 @@ public class FlatFile implements DataSource {
 
     @Override
     public void saveToDatabase(Group group, GameMode gamemode, PWIPlayer player) {
-        File file = getFile(DATA_FOLDER, gamemode, group, player.getUuid());
+        File file = getFile(dataFolder, gamemode, group, player.getUuid());
         PwiLogger.debug("Saving data for player '" + player.getName() + "' in file '" + file.getPath() + "'");
 
         try {
@@ -99,7 +95,7 @@ public class FlatFile implements DataSource {
 
     @Override
     public void getFromDatabase(Group group, GameMode gamemode, Player player) {
-        File file = getFile(DATA_FOLDER, gamemode, group, player.getUniqueId());
+        File file = getFile(dataFolder, gamemode, group, player.getUniqueId());
 
         PwiLogger.debug("Getting data for player '" + player.getName() + "' from file '" + file.getPath() + "'");
 
@@ -156,14 +152,14 @@ public class FlatFile implements DataSource {
     }
 
     private void getFromDefaults(Group group, Player player) {
-        File file = new File(DATA_FOLDER, "defaults" + File.separator + group.getName() + ".json");
+        File file = new File(dataFolder, "defaults" + File.separator + group.getName() + ".json");
         JsonObject data;
 
         try {
             data = readData(file);
             playerSerializer.deserialize(data, player);
         } catch (FileNotFoundException ex) {
-            file = new File(DATA_FOLDER, "defaults" + File.separator + "__default.json");
+            file = new File(dataFolder, "defaults" + File.separator + "__default.json");
 
             try {
                 data = readData(file);
@@ -190,6 +186,6 @@ public class FlatFile implements DataSource {
      * @return The data folder of the player
      */
     private File getUserFolder(UUID uuid) {
-        return new File(DATA_FOLDER, uuid.toString());
+        return new File(dataFolder, uuid.toString());
     }
 }

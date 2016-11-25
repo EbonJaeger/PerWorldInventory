@@ -13,6 +13,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import javax.inject.Inject;
 import java.sql.*;
 
 /**
@@ -31,6 +32,7 @@ public class MySQL implements DataSource {
      * @throws ClassNotFoundException
      * @throws SQLException
      */
+    @Inject
     public MySQL(Settings settings) throws ClassNotFoundException, SQLException {
         loadSettings(settings);
 
