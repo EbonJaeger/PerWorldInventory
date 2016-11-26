@@ -34,7 +34,7 @@ public class FlatFile implements DataSource {
     private final PlayerSerializer playerSerializer;
 
     @Inject
-    FlatFile(@DataFolder  File dataFolder, PerWorldInventory plugin, PlayerSerializer serializer) throws IOException {
+    FlatFile(@DataFolder File dataFolder, PerWorldInventory plugin, PlayerSerializer serializer) throws IOException {
         this.dataFolder = dataFolder;
         this.plugin = plugin;
         this.playerSerializer = serializer;
@@ -120,19 +120,20 @@ public class FlatFile implements DataSource {
     @Override
     public Location getLogoutData(Player player) {
         File file = new File(getUserFolder(player.getUniqueId()), "last-logout.json");
-
         Location location;
-        try (JsonReader reader = new JsonReader(new FileReader(file))) {
-            JsonParser parser = new JsonParser();
-            JsonObject data = parser.parse(reader).getAsJsonObject();
+
+        try{
+            JsonObject data = readData(file);
             location = LocationSerializer.deserialize(data);
-        } catch (FileNotFoundException ex) {
-            // Player probably logged in for the first time, not really an error
-            location = null;
-        } catch (IOException ioEx) {
-            // Something went wrong
-            PwiLogger.warning("Unable to get logout location data for '" + player.getName() + "':", ioEx);
-            location = null;
+        } catch (IOException ex) {
+            if (ex instanceof FileNotFoundException) {
+                // Player probably logged in for the first time, not really an error
+                location = null;
+            } else {
+                // Something went wrong
+                PwiLogger.warning("Unable to get logout location data for '" + player.getName() + "':", ex);
+                location = null;
+            }
         }
 
         return location;

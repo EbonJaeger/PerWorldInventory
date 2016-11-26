@@ -54,15 +54,15 @@ public class FlatFileTest {
 
     @Before
     public void setup() throws IOException {
-        File testFolder = temporaryFolder.newFolder();
-        String userDataPath = "data/7f7c909b-24f1-49a4-817f-baa4f4973980/";
-        File source = TestHelper.getJarFile(TestHelper.PROJECT_ROOT + userDataPath + "last-logout.json");
+        File testFolder = new File(temporaryFolder.newFolder(), "data/");
+        String userDataPath = "7f7c909b-24f1-49a4-817f-baa4f4973980/";
+        File source = TestHelper.getJarFile(TestHelper.PROJECT_ROOT + "data/" + userDataPath + "last-logout.json");
         File userFolder = new File(testFolder, userDataPath);
         userFolder.mkdirs();
         File destination = new File(userFolder, "last-logout.json");
         Files.copy(source, destination);
 
-        File data = TestHelper.getJarFile(TestHelper.PROJECT_ROOT + userDataPath + "test-group.json");
+        File data = TestHelper.getJarFile(TestHelper.PROJECT_ROOT + "data/" + userDataPath + "test-group.json");
         destination = new File(userFolder, "test-group.json");
         Files.copy(data, destination);
 
