@@ -25,6 +25,7 @@ import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.entity.Player;
 
 import javax.inject.Inject;
@@ -98,9 +99,18 @@ public class PlayerSerializer {
             }
 
             PwiLogger.debug("[ECON] Withdrawing " + econ.getBalance(player) + " from '" + player.getName() + "'!");
-            econ.withdrawPlayer(player, econ.getBalance(player));
-            econ.bankWithdraw(player.getName(), econ.bankBalance(player.getName()).amount);
-            if (data.has("economy")) {
+            EconomyResponse er = econ.withdrawPlayer(player, econ.getBalance(player));
+            if (!er.transactionSuccess()) {
+                PwiLogger.warning("[ECON] Unable to withdraw funds from '" + player.getName() + "': " + er.errorMessage);
+            }
+
+            PwiLogger.debug("[ECON] Withdrawing " + econ.bankBalance(player.getName()) + " from bank of '" + player.getName() + "'!");
+            EconomyResponse bankER = econ.bankWithdraw(player.getName(), econ.bankBalance(player.getName()).amount);
+            if (!bankER.transactionSuccess()) {
+                PwiLogger.warning("[ECON] Unable to withdraw bank funds from '" + player.getName() + "': " + er.errorMessage);
+            }
+
+            if (data.has("economy") && er.transactionSuccess() && bankER.transactionSuccess()) {
                 EconomySerializer.deserialize(econ, data.getAsJsonObject("economy"), player);
             }
         }

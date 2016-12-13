@@ -41,12 +41,13 @@ public class EconomySerializer {
 
     public static void deserialize(Economy econ, JsonObject data, Player player) {
         if (data.has("bank-balance")) {
+            PwiLogger.debug("[ECON] Depositing " + data.get("bank-balance").getAsDouble() + " to bank of '" + player.getName() + "'!");
             econ.bankDeposit(player.getName(), data.get("bank-balance").getAsDouble());
         }
 
         if (data.has("balance")) {
-            econ.depositPlayer(player, data.get("balance").getAsDouble());
             PwiLogger.debug("[ECON] Depositing " + data.get("balance").getAsDouble() + " to '" + player.getName() + "'!");
+            econ.depositPlayer(player, data.get("balance").getAsDouble());
         }
     }
 }
