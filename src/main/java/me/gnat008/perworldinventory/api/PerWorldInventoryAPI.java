@@ -108,6 +108,25 @@ public class PerWorldInventoryAPI {
      * @return The cached PWIPlayer if found, null otherwise.
      */
     public PWIPlayer getCachedPlayer(Group group, Player player) {
-        return playerManager.getPlayer(group, player);
+        return getCachedPlayer(group, player.getGameMode(), player);
+    }
+
+    /**
+     * Get a {@link PWIPlayer} for a given group, if one exists. If no cached player exists,
+     * this method will return null.
+     *
+     * @param group The Group to look for a cached player in.
+     * @param gameMode The GameMode that player was in.
+     * @param player The player to find a cached version for.
+     *
+     * @return The cached PWIPlayer if found, null otherwise.
+     * @since 1.10.0
+     */
+    public PWIPlayer getCachedPlayer(Group group, GameMode gameMode, Player player) {
+        return playerManager.getPlayer(group, gameMode, player);
+    }
+
+    public String createCachedPlayer(Player player, Group group) {
+        return playerManager.addPlayer(player, group);
     }
 }
