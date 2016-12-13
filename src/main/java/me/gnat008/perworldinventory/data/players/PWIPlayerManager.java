@@ -280,6 +280,10 @@ public class PWIPlayerManager {
             player.setRemainingAir(cachedPlayer.getRemainingAir());
         if (settings.getProperty(PwiProperties.USE_ECONOMY)) {
             Economy econ = plugin.getEconomy();
+            if (econ == null) {
+                PwiLogger.warning("Economy saving is turned on, but no economy found!");
+                return;
+            }
 
             EconomyResponse er = econ.withdrawPlayer(player, econ.getBalance(player));
             if (er.transactionSuccess()) {
