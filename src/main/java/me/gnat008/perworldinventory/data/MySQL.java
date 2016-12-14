@@ -136,7 +136,7 @@ public class MySQL implements DataSource {
             statement.executeUpdate(sql);
 
             // Armor
-            sql = "CREATE TABLE IF NOT EXISTS " + prefix + "armo` (" +
+            sql = "CREATE TABLE IF NOT EXISTS " + prefix + "armor (" +
                     "id INT NOT NULL AUTO_INCREMENT," +
                     "pid INT NOT NULL," +
                     "items BLOB NOT NULL," +
