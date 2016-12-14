@@ -123,6 +123,8 @@ public class MySQL implements DataSource {
     }
 
     private void checkTablesAndColumns() throws SQLException {
+        PwiLogger.info("Creating SQL database tables if they don't exist...");
+
         try (Connection conn = getConnection(); Statement statement = conn.createStatement()) {
             // Players, groups, and gamemodes
             String sql = "CREATE TABLE IF NOT EXISTS " + prefix + "players (" +
@@ -205,8 +207,6 @@ public class MySQL implements DataSource {
                     "PRIMARY KEY (id)," +
                     "FOREIGN KEY (pid) REFERENCES " + prefix + "players(pid));";
             statement.executeUpdate(sql);
-
-            PwiLogger.info("MySQL tables created!");
         }
     }
 
