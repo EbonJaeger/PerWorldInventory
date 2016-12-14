@@ -3,12 +3,15 @@ package me.gnat008.perworldinventory.data;
 import com.google.common.annotations.VisibleForTesting;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.pool.HikariPool;
+import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.PwiLogger;
+import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.utils.Utils;
 import me.gnat008.perworldinventory.config.DatabaseProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.groups.Group;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -23,17 +26,21 @@ public class MySQL implements DataSource {
 
     private String hostname, port, username, password, databaseName, prefix;
     private int poolSize;
+    private boolean separateGamemodeInventories;
     private HikariDataSource dataSource;
+    private PerWorldInventory plugin;
 
     /**
      * Constructor
      *
+     * @param plugin {@link PerWorldInventory} plugin instance
      * @param settings Plugin settings
      * @throws ClassNotFoundException
      * @throws SQLException
      */
     @Inject
-    public MySQL(Settings settings) throws ClassNotFoundException, SQLException {
+    public MySQL(PerWorldInventory plugin, Settings settings) throws ClassNotFoundException, SQLException {
+        this.plugin = plugin;
         loadSettings(settings);
 
         // Set up connection
@@ -95,17 +102,65 @@ public class MySQL implements DataSource {
 
     @Override
     public void saveLogoutData(PWIPlayer player) {
+        String uuid = player.getUuid().toString().replace("-", "");
+        Location location = player.getLocation();
 
+        String sql = "SELECT id FROM " + prefix + "logout_location WHERE uuid=?;";
+        try (Connection conn = getConnection(); PreparedStatement query = conn.prepareStatement(sql)) {
+            query.setString(1, uuid);
+            ResultSet existing = query.executeQuery();
+
+            if (existing.next()) { // Data exists
+                sql = "UPDATE " + prefix + "logout_location " +
+                        "SET world=?,x=?,y=?,z=?,pitch=?,yaw=? " +
+                        "WHERE uuid=?;";
+                try (PreparedStatement update = conn.prepareStatement(sql)) {
+                    update.setString(1, location.getWorld().getName());
+                    update.setDouble(2, location.getX());
+                    update.setDouble(3, location.getY());
+                    update.setDouble(4, location.getZ());
+                    update.setFloat(5, location.getPitch());
+                    update.setFloat(6, location.getYaw());
+                    update.setString(7, uuid);
+
+                    update.executeUpdate();
+                }
+            } else {
+                sql = "INSERT INTO " + prefix + "logout_location (uuid,world,x,y,z,pitch,yaw) " +
+                        "VALUES (?,?,?,?,?,?,?);";
+                try (PreparedStatement insert = conn.prepareStatement(sql)) {
+                    insert.setString(1, uuid);
+                    insert.setString(2, location.getWorld().getName());
+                    insert.setDouble(3, location.getX());
+                    insert.setDouble(4, location.getY());
+                    insert.setDouble(5, location.getZ());
+                    insert.setFloat(6, location.getPitch());
+                    insert.setFloat(7, location.getYaw());
+
+                    insert.executeUpdate();
+                } catch (SQLException ex) {
+                    PwiLogger.severe("Error while inserting logout location for '" + player.getName() + "' in database:", ex);
+                }
+            }
+        } catch (SQLException ex) {
+            PwiLogger.severe("Error checking for logout location data:", ex);
+        }
     }
 
     @Override
     public void saveToDatabase(Group group, GameMode gamemode, PWIPlayer player, boolean async) {
-
+        if (async) {
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> saveToDatabase(group, gamemode, player));
+        } else {
+            saveToDatabase(group, gamemode, player);
+        }
     }
 
     @Override
     public void saveToDatabase(Group group, GameMode gamemode, PWIPlayer player) {
+        String uuid = player.getUuid().toString().replace("-", "");
 
+        boolean exists = isDataStored(uuid, group.getName(), gamemode.name());
     }
 
     @Override
@@ -197,17 +252,43 @@ public class MySQL implements DataSource {
             // Logout location
             sql = "CREATE TABLE IF NOT EXISTS " + prefix + "logout_location (" +
                     "id INT NOT NULL AUTO_INCREMENT," +
-                    "pid INT NOT NULL," +
+                    "uuid CHAR(36) NOT NULL," +
                     "world VARCHAR(255) NOT NULL," +
                     "x DOUBLE NOT NULL," +
                     "y DOUBLE NOT NULL," +
                     "z DOUBLE NOT NULL," +
                     "pitch FLOAT NOT NULL," +
                     "yaw FLOAT NOT NULL," +
-                    "PRIMARY KEY (id)," +
-                    "FOREIGN KEY (pid) REFERENCES " + prefix + "players(pid));";
+                    "PRIMARY KEY (id),";
             statement.executeUpdate(sql);
         }
+    }
+
+    /**
+     * Check if data with the given parameters are already stored in the database.
+     *
+     * @param uuid The UUID of the player as a String with all '-' characters removed.
+     * @param group The name of the group to check for.
+     * @param gameMode The GameMode of the player as a lowercase String.
+     * @return True if data exists.
+     */
+    private boolean isDataStored(String uuid, String group, String gameMode) {
+        String sql = "SELECT pid FROM " + prefix + "players WHERE uuid=? AND group=? AND gamemode=?;";
+        ResultSet rs = null;
+        try (Connection conn = getConnection(); PreparedStatement statement = conn.prepareStatement(sql)) {
+            statement.setString(1, uuid);
+            statement.setString(2, group);
+            statement.setString(3, gameMode);
+
+            rs = statement.executeQuery();
+            return rs.next();
+        } catch (SQLException ex) {
+            PwiLogger.severe("Error checking for existing data:", ex);
+        } finally {
+            close(rs);
+        }
+
+        return false;
     }
 
     private void setConnectionArguments() {
@@ -250,6 +331,8 @@ public class MySQL implements DataSource {
         if (poolSize == -1) {
             this.poolSize = Utils.getCoreCount();
         }
+
+        this.separateGamemodeInventories = settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES);
     }
 
     @Override
