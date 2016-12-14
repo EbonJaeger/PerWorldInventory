@@ -74,6 +74,12 @@ public class PWIPlayerManager {
      */
     public void onDisable() {
         Bukkit.getScheduler().cancelTask(taskID);
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            Group group = groupManager.getGroupFromWorld(player.getWorld().getName());
+            savePlayer(group, player, false);
+        }
+
         playerCache.clear();
     }
 
@@ -174,7 +180,7 @@ public class PWIPlayerManager {
      * @param group The Group the player is currently in.
      * @param player The player to save.
      */
-    public void savePlayer(Group group, Player player) {
+    public void savePlayer(Group group, Player player, boolean async) {
         String key = makeKey(player.getUniqueId(), group, player.getGameMode());
 
         // Remove any entry with the current key, if one exists
@@ -195,7 +201,7 @@ public class PWIPlayerManager {
                 PwiLogger.debug("Saving cached player '" + cached.getName() + "' for group '" + groupKey.getName() + "' with gamemdde '" + gamemode.name() + "'");
 
                 cached.setSaved(true);
-                dataSource.saveToDatabase(groupKey, gamemode, cached, true);
+                dataSource.saveToDatabase(groupKey, gamemode, cached, async);
             }
         }
 
@@ -203,8 +209,13 @@ public class PWIPlayerManager {
         dataSource.saveToDatabase(group,
                 settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES) ? player.getGameMode() : GameMode.SURVIVAL,
                 pwiPlayer,
-                true);
-        dataSource.saveLogoutData(pwiPlayer);
+                async);
+        if (async) {
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> dataSource.saveLogoutData(pwiPlayer));
+        } else {
+            dataSource.saveLogoutData(pwiPlayer);
+        }
+
         removePlayer(player);
     }
 
