@@ -125,83 +125,83 @@ public class MySQL implements DataSource {
     private void checkTablesAndColumns() throws SQLException {
         try (Connection conn = getConnection(); Statement statement = conn.createStatement()) {
             // Players, groups, and gamemodes
-            String sql = "CREATE TABLE IF NOT EXISTS `" + prefix + "players` (" +
-                    "`pid` INT NOT NULL AUTO_INCREMENT," +
-                    "`uuid` CHAR(36) NOT NULL," +
-                    "`group` VARCHAR(255) NOT NULL," +
-                    "`gamemode` ENUM('adventure', 'creative', 'survival') NOT NULL," +
+            String sql = "CREATE TABLE IF NOT EXISTS " + prefix + "players (" +
+                    "pid INT NOT NULL AUTO_INCREMENT," +
+                    "uuid CHAR(36) NOT NULL," +
+                    "group VARCHAR(255) NOT NULL," +
+                    "gamemode ENUM('adventure', 'creative', 'survival') NOT NULL," +
                     "PRIMARY KEY (pid));";
             statement.executeUpdate(sql);
 
             // Armor
-            sql = "CREATE TABLE IF NOT EXISTS `" + prefix + "armor` (" +
-                    "`id` INT NOT NULL AUTO_INCREMENT," +
-                    "`pid` INT NOT NULL," +
-                    "`items` BLOB NOT NULL," +
+            sql = "CREATE TABLE IF NOT EXISTS " + prefix + "armo` (" +
+                    "id INT NOT NULL AUTO_INCREMENT," +
+                    "pid INT NOT NULL," +
+                    "items BLOB NOT NULL," +
                     "PRIMARY KEY (id)," +
                     "FOREIGN KEY (pid) REFERENCES " + prefix + "players(pid));";
             statement.executeUpdate(sql);
 
             // Inventory
-            sql = "CREATE TABLE IF NOT EXISTS `" + prefix + "inventory` (" +
-                    "`id` INT NOT NULL AUTO_INCREMENT," +
-                    "`pid` INT NOT NULL," +
-                    "`items` BLOB NOT NULL," +
+            sql = "CREATE TABLE IF NOT EXISTS " + prefix + "inventory (" +
+                    "id INT NOT NULL AUTO_INCREMENT," +
+                    "pid INT NOT NULL," +
+                    "items BLOB NOT NULL," +
                     "PRIMARY KEY (id)," +
                     "FOREIGN KEY (pid) REFERENCES " + prefix + "players(pid));";
             statement.executeUpdate(sql);
 
             // Enderchest
-            sql = "CREATE TABLE IF NOT EXISTS `" + prefix + "enderchest` (" +
-                    "`id` INT NOT NULL AUTO_INCREMENT," +
-                    "`pid` INT NOT NULL," +
-                    "`items` BLOB NOT NULL," +
+            sql = "CREATE TABLE IF NOT EXISTS " + prefix + "enderchest (" +
+                    "id INT NOT NULL AUTO_INCREMENT," +
+                    "pid INT NOT NULL," +
+                    "items BLOB NOT NULL," +
                     "PRIMARY KEY (id)," +
                     "FOREIGN KEY (pid) REFERENCES " + prefix + "players(pid));";
             statement.executeUpdate(sql);
 
             // Economy
-            sql = "CREATE TABLE IF NOT EXISTS `" + prefix + "economy` (" +
-                    "`id` INT NOT NULL AUTO_INCREMENT," +
-                    "`pid` INT NOT NULL," +
-                    "`bank_balance` DOUBLE," +
-                    "`balance` DOUBLE," +
+            sql = "CREATE TABLE IF NOT EXISTS " + prefix + "economy (" +
+                    "id INT NOT NULL AUTO_INCREMENT," +
+                    "pid INT NOT NULL," +
+                    "bank_balance DOUBLE," +
+                    "balance DOUBLE," +
                     "PRIMARY KEY (id)," +
                     "FOREIGN KEY (pid) REFERENCES " + prefix + "players(pid));";
             statement.executeUpdate(sql);
 
             // Stats
-            sql = "CREATE TABLE IF NOT EXISTS `" + prefix + "stats` (" +
-                    "`id` INT NOT NULL AUTO_INCREMENT," +
-                    "`pid` INT NOT NULL," +
-                    "`can_fly` BOOL NOT NULL," +
-                    "`display_name` VARCHAR(16) NOT NULL," +
-                    "`exhaustion` FLOAT NOT NULL," +
-                    "`exp` FLOAT NOT NULL," +
-                    "`flying` BOOL NOT NULL," +
-                    "`food` INT(20) NOT NULL," +
-                    "`health` DOUBLE NOT NULL," +
-                    "`level` INT(11) NOT NULL," +
-                    "`potion_effects` BLOB NOT NULL," +
-                    "`saturation` INT(20) NOT NULL," +
-                    "`fall_distance` FLOAT NOT NULL," +
-                    "`fire_ticks` INT NOT NULL," +
-                    "`max_air` INT NOT NULL," +
-                    "`remaining_air` INT NOT NULL," +
+            sql = "CREATE TABLE IF NOT EXISTS " + prefix + "stats (" +
+                    "id INT NOT NULL AUTO_INCREMENT," +
+                    "pid INT NOT NULL," +
+                    "can_fly BOOL NOT NULL," +
+                    "display_name VARCHAR(16) NOT NULL," +
+                    "exhaustion FLOAT NOT NULL," +
+                    "exp FLOAT NOT NULL," +
+                    "flying BOOL NOT NULL," +
+                    "food INT(20) NOT NULL," +
+                    "health DOUBLE NOT NULL," +
+                    "level INT(11) NOT NULL," +
+                    "potion_effects BLOB NOT NULL," +
+                    "saturation INT(20) NOT NULL," +
+                    "fall_distance FLOAT NOT NULL," +
+                    "fire_ticks INT NOT NULL," +
+                    "max_air INT NOT NULL," +
+                    "remaining_air INT NOT NULL," +
                     "PRIMARY KEY (id)," +
                     "FOREIGN KEY (pid) REFERENCES " + prefix + "players(pid));";
             statement.executeUpdate(sql);
 
             // Logout location
-            sql = "CREATE TABLE IF NOT EXISTS `" + prefix + "logout_location` (" +
-                    "`id` INT NOT NULL AUTO_INCREMENT," +
-                    "`pid` INT NOT NULL," +
-                    "`world` VARCHAR(255) NOT NULL," +
-                    "`x` DOUBLE NOT NULL," +
-                    "`y` DOUBLE NOT NULL," +
-                    "`z` DOUBLE NOT NULL," +
-                    "`pitch` FLOAT NOT NULL," +
-                    "`yaw` FLOAT NOT NULL," +
+            sql = "CREATE TABLE IF NOT EXISTS " + prefix + "logout_location (" +
+                    "id INT NOT NULL AUTO_INCREMENT," +
+                    "pid INT NOT NULL," +
+                    "world VARCHAR(255) NOT NULL," +
+                    "x DOUBLE NOT NULL," +
+                    "y DOUBLE NOT NULL," +
+                    "z DOUBLE NOT NULL," +
+                    "pitch FLOAT NOT NULL," +
+                    "yaw FLOAT NOT NULL," +
                     "PRIMARY KEY (id)," +
                     "FOREIGN KEY (pid) REFERENCES " + prefix + "players(pid));";
             statement.executeUpdate(sql);
