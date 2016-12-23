@@ -1,8 +1,8 @@
 package me.gnat008.perworldinventory;
 
+import ch.jalu.configme.properties.Property;
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
-import com.github.authme.configme.properties.Property;
 import me.gnat008.perworldinventory.commands.ExecutableCommand;
 import me.gnat008.perworldinventory.commands.PerWorldInventoryCommand;
 import me.gnat008.perworldinventory.commands.ReloadCommand;
@@ -45,12 +45,12 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 /**
  * Test for the initialization in {@link PerWorldInventory}.
