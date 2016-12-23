@@ -66,11 +66,6 @@
             <id>vault-repo</id>
             <url>http://nexus.hc.to/content/repositories/pub_releases</url>
         </repository>
-
-        <repository>
-            <id>xephi-repo</id>
-            <url>http://ci.xephi.fr/plugin/repository/everything/</url>
-        </repository>
     </repositories>
 
     <dependencies>
@@ -185,9 +180,9 @@
 
         <!-- ConfigMe -->
         <dependency>
-            <groupId>com.github.authme</groupId>
+            <groupId>ch.jalu</groupId>
             <artifactId>configme</artifactId>
-            <version>0.2.1</version>
+            <version>0.3</version>
         </dependency>
     </dependencies>
 
