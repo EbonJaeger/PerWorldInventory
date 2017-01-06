@@ -178,13 +178,13 @@ public class TeleportProcessTest {
     }
 
     private Group mockGroup(String name, GameMode gameMode, boolean configured) {
-        return mockGroup(name, null, null, gameMode, configured);
+        return mockGroup(name, null, null, null, gameMode, configured);
     }
 
-    private Group mockGroup(String name, List<String> enforceLastWorld, List<String> enforceLastPosInWorld, GameMode gameMode, boolean configured) {
+    private Group mockGroup(String name, List<String> enforceLastWorld, List<String> enforceLastPosInGroup, List<String> enforceLastPosInWorld, GameMode gameMode, boolean configured) {
         List<String> worlds = new ArrayList<>();
         worlds.add(name);
 
-        return new Group(name, worlds, enforceLastWorld, enforceLastPosInWorld, gameMode, configured);
+        return new Group(name, worlds, enforceLastWorld, enforceLastPosInGroup, enforceLastPosInWorld, gameMode, configured);
     }
 }

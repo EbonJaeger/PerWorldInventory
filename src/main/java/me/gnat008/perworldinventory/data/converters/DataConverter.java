@@ -70,9 +70,8 @@ public class DataConverter {
 
             // @TODO: I don't know and don't care enough about Multi-Inventories
             // to try and figure out if the location-saving can be ported.
-            // Just passing null for now.
             if (pwiGroup == null)
-                groupManager.addGroup(mvgroup.getName(), worlds, null, null);
+                groupManager.addGroup(mvgroup.getName(), worlds);
             else
                 pwiGroup.addWorlds(worlds);
 

@@ -34,7 +34,7 @@ public class SetWorldDefaultCommand implements ExecutableCommand {
         Group group;
         if (args.size() == 1) {
             String name = args.get(0);
-            group = name.equalsIgnoreCase("serverDefault") ? new Group("__default", null, null, null, null) : groupManager.getGroup(name);
+            group = name.equalsIgnoreCase("serverDefault") ? new Group("__default", null, null) : groupManager.getGroup(name);
         } else if (args.isEmpty()) {
             try {
                 group = groupManager.getGroupFromWorld(player.getWorld().getName());

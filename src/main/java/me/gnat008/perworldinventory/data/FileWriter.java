@@ -253,7 +253,7 @@ public class FileWriter implements DataWriter {
             player.sendMessage(ChatColor.DARK_RED + "» " + ChatColor.GRAY +  "Could not create temporary file! Aborting!");
             return;
         }
-        Group tempGroup = new Group("tmp", null, null, null, null);
+        Group tempGroup = new Group("tmp", null, null);
         writeData(tmp, playerSerializer.serialize(pwiPlayerFactory.create(player, tempGroup)));
 
         player.setFoodLevel(20);

@@ -55,8 +55,28 @@ public class GroupManager {
      * @param name The name of the group.
      * @param worlds A list of world names in this group.
      */
-    public void addGroup(String name, List<String> worlds, List<String> useLastWorld, List<String> useLastPosInWorld) {
-        addGroup(name, worlds, useLastWorld, useLastPosInWorld, GameMode.SURVIVAL);
+    public void addGroup(String name, List<String> worlds) {
+        addGroup(name, worlds, null, null, null, GameMode.SURVIVAL);
+    }
+
+    /**
+     * Add a Group to memory with a default GameMode of survival.
+     *
+     * @param name The name of the group.
+     * @param worlds A list of world names in this group.
+     */
+    public void addGroup(String name, List<String> worlds, GameMode gamemode) {
+        addGroup(name, worlds, null, null, null, gamemode);
+    }
+
+    /**
+     * Add a Group to memory with a default GameMode of survival.
+     *
+     * @param name The name of the group.
+     * @param worlds A list of world names in this group.
+     */
+    public void addGroup(String name, List<String> worlds, List<String> useLastWorld, List<String> useLastPosInGroup, List<String> useLastPosInWorld) {
+        addGroup(name, worlds, useLastWorld, useLastPosInGroup,useLastPosInWorld, GameMode.SURVIVAL);
     }
 
     /**
@@ -66,10 +86,10 @@ public class GroupManager {
      * @param worlds A list of world names in this group.
      * @param gamemode The default GameMode for this group.
      */
-    public void addGroup(String name, List<String> worlds, List<String> useLastWorld, List<String> useLastPosInWorld, GameMode gamemode) {
+    public void addGroup(String name, List<String> worlds, List<String> useLastWorld, List<String> useLastPosInGroup, List<String> useLastPosInWorld, GameMode gamemode) {
         PwiLogger.debug("Adding group to memory. Group: " + name + " Worlds: " + worlds.toString() + " Gamemode: " + gamemode.name());
 
-        groups.put(name.toLowerCase(), new Group(name, worlds, useLastWorld, useLastPosInWorld, gamemode, true));
+        groups.put(name.toLowerCase(), new Group(name, worlds, useLastWorld, useLastPosInGroup, useLastPosInWorld, gamemode, true));
     }
 
     /**
@@ -104,7 +124,7 @@ public class GroupManager {
             worlds.add(world);
             worlds.add(world + "_nether");
             worlds.add(world + "_the_end");
-            result = new Group(world, worlds, null, null, GameMode.SURVIVAL, false);
+            result = new Group(world, worlds, GameMode.SURVIVAL, false);
 
             groups.put(world.toLowerCase(), result);
         }
@@ -134,7 +154,8 @@ public class GroupManager {
             }
 
             List<String> lastWorld = config.getStringList(key + ".enforceLastWorld");
-            List<String> lastPos = config.getStringList(key + ".enforceLastPosInWorld");
+            List<String> lastPosInGroup = config.getStringList(key + ".enforceLastPosInGroup");
+            List<String> lastPosInWorld = config.getStringList(key + ".enforceLastPosInWorld");
 
 
             if (settings.getProperty(PwiProperties.MANAGE_GAMEMODES)) {
@@ -143,9 +164,9 @@ public class GroupManager {
                     gameMode = GameMode.valueOf(config.getString("groups." + key + ".default-gamemode").toUpperCase());
                 }
 
-                addGroup(key, worlds, lastWorld, lastPos, gameMode);
+                addGroup(key, worlds, lastWorld, lastPosInGroup, lastPosInWorld, gameMode);
             } else {
-                addGroup(key, worlds, lastWorld, lastPos);
+                addGroup(key, worlds, lastWorld, lastPosInGroup, lastPosInWorld);
             }
 
             setDefaultsFile(key);
@@ -167,6 +188,7 @@ public class GroupManager {
             // Saving gamemode regardless of management; might be saving after convert
             groupsConfigFile.set(groupKey + ".default-gamemode", group.getGameMode().name());
             groupsConfigFile.set(groupKey + ".enforceLastWorld", group.shouldUseLastWorld());
+            groupsConfigFile.set(groupKey + ".enforceLastPosInGroup", group.shouldUseLastPosInGroup());
             groupsConfigFile.set(groupKey + ".enforceLastPosInWorld", group.shouldUseLastPosInWorld());
         }
 
