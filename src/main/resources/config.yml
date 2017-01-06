@@ -83,7 +83,7 @@ disable-bypass: false
 enable-last-location: true
 
 # Keep storing last location even when last-location is disabled.
-# Turn this on if you want to disable the plugin due to some issue, but still want
+# Enable this if you want to disable the plugin due to some issue, but still want
 # to keep track of players last position for when you enable it again.
 #
 # Disable this to keep the old data from when last-location was enabled.
