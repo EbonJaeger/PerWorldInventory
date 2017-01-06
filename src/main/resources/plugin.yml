@@ -8,7 +8,7 @@ commands:
   pwi:
     description: Commands for PerWorldInventory
     aliases: [perworldinventory]
-    
+
 permissions:
   perworldinventory.admin:
     default: op
@@ -23,6 +23,11 @@ permissions:
     children:
       perworldinventory.bypass.gamemode: true
       perworldinventory.bypass.world: true
+  perworldinventory.useLastPosition.*:
+    default: true
+    children:
+      perworldinventory.useLastPosition.worldInGroup: true
+      perworldinventory.useLastPosition.locationInWorld: true
   perworldinventory.convert:
     default: false
   perworldinventory.help:
@@ -37,3 +42,7 @@ permissions:
     default: false
   perworldinventory.bypass.world:
     default: false
+  perworldinventory.useLastPosition.worldInGroup:
+    default: true
+  perworldinventory.useLastPosition.locationInWorld:
+    default: true

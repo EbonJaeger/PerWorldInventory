@@ -27,13 +27,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
- * Tests for {@link InventoryChangeProcess}.
+ * Tests for {@link TeleportProcess}.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class InventoryChangeProcessTest {
+public class TeleportProcessTest {
 
     @InjectMocks
-    private InventoryChangeProcess process;
+    private TeleportProcess process;
 
     @Mock
     private GroupManager groupManager;
@@ -178,9 +178,13 @@ public class InventoryChangeProcessTest {
     }
 
     private Group mockGroup(String name, GameMode gameMode, boolean configured) {
+        return mockGroup(name, null, null, gameMode, configured);
+    }
+
+    private Group mockGroup(String name, List<String> enforceLastWorld, List<String> enforceLastPosInWorld, GameMode gameMode, boolean configured) {
         List<String> worlds = new ArrayList<>();
         worlds.add(name);
 
-        return new Group(name, worlds, gameMode, configured);
+        return new Group(name, worlds, enforceLastWorld, enforceLastPosInWorld, gameMode, configured);
     }
 }

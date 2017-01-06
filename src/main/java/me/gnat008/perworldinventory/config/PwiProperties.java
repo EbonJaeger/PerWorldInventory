@@ -127,6 +127,18 @@ public final class PwiProperties implements SettingsHolder {
     public static final Property<Boolean> DISABLE_BYPASS =
             newProperty("disable-bypass", false);
 
+    @Comment({
+        "Disables bypass regardless of permission",
+        "Defaults to false"})
+    public static final Property<Boolean> ENABLE_LAST_LOCATION =
+            newProperty("enable-last-location", true);
+
+    @Comment({
+        "Disables bypass regardless of permission",
+        "Defaults to false"})
+    public static final Property<Boolean> LAST_LOCATION_OVERRIDE_STORAGE =
+            newProperty("last-location-override-storage", false);
+
     private PwiProperties() {
     }
 

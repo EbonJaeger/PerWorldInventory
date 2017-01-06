@@ -20,6 +20,9 @@ package me.gnat008.perworldinventory.groups;
 import org.bukkit.GameMode;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 
 /**
  * A group of worlds, typically defined in the worlds.yml file.
@@ -31,6 +34,8 @@ public class Group {
     private String name;
     private List<String> worlds;
     private GameMode gameMode;
+    private Set<String> useLastWorld;
+    private Set<String> useLastPosInWorld;
     private boolean configured;
 
     /**
@@ -41,10 +46,7 @@ public class Group {
      * @param gameMode The default {@link GameMode} for this group.
      */
     public Group(String name, List<String> worlds, GameMode gameMode) {
-        this.name = name;
-        this.worlds = worlds;
-        this.gameMode = gameMode;
-        this.configured = false;
+        this(name,worlds,null,null,gameMode,false);
     }
 
     /**
@@ -56,9 +58,39 @@ public class Group {
      * @param configured If the group is defined in the worlds.yml file.
      */
     public Group(String name, List<String> worlds, GameMode gameMode, boolean configured) {
+        this(name,worlds,null,null,gameMode,configured);
+    }
+
+
+    /**
+     * Constructor.
+     *
+     * @param name The name of the group.
+     * @param worlds A list of world names in this group.
+     * @param gameMode The default {@link GameMode} for this group.
+     * @param useLastWorld A {@link List} of teleport causes that should map to the last world in group
+     * @param usePosInWorld A {@link List} of teleport causes that should map to the last position in world
+     */
+    public Group(String name, List<String> worlds, List<String> useLastWorld, List<String> useLastPosInWorld, GameMode gameMode) {
+        this(name,worlds,useLastWorld,useLastPosInWorld,gameMode,false);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param name The name of the group.
+     * @param worlds A list of world names in this group.
+     * @param gameMode The default {@link GameMode} for this group.
+     * @param useLastWorld A {@link List} of teleport causes that should map to the last world in group
+     * @param usePosInWorld A {@link List} of teleport causes that should map to the last position in world
+     * @param configured If the group is defined in the worlds.yml file.
+     */
+    public Group(String name, List<String> worlds, List<String> useLastWorld, List<String> useLastPosInWorld, GameMode gameMode, boolean configured) {
         this.name = name;
         this.worlds = worlds;
         this.gameMode = gameMode;
+        this.useLastWorld = useLastWorld!=null?new HashSet<String> (useLastWorld):new HashSet<String> ();
+        this.useLastPosInWorld = useLastPosInWorld!=null?new HashSet<String> (useLastPosInWorld):new HashSet<String> ();
         this.configured = configured;
     }
 
@@ -70,6 +102,96 @@ public class Group {
     public GameMode getGameMode() {
         return this.gameMode;
     }
+
+    /**
+     * Get if a cause should enforce moving to the last known of world the player was in this group.
+     *
+     * @param cause the string representation of the cause that we check.
+     *
+     * @return True if enforce last world, false if not.
+     */
+    public boolean shouldUseLastWorld(String cause) {
+        return this.useLastWorld.contains(cause);
+    }
+
+    /**
+     * Get if a cause should enforce moving to the last known position in world the player was in this group.
+     *
+     * @param cause the string representation of the cause that we check.
+     *
+     * @return True if enforce last position, false if not.
+     */
+    public boolean shouldUseLastPosInWorld(String cause) {
+        return this.useLastPosInWorld.contains(cause);
+    }
+
+    /**
+     * Get if a cause should enforce moving to the last known of world the player was in this group.
+     *
+     * @return A copy of the internal configuration map
+     */
+    public List<String> shouldUseLastWorld() {
+        return new ArrayList<String>(this.useLastWorld);
+    }
+
+    /**
+     * Get if a cause should enforce moving to the last known position in world the player was in this group.
+     *
+     * @return A copy of the internal configuration map
+     */
+    public List<String> shouldUseLastPosInWorld() {
+        return new ArrayList<String>(this.useLastPosInWorld);
+    }
+
+    /**
+     * Set if moving to last known world should be enforced in this group.
+     * For specific cause. Atomic update
+     *
+     * @param cause the string representation of the cause that we check.
+     * @param value should we enforce world?
+     */
+    public void setUseLastWorld(String cause, boolean value) {
+        if(value)
+            this.useLastWorld.add(cause);
+        else
+            this.useLastWorld.remove(cause);
+    }
+
+    /**
+     * Set if moving to last known position should be enforced in worlds in this group.
+     * For specific cause. Atomic update
+     *
+     * @param cause the string representation of the cause that we check.
+     * @param value should we enforce position?
+     */
+    public void setUseLastPosInWorld(String cause, boolean value) {
+        if(value)
+            this.useLastPosInWorld.add(cause);
+        else
+            this.useLastPosInWorld.remove(cause);
+    }
+
+    /**
+     * Set if moving to last known world should be enforced in this group.
+     * Will overwrtite all previous causes.
+     *
+     * @param list A map of all permissions to use. This will overwri
+     */
+    public void setUseLastWorld (List<String> list) {
+        this.useLastWorld = new HashSet<String>(list);
+    }
+
+    /**
+     * Set if moving to last known position should be enforced in worlds in this group.
+     * Will overwrtite all previous causes.
+     *
+     * @param cause the string representation of the caus that we check.
+     * @param list should we enforce position?
+     */
+    public void setUseLastPosInWorld (List<String> list) {
+        this.useLastPosInWorld = new HashSet<String>(list);
+    }
+
 
     /**
      * Get a list of the names of all the worlds in this group.

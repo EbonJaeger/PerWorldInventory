@@ -6,7 +6,7 @@ import me.gnat008.perworldinventory.data.DataWriter;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.listeners.player.PlayerSpawnLocationListener;
-import me.gnat008.perworldinventory.process.InventoryChangeProcess;
+import me.gnat008.perworldinventory.process.TeleportProcess;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -43,7 +43,7 @@ public class PlayerSpawnLocationListenerTest {
     private GroupManager groupManager;
 
     @Mock
-    private InventoryChangeProcess process;
+    private TeleportProcess process;
 
     @Mock
     private Settings settings;

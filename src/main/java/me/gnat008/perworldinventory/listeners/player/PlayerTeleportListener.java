@@ -36,6 +36,6 @@ public class PlayerTeleportListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerChangeWorld(PlayerTeleportEvent event) {
-        process.preTeleportChange(event);
+        process.preProcessTeleport(event);
     }
 }

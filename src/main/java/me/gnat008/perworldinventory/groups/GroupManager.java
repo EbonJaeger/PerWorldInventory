@@ -55,8 +55,8 @@ public class GroupManager {
      * @param name The name of the group.
      * @param worlds A list of world names in this group.
      */
-    public void addGroup(String name, List<String> worlds) {
-        addGroup(name, worlds, GameMode.SURVIVAL);
+    public void addGroup(String name, List<String> worlds, List<String> useLastWorld, List<String> useLastPosInWorld) {
+        addGroup(name, worlds, useLastWorld, useLastPosInWorld, GameMode.SURVIVAL);
     }
 
     /**
@@ -66,10 +66,10 @@ public class GroupManager {
      * @param worlds A list of world names in this group.
      * @param gamemode The default GameMode for this group.
      */
-    public void addGroup(String name, List<String> worlds, GameMode gamemode) {
+    public void addGroup(String name, List<String> worlds, List<String> useLastWorld, List<String> useLastPosInWorld, GameMode gamemode) {
         PwiLogger.debug("Adding group to memory. Group: " + name + " Worlds: " + worlds.toString() + " Gamemode: " + gamemode.name());
 
-        groups.put(name.toLowerCase(), new Group(name, worlds, gamemode, true));
+        groups.put(name.toLowerCase(), new Group(name, worlds, useLastWorld, useLastPosInWorld, gamemode, true));
     }
 
     /**
@@ -104,7 +104,7 @@ public class GroupManager {
             worlds.add(world);
             worlds.add(world + "_nether");
             worlds.add(world + "_the_end");
-            result = new Group(world, worlds, GameMode.SURVIVAL, false);
+            result = new Group(world, worlds, null, null, GameMode.SURVIVAL, false);
 
             groups.put(world.toLowerCase(), result);
         }
@@ -133,15 +133,19 @@ public class GroupManager {
                 }
             }
 
+            List<String> lastWorld = config.getStringList(key + ".enforceLastWorld");
+            List<String> lastPos = config.getStringList(key + ".enforceLastPosInWorld");
+
+
             if (settings.getProperty(PwiProperties.MANAGE_GAMEMODES)) {
                 GameMode gameMode = GameMode.SURVIVAL;
                 if (config.getString("groups." + key + ".default-gamemode") != null) {
                     gameMode = GameMode.valueOf(config.getString("groups." + key + ".default-gamemode").toUpperCase());
                 }
 
-                addGroup(key, worlds, gameMode);
+                addGroup(key, worlds, lastWorld, lastPos, gameMode);
             } else {
-                addGroup(key, worlds);
+                addGroup(key, worlds, lastWorld, lastPos);
             }
 
             setDefaultsFile(key);
@@ -162,6 +166,8 @@ public class GroupManager {
             groupsConfigFile.set(groupKey + ".worlds", group.getWorlds());
             // Saving gamemode regardless of management; might be saving after convert
             groupsConfigFile.set(groupKey + ".default-gamemode", group.getGameMode().name());
+            groupsConfigFile.set(groupKey + ".enforceLastWorld", group.shouldUseLastWorld());
+            groupsConfigFile.set(groupKey + ".enforceLastPosInWorld", group.shouldUseLastPosInWorld());
         }
 
         try {

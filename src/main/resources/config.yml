@@ -75,3 +75,18 @@ debug-mode: false
 # Disables bypass regardless of permission
 # Defaults to false
 disable-bypass: false
+
+# Config Version 5 additions below this line #
+
+# Enables last location checking and storing.
+# Defalults to true
+enable-last-location: true
+
+# Keep storing last location even when last-location is disabled.
+# Turn this on if you want to disable the plugin due to some issue, but still want
+# to keep track of players last position for when you enable it again.
+#
+# Disable this to keep the old data from when last-location was enabled.
+#
+# Defaults to false
+last-location-override-storage: false

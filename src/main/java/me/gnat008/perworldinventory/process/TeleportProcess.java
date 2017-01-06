@@ -11,6 +11,7 @@ import me.gnat008.perworldinventory.permission.PlayerPermission;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.Location;
+import org.bukkit.Bukkit;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
 import javax.inject.Inject;
@@ -40,19 +41,112 @@ public class TeleportProcess {
      *
      * @param event The called {@link PlayerTeleportEvent}.
      */
-    public void preTeleportChange(PlayerTeleportEvent event) {
+    public void preProcessTeleport(PlayerTeleportEvent event) {
         Player player = event.getPlayer();
         Location from = event.getFrom();
         Location to = event.getTo();
 
-        PwiLogger.debug(String.format("Player '%s' is teleporting from '%s' to '%s'",
+        if(event.isCancelled()) {
+            PwiLogger.debug(String.format("Player '%s' tried to teleport from '%s' to '%s', but the event was previously cancelled, dismissing handler",
+              player.getName(),
+              from,
+              to));
+            return;
+        }
+
+        if(from == null || from.getWorld() == null) {
+            PwiLogger.warning(String.format("Player '%s' tried to teleport from '%s' to '%s', but got null on origin. Cancelling teleport.",
+              player.getName(),
+              from,
+              to));
+            event.setCancelled(true);
+            return;
+        }
+
+        if(to == null || to.getWorld() == null) {
+            PwiLogger.warning(String.format("Player '%s' tried to teleport from '%s' to '%s', but got null on origin. Cancelling teleport.",
+              player.getName(),
+              from,
+              to));
+            event.setCancelled(true);
+            return;
+        }
+
+        if(from.getWorld().equals(to.getWorld())) {
+            PwiLogger.debug(String.format("Player '%s' is teleporting from world '%s' to world '%s', in-world teleport, dismissing handler.",
+              player.getName(),
+              from.getWorld().getName(),
+              to.getWorld().getName()));
+            return;
+        }
+
+        PwiLogger.debug(String.format("Player '%s' is teleporting from world '%s' to world '%s'",
           player.getName(),
-          to,
-          from));
+          from.getWorld().getName(),
+          to.getWorld().getName()));
 
-        playerManager.addPlayer(player, groupManager.getGroupFromWorld(from.getWorld().getName()));
+        processTeleport(player, event, from, to);
 
-        //processWorldChange(player, groupFrom, groupTo);
+        if(event.isCancelled()) {
+            PwiLogger.debug(String.format("Player '%s' was switching worlds, but the teleport was canceled during the teleport process.",
+              player.getName()));
+            event.setCancelled(true);
+            return;
+        }
+
+        if(to.getWorld().equals(from.getWorld())) {
+            PwiLogger.debug(String.format("Player '%s' was switching worlds, but somehow the teleport process ended up teleporting the player back to '%s'. Cancelling teleport.",
+              player.getName(),
+              from.getWorld().getName()));
+            event.setCancelled(true);
+            return;
+        }
+
+        String worldFrom = from.getWorld().getName();
+        String worldTo = to.getWorld().getName();
+        Group groupFrom = groupManager.getGroupFromWorld(worldFrom);
+        Group groupTo = groupManager.getGroupFromWorld(worldTo);
+
+        playerManager.addPlayer(player, groupFrom);
+
+        processWorldChange(player, groupFrom, groupTo);
+    }
+
+    /**
+     * Process a player teleporting to another world. This is where
+     * last-known-location redirecting happens.
+     * both in-world redirect and to-other-world-in-group redirect
+     *
+     * @param player The {@link Player} to process.
+     * @param event  The {@link PlayerTeleportEvent} that started the teleport
+     * @param from   The {@link Location} they're coming from. SIDEFFECT: Might be mutated
+     * @param to     The {@link Location} they're going to. SIDEFFECT: Might be mutated
+     */
+    protected void processTeleport(Player player, PlayerTeleportEvent event, Location from, Location to) {
+        Group groupFrom = groupManager.getGroupFromWorld(from.getWorld().getName());
+        Group groupTo = groupManager.getGroupFromWorld(to.getWorld().getName());
+        /*if(!settings.getProperty(PwiProperties.DISABLE_LAST_LOCATION) && permissionManager.hasPermission(player, PlayerPermission.BYPASS_WORLDS)) {
+
+        }*/
+
+    }
+
+    /**
+     * Process the situation where a player logs in to a different world than the one they
+     * logged out of.
+     *
+     * @param player The player to process.
+     * @param from The world they logged out from.
+     * @param to The world they logged in to.
+     */
+    public void processWorldChangeOnSpawn(Player player, Group from, Group to) {
+        if (!from.equals(to)) {
+            PwiLogger.debug("Logout world groups are different! Saving data for player '" + player.getName() + "' for group '" + from.getName() + "'");
+
+            playerManager.addPlayer(player, from);
+
+            processWorldChange(player, from, to);
+        }
     }
 
     /**

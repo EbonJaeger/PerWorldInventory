@@ -23,7 +23,7 @@ import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.DataWriter;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
-import me.gnat008.perworldinventory.process.InventoryChangeProcess;
+import me.gnat008.perworldinventory.process.TeleportProcess;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -37,11 +37,11 @@ public class PlayerSpawnLocationListener implements Listener {
 
     private DataWriter dataWriter;
     private GroupManager groupManager;
-    private InventoryChangeProcess process;
+    private TeleportProcess process;
     private Settings settings;
 
     @Inject
-    PlayerSpawnLocationListener(DataWriter dataWriter, GroupManager groupManager, InventoryChangeProcess process,
+    PlayerSpawnLocationListener(DataWriter dataWriter, GroupManager groupManager, TeleportProcess process,
                                 Settings settings) {
         this.dataWriter = dataWriter;
         this.groupManager = groupManager;
