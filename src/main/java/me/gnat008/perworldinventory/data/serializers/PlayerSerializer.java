@@ -65,8 +65,6 @@ public class PlayerSerializer {
         root.add("ender-chest", inventorySerializer.serializeInventory(player.getEnderChest()));
         root.add("inventory", inventorySerializer.serializePlayerInventory(player));
         root.add("stats", StatSerializer.serialize(player));
-        root.add("last-world-in-group", LastWorldInGroupSerializer.serialize(player.getLastWorldInGroup()));
-        root.add("last-location-in-world", LastLocationInWorldSerializer.serialize(player.getLastLocationInWorld()));
 
         if (settings.getProperty(PwiProperties.USE_ECONOMY))
             root.add("economy", EconomySerializer.serialize(player, plugin.getEconomy()));

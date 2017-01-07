@@ -27,12 +27,12 @@ import java.util.HashMap;
 
 public class LastLocationInWorldSerializer {
 
-    private LastLocationInWorldSerializer() {}
+    public LastLocationInWorldSerializer() {}
 
     /**
-     * Serialize a Location into a JsonObject.
+     * Serailze the last location of a player in worlds into a JsonObject.
      *
-     * @param location The {@link org.bukkit.Location}
+     * @param locationInWorld The map of the players locaitions in world.
      * @return The JsonObject
      */
     public static JsonObject serialize(Map<String, Location> locationInWorld) {
@@ -44,10 +44,21 @@ public class LastLocationInWorldSerializer {
     }
 
     /**
-     * Deserialize a location from a given JsonObject.
+     * Serailze the last location of a player in worlds into a json-string.
      *
-     * @param loc The JsonObject to deserialize
-     * @return The Location
+     * @param locationInWorld The map of the players locaitions in world.
+     * @return The string representation of the json object.
+     */
+    public static String serializeAsString(Map<String, Location> locationInWorld) {
+        Gson gson = new Gson();
+        return gson.toJson(serialize(locationInWorld));
+    }
+
+    /**
+     * Deserialize the last location of a player in worlds from a given JsonObject.
+     *
+     * @param locationInWorld The JsonObject to deserialize
+     * @return A map representing the last location of the player in worlds.
      */
     public static Map<String, Location> deserialize(JsonObject locationInWorld) {
         Map<String, Location> map = new HashMap<String, Location>();

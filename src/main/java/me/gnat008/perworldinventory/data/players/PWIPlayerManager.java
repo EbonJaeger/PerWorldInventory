@@ -203,6 +203,8 @@ public class PWIPlayerManager {
                 pwiPlayer,
                 true);
         dataWriter.saveLogoutData(pwiPlayer);
+        dataWriter.saveLastLocationInWorld(player);
+        dataWriter.saveLastWorldInGroup(player);
         removePlayer(player);
     }
 

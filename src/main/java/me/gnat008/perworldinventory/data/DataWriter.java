@@ -22,7 +22,8 @@ import me.gnat008.perworldinventory.groups.Group;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-
+import java.util.Map;
+import java.util.UUID;
 public interface DataWriter {
 
     /**
@@ -67,4 +68,50 @@ public interface DataWriter {
      * @return The location of the player when they last logged out or null
      */
     Location getLogoutData(Player player);
+
+    /**
+     * Get the last location in world for specific player from the database.
+     *
+     * @param playerUUID The player unique id to get the last location in world for
+     * @return The locations mapped to worlds.
+     */
+    Map<String, Location> getLastLocationInWorld(UUID playerUUID);
+
+    /**
+     * Saves a players last location in world to the database.
+     *
+     * @param playerUUID The player unique id to save the last location in world for
+     * @param map The data to save
+     */
+    void saveLastLocationInWorld(UUID playerUUID, Map<String, Location> map);
+
+    /**
+     * Saves a players last location in world to the database.
+     *
+     * @param player The player to save the last location in world for
+     */
+    void saveLastLocationInWorld(Player player);
+
+    /**
+     * Get the last world in group for specific player from the database.
+     *
+     * @param playerUUID The player unique id to get the last world in group for
+     * @return The locations mapped to worlds.
+     */
+    Map<String, String> getLastWorldInGroup(UUID playerUUID);
+
+    /**
+     * Saves a players last world in groups to the database.
+     *
+     * @param playerUUID The player unique id to save the last world in group for
+     * @param map The data to save
+     */
+    void saveLastWorldInGroup(UUID playerUUID, Map<String, String> map);
+
+    /**
+     * Saves a players last world in groups to the database.
+     *
+     * @param Player The player to save last world in group
+     */
+    void saveLastWorldInGroup(Player player);
 }

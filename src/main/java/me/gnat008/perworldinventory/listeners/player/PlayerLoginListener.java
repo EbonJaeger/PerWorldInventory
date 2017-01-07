@@ -19,34 +19,27 @@
 
 package me.gnat008.perworldinventory.listeners.player;
 
-import me.gnat008.perworldinventory.process.PlayerQuitProcess;
+import me.gnat008.perworldinventory.process.PlayerLoginProcess;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 
 import javax.inject.Inject;
 
-public class PlayerQuitListener implements Listener {
+public class PlayerLoginListener implements Listener {
 
-    private PlayerQuitProcess process;
+    private PlayerLoginProcess process;
 
     @Inject
-    PlayerQuitListener(PlayerQuitProcess process) {
+    PlayerLoginListener(PlayerLoginProcess process) {
         this.process = process;
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerQuit(PlayerQuitEvent event) {
+    public void onPlayerLogin(PlayerLoginEvent event) {
         Player player = event.getPlayer();
-        process.processPlayerLeave(player);
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerKick(PlayerKickEvent event) {
-        Player player = event.getPlayer();
-        process.processPlayerLeave(player);
+        process.processPlayerLogin(player);
     }
 }

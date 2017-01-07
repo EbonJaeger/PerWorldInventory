@@ -27,12 +27,17 @@ import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.data.players.PWIPlayerFactory;
 import me.gnat008.perworldinventory.data.serializers.LocationSerializer;
 import me.gnat008.perworldinventory.data.serializers.PlayerSerializer;
+import me.gnat008.perworldinventory.data.serializers.LastLocationInWorldSerializer;
+import me.gnat008.perworldinventory.data.serializers.LastWorldInGroupSerializer;
+import me.gnat008.perworldinventory.data.metadata.PWIPlayerLastLocationInWorldData;
+import me.gnat008.perworldinventory.data.metadata.PWIPlayerLastWorldInGroupData;
 import me.gnat008.perworldinventory.groups.Group;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.metadata.MetadataValue;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -40,6 +45,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.UUID;
+import java.util.Map;
+import java.util.List;
 
 public class FileWriter implements DataWriter {
 
@@ -48,35 +55,23 @@ public class FileWriter implements DataWriter {
     private final PerWorldInventory plugin;
     private final PlayerSerializer playerSerializer;
     private final PWIPlayerFactory pwiPlayerFactory;
+    private final LastLocationInWorldSerializer lastLocationInWorldSerializer;
+    private final LastWorldInGroupSerializer lastWorldInGroupSerializer;
 
     @Inject
     FileWriter(@DataFolder File dataFolder, PerWorldInventory plugin, PlayerSerializer playerSerializer,
-               PWIPlayerFactory pwiPlayerFactory) {
+               PWIPlayerFactory pwiPlayerFactory, LastLocationInWorldSerializer lastLocationInWorldSerializer,
+               LastWorldInGroupSerializer lastWorldInGroupSerializer) {
         this.FILE_PATH = new File(dataFolder, "data");
         this.plugin = plugin;
         this.playerSerializer = playerSerializer;
         this.pwiPlayerFactory = pwiPlayerFactory;
+        this.lastLocationInWorldSerializer = lastLocationInWorldSerializer;
+        this.lastWorldInGroupSerializer = lastWorldInGroupSerializer;
     }
 
     @Override
     public void saveLogoutData(PWIPlayer player) {
-        File file = new File(getUserFolder(player.getUuid()), "last-logout.json");
-
-        try {
-            if (!file.getParentFile().exists())
-                file.getParentFile().mkdir();
-            if (!file.exists())
-                file.createNewFile();
-
-            String data = LocationSerializer.serializeAsString(player.getLocation());
-            writeData(file, data);
-        } catch (IOException ex) {
-            PwiLogger.warning("Error creating file '" + file.getPath() + "':", ex);
-        }
-    }
-
-    @Override
-    public void saveGlobalData(PWIPlayer player) {
         File file = new File(getUserFolder(player.getUuid()), "last-logout.json");
 
         try {
@@ -285,5 +280,143 @@ public class FileWriter implements DataWriter {
         getFromDatabase(tempGroup, GameMode.SURVIVAL, player);
         tmp.delete();
         player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY +  "Defaults for '" + group.getName() + "' set!");
+    }
+
+    @Override
+    public Map<String, Location> getLastLocationInWorld(UUID playerUUID){
+        File dir = new File(getUserFolder(playerUUID),"globals");
+        File file = new File(dir, "lastLocationInWorld.json");
+        try (JsonReader reader = new JsonReader(new FileReader(file))) {
+            JsonParser parser = new JsonParser();
+            JsonObject data = parser.parse(reader).getAsJsonObject();
+            return lastLocationInWorldSerializer.deserialize(data);
+        } catch (FileNotFoundException ex) {
+            return null;
+        } catch (IOException exIO) {
+            String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
+
+            PwiLogger.severe(String.format("Unable to read last-location-in-world data for '%s' reason:",
+            playerName!=null?playerName:"UNKNOWN_PLAYER"
+            ), exIO);
+            return null;
+        } catch (Exception ex) {
+            String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
+
+            PwiLogger.severe(String.format("Werid exception while trying to read last-location-in-world data for player '%s':",
+            playerName!=null?playerName:"UNKNOWN_PLAYER"
+            ), ex);
+            return null;
+        }
+    }
+
+    @Override
+    public void saveLastLocationInWorld(UUID playerUUID, Map<String, Location> map){
+        File dir = new File(getUserFolder(playerUUID),"globals");
+        File file = new File(dir, "lastLocationInWorld.json");
+        try {
+            file.getParentFile().mkdirs();
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            writeData(file, lastLocationInWorldSerializer.serializeAsString(map));
+        } catch (IOException exIO) {
+            String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
+
+            PwiLogger.severe(String.format("Unable to save last-world-in-group data for '%s' reason:",
+            playerName!=null?playerName:"UNKNOWN_PLAYER"
+            ), exIO);
+        } catch (Exception ex) {
+            String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
+
+            PwiLogger.severe(String.format("Werid exception while trying to save last-world-in-group data for player '%s':",
+            playerName!=null?playerName:"UNKNOWN_PLAYER"
+            ), ex);
+        }
+    }
+
+    public void saveLastLocationInWorld(Player player) {
+        List<MetadataValue> lastLocMetadataValues = player.getMetadata("lastLocationInWorld");
+        PWIPlayerLastLocationInWorldData lastLocData = null;
+        for(MetadataValue metadata : lastLocMetadataValues) {
+            if(metadata.getOwningPlugin().equals(plugin)) {
+                lastLocData = (PWIPlayerLastLocationInWorldData) metadata;
+                break;
+            }
+        }
+        if(lastLocData != null) {
+            saveLastLocationInWorld(player.getUniqueId(), lastLocData.value());
+        } else {
+            PwiLogger.severe(String.format("Player '%s' did not have any metadata for last location in world.",
+            player.getName()));
+        }
+    }
+
+    @Override
+    public Map<String, String> getLastWorldInGroup(UUID playerUUID) {
+        File dir = new File(getUserFolder(playerUUID),"globals");
+        File file = new File(dir, "lastWorldInGroup.json");
+        try (JsonReader reader = new JsonReader(new FileReader(file))) {
+            JsonParser parser = new JsonParser();
+            JsonObject data = parser.parse(reader).getAsJsonObject();
+            return lastWorldInGroupSerializer.deserialize(data);
+        } catch (FileNotFoundException ex) {
+            return null;
+        } catch (IOException exIO) {
+            String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
+
+            PwiLogger.severe(String.format("Unable to read last-world-in-group data for '%s' reason:",
+            playerName!=null?playerName:"UNKNOWN_PLAYER"
+            ), exIO);
+            return null;
+        } catch (Exception ex) {
+            String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
+
+            PwiLogger.severe(String.format("Werid exception while trying to read last-world-in-group data for player '%s':",
+            playerName!=null?playerName:"UNKNOWN_PLAYER"
+            ), ex);
+            return null;
+        }
+    }
+
+    @Override
+    public void saveLastWorldInGroup(UUID playerUUID, Map<String, String> map){
+        File dir = new File(getUserFolder(playerUUID),"globals");
+        File file = new File(dir, "lastWorldInGroup.json");
+        try {
+            file.getParentFile().mkdirs();
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            writeData(file, lastWorldInGroupSerializer.serializeAsString(map));
+        } catch (IOException exIO) {
+            String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
+
+            PwiLogger.severe(String.format("Unable to save last-group-in-world data for '%s' reason:",
+            playerName!=null?playerName:"UNKNOWN_PLAYER"
+            ), exIO);
+        } catch (Exception ex) {
+            String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
+
+            PwiLogger.severe(String.format("Werid exception while trying to save last-group-in-world data for player '%s':",
+            playerName!=null?playerName:"UNKNOWN_PLAYER"
+            ), ex);
+        }
+    }
+
+    public void saveLastWorldInGroup(Player player) {
+        List<MetadataValue> lastWorldMetadataValues = player.getMetadata("lastWorldInGroup");
+        PWIPlayerLastWorldInGroupData lastWorldData = null;
+        for(MetadataValue metadata : lastWorldMetadataValues) {
+            if(metadata.getOwningPlugin().equals(plugin)) {
+                lastWorldData = (PWIPlayerLastWorldInGroupData) metadata;
+                break;
+            }
+        }
+        if(lastWorldData != null) {
+            saveLastWorldInGroup(player.getUniqueId(), lastWorldData.value());
+        } else {
+            PwiLogger.severe(String.format("Player '%s' did not have any metadata for last world in group.",
+            player.getName()));
+        }
     }
 }
