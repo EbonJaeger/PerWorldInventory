@@ -68,7 +68,24 @@ public class FileWriter implements DataWriter {
             if (!file.exists())
                 file.createNewFile();
 
-            String data = LocationSerializer.serialize(player.getLocation());
+            String data = LocationSerializer.serializeAsString(player.getLocation());
+            writeData(file, data);
+        } catch (IOException ex) {
+            PwiLogger.warning("Error creating file '" + file.getPath() + "':", ex);
+        }
+    }
+
+    @Override
+    public void saveGlobalData(PWIPlayer player) {
+        File file = new File(getUserFolder(player.getUuid()), "last-logout.json");
+
+        try {
+            if (!file.getParentFile().exists())
+                file.getParentFile().mkdir();
+            if (!file.exists())
+                file.createNewFile();
+
+            String data = LocationSerializer.serializeAsString(player.getLocation());
             writeData(file, data);
         } catch (IOException ex) {
             PwiLogger.warning("Error creating file '" + file.getPath() + "':", ex);
