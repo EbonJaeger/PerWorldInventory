@@ -34,13 +34,13 @@
 # The default-world is used if a player is supposed to be redirected to the last
 # world in a group, but the player has never been in that group.
 #
-# The enforceLastWorld is a list of teleport causes that should enforce
+# The enforce-last-world is a list of teleport causes that should enforce
 # a change in destination world.
 #
-# The enforceLastPosInGroup is a list of teleport causes that should enforce
+# The enforce-last-pos-in-group is a list of teleport causes that should enforce
 # a change in destination position when comming from another group
 #
-# the enforceLastPosInWorld is a list of teleport causes that should enforce a
+# the enforce-last-pos-in-world is a list of teleport causes that should enforce a
 # change in destinadion position when traveling between worlds WITHIN a group.
 # WARNING: Using this on portals will effectively disable the ability to use
 # portal to travel if you have grouped your worlds in survival.
@@ -63,12 +63,16 @@ groups:
     - world_nether
     - world_the_end
     default-gamemode: SURVIVAL
-    default-world: world
-    enforceLastWorld:
+    default-world: world_creative
+    enforce-last-world-in-group:
     - COMMAND
     - PLUGIN
     - UNKNOWN
-    enforceLastPosInWorld:
+    enforce-last-pos-in-world:
+    - COMMAND
+    - PLUGIN
+    - UNKNOWN
+    enforce-last-pos-in-group:
     - COMMAND
     - PLUGIN
     - UNKNOWN

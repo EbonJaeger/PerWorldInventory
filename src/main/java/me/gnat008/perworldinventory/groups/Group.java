@@ -19,8 +19,6 @@ package me.gnat008.perworldinventory.groups;
 
 import org.bukkit.GameMode;
 
-import me.gnat008.perworldinventory.PwiLogger;
-
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
@@ -138,7 +136,6 @@ public class Group {
      * @return True if enforce last position, false if not.
      */
     public boolean shouldUseLastPosInGroup(String cause) {
-        PwiLogger.debug("IN_GROUP_CLASS:: "+this.useLastPosInGroup.size());
         return this.useLastPosInGroup.contains(cause);
     }
 
