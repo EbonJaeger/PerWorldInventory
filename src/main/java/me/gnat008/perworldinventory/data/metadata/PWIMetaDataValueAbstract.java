@@ -1,7 +1,6 @@
 package me.gnat008.perworldinventory.data.metadata;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.PwiLogger;
 
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.util.NumberConversions;
@@ -18,7 +17,6 @@ public abstract class PWIMetaDataValueAbstract<T> implements MetadataValue {
     public abstract void init(Object... args);
 
     public PerWorldInventory getOwningPlugin() {
-        PwiLogger.debug("AAAAAH: "+owningPlugin);
         return this.owningPlugin;
     }
 
