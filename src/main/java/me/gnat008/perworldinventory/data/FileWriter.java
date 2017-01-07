@@ -29,6 +29,7 @@ import me.gnat008.perworldinventory.data.serializers.LocationSerializer;
 import me.gnat008.perworldinventory.data.serializers.PlayerSerializer;
 import me.gnat008.perworldinventory.data.serializers.LastLocationInWorldSerializer;
 import me.gnat008.perworldinventory.data.serializers.LastWorldInGroupSerializer;
+import me.gnat008.perworldinventory.data.metadata.PWIMetaDataManager;
 import me.gnat008.perworldinventory.data.metadata.PWIPlayerLastLocationInWorldData;
 import me.gnat008.perworldinventory.data.metadata.PWIPlayerLastWorldInGroupData;
 import me.gnat008.perworldinventory.groups.Group;
@@ -57,17 +58,19 @@ public class FileWriter implements DataWriter {
     private final PWIPlayerFactory pwiPlayerFactory;
     private final LastLocationInWorldSerializer lastLocationInWorldSerializer;
     private final LastWorldInGroupSerializer lastWorldInGroupSerializer;
+    private final PWIMetaDataManager metaDataManager;
 
     @Inject
     FileWriter(@DataFolder File dataFolder, PerWorldInventory plugin, PlayerSerializer playerSerializer,
                PWIPlayerFactory pwiPlayerFactory, LastLocationInWorldSerializer lastLocationInWorldSerializer,
-               LastWorldInGroupSerializer lastWorldInGroupSerializer) {
+               LastWorldInGroupSerializer lastWorldInGroupSerializer, PWIMetaDataManager metaDataManager) {
         this.FILE_PATH = new File(dataFolder, "data");
         this.plugin = plugin;
         this.playerSerializer = playerSerializer;
         this.pwiPlayerFactory = pwiPlayerFactory;
         this.lastLocationInWorldSerializer = lastLocationInWorldSerializer;
         this.lastWorldInGroupSerializer = lastWorldInGroupSerializer;
+        this.metaDataManager = metaDataManager;
     }
 
     @Override
@@ -335,16 +338,9 @@ public class FileWriter implements DataWriter {
     }
 
     public void saveLastLocationInWorld(Player player) {
-        List<MetadataValue> lastLocMetadataValues = player.getMetadata("lastLocationInWorld");
-        PWIPlayerLastLocationInWorldData lastLocData = null;
-        for(MetadataValue metadata : lastLocMetadataValues) {
-            if(metadata.getOwningPlugin().equals(plugin)) {
-                lastLocData = (PWIPlayerLastLocationInWorldData) metadata;
-                break;
-            }
-        }
+        Map<String, Location> lastLocData = metaDataManager.<Map<String, Location>>getFromPlayer(player,"lastLocationInWorld");;
         if(lastLocData != null) {
-            saveLastLocationInWorld(player.getUniqueId(), lastLocData.value());
+            saveLastLocationInWorld(player.getUniqueId(), lastLocData);
         } else {
             PwiLogger.severe(String.format("Player '%s' did not have any metadata for last location in world.",
             player.getName()));
@@ -404,16 +400,9 @@ public class FileWriter implements DataWriter {
     }
 
     public void saveLastWorldInGroup(Player player) {
-        List<MetadataValue> lastWorldMetadataValues = player.getMetadata("lastWorldInGroup");
-        PWIPlayerLastWorldInGroupData lastWorldData = null;
-        for(MetadataValue metadata : lastWorldMetadataValues) {
-            if(metadata.getOwningPlugin().equals(plugin)) {
-                lastWorldData = (PWIPlayerLastWorldInGroupData) metadata;
-                break;
-            }
-        }
+        Map<String, String> lastWorldData = metaDataManager.<Map<String, String>>getFromPlayer(player,"lastWorldInGroup");
         if(lastWorldData != null) {
-            saveLastWorldInGroup(player.getUniqueId(), lastWorldData.value());
+            saveLastWorldInGroup(player.getUniqueId(), lastWorldData);
         } else {
             PwiLogger.severe(String.format("Player '%s' did not have any metadata for last world in group.",
             player.getName()));

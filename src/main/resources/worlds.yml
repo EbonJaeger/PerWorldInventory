@@ -7,6 +7,7 @@
 #     - world_nether
 #     - world_the_end
 #     default-gamemode: SURVIVAL
+#     default-world: world
 #     enforceLastWorld:
 #     - COMMAND
 #     - PLUGIN
@@ -23,11 +24,15 @@
 #     worlds:
 #     - creative
 #     default-gamemode: CREATIVE
+#     default-world: creative
 #
 # 'default' and 'creative' are the names of the groups
 # worlds: is a list of all worlds in the group
 # If you have 'manage-gamemodes' set to true in the main config, the server
 # will use the 'default-gamemode' here to know what gamemode to put users in
+#
+# The default-world is used if a player is supposed to be redirected to the last
+# world in a group, but the player has never been in that group.
 #
 # The enforceLastWorld is a list of teleport causes that should enforce
 # a change in destination world.
@@ -58,6 +63,7 @@ groups:
     - world_nether
     - world_the_end
     default-gamemode: SURVIVAL
+    default-world: world
     enforceLastWorld:
     - COMMAND
     - PLUGIN
