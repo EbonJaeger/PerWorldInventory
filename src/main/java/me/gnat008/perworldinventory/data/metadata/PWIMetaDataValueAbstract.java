@@ -1,17 +1,15 @@
 package me.gnat008.perworldinventory.data.metadata;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
-
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.util.NumberConversions;
 
-import javax.inject.Inject;
-
 public abstract class PWIMetaDataValueAbstract<T> implements MetadataValue {
-    protected PerWorldInventory owningPlugin;
+
+    private final PerWorldInventory owningPlugin;
 
     PWIMetaDataValueAbstract(PerWorldInventory plugin) {
-        this.owningPlugin=plugin;
+        this.owningPlugin = plugin;
     }
 
     public abstract void init(Object... args);

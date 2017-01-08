@@ -30,23 +30,23 @@ public class LastLocationInWorldSerializer {
     public LastLocationInWorldSerializer() {}
 
     /**
-     * Serailze the last location of a player in worlds into a JsonObject.
+     * Serialize the last location of a player in worlds into a JsonObject.
      *
-     * @param locationInWorld The map of the players locaitions in world.
+     * @param locationInWorld The map of the players locations in world.
      * @return The JsonObject
      */
     public static JsonObject serialize(Map<String, Location> locationInWorld) {
         JsonObject root = new JsonObject();
-        for(Map.Entry<String, Location> entry : locationInWorld.entrySet()) {
+        for (Map.Entry<String, Location> entry : locationInWorld.entrySet()) {
             root.add(entry.getKey(), LocationSerializer.serialize(entry.getValue()));
         }
         return root;
     }
 
     /**
-     * Serailze the last location of a player in worlds into a json-string.
+     * Serialize the last location of a player in worlds into a json-string.
      *
-     * @param locationInWorld The map of the players locaitions in world.
+     * @param locationInWorld The map of the players locations in world.
      * @return The string representation of the json object.
      */
     public static String serializeAsString(Map<String, Location> locationInWorld) {
@@ -62,7 +62,7 @@ public class LastLocationInWorldSerializer {
      */
     public static Map<String, Location> deserialize(JsonObject locationInWorld) {
         Map<String, Location> map = new HashMap<String, Location>();
-        for(Map.Entry<String, JsonElement> entry : locationInWorld.entrySet()) {
+        for (Map.Entry<String, JsonElement> entry : locationInWorld.entrySet()) {
             map.put(entry.getKey(), LocationSerializer.deserialize(entry.getValue().getAsJsonObject()));
         }
         return map;

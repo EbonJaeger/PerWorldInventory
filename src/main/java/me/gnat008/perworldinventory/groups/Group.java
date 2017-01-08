@@ -48,7 +48,7 @@ public class Group {
      * @param gameMode The default {@link GameMode} for this group.
      */
     public Group(String name, List<String> worlds, GameMode gameMode) {
-        this(name,worlds,null,null,null,null,gameMode,false);
+        this(name, worlds, null, null, null, null, gameMode,false);
     }
 
     /**
@@ -60,7 +60,7 @@ public class Group {
      * @param configured If the group is defined in the worlds.yml file.
      */
     public Group(String name, List<String> worlds, GameMode gameMode, boolean configured) {
-        this(name,worlds,null,null,null,null,gameMode,configured);
+        this(name,worlds,null,null, null, null, gameMode, configured);
     }
 
 
@@ -74,7 +74,7 @@ public class Group {
      * @param usePosInWorld A {@link List} of teleport causes that should map to the last position in world
      */
     public Group(String name, List<String> worlds, List<String> useLastWorld, List<String> useLastPosInGroup, List<String> useLastPosInWorld, String defaultWorld, GameMode gameMode) {
-        this(name,worlds,useLastWorld,useLastPosInGroup,useLastPosInWorld,defaultWorld,gameMode,false);
+        this(name, worlds, useLastWorld, useLastPosInGroup, useLastPosInWorld, defaultWorld, gameMode, false);
     }
 
     /**
@@ -91,9 +91,9 @@ public class Group {
         this.name = name;
         this.worlds = worlds;
         this.gameMode = gameMode;
-        this.useLastWorld = useLastWorld!=null?new HashSet<String> (useLastWorld):new HashSet<String> ();
-        this.useLastPosInGroup = useLastPosInGroup!=null?new HashSet<String> (useLastPosInGroup):new HashSet<String> ();
-        this.useLastPosInWorld = useLastPosInWorld!=null?new HashSet<String> (useLastPosInWorld):new HashSet<String> ();
+        this.useLastWorld = useLastWorld != null ? new HashSet<>(useLastWorld) : new HashSet<>();
+        this.useLastPosInGroup = useLastPosInGroup != null ? new HashSet<>(useLastPosInGroup) : new HashSet<>();
+        this.useLastPosInWorld = useLastPosInWorld != null ? new HashSet<>(useLastPosInWorld) : new HashSet<>();
         this.defaultWorld = defaultWorld;
         this.configured = configured;
     }
@@ -124,7 +124,7 @@ public class Group {
      * @return A copy of the internal configuration map
      */
     public List<String> shouldUseLastWorld() {
-        return new ArrayList<String>(this.useLastWorld);
+        return new ArrayList<>(this.useLastWorld);
     }
 
     /**
@@ -168,7 +168,7 @@ public class Group {
      * @return A copy of the internal configuration map
      */
     public List<String> shouldUseLastPosInWorld() {
-        return new ArrayList<String>(this.useLastPosInWorld);
+        return new ArrayList<>(this.useLastPosInWorld);
     }
 
     /**
@@ -179,7 +179,7 @@ public class Group {
      * @param value should we enforce world?
      */
     public void setUseLastWorld(String cause, boolean value) {
-        if(value)
+        if (value)
             this.useLastWorld.add(cause);
         else
             this.useLastWorld.remove(cause);
@@ -189,12 +189,12 @@ public class Group {
     /**
      * Set if moving to last known position should be enforced when changing
      * worlds within this group from.
-     * Will overwrtite all previous causes.
+     * Will overwrite all previous causes.
      *
-     * @param list A map of all permissions to use. This will overwri
+     * @param list A map of all permissions to use. This will overwrite all previous causes.
      */
-    public void setUseLastWorld (List<String> list) {
-        this.useLastWorld = new HashSet<String>(list);
+    public void setUseLastWorld(List<String> list) {
+        this.useLastWorld = new HashSet<>(list);
     }
 
     /**
@@ -206,7 +206,7 @@ public class Group {
      * @param value should we enforce position?
      */
     public void setUseLastPosInGroup(String cause, boolean value) {
-        if(value)
+        if (value)
             this.useLastPosInGroup.add(cause);
         else
             this.useLastPosInGroup.remove(cause);
@@ -217,11 +217,10 @@ public class Group {
      * world into this group from another.
      * Will overwrtite all previous causes.
      *
-     * @param cause the string representation of the caus that we check.
      * @param list should we enforce position?
      */
-    public void setUseLastPosInGroup (List<String> list) {
-        this.useLastPosInGroup = new HashSet<String>(list);
+    public void setUseLastPosInGroup(List<String> list) {
+        this.useLastPosInGroup = new HashSet<>(list);
     }
 
     /**
@@ -233,7 +232,7 @@ public class Group {
      * @param value should we enforce position?
      */
     public void setUseLastPosInWorld(String cause, boolean value) {
-        if(value)
+        if (value)
             this.useLastPosInWorld.add(cause);
         else
             this.useLastPosInWorld.remove(cause);
@@ -244,11 +243,10 @@ public class Group {
      * worlds within this group.
      * Will overwrtite all previous causes.
      *
-     * @param cause the string representation of the caus that we check.
      * @param list should we enforce position?
      */
-    public void setUseLastPosInWorld (List<String> list) {
-        this.useLastPosInWorld = new HashSet<String>(list);
+    public void setUseLastPosInWorld(List<String> list) {
+        this.useLastPosInWorld = new HashSet<>(list);
     }
 
 
@@ -262,7 +260,7 @@ public class Group {
     }
 
     /**
-     * Get the defoult world for this group.
+     * Get the default world for this group.
      *
      * @return A List of world names.
      */
@@ -271,9 +269,9 @@ public class Group {
     }
 
     /**
-     * Get the defoult world for this group.
+     * Set the default world for this group.
      *
-     * @return A List of world names.
+     * @param defaultWorld The default world.
      */
     public void setDefaultWorld(String defaultWorld) {
         this.defaultWorld = defaultWorld;

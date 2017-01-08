@@ -23,31 +23,27 @@ import com.google.gson.stream.JsonReader;
 import me.gnat008.perworldinventory.DataFolder;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.PwiLogger;
+import me.gnat008.perworldinventory.data.metadata.PWIMetaDataManager;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.data.players.PWIPlayerFactory;
-import me.gnat008.perworldinventory.data.serializers.LocationSerializer;
-import me.gnat008.perworldinventory.data.serializers.PlayerSerializer;
 import me.gnat008.perworldinventory.data.serializers.LastLocationInWorldSerializer;
 import me.gnat008.perworldinventory.data.serializers.LastWorldInGroupSerializer;
-import me.gnat008.perworldinventory.data.metadata.PWIMetaDataManager;
-import me.gnat008.perworldinventory.data.metadata.PWIPlayerLastLocationInWorldData;
-import me.gnat008.perworldinventory.data.metadata.PWIPlayerLastWorldInGroupData;
+import me.gnat008.perworldinventory.data.serializers.LocationSerializer;
+import me.gnat008.perworldinventory.data.serializers.PlayerSerializer;
 import me.gnat008.perworldinventory.groups.Group;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.metadata.MetadataValue;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.UUID;
 import java.util.Map;
-import java.util.List;
+import java.util.UUID;
 
 public class FileWriter implements DataWriter {
 
@@ -56,19 +52,17 @@ public class FileWriter implements DataWriter {
     private final PerWorldInventory plugin;
     private final PlayerSerializer playerSerializer;
     private final PWIPlayerFactory pwiPlayerFactory;
-    private final LastLocationInWorldSerializer lastLocationInWorldSerializer;
     private final LastWorldInGroupSerializer lastWorldInGroupSerializer;
     private final PWIMetaDataManager metaDataManager;
 
     @Inject
     FileWriter(@DataFolder File dataFolder, PerWorldInventory plugin, PlayerSerializer playerSerializer,
-               PWIPlayerFactory pwiPlayerFactory, LastLocationInWorldSerializer lastLocationInWorldSerializer,
+               PWIPlayerFactory pwiPlayerFactory,
                LastWorldInGroupSerializer lastWorldInGroupSerializer, PWIMetaDataManager metaDataManager) {
         this.FILE_PATH = new File(dataFolder, "data");
         this.plugin = plugin;
         this.playerSerializer = playerSerializer;
         this.pwiPlayerFactory = pwiPlayerFactory;
-        this.lastLocationInWorldSerializer = lastLocationInWorldSerializer;
         this.lastWorldInGroupSerializer = lastWorldInGroupSerializer;
         this.metaDataManager = metaDataManager;
     }
@@ -292,7 +286,7 @@ public class FileWriter implements DataWriter {
         try (JsonReader reader = new JsonReader(new FileReader(file))) {
             JsonParser parser = new JsonParser();
             JsonObject data = parser.parse(reader).getAsJsonObject();
-            return lastLocationInWorldSerializer.deserialize(data);
+            return LastLocationInWorldSerializer.deserialize(data);
         } catch (FileNotFoundException ex) {
             return null;
         } catch (IOException exIO) {
@@ -321,7 +315,7 @@ public class FileWriter implements DataWriter {
             if (!file.exists()) {
                 file.createNewFile();
             }
-            writeData(file, lastLocationInWorldSerializer.serializeAsString(map));
+            writeData(file, LastLocationInWorldSerializer.serializeAsString(map));
         } catch (IOException exIO) {
             String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
 
@@ -354,22 +348,20 @@ public class FileWriter implements DataWriter {
         try (JsonReader reader = new JsonReader(new FileReader(file))) {
             JsonParser parser = new JsonParser();
             JsonObject data = parser.parse(reader).getAsJsonObject();
-            return lastWorldInGroupSerializer.deserialize(data);
+            return LastWorldInGroupSerializer.deserialize(data);
         } catch (FileNotFoundException ex) {
             return null;
         } catch (IOException exIO) {
             String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
 
             PwiLogger.severe(String.format("Unable to read last-world-in-group data for '%s' reason:",
-            playerName!=null?playerName:"UNKNOWN_PLAYER"
-            ), exIO);
+                playerName != null ? playerName : "UNKNOWN_PLAYER"), exIO);
             return null;
         } catch (Exception ex) {
             String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
 
-            PwiLogger.severe(String.format("Werid exception while trying to read last-world-in-group data for player '%s':",
-            playerName!=null?playerName:"UNKNOWN_PLAYER"
-            ), ex);
+            PwiLogger.severe(String.format("Weird exception while trying to read last-world-in-group data for player '%s':",
+                playerName != null ? playerName : "UNKNOWN_PLAYER"), ex);
             return null;
         }
     }
@@ -388,24 +380,22 @@ public class FileWriter implements DataWriter {
             String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
 
             PwiLogger.severe(String.format("Unable to save last-group-in-world data for '%s' reason:",
-            playerName!=null?playerName:"UNKNOWN_PLAYER"
-            ), exIO);
+                playerName != null ? playerName : "UNKNOWN_PLAYER"), exIO);
         } catch (Exception ex) {
             String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
 
             PwiLogger.severe(String.format("Werid exception while trying to save last-group-in-world data for player '%s':",
-            playerName!=null?playerName:"UNKNOWN_PLAYER"
-            ), ex);
+                playerName != null ? playerName : "UNKNOWN_PLAYER"), ex);
         }
     }
 
     public void saveLastWorldInGroup(Player player) {
         Map<String, String> lastWorldData = metaDataManager.<Map<String, String>>getFromPlayer(player,"lastWorldInGroup");
-        if(lastWorldData != null) {
+        if (lastWorldData != null) {
             saveLastWorldInGroup(player.getUniqueId(), lastWorldData);
         } else {
             PwiLogger.severe(String.format("Player '%s' did not have any metadata for last world in group.",
-            player.getName()));
+                player.getName()));
         }
     }
 }

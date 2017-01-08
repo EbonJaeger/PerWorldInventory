@@ -26,7 +26,6 @@ import org.bukkit.scheduler.BukkitScheduler;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.Ignore;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
