@@ -23,6 +23,13 @@ public class PWIMetaDataManager {
     PWIMetaDataManager() {
     }
 
+    /**
+     * Retrieves the players data about last location in worlds.
+     * Populates the metadata field if it hasn't been loaded already.
+     *
+     * @param  player The player to get the last locations from.
+     * @return A map of the players last location in each world he/she visited.
+     */
     public Map<String, Location> getLastLocationInWorldMap(Player player) {
         final String _KEY_ = "lastLocationInWorld";
 
@@ -42,6 +49,13 @@ public class PWIMetaDataManager {
         return metadata.value();
     }
 
+    /**
+     * Retrieves the players data about last world in groups.
+     * Populates the metadata field if it hasn't been loaded already.
+     *
+     * @param  player The player to get the last worlds from.
+     * @return A map of the players last world in each group he/she visited.
+     */
     public Map<String, String> getLastWorldInGroupMap(Player player) {
         final String _KEY_ = "lastWorldInGroup";
 
