@@ -83,7 +83,7 @@ public interface DataWriter {
      * @param playerUUID The player unique id to save the last location in world for
      * @param map The data to save
      */
-    void saveLastLocationInWorld(UUID playerUUID, Map<String, Location> map);
+    void saveLastLocationInWorld(UUID playerUUID, Map<String, Location> locationInWorlds);
 
     /**
      * Saves a players last location in world to the database.
@@ -106,7 +106,7 @@ public interface DataWriter {
      * @param playerUUID The player unique id to save the last world in group for
      * @param map The data to save
      */
-    void saveLastWorldInGroup(UUID playerUUID, Map<String, String> map);
+    void saveLastWorldInGroup(UUID playerUUID, Map<String, String> worldInGroups);
 
     /**
      * Saves a players last world in groups to the database.

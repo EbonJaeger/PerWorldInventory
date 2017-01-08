@@ -308,7 +308,7 @@ public class FileWriter implements DataWriter {
     }
 
     @Override
-    public void saveLastLocationInWorld(UUID playerUUID, Map<String, Location> map){
+    public void saveLastLocationInWorld(UUID playerUUID, Map<String, Location> locationInWorlds){
         File dir = new File(getUserFolder(playerUUID),"globals");
         File file = new File(dir, "lastLocationInWorld.json");
         try {
@@ -316,7 +316,7 @@ public class FileWriter implements DataWriter {
             if (!file.exists()) {
                 file.createNewFile();
             }
-            writeData(file, LastLocationInWorldSerializer.serializeAsString(map));
+            writeData(file, LastLocationInWorldSerializer.serializeAsString(locationInWorlds));
         } catch (IOException exIO) {
             String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
 
@@ -368,7 +368,7 @@ public class FileWriter implements DataWriter {
     }
 
     @Override
-    public void saveLastWorldInGroup(UUID playerUUID, Map<String, String> map){
+    public void saveLastWorldInGroup(UUID playerUUID, Map<String, String> worldInGroups){
         File dir = new File(getUserFolder(playerUUID),"globals");
         File file = new File(dir, "lastWorldInGroup.json");
         try {
@@ -376,7 +376,7 @@ public class FileWriter implements DataWriter {
             if (!file.exists()) {
                 file.createNewFile();
             }
-            writeData(file, lastWorldInGroupSerializer.serializeAsString(map));
+            writeData(file, lastWorldInGroupSerializer.serializeAsString(worldInGroups));
         } catch (IOException exIO) {
             String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
 
