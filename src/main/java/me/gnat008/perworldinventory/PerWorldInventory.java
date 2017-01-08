@@ -31,7 +31,6 @@ import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.DataWriter;
 import me.gnat008.perworldinventory.data.FileWriter;
-import me.gnat008.perworldinventory.data.metadata.PWIMetaDataManager;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.listeners.entity.EntityPortalEventListener;
@@ -40,7 +39,6 @@ import me.gnat008.perworldinventory.listeners.player.PlayerTeleportListener;
 import me.gnat008.perworldinventory.listeners.player.PlayerChangedWorldListener;
 import me.gnat008.perworldinventory.listeners.player.PlayerQuitListener;
 import me.gnat008.perworldinventory.listeners.player.PlayerSpawnLocationListener;
-import me.gnat008.perworldinventory.listeners.player.PlayerLoginListener;
 import me.gnat008.perworldinventory.listeners.server.PluginListener;
 import me.gnat008.perworldinventory.permission.PermissionManager;
 import net.milkbowl.vault.economy.Economy;
@@ -73,7 +71,6 @@ public class PerWorldInventory extends JavaPlugin {
     private PWIPlayerManager playerManager;
     private Settings settings;
     private PermissionManager permissionManager;
-    private PWIMetaDataManager metaDataManager;
 
     private final Map<String, ExecutableCommand> commands = new HashMap<>();
 
@@ -160,7 +157,6 @@ public class PerWorldInventory extends JavaPlugin {
         playerManager = injector.getSingleton(PWIPlayerManager.class);
         permissionManager = injector.getSingleton(PermissionManager.class);
         api = injector.getSingleton(PerWorldInventoryAPI.class);
-        metaDataManager = injector.getSingleton(PWIMetaDataManager.class);
     }
 
     protected void registerEventListeners(Injector injector) {
@@ -171,7 +167,6 @@ public class PerWorldInventory extends JavaPlugin {
         pluginManager.registerEvents(injector.getSingleton(PluginListener.class), this);
 
         pluginManager.registerEvents(injector.getSingleton(PlayerGameModeChangeListener.class), this);
-        pluginManager.registerEvents(injector.getSingleton(PlayerLoginListener.class), this);
         pluginManager.registerEvents(injector.getSingleton(PlayerTeleportListener.class), this);
         pluginManager.registerEvents(injector.getSingleton(PlayerChangedWorldListener.class), this);
         pluginManager.registerEvents(injector.getSingleton(PlayerQuitListener.class), this);

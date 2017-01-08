@@ -12,8 +12,6 @@ public abstract class PWIMetaDataValueAbstract<T> implements MetadataValue {
         this.owningPlugin = plugin;
     }
 
-    public abstract void init(Object... args);
-
     public PerWorldInventory getOwningPlugin() {
         return this.owningPlugin;
     }

@@ -24,6 +24,7 @@ import me.gnat008.perworldinventory.DataFolder;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.PwiLogger;
 import me.gnat008.perworldinventory.data.metadata.PWIMetaDataManager;
+import me.gnat008.perworldinventory.data.metadata.PWIMetaDataManagerProvider;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.data.players.PWIPlayerFactory;
 import me.gnat008.perworldinventory.data.serializers.LastLocationInWorldSerializer;
@@ -53,18 +54,18 @@ public class FileWriter implements DataWriter {
     private final PlayerSerializer playerSerializer;
     private final PWIPlayerFactory pwiPlayerFactory;
     private final LastWorldInGroupSerializer lastWorldInGroupSerializer;
-    private final PWIMetaDataManager metaDataManager;
+    private final PWIMetaDataManagerProvider metaDataManagerProvider;
 
     @Inject
     FileWriter(@DataFolder File dataFolder, PerWorldInventory plugin, PlayerSerializer playerSerializer,
                PWIPlayerFactory pwiPlayerFactory,
-               LastWorldInGroupSerializer lastWorldInGroupSerializer, PWIMetaDataManager metaDataManager) {
+               LastWorldInGroupSerializer lastWorldInGroupSerializer, PWIMetaDataManagerProvider metaDataManagerProvider) {
         this.FILE_PATH = new File(dataFolder, "data");
         this.plugin = plugin;
         this.playerSerializer = playerSerializer;
         this.pwiPlayerFactory = pwiPlayerFactory;
         this.lastWorldInGroupSerializer = lastWorldInGroupSerializer;
-        this.metaDataManager = metaDataManager;
+        this.metaDataManagerProvider = metaDataManagerProvider;
     }
 
     @Override
@@ -332,7 +333,7 @@ public class FileWriter implements DataWriter {
     }
 
     public void saveLastLocationInWorld(Player player) {
-        Map<String, Location> lastLocData = metaDataManager.<Map<String, Location>>getFromPlayer(player,"lastLocationInWorld");;
+        Map<String, Location> lastLocData = metaDataManagerProvider.getInstance().getLastLocationInWorldMap(player);
         if(lastLocData != null) {
             saveLastLocationInWorld(player.getUniqueId(), lastLocData);
         } else {
@@ -390,7 +391,7 @@ public class FileWriter implements DataWriter {
     }
 
     public void saveLastWorldInGroup(Player player) {
-        Map<String, String> lastWorldData = metaDataManager.<Map<String, String>>getFromPlayer(player,"lastWorldInGroup");
+        Map<String, String> lastWorldData = metaDataManagerProvider.getInstance().getLastWorldInGroupMap(player);
         if (lastWorldData != null) {
             saveLastWorldInGroup(player.getUniqueId(), lastWorldData);
         } else {

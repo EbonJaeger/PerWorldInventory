@@ -18,10 +18,10 @@ public class PWIPlayerLastWorldInGroupData extends PWIMetaDataValueAbstract<Map<
 
     private DataWriter dataWriter;
 
-    @Inject
-    public PWIPlayerLastWorldInGroupData(PerWorldInventory plugin, DataWriter dataWriter) {
+    public PWIPlayerLastWorldInGroupData(PerWorldInventory plugin, DataWriter dataWriter, Player player) {
         super(plugin);
         this.dataWriter = dataWriter;
+        this.playerUUID = player.getUniqueId();
     }
 
     public void init(Object... args) {

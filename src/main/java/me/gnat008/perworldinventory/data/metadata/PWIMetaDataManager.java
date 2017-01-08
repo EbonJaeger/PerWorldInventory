@@ -1,40 +1,63 @@
 package me.gnat008.perworldinventory.data.metadata;
 
-import ch.jalu.injector.Injector;
 import me.gnat008.perworldinventory.PerWorldInventory;
+import me.gnat008.perworldinventory.data.DataWriter;
+
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.MetadataValue;
 
-import javax.inject.Inject;
 import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
 
 public class PWIMetaDataManager {
 
     @Inject
     private PerWorldInventory plugin;
+
     @Inject
-    private Injector injector;
+    private DataWriter dataWriter;
 
     PWIMetaDataManager() {
     }
 
-    public <T extends PWIMetaDataValueAbstract> T createMetadataValue(Class<T> clazz, Object... args) {
-        T instance = injector.newInstance(clazz);
-        instance.init(args);
-        return instance;
-    }
+    public Map<String, Location> getLastLocationInWorldMap(Player player) {
+        final String _KEY_ = "lastLocationInWorld";
 
-    public <T> T getFromPlayer(Player player, String key) {
-        List<MetadataValue> dataList = player.getMetadata(key);
-        MetadataValue data = null;
-        for (MetadataValue searchData : dataList) {
-            if (searchData.getOwningPlugin().equals(plugin)) {
-                data = searchData;
+        List<MetadataValue> dataList = player.getMetadata(_KEY_);
+        PWIPlayerLastLocationInWorldData metadata = null;
+        for (MetadataValue metadataSearch : dataList) {
+            if(plugin.equals(metadataSearch.getOwningPlugin())) {
+                metadata = (PWIPlayerLastLocationInWorldData) metadataSearch;
                 break;
             }
         }
-        return data != null
-            ? (T) data.value()
-            : null;
+        // Create the metadata if it doesn't exists...
+        if(metadata == null) {
+            metadata = new PWIPlayerLastLocationInWorldData(plugin, dataWriter, player);
+            player.setMetadata(_KEY_,metadata);
+        }
+        return metadata.value();
+    }
+
+    public Map<String, String> getLastWorldInGroupMap(Player player) {
+        final String _KEY_ = "lastWorldInGroup";
+
+        List<MetadataValue> dataList = player.getMetadata(_KEY_);
+        PWIPlayerLastWorldInGroupData metadata = null;
+        for (MetadataValue metadataSearch : dataList) {
+            if(plugin.equals(metadataSearch.getOwningPlugin())) {
+                metadata = (PWIPlayerLastWorldInGroupData) metadataSearch;
+                break;
+            }
+        }
+        // Create the metadata if it doesn't exists...
+        if(metadata == null) {
+            metadata = new PWIPlayerLastWorldInGroupData(plugin, dataWriter, player);
+            player.setMetadata(_KEY_,metadata);
+        }
+        return metadata.value();
     }
 }

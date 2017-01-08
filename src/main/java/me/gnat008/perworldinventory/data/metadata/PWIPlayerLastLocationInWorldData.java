@@ -21,20 +21,10 @@ public class PWIPlayerLastLocationInWorldData extends PWIMetaDataValueAbstract<M
 
     private DataWriter dataWriter;
 
-    @Inject
-    public PWIPlayerLastLocationInWorldData(PerWorldInventory plugin, DataWriter dataWriter) {
+    public PWIPlayerLastLocationInWorldData(PerWorldInventory plugin, DataWriter dataWriter, Player player) {
         super(plugin);
         this.dataWriter = dataWriter;
-    }
-
-    public void init(Object... args) {
-        if (args.length != 1) {
-            throw new IllegalArgumentException("Illegal number of arguments to init. Expected 1, got " + args.length);
-        }
-        if (!(args[0] instanceof Player)) {
-            throw new IllegalArgumentException("Illegal arguments to init. Expected Player, got " + args[0].getClass());
-        }
-        this.playerUUID = ((Player) args[0]).getUniqueId();
+        this.playerUUID = player.getUniqueId();
     }
 
     @Override

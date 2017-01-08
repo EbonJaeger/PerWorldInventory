@@ -39,10 +39,10 @@ public class PlayerQuitProcess {
         Group group = groupManager.getGroupFromWorld(logoutWorld);
 
         PwiLogger.debug("Updating last world/location data for player...");
-        Map<String, Location> lastLocInWorld = metaDataManager.<Map<String, Location>>getFromPlayer(player, "lastLocationInWorld");
-        Map<String, String> lastWorldInGroup = metaDataManager.<Map<String, String>>getFromPlayer(player, "lastWorldInGroup");
-        lastLocInWorld.put(logoutWorld, player.getLocation());
-        lastWorldInGroup.put(group.getName(), logoutWorld);
+        Map<String, Location> lastLocInWorlds = metaDataManager.getLastLocationInWorldMap(player);
+        Map<String, String> lastWorldInGroups = metaDataManager.getLastWorldInGroupMap(player);
+        lastLocInWorlds.put(logoutWorld, player.getLocation());
+        lastWorldInGroups.put(group.getName(), logoutWorld);
 
         PwiLogger.debug("Player '" + player.getName() + "' quit! Checking cache");
 

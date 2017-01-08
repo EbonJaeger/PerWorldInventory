@@ -120,9 +120,10 @@ public class TeleportProcess {
         Group groupFrom = groupManager.getGroupFromWorld(from.getWorld().getName());
         Group groupTo = groupManager.getGroupFromWorld(to.getWorld().getName());
 
-        Map<String, Location> locInWorlds = metaDataManager.<Map<String,Location>>getFromPlayer(player,"lastLocationInWorld");
-        Map<String, String> worldInGroups = metaDataManager.<Map<String,String>>getFromPlayer(player,"lastWorldInGroup");
+        Map<String, Location> lastLocInWorlds = metaDataManager.getLastLocationInWorldMap(player);
+        Map<String, String> lastWorldInGroups = metaDataManager.getLastWorldInGroupMap(player);
         TeleportCause cause = event.getCause();
+
         PwiLogger.debug(String.format("Player '%s' is teleporting from world '%s' to world '%s' cause '%s'",
           player.getName(),
           from.getWorld().getName(),
@@ -132,7 +133,7 @@ public class TeleportProcess {
             if(groupTo.equals(groupFrom)) {
                 if(groupTo.shouldUseLastPosWithinGroup(cause)) {
                     PwiLogger.debug("In group world change and group '"+groupTo.getName()+"' is configured to enforce last position during internal world change on cause '"+cause+"' redirecting...");
-                    Location newTo = locInWorlds.get(to.getWorld().getName());
+                    Location newTo = lastLocInWorlds.get(to.getWorld().getName());
                     if(newTo != null) {
                         // We don't want weird stuff to happen in case of
                         // deserialized location missing world.
@@ -148,7 +149,7 @@ public class TeleportProcess {
                     PwiLogger.debug("Group '" + groupTo.getName() + "' is NOT configured to enforce location during in-world change on cause '"+ cause +"'.");
                 }
             } else {
-                World toLastWorld = server.getWorld(worldInGroups.get(groupTo.getName()));
+                World toLastWorld = server.getWorld(lastWorldInGroups.get(groupTo.getName()));
                 if(groupTo.shouldUseLastWorld(cause)) {
                     PwiLogger.debug("Group '" + groupTo.getName() + "' is configured to enforce last world on cause '"+ cause +"'. Redirecting...");
                     if(toLastWorld != null) {
@@ -171,7 +172,7 @@ public class TeleportProcess {
                 }
                 if(groupTo.shouldUseLastPosToGroup(cause)){
                     PwiLogger.debug("Group '" + groupTo.getName() + "' is configured to enforce last location during group change on cause '"+ cause +"'. Redirecting...");
-                    Location newTo = locInWorlds.get(to.getWorld().getName());
+                    Location newTo = lastLocInWorlds.get(to.getWorld().getName());
                     if(newTo != null) {
                         // We don't want weird stuff to happen in case of
                         // deserialized location missing world.
@@ -191,8 +192,8 @@ public class TeleportProcess {
             PwiLogger.debug("TO group (" + groupTo.getName() + ") is not defined, dismissing redirect.");
         }
 
-        locInWorlds.put(from.getWorld().getName(),from);
-        worldInGroups.put(groupFrom.getName(),from.getWorld().getName());
+        lastLocInWorlds.put(from.getWorld().getName(),from);
+        lastWorldInGroups.put(groupFrom.getName(),from.getWorld().getName());
     }
 
 }
