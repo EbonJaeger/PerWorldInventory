@@ -1,6 +1,7 @@
 package me.gnat008.perworldinventory.process;
 
 import me.gnat008.perworldinventory.PwiLogger;
+import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.metadata.PWIMetaDataManager;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
@@ -51,8 +52,23 @@ public class TeleportProcess {
      */
     public void preProcessTeleport(PlayerTeleportEvent event) {
         Player player = event.getPlayer();
+
+        if (!settings.getProperty(PwiProperties.ENABLE_LAST_LOCATION)) {
+            if (settings.getProperty(PwiProperties.LAST_LOCATION_OVERRIDE_STORAGE)) {
+                Location from = event.getFrom();
+                Group groupFrom = groupManager.getGroupFromWorld(from.getWorld().getName());
+                Map<String, Location> lastLocInWorlds = metaDataManager.getLastLocationInWorldMap(player);
+                Map<String, String> lastWorldInGroups = metaDataManager.getLastWorldInGroupMap(player);
+                PwiLogger.debug("Last location storage override enabled; Keeping player '"+player.getName()+"' last location.");
+                lastLocInWorlds.put(from.getWorld().getName(),from);
+                lastWorldInGroups.put(groupFrom.getName(),from.getWorld().getName());
+            }
+            return;
+        }
+
         Location from = event.getFrom();
         Location to = event.getTo();
+        TeleportCause cause = event.getCause();
 
         if (event.isCancelled()) {
             PwiLogger.debug(String.format("Player '%s' tried to teleport from '%s' to '%s', but the event was previously cancelled, dismissing handler",
@@ -63,20 +79,18 @@ public class TeleportProcess {
         }
 
         if (from == null || from.getWorld() == null) {
-            PwiLogger.warning(String.format("Player '%s' tried to teleport from '%s' to '%s', but got null on origin. Cancelling teleport.",
+            PwiLogger.warning(String.format("Player '%s' tried to teleport from '%s' to '%s', but got null on origin. dismissing handler.",
               player.getName(),
               from,
               to));
-            event.setCancelled(true);
             return;
         }
 
         if (to == null || to.getWorld() == null) {
-            PwiLogger.warning(String.format("Player '%s' tried to teleport from '%s' to '%s', but got null on origin. Cancelling teleport.",
+            PwiLogger.warning(String.format("Player '%s' tried to teleport from '%s' to '%s', but got null on origin. dismissing handler.",
               player.getName(),
               from,
               to));
-            event.setCancelled(true);
             return;
         }
 
@@ -88,22 +102,7 @@ public class TeleportProcess {
             return;
         }
 
-        processTeleport(player, event, from, to);
-
-        if (event.isCancelled()) {
-            PwiLogger.debug(String.format("Player '%s' was switching worlds, but the teleport was canceled during the teleport process.",
-              player.getName()));
-            event.setCancelled(true);
-            return;
-        }
-
-        if (to.getWorld().equals(from.getWorld())) {
-            PwiLogger.debug(String.format("Player '%s' was switching worlds, but somehow the teleport process ended up teleporting the player back to '%s'. Cancelling teleport.",
-              player.getName(),
-              from.getWorld().getName()));
-            event.setCancelled(true);
-            return;
-        }
+        processTeleport(player, event, cause, from, to);
     }
 
     /**
@@ -116,77 +115,30 @@ public class TeleportProcess {
      * @param from   The {@link Location} they're coming from. SIDEFFECT: Might be mutated
      * @param to     The {@link Location} they're going to. SIDEFFECT: Might be mutated
      */
-    protected void processTeleport(Player player, PlayerTeleportEvent event, Location from, Location to) {
+    protected void processTeleport(Player player, PlayerTeleportEvent event, TeleportCause cause, Location from, Location to) {
         Group groupFrom = groupManager.getGroupFromWorld(from.getWorld().getName());
         Group groupTo = groupManager.getGroupFromWorld(to.getWorld().getName());
 
         Map<String, Location> lastLocInWorlds = metaDataManager.getLastLocationInWorldMap(player);
         Map<String, String> lastWorldInGroups = metaDataManager.getLastWorldInGroupMap(player);
-        TeleportCause cause = event.getCause();
 
-        PwiLogger.debug(String.format("Player '%s' is teleporting from world '%s' to world '%s' cause '%s'",
-          player.getName(),
-          from.getWorld().getName(),
-          to.getWorld().getName(),
-          cause));
+        PwiLogger.debug("Player '"
+        + player.getName() + "' is teleporting from world '"
+        + from.getWorld().getName() + "' to world '" + to.getWorld().getName()
+        + "' cause '" + cause.name() + "'");
+
         if (groupTo.isConfigured()) {
             if(groupTo.equals(groupFrom)) {
-                if(groupTo.shouldUseLastPosWithinGroup(cause)) {
-                    PwiLogger.debug("In group world change and group '"+groupTo.getName()+"' is configured to enforce last position during internal world change on cause '"+cause+"' redirecting...");
-                    Location newTo = lastLocInWorlds.get(to.getWorld().getName());
-                    if(newTo != null) {
-                        // We don't want weird stuff to happen in case of
-                        // deserialized location missing world.
-                        newTo.setWorld(to.getWorld());
-                        to = newTo;
-                        event.setTo(to);
-                    } else {
-                        PwiLogger.debug("Player has not visited world '"+to.getWorld().getName()+"' yet. Redirecting to spawn...");
-                        to = to.getWorld().getSpawnLocation();
-                        event.setTo(to);
-                    }
-                } else {
-                    PwiLogger.debug("Group '" + groupTo.getName() + "' is NOT configured to enforce location during in-world change on cause '"+ cause +"'.");
+                if (groupTo.shouldUseLastPosWithinGroup(cause)) {
+                    PwiLogger.debug("Group '" + groupTo.getName()
+                    + "' is configured to enforce last location during in-group world change on cause '"
+                    + cause.name() +"'. Redirecting...");
+
+                    enforceLastLocationInWorld(player, event, to, lastLocInWorlds);
                 }
             } else {
-                World toLastWorld = server.getWorld(lastWorldInGroups.get(groupTo.getName()));
-                if(groupTo.shouldUseLastWorld(cause)) {
-                    PwiLogger.debug("Group '" + groupTo.getName() + "' is configured to enforce last world on cause '"+ cause +"'. Redirecting...");
-                    if(toLastWorld != null) {
-                        to = toLastWorld.getSpawnLocation();
-                    } else {
-                        if(groupTo.getDefaultWorld() != null) {
-                            PwiLogger.debug("It appears the player has never been in group '"+ groupTo.getName()+ "' Redirecting to default world '"+ groupTo.getDefaultWorld() +"'");
-                            World defaultWorld = server.getWorld(groupTo.getDefaultWorld());
-                            if(defaultWorld != null) {
-                                to = defaultWorld.getSpawnLocation();
-                            } else {
-                                PwiLogger.warning("It appears the player has never been in group '"+ groupTo.getName()+ "' and the default world '" + groupTo.getDefaultWorld() + "' is missing. dismissing world redirect.");
-                            }
-                        } else {
-                            PwiLogger.debug("It appears the player has never been in group '"+ groupTo.getName()+ "' and no default world has been set. dismissing world redirect.");
-                        }
-                    }
-                } else {
-                    PwiLogger.debug("Group '" + groupTo.getName() + "' is NOT configured to enforce world during group change on cause '"+ cause +"'.");
-                }
-                if(groupTo.shouldUseLastPosToGroup(cause)){
-                    PwiLogger.debug("Group '" + groupTo.getName() + "' is configured to enforce last location during group change on cause '"+ cause +"'. Redirecting...");
-                    Location newTo = lastLocInWorlds.get(to.getWorld().getName());
-                    if(newTo != null) {
-                        // We don't want weird stuff to happen in case of
-                        // deserialized location missing world.
-                        newTo.setWorld(to.getWorld());
-                        to = newTo;
-                        event.setTo(to);
-                    } else {
-                        PwiLogger.debug("Player has not visited world '"+to.getWorld().getName()+"' yet. Redirecting to spawn...");
-                        to = to.getWorld().getSpawnLocation();
-                        event.setTo(to);
-                    }
-                } else {
-                    PwiLogger.debug("Group '" + groupTo.getName() + "' is NOT configured to enforce location during group change on cause '"+ cause +"'.");
-                }
+                processToGroupTeleport(player, event, cause, to, groupTo,
+                  lastLocInWorlds, lastWorldInGroups);
             }
         } else {
             PwiLogger.debug("TO group (" + groupTo.getName() + ") is not defined, dismissing redirect.");
@@ -196,4 +148,70 @@ public class TeleportProcess {
         lastWorldInGroups.put(groupFrom.getName(),from.getWorld().getName());
     }
 
+    private void enforceLastLocationInWorld (Player player, PlayerTeleportEvent event, Location to, Map<String, Location> lastLocInWorlds) {
+        Location newTo = lastLocInWorlds.get(to.getWorld().getName());
+        if(newTo != null) {
+            // We don't want weird stuff to happen in case of
+            // deserialized location missing world.
+            newTo.setWorld(to.getWorld());
+            to = newTo;
+            event.setTo(to);
+        } else {
+            PwiLogger.debug("Player has not visited world '"+to.getWorld().getName()+"' yet. Redirecting to spawn...");
+            to = to.getWorld().getSpawnLocation();
+            event.setTo(to);
+        }
+    }
+
+    private void processToGroupTeleport (Player player, PlayerTeleportEvent event,
+    TeleportCause cause, Location to, Group group,
+    Map<String, Location> lastLocInWorlds,
+    Map<String, String> lastWorldInGroups) {
+        if(group.shouldUseLastWorld(cause)) {
+            PwiLogger.debug("Group '" + group.getName()
+            + "' is configured to enforce last world on cause '"
+            + cause.name() +"'. Redirecting...");
+
+            to = processWorldRedirect(to, group, lastWorldInGroups);
+            event.setTo(to);
+        } else {
+            PwiLogger.debug("Group '" + group.getName()
+            + "' is NOT configured to enforce world during group change on cause '"
+            + cause.name() + "'.");
+        }
+        if(group.shouldUseLastPosToGroup(cause)){
+            enforceLastLocationInWorld(player, event, to, lastLocInWorlds);
+        } else {
+            PwiLogger.debug("Group '" + group.getName()
+            + "' is NOT configured to enforce location during group change on cause '"
+            + cause.name() +"'.");
+        }
+    }
+
+    private Location processWorldRedirect(Location to, Group group, Map<String, String> lastWorldInGroups) {
+        World toLastWorld = server.getWorld(lastWorldInGroups.get(group.getName()));
+        if(toLastWorld != null) {
+            if(toLastWorld.equals(to.getWorld())) {
+                PwiLogger.debug("Player is already changing to world '"
+                + toLastWorld.getName()+"', dismissing world redirect.");
+
+                return to;
+            }
+            return toLastWorld.getSpawnLocation();
+        } else {
+            if(group.getDefaultWorld() != null) {
+                PwiLogger.debug("It appears the player has never been in group '"+ group.getName()+ "' Redirecting to default world '"+ group.getDefaultWorld() +"'");
+                World defaultWorld = server.getWorld(group.getDefaultWorld());
+                if(defaultWorld != null) {
+                    return defaultWorld.getSpawnLocation();
+                } else {
+                    PwiLogger.warning("It appears the player has never been in group '"+ group.getName()+ "' and the default world '" + group.getDefaultWorld() + "' is missing. dismissing world redirect.");
+                    return to;
+                }
+            } else {
+                PwiLogger.debug("It appears the player has never been in group '"+ group.getName()+ "' and no default world has been set. dismissing world redirect.");
+                return to;
+            }
+        }
+    }
 }
