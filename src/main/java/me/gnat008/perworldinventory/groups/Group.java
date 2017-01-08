@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 
+import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+
 /**
  * A group of worlds, typically defined in the worlds.yml file.
  * Each Group has a name, and should have a list of worlds in that group, as well as
@@ -34,9 +36,9 @@ public class Group {
     private String name;
     private List<String> worlds;
     private GameMode gameMode;
-    private Set<String> useLastWorld;
-    private Set<String> useLastPosInGroup;
-    private Set<String> useLastPosInWorld;
+    private Set<TeleportCause> enableLastWorldCauses;
+    private Set<TeleportCause> enableLastPosToGroupCauses;
+    private Set<TeleportCause> enableLastPosWithinGroupCauses;
     private String defaultWorld;
     private boolean configured;
 
@@ -73,8 +75,8 @@ public class Group {
      * @param useLastWorld A {@link List} of teleport causes that should map to the last world in group
      * @param usePosInWorld A {@link List} of teleport causes that should map to the last position in world
      */
-    public Group(String name, List<String> worlds, List<String> useLastWorld, List<String> useLastPosInGroup, List<String> useLastPosInWorld, String defaultWorld, GameMode gameMode) {
-        this(name, worlds, useLastWorld, useLastPosInGroup, useLastPosInWorld, defaultWorld, gameMode, false);
+    public Group(String name, List<String> worlds, Set<TeleportCause> enableLastWorldCauses, Set<TeleportCause> enableLastPosToGroupCauses, Set<TeleportCause> enableLastPosWithinGroupCauses, String defaultWorld, GameMode gameMode) {
+        this(name, worlds, enableLastWorldCauses, enableLastPosToGroupCauses, enableLastPosWithinGroupCauses, defaultWorld, gameMode, false);
     }
 
     /**
@@ -87,13 +89,20 @@ public class Group {
      * @param usePosInWorld A {@link List} of teleport causes that should map to the last position in world
      * @param configured If the group is defined in the worlds.yml file.
      */
-    public Group(String name, List<String> worlds, List<String> useLastWorld, List<String> useLastPosInGroup, List<String> useLastPosInWorld, String defaultWorld, GameMode gameMode, boolean configured) {
+    public Group(String name, List<String> worlds, Set<TeleportCause> enableLastWorldCauses, Set<TeleportCause> enableLastPosToGroupCauses, Set<TeleportCause> enableLastPosWithinGroupCauses, String defaultWorld, GameMode gameMode, boolean configured) {
         this.name = name;
         this.worlds = worlds;
         this.gameMode = gameMode;
-        this.useLastWorld = useLastWorld != null ? new HashSet<>(useLastWorld) : new HashSet<>();
-        this.useLastPosInGroup = useLastPosInGroup != null ? new HashSet<>(useLastPosInGroup) : new HashSet<>();
-        this.useLastPosInWorld = useLastPosInWorld != null ? new HashSet<>(useLastPosInWorld) : new HashSet<>();
+
+        this.enableLastWorldCauses = enableLastWorldCauses != null
+          ? new HashSet<>(enableLastWorldCauses) : new HashSet<>();
+
+        this.enableLastPosToGroupCauses = enableLastPosToGroupCauses != null
+          ? new HashSet<>(enableLastPosToGroupCauses) : new HashSet<>();
+
+        this.enableLastPosWithinGroupCauses = enableLastPosWithinGroupCauses != null
+          ? new HashSet<>(enableLastPosWithinGroupCauses) : new HashSet<>();
+
         this.defaultWorld = defaultWorld;
         this.configured = configured;
     }
@@ -106,149 +115,6 @@ public class Group {
     public GameMode getGameMode() {
         return this.gameMode;
     }
-
-    /**
-     * Get if a cause should enforce moving to the last known of world the player was in this group.
-     *
-     * @param cause the string representation of the cause that we check.
-     *
-     * @return True if enforce last world, false if not.
-     */
-    public boolean shouldUseLastWorld(String cause) {
-        return this.useLastWorld.contains(cause);
-    }
-
-    /**
-     * Get if a cause should enforce moving to the last known of world the player was in this group.
-     *
-     * @return A copy of the internal configuration map
-     */
-    public List<String> shouldUseLastWorld() {
-        return new ArrayList<>(this.useLastWorld);
-    }
-
-    /**
-     * Get if moving to last known position should be enforced when changing
-     * world into this group from another.
-     *
-     * @param cause the string representation of the cause that we check.
-     *
-     * @return True if enforce last position, false if not.
-     */
-    public boolean shouldUseLastPosInGroup(String cause) {
-        return this.useLastPosInGroup.contains(cause);
-    }
-
-    /**
-     * Get if moving to last known position should be enforced when changing
-     * world into this group from another.
-     *
-     * @return A copy of the internal configuration map
-     */
-    public List<String> shouldUseLastPosInGroup() {
-        return new ArrayList<String>(this.useLastPosInGroup);
-    }
-
-    /**
-     * Get if moving to last known position should be enforced when changing
-     * worlds within this group.
-     *
-     * @param cause the string representation of the cause that we check.
-     *
-     * @return True if enforce last position, false if not.
-     */
-    public boolean shouldUseLastPosInWorld(String cause) {
-        return this.useLastPosInWorld.contains(cause);
-    }
-
-    /**
-     * Get if moving to last known position should be enforced when changing
-     * worlds within this group.
-     *
-     * @return A copy of the internal configuration map
-     */
-    public List<String> shouldUseLastPosInWorld() {
-        return new ArrayList<>(this.useLastPosInWorld);
-    }
-
-    /**
-     * Set if moving to last known world should be enforced in this group.
-     * For specific cause. Atomic update
-     *
-     * @param cause the string representation of the cause that we check.
-     * @param value should we enforce world?
-     */
-    public void setUseLastWorld(String cause, boolean value) {
-        if (value)
-            this.useLastWorld.add(cause);
-        else
-            this.useLastWorld.remove(cause);
-    }
-
-
-    /**
-     * Set if moving to last known position should be enforced when changing
-     * worlds within this group from.
-     * Will overwrite all previous causes.
-     *
-     * @param list A map of all permissions to use. This will overwrite all previous causes.
-     */
-    public void setUseLastWorld(List<String> list) {
-        this.useLastWorld = new HashSet<>(list);
-    }
-
-    /**
-     * Set if moving to last known position should be enforced when changing
-     * world into this group from another.
-     * For specific cause. Atomic update
-     *
-     * @param cause the string representation of the cause that we check.
-     * @param value should we enforce position?
-     */
-    public void setUseLastPosInGroup(String cause, boolean value) {
-        if (value)
-            this.useLastPosInGroup.add(cause);
-        else
-            this.useLastPosInGroup.remove(cause);
-    }
-
-    /**
-     * Set if moving to last known position should be enforced when changing
-     * world into this group from another.
-     * Will overwrtite all previous causes.
-     *
-     * @param list should we enforce position?
-     */
-    public void setUseLastPosInGroup(List<String> list) {
-        this.useLastPosInGroup = new HashSet<>(list);
-    }
-
-    /**
-     * Set if moving to last known position should be enforced when changing
-     * world into this group from another.
-     * For specific cause. Atomic update
-     *
-     * @param cause the string representation of the cause that we check.
-     * @param value should we enforce position?
-     */
-    public void setUseLastPosInWorld(String cause, boolean value) {
-        if (value)
-            this.useLastPosInWorld.add(cause);
-        else
-            this.useLastPosInWorld.remove(cause);
-    }
-
-    /**
-     * Set if moving to last known position should be enforced when changing
-     * worlds within this group.
-     * Will overwrtite all previous causes.
-     *
-     * @param list should we enforce position?
-     */
-    public void setUseLastPosInWorld(List<String> list) {
-        this.useLastPosInWorld = new HashSet<>(list);
-    }
-
 
     /**
      * Get a list of the names of all the worlds in this group.
@@ -333,5 +199,140 @@ public class Group {
      */
     public void setConfigured(boolean configured) {
         this.configured = configured;
+    }
+
+    /**
+     * Check if a cause should redirect player to last known world when changing
+     * world <b>into</b> group.
+     *
+     * @param  cause The {@link TeleportCause} to check.
+     * @return whether to use the last known world when switching to this group.
+     */
+    public boolean shouldUseLastWorld(TeleportCause cause) {
+        return this.enableLastWorldCauses.contains(cause);
+    }
+
+    /**
+     * Get a set of all causes that will cause the player to be redirected to
+     * last known world when changing <b>into</b> this group.
+     *
+     * @return A set of causes that cause the player to be redirected.
+     */
+    public Set<TeleportCause> shouldUseLastWorldCauses() {
+        return new HashSet<>(this.enableLastWorldCauses);
+    }
+
+    /**
+     * Check if a cause should redirect player to last known position in target
+     * world when changing world <b>into</b> this group.
+     *
+     * @param  cause The {@link TeleportCause} to check.
+     * @return whether to use the last position in world when switching to this group.
+     */
+    public boolean shouldUseLastPosToGroup(TeleportCause cause) {
+        return this.enableLastPosToGroupCauses.contains(cause);
+    }
+
+    /**
+     * Get a set of all causes that will cause the player to be redirected to
+     * last known position in target world when changing <b>into</b> this group.
+     *
+     * @return A set of causes that cause the player to be redirected.
+     */
+    public Set<TeleportCause> shouldUseLastPosToGroupCauses() {
+        return new HashSet<TeleportCause>(this.enableLastPosToGroupCauses);
+    }
+
+    /**
+     * Check if a cause should redirect player to last known position in target
+     * world when changing world <b>within</b> this group.
+     *
+     * @param  cause The {@link TeleportCause} to check.
+     * @return whether to use the last position in world when switching within this group.
+     */
+    public boolean shouldUseLastPosWithinGroup(TeleportCause cause) {
+        return this.enableLastPosWithinGroupCauses.contains(cause);
+    }
+
+    /**
+     * Get a set of all causes that will cause the player to be redirected to
+     * last known position in target world when changing <b>within</b> this group.
+     *
+     * @return A set of causes that cause the player to be redirected.
+     */
+    public Set<TeleportCause> shouldUseLastPosWithinGroupCauses() {
+        return new HashSet<>(this.enableLastPosWithinGroupCauses);
+    }
+
+    /**
+     * Set wether a player teleporting into this group should be redirected
+     * to last known world for a specific cause.
+     *
+     * @param cause The {@link TeleportCause} to set.
+     * @param enabled Wether to enable or disable the redirect
+     */
+    public void setLastWorldEnabled(TeleportCause cause, boolean enabled) {
+        if (enabled)
+            this.enableLastWorldCauses.add(cause);
+        else
+            this.enableLastWorldCauses.remove(cause);
+    }
+
+    /**
+     * Replace all causes that should redirect the player to the last known
+     * word when changing world <b>into</b> this group.
+     *
+     * @param causes a {@link Set] of new {@link TeleportCause}s to use.
+     */
+    public void replaceLastWorldCauses(Set<TeleportCause> causes) {
+        this.enableLastWorldCauses = new HashSet<>(causes);
+    }
+
+    /**
+     * Set wether a player teleporting <b>into</b> this group should be redirected
+     * to last known position in target world for a specific cause.
+     *
+     * @param cause The {@link TeleportCause} to set.
+     * @param enabled Wether to enable or disable the redirect
+     */
+    public void setLastPosToGroupEnabled(TeleportCause cause, boolean enabled) {
+        if (enabled)
+            this.enableLastPosToGroupCauses.add(cause);
+        else
+            this.enableLastPosToGroupCauses.remove(cause);
+    }
+
+    /**
+     * Replace all causes that should redirect the player to the last known
+     * position in target world when changing world <b>into</b> this group.
+     *
+     * @param causes a {@link Set] of new {@link TeleportCause}s to use.
+     */
+    public void replaceLastPosToGroupCauses(Set<TeleportCause> causes) {
+        this.enableLastPosToGroupCauses = new HashSet<>(causes);
+    }
+
+    /**
+     * Set wether a player teleporting <b>within</b> this group should be redirected
+     * to last known position in target world for a specific cause.
+     *
+     * @param cause The {@link TeleportCause} to set.
+     * @param enabled Wether to enable or disable the redirect
+     */
+    public void setLastPosWithinGroupEnabled(TeleportCause cause, boolean enabled) {
+        if (enabled)
+            this.enableLastPosWithinGroupCauses.add(cause);
+        else
+            this.enableLastPosWithinGroupCauses.remove(cause);
+    }
+
+    /**
+     * Replace all causes that should redirect the player to the last known
+     * position in target world when changing world <b>within</b> this group.
+     *
+     * @param causes a {@link Set] of new {@link TeleportCause}s to use.
+     */
+    public void replaceLastPosWithinGroupCauses(Set<TeleportCause> causes) {
+        this.enableLastPosWithinGroupCauses = new HashSet<>(causes);
     }
 }
