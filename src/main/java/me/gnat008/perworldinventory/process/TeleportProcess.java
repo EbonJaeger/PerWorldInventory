@@ -13,6 +13,7 @@ import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
 import javax.inject.Inject;
 import java.util.Map;
@@ -121,7 +122,7 @@ public class TeleportProcess {
 
         Map<String, Location> locInWorlds = metaDataManager.<Map<String,Location>>getFromPlayer(player,"lastLocationInWorld");
         Map<String, String> worldInGroups = metaDataManager.<Map<String,String>>getFromPlayer(player,"lastWorldInGroup");
-        String cause = event.getCause().name();
+        TeleportCause cause = event.getCause();
         PwiLogger.debug(String.format("Player '%s' is teleporting from world '%s' to world '%s' cause '%s'",
           player.getName(),
           from.getWorld().getName(),
@@ -129,7 +130,7 @@ public class TeleportProcess {
           cause));
         if (groupTo.isConfigured()) {
             if(groupTo.equals(groupFrom)) {
-                if(groupTo.shouldUseLastPosInWorld(cause)) {
+                if(groupTo.shouldUseLastPosWithinGroup(cause)) {
                     PwiLogger.debug("In group world change and group '"+groupTo.getName()+"' is configured to enforce last position during internal world change on cause '"+cause+"' redirecting...");
                     Location newTo = locInWorlds.get(to.getWorld().getName());
                     if(newTo != null) {
@@ -168,7 +169,7 @@ public class TeleportProcess {
                 } else {
                     PwiLogger.debug("Group '" + groupTo.getName() + "' is NOT configured to enforce world during group change on cause '"+ cause +"'.");
                 }
-                if(groupTo.shouldUseLastPosInGroup(cause)){
+                if(groupTo.shouldUseLastPosToGroup(cause)){
                     PwiLogger.debug("Group '" + groupTo.getName() + "' is configured to enforce last location during group change on cause '"+ cause +"'. Redirecting...");
                     Location newTo = locInWorlds.get(to.getWorld().getName());
                     if(newTo != null) {

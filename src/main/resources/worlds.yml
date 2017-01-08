@@ -8,21 +8,25 @@
 #     - world_the_end
 #     default-gamemode: SURVIVAL
 #     default-world: world
-#     enforceLastWorld:
+#     enforce-last-world-in-group:
 #     - COMMAND
 #     - PLUGIN
 #     - UNKNOWN
-#     enforceLastPosInGroup
+#     enforce-last-pos-to-group:
 #     - COMMAND
 #     - PLUGIN
 #     - UNKNOWN
-#     enforceLastPosInWorld:
+#     enforce-last-pos-within-group:
 #     - COMMAND
 #     - PLUGIN
 #     - UNKNOWN
 #   creative:
 #     worlds:
 #     - creative
+#     enforce-last-pos-to-group:
+#     - COMMAND
+#     - PLUGIN
+#     - UNKNOWN
 #     default-gamemode: CREATIVE
 #     default-world: creative
 #
@@ -34,13 +38,13 @@
 # The default-world is used if a player is supposed to be redirected to the last
 # world in a group, but the player has never been in that group.
 #
-# The enforce-last-world is a list of teleport causes that should enforce
+# The enforce-last-world-in-group is a list of teleport causes that should enforce
 # a change in destination world.
 #
-# The enforce-last-pos-in-group is a list of teleport causes that should enforce
+# The enforce-last-pos-to-group is a list of teleport causes that should enforce
 # a change in destination position when comming from another group
 #
-# the enforce-last-pos-in-world is a list of teleport causes that should enforce a
+# the enforce-last-pos-within-world is a list of teleport causes that should enforce a
 # change in destinadion position when traveling between worlds WITHIN a group.
 # WARNING: Using this on portals will effectively disable the ability to use
 # portal to travel if you have grouped your worlds in survival.
@@ -63,16 +67,16 @@ groups:
     - world_nether
     - world_the_end
     default-gamemode: SURVIVAL
-    default-world: world_creative
+    default-world: world
     enforce-last-world-in-group:
     - COMMAND
     - PLUGIN
     - UNKNOWN
-    enforce-last-pos-in-world:
+    enforce-last-pos-to-group:
     - COMMAND
     - PLUGIN
     - UNKNOWN
-    enforce-last-pos-in-group:
+    enforce-last-pos-within-group:
     - COMMAND
     - PLUGIN
     - UNKNOWN

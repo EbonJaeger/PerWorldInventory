@@ -75,8 +75,8 @@ public class Group {
      * @param useLastWorld A {@link List} of teleport causes that should map to the last world in group
      * @param usePosInWorld A {@link List} of teleport causes that should map to the last position in world
      */
-    public Group(String name, List<String> worlds, Set<TeleportCause> enableLastWorldCauses, Set<TeleportCause> enableLastPosToGroupCauses, Set<TeleportCause> enableLastPosWithinGroupCauses, String defaultWorld, GameMode gameMode) {
-        this(name, worlds, enableLastWorldCauses, enableLastPosToGroupCauses, enableLastPosWithinGroupCauses, defaultWorld, gameMode, false);
+    public Group(String name, List<String> worlds, String defaultWorld, Set<TeleportCause> enableLastWorldCauses, Set<TeleportCause> enableLastPosToGroupCauses, Set<TeleportCause> enableLastPosWithinGroupCauses, GameMode gameMode) {
+        this(name, worlds, defaultWorld, enableLastWorldCauses, enableLastPosToGroupCauses, enableLastPosWithinGroupCauses, gameMode, false);
     }
 
     /**
@@ -89,7 +89,7 @@ public class Group {
      * @param usePosInWorld A {@link List} of teleport causes that should map to the last position in world
      * @param configured If the group is defined in the worlds.yml file.
      */
-    public Group(String name, List<String> worlds, Set<TeleportCause> enableLastWorldCauses, Set<TeleportCause> enableLastPosToGroupCauses, Set<TeleportCause> enableLastPosWithinGroupCauses, String defaultWorld, GameMode gameMode, boolean configured) {
+    public Group(String name, List<String> worlds, String defaultWorld, Set<TeleportCause> enableLastWorldCauses, Set<TeleportCause> enableLastPosToGroupCauses, Set<TeleportCause> enableLastPosWithinGroupCauses, GameMode gameMode, boolean configured) {
         this.name = name;
         this.worlds = worlds;
         this.gameMode = gameMode;

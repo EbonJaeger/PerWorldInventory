@@ -24,6 +24,7 @@ import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import org.bukkit.GameMode;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -32,6 +33,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 
 public class GroupManager {
 
@@ -75,8 +78,8 @@ public class GroupManager {
      * @param name The name of the group.
      * @param worlds A list of world names in this group.
      */
-    public void addGroup(String name, List<String> worlds, List<String> useLastWorld, List<String> useLastPosInGroup, List<String> useLastPosInWorld, String defaultWorld) {
-        addGroup(name, worlds, useLastWorld, useLastPosInGroup,useLastPosInWorld, defaultWorld, GameMode.SURVIVAL);
+    public void addGroup(String name, List<String> worlds, String defaultWorld, Set<TeleportCause> enableLastWorldCauses, Set<TeleportCause> enableLastPosToGroupCauses, Set<TeleportCause> enableLastPosWithinGroupCauses) {
+        addGroup(name, worlds, defaultWorld, enableLastWorldCauses, enableLastPosToGroupCauses, enableLastPosWithinGroupCauses, GameMode.SURVIVAL);
     }
 
     /**
@@ -86,10 +89,10 @@ public class GroupManager {
      * @param worlds A list of world names in this group.
      * @param gamemode The default GameMode for this group.
      */
-    public void addGroup(String name, List<String> worlds, List<String> useLastWorld, List<String> useLastPosInGroup, List<String> useLastPosInWorld, String defaultWorld, GameMode gamemode) {
+    public void addGroup(String name, List<String> worlds, String defaultWorld, Set<TeleportCause> enableLastWorldCauses, Set<TeleportCause> enableLastPosToGroupCauses, Set<TeleportCause> enableLastPosWithinGroupCauses, GameMode gamemode) {
         PwiLogger.debug("Adding group to memory. Group: " + name + " Worlds: " + worlds.toString() + " Gamemode: " + gamemode.name());
 
-        groups.put(name.toLowerCase(), new Group(name, worlds, useLastWorld, useLastPosInGroup, useLastPosInWorld, defaultWorld, gamemode, true));
+        groups.put(name.toLowerCase(), new Group(name, worlds, defaultWorld, enableLastWorldCauses, enableLastPosToGroupCauses, enableLastPosWithinGroupCauses, gamemode, true));
     }
 
     /**
@@ -153,9 +156,9 @@ public class GroupManager {
                 }
             }
 
-            List<String> lastWorld = config.getStringList("groups." + key + ".enforce-last-world-in-group");
-            List<String> lastPosInGroup = config.getStringList("groups." + key + ".enforce-last-pos-in-group");
-            List<String> lastPosInWorld = config.getStringList("groups." + key + ".enforce-last-pos-in-world");
+            Set<TeleportCause> lastWorld = stringListToCauseSet(config.getStringList("groups." + key + ".enforce-last-world-in-group"));
+            Set<TeleportCause> lastPosToGroup = stringListToCauseSet(config.getStringList("groups." + key + ".enforce-last-pos-to-group"));
+            Set<TeleportCause> lastPosWithinGroup = stringListToCauseSet(config.getStringList("groups." + key + ".enforce-last-pos-within-group"));
             String defaultWorld = config.getString("groups." + key + ".default-world");
 
 
@@ -165,9 +168,9 @@ public class GroupManager {
                     gameMode = GameMode.valueOf(config.getString("groups." + key + ".default-gamemode").toUpperCase());
                 }
 
-                addGroup(key, worlds, lastWorld, lastPosInGroup, lastPosInWorld, defaultWorld, gameMode);
+                addGroup(key, worlds, defaultWorld, lastWorld, lastPosToGroup, lastPosWithinGroup, gameMode);
             } else {
-                addGroup(key, worlds, lastWorld, lastPosInGroup, lastPosInWorld, defaultWorld);
+                addGroup(key, worlds, defaultWorld, lastWorld, lastPosToGroup, lastPosWithinGroup);
             }
 
             setDefaultsFile(key);
@@ -188,10 +191,10 @@ public class GroupManager {
             groupsConfigFile.set(groupKey + ".worlds", group.getWorlds());
             // Saving gamemode regardless of management; might be saving after convert
             groupsConfigFile.set(groupKey + ".default-gamemode", group.getGameMode().name());
-            groupsConfigFile.set(groupKey + ".enforce-last-world", group.shouldUseLastWorld());
-            groupsConfigFile.set(groupKey + ".enforce-last-pos-in-group", group.shouldUseLastPosInGroup());
-            groupsConfigFile.set(groupKey + ".enforce-last-pos-in-world", group.shouldUseLastPosInWorld());
-            groupsConfigFile.set(groupKey + ".enforce-last-pos-in-world", group.getDefaultWorld());
+            groupsConfigFile.set(groupKey + ".enforce-last-world-in-group", causeSetToStringList(group.shouldUseLastWorldCauses()));
+            groupsConfigFile.set(groupKey + ".enforce-last-pos-to-group", causeSetToStringList(group.shouldUseLastPosToGroupCauses()));
+            groupsConfigFile.set(groupKey + ".enforce-last-pos-within-group", causeSetToStringList(group.shouldUseLastPosWithinGroupCauses()));
+            groupsConfigFile.set(groupKey + ".default-world", group.getDefaultWorld());
         }
 
         try {
@@ -199,6 +202,27 @@ public class GroupManager {
         } catch (IOException ex) {
             PwiLogger.warning("Could not save the groups config to disk:", ex);
         }
+    }
+
+
+    private Set<TeleportCause> stringListToCauseSet(List<String> causeStrings) {
+        Set<TeleportCause> causes = new HashSet<>();
+        for (String causeString : causeStrings) {
+            try {
+                causes.add(TeleportCause.valueOf(causeString));
+            } catch (IllegalArgumentException|NullPointerException ex) {
+                PwiLogger.warning("Error when processing TeleportCause '"+causeString+"'. No such TeleportCause. Please check your spelling carefully, and look at the documentation for valid TeleportCauses.");
+            }
+        }
+        return causes;
+    }
+
+    private List<String> causeSetToStringList(Set<TeleportCause> causes) {
+        List<String> list = new ArrayList<>();
+        for (TeleportCause cause : causes) {
+            list.add(cause.name());
+        }
+        return list;
     }
 
     private void setDefaultsFile(String group) {
