@@ -59,7 +59,10 @@ public class TeleportProcess {
                 Group groupFrom = groupManager.getGroupFromWorld(from.getWorld().getName());
                 Map<String, Location> lastLocInWorlds = metaDataManager.getLastLocationInWorldMap(player);
                 Map<String, String> lastWorldInGroups = metaDataManager.getLastWorldInGroupMap(player);
-                PwiLogger.debug("Last location storage override enabled; Keeping player '"+player.getName()+"' last location.");
+
+                PwiLogger.debug("Last location storage override enabled; Keeping player '"
+                + player.getName() + "' last location.");
+
                 lastLocInWorlds.put(from.getWorld().getName(),from);
                 lastWorldInGroups.put(groupFrom.getName(),from.getWorld().getName());
             }
@@ -71,34 +74,31 @@ public class TeleportProcess {
         TeleportCause cause = event.getCause();
 
         if (event.isCancelled()) {
-            PwiLogger.debug(String.format("Player '%s' tried to teleport from '%s' to '%s', but the event was previously cancelled, dismissing handler",
-              player.getName(),
-              from,
-              to));
+            PwiLogger.debug("Player '"
+            + player.getName() + "' tried to teleport from '" + from + "' to '"
+            + to + "', but the event was previously cancelled, dismissing handler");
             return;
         }
 
         if (from == null || from.getWorld() == null) {
-            PwiLogger.warning(String.format("Player '%s' tried to teleport from '%s' to '%s', but got null on origin. dismissing handler.",
-              player.getName(),
-              from,
-              to));
+            PwiLogger.warning("Player '" + player.getName()
+            + "' tried to teleport from '" + from + "' to '"
+            + to + "', but got null on origin. dismissing handler.");
             return;
         }
 
         if (to == null || to.getWorld() == null) {
-            PwiLogger.warning(String.format("Player '%s' tried to teleport from '%s' to '%s', but got null on origin. dismissing handler.",
-              player.getName(),
-              from,
-              to));
+            PwiLogger.warning("Player '" + player.getName()
+            + "' tried to teleport from '" + from + "' to '"
+            + to + "', but got null on origin. dismissing handler.");
             return;
         }
 
         if (from.getWorld().equals(to.getWorld())) {
-            PwiLogger.debug(String.format("Player '%s' is teleporting from world '%s' to world '%s', in-world teleport, dismissing handler.",
-              player.getName(),
-              from.getWorld().getName(),
-              to.getWorld().getName()));
+            PwiLogger.debug("Player '" + player.getName()
+            + "' is teleporting from world '" + from.getWorld().getName()
+            + "' to world '" + to.getWorld().getName()
+            + "', in-world teleport, dismissing handler.");
             return;
         }
 
@@ -157,7 +157,8 @@ public class TeleportProcess {
             to = newTo;
             event.setTo(to);
         } else {
-            PwiLogger.debug("Player has not visited world '"+to.getWorld().getName()+"' yet. Redirecting to spawn...");
+            PwiLogger.debug("Player has not visited world '"
+            + to.getWorld().getName() + "' yet. Redirecting to spawn...");
             to = to.getWorld().getSpawnLocation();
             event.setTo(to);
         }
@@ -200,16 +201,24 @@ public class TeleportProcess {
             return toLastWorld.getSpawnLocation();
         } else {
             if(group.getDefaultWorld() != null) {
-                PwiLogger.debug("It appears the player has never been in group '"+ group.getName()+ "' Redirecting to default world '"+ group.getDefaultWorld() +"'");
+                PwiLogger.debug("It appears the player has never been in group '"
+                + group.getName()+ "' Redirecting to default world '"
+                + group.getDefaultWorld() + "'");
+
                 World defaultWorld = server.getWorld(group.getDefaultWorld());
                 if(defaultWorld != null) {
                     return defaultWorld.getSpawnLocation();
                 } else {
-                    PwiLogger.warning("It appears the player has never been in group '"+ group.getName()+ "' and the default world '" + group.getDefaultWorld() + "' is missing. dismissing world redirect.");
+                    PwiLogger.warning("It appears the player has never been in group '"
+                    + group.getName()+ "' and the default world '"
+                    + group.getDefaultWorld() + "' is missing. dismissing world redirect.");
+
                     return to;
                 }
             } else {
-                PwiLogger.debug("It appears the player has never been in group '"+ group.getName()+ "' and no default world has been set. dismissing world redirect.");
+                PwiLogger.debug("It appears the player has never been in group '"
+                + group.getName()+ "' and no default world has been set. dismissing world redirect.");
+
                 return to;
             }
         }

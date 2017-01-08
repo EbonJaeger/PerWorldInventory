@@ -290,16 +290,17 @@ public class FileWriter implements DataWriter {
         } catch (IOException exIO) {
             String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
 
-            PwiLogger.severe(String.format("Unable to read last-location-in-world data for '%s' reason:",
-            playerName!=null?playerName:"UNKNOWN_PLAYER"
-            ), exIO);
+            PwiLogger.severe("Unable to read last-location-in-world data for '"
+            + (playerName!=null?playerName:"UNKNOWN_PLAYER") + "' reason:"
+            , exIO);
+
             return null;
         } catch (Exception ex) {
             String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
 
-            PwiLogger.severe(String.format("Werid exception while trying to read last-location-in-world data for player '%s':",
-            playerName!=null?playerName:"UNKNOWN_PLAYER"
-            ), ex);
+            PwiLogger.severe("Werid exception while trying to read last-location-in-world data for player '"
+            + (playerName!=null?playerName:"UNKNOWN_PLAYER") + "':"
+            , ex);
             return null;
         }
     }
@@ -317,15 +318,15 @@ public class FileWriter implements DataWriter {
         } catch (IOException exIO) {
             String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
 
-            PwiLogger.severe(String.format("Unable to save last-world-in-group data for '%s' reason:",
-            playerName!=null?playerName:"UNKNOWN_PLAYER"
-            ), exIO);
+            PwiLogger.severe("Unable to save last-world-in-group data for '"
+            + (playerName!=null?playerName:"UNKNOWN_PLAYER") + "' reason:"
+            , exIO);
+
         } catch (Exception ex) {
             String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
 
-            PwiLogger.severe(String.format("Werid exception while trying to save last-world-in-group data for player '%s':",
-            playerName!=null?playerName:"UNKNOWN_PLAYER"
-            ), ex);
+            PwiLogger.severe("Werid exception while trying to save last-world-in-group data for player '"
+            + (playerName!=null?playerName:"UNKNOWN_PLAYER") + "':", ex);
         }
     }
 
@@ -334,8 +335,9 @@ public class FileWriter implements DataWriter {
         if(lastLocData != null) {
             saveLastLocationInWorld(player.getUniqueId(), lastLocData);
         } else {
-            PwiLogger.severe(String.format("Player '%s' did not have any metadata for last location in world.",
-            player.getName()));
+            PwiLogger.severe("Player '"
+            + player.getName()
+            + "' did not have any metadata for last location in world.");
         }
     }
 
@@ -352,14 +354,16 @@ public class FileWriter implements DataWriter {
         } catch (IOException exIO) {
             String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
 
-            PwiLogger.severe(String.format("Unable to read last-world-in-group data for '%s' reason:",
-                playerName != null ? playerName : "UNKNOWN_PLAYER"), exIO);
+            PwiLogger.severe("Unable to read last-world-in-group data for '"
+            + (playerName != null ? playerName : "UNKNOWN_PLAYER") + "' reason:"
+            , exIO);
             return null;
         } catch (Exception ex) {
             String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
 
-            PwiLogger.severe(String.format("Weird exception while trying to read last-world-in-group data for player '%s':",
-                playerName != null ? playerName : "UNKNOWN_PLAYER"), ex);
+            PwiLogger.severe("Weird exception while trying to read last-world-in-group data for player '"
+            + (playerName != null ? playerName : "UNKNOWN_PLAYER") + "':"
+            , ex);
             return null;
         }
     }
@@ -377,13 +381,15 @@ public class FileWriter implements DataWriter {
         } catch (IOException exIO) {
             String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
 
-            PwiLogger.severe(String.format("Unable to save last-group-in-world data for '%s' reason:",
-                playerName != null ? playerName : "UNKNOWN_PLAYER"), exIO);
+            PwiLogger.severe("Unable to save last-group-in-world data for '"
+            + (playerName != null ? playerName : "UNKNOWN_PLAYER") + "' reason:"
+            , exIO);
         } catch (Exception ex) {
             String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
 
-            PwiLogger.severe(String.format("Werid exception while trying to save last-group-in-world data for player '%s':",
-                playerName != null ? playerName : "UNKNOWN_PLAYER"), ex);
+            PwiLogger.severe("Werid exception while trying to save last-group-in-world data for player '"
+            + (playerName != null ? playerName : "UNKNOWN_PLAYER") + "':"
+            , ex);
         }
     }
 
@@ -392,8 +398,8 @@ public class FileWriter implements DataWriter {
         if (lastWorldData != null) {
             saveLastWorldInGroup(player.getUniqueId(), lastWorldData);
         } else {
-            PwiLogger.severe(String.format("Player '%s' did not have any metadata for last world in group.",
-                player.getName()));
+            PwiLogger.severe("Player '" + player.getName()
+            + "' did not have any metadata for last world in group.");
         }
     }
 }
