@@ -29,23 +29,23 @@ public class LastWorldInGroupSerializer {
     public LastWorldInGroupSerializer() {}
 
     /**
-     * Serailze the last world of a player in groups into a json-string.
+     * Serialize the last world of a player in groups into a json-string.
      *
-     * @param locationInWorld The map of the players world in groups.
+     * @param worldInGroup The map of the players world in groups.
      * @return The JsonObject
      */
     public static JsonObject serialize(Map<String, String> worldInGroup) {
         JsonObject root = new JsonObject();
-        for(Map.Entry<String, String> entry : worldInGroup.entrySet()) {
+        for (Map.Entry<String, String> entry : worldInGroup.entrySet()) {
             root.addProperty(entry.getKey(), entry.getValue());
         }
         return root;
     }
 
     /**
-     * Serailze the last world of a player in groups into a json-string.
+     * Serialize the last world of a player in groups into a json-string.
      *
-     * @param locationInWorld The map of the players world in groups.
+     * @param worldInGroup The map of the players world in groups.
      * @return The string representation of the json object.
      */
     public static String serializeAsString(Map<String, String> worldInGroup) {
@@ -61,7 +61,7 @@ public class LastWorldInGroupSerializer {
      */
     public static Map<String, String> deserialize(JsonObject worldInGroup) {
         Map<String, String> map = new HashMap<String, String>();
-        for(Map.Entry<String, JsonElement> entry : worldInGroup.entrySet()) {
+        for (Map.Entry<String, JsonElement> entry : worldInGroup.entrySet()) {
             map.put(entry.getKey(),entry.getValue().getAsString());
         }
         return map;

@@ -3,23 +3,21 @@ package me.gnat008.perworldinventory.process;
 import me.gnat008.perworldinventory.PwiLogger;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
-import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.data.metadata.PWIMetaDataManager;
+import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.permission.PermissionManager;
 import me.gnat008.perworldinventory.permission.PlayerPermission;
 import org.bukkit.GameMode;
-import org.bukkit.entity.Player;
 import org.bukkit.Location;
-import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
-import java.util.Map;
-
 import javax.inject.Inject;
+import java.util.Map;
 
 /**
  * Process to follow when a player's inventory is changing.
@@ -57,7 +55,7 @@ public class TeleportProcess {
         Location from = event.getFrom();
         Location to = event.getTo();
 
-        if(event.isCancelled()) {
+        if (event.isCancelled()) {
             PwiLogger.debug(String.format("Player '%s' tried to teleport from '%s' to '%s', but the event was previously cancelled, dismissing handler",
               player.getName(),
               from,
@@ -65,7 +63,7 @@ public class TeleportProcess {
             return;
         }
 
-        if(from == null || from.getWorld() == null) {
+        if (from == null || from.getWorld() == null) {
             PwiLogger.warning(String.format("Player '%s' tried to teleport from '%s' to '%s', but got null on origin. Cancelling teleport.",
               player.getName(),
               from,
@@ -74,7 +72,7 @@ public class TeleportProcess {
             return;
         }
 
-        if(to == null || to.getWorld() == null) {
+        if (to == null || to.getWorld() == null) {
             PwiLogger.warning(String.format("Player '%s' tried to teleport from '%s' to '%s', but got null on origin. Cancelling teleport.",
               player.getName(),
               from,
@@ -83,7 +81,7 @@ public class TeleportProcess {
             return;
         }
 
-        if(from.getWorld().equals(to.getWorld())) {
+        if (from.getWorld().equals(to.getWorld())) {
             PwiLogger.debug(String.format("Player '%s' is teleporting from world '%s' to world '%s', in-world teleport, dismissing handler.",
               player.getName(),
               from.getWorld().getName(),
@@ -93,14 +91,14 @@ public class TeleportProcess {
 
         processTeleport(player, event, from, to);
 
-        if(event.isCancelled()) {
+        if (event.isCancelled()) {
             PwiLogger.debug(String.format("Player '%s' was switching worlds, but the teleport was canceled during the teleport process.",
               player.getName()));
             event.setCancelled(true);
             return;
         }
 
-        if(to.getWorld().equals(from.getWorld())) {
+        if (to.getWorld().equals(from.getWorld())) {
             PwiLogger.debug(String.format("Player '%s' was switching worlds, but somehow the teleport process ended up teleporting the player back to '%s'. Cancelling teleport.",
               player.getName(),
               from.getWorld().getName()));

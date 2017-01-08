@@ -1,16 +1,16 @@
 package me.gnat008.perworldinventory.process;
 
 import me.gnat008.perworldinventory.PwiLogger;
+import me.gnat008.perworldinventory.data.metadata.PWIMetaDataManager;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
-import me.gnat008.perworldinventory.data.metadata.PWIMetaDataManager;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
-import org.bukkit.entity.Player;
 import org.bukkit.Location;
-import java.util.Map;
+import org.bukkit.entity.Player;
 
 import javax.inject.Inject;
+import java.util.Map;
 
 /**
  * Handle a player leaving the server.
@@ -23,7 +23,8 @@ public class PlayerQuitProcess {
     @Inject
     private PWIPlayerManager playerManager;
 
-    @Inject private PWIMetaDataManager metaDataManager;
+    @Inject
+    private PWIMetaDataManager metaDataManager;
 
     PlayerQuitProcess() {
     }
