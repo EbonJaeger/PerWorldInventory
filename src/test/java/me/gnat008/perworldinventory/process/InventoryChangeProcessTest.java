@@ -27,13 +27,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
- * Tests for {@link TeleportProcess}.
+ * Tests for {@link InventoryChangeProcess}.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class TeleportProcessTest {
+public class InventoryChangeProcessTest {
 
     @InjectMocks
-    private TeleportProcess process;
+    private InventoryChangeProcess process;
 
     @Mock
     private GroupManager groupManager;

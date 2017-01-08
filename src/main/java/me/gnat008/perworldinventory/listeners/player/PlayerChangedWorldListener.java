@@ -17,26 +17,26 @@
 
 package me.gnat008.perworldinventory.listeners.player;
 
-import me.gnat008.perworldinventory.process.TeleportProcess;
+import me.gnat008.perworldinventory.process.InventoryChangeProcess;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 
 import javax.inject.Inject;
 
-public class PlayerTeleportListener implements Listener {
+public class PlayerChangedWorldListener implements Listener {
 
-    private TeleportProcess process;
+    private InventoryChangeProcess process;
 
     @Inject
-    PlayerTeleportListener(TeleportProcess process) {
+    PlayerChangedWorldListener(InventoryChangeProcess process) {
         this.process = process;
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerTeleport(PlayerTeleportEvent event) {
-        process.preProcessTeleport(event);
+    public void onPlayerChangeWorld(PlayerChangedWorldEvent event) {
+        process.preProcessWorldChange(event);
     }
 }
