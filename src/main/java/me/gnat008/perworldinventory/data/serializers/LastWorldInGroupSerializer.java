@@ -26,7 +26,7 @@ import java.util.HashMap;
 
 public class LastWorldInGroupSerializer {
 
-    public LastWorldInGroupSerializer() {}
+    private LastWorldInGroupSerializer() {}
 
     /**
      * Serialize the last world of a player in groups into a json-string.

@@ -53,18 +53,15 @@ public class FileWriter implements DataWriter {
     private final PerWorldInventory plugin;
     private final PlayerSerializer playerSerializer;
     private final PWIPlayerFactory pwiPlayerFactory;
-    private final LastWorldInGroupSerializer lastWorldInGroupSerializer;
     private final PWIMetaDataManagerProvider metaDataManagerProvider;
 
     @Inject
     FileWriter(@DataFolder File dataFolder, PerWorldInventory plugin, PlayerSerializer playerSerializer,
-               PWIPlayerFactory pwiPlayerFactory,
-               LastWorldInGroupSerializer lastWorldInGroupSerializer, PWIMetaDataManagerProvider metaDataManagerProvider) {
+               PWIPlayerFactory pwiPlayerFactory, PWIMetaDataManagerProvider metaDataManagerProvider) {
         this.FILE_PATH = new File(dataFolder, "data");
         this.plugin = plugin;
         this.playerSerializer = playerSerializer;
         this.pwiPlayerFactory = pwiPlayerFactory;
-        this.lastWorldInGroupSerializer = lastWorldInGroupSerializer;
         this.metaDataManagerProvider = metaDataManagerProvider;
     }
 
@@ -376,7 +373,7 @@ public class FileWriter implements DataWriter {
             if (!file.exists()) {
                 file.createNewFile();
             }
-            writeData(file, lastWorldInGroupSerializer.serializeAsString(worldInGroups));
+            writeData(file, LastWorldInGroupSerializer.serializeAsString(worldInGroups));
         } catch (IOException exIO) {
             String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
 

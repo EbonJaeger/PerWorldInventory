@@ -27,7 +27,7 @@ import java.util.HashMap;
 
 public class LastLocationInWorldSerializer {
 
-    public LastLocationInWorldSerializer() {}
+    private LastLocationInWorldSerializer() {}
 
     /**
      * Serialize the last location of a player in worlds into a JsonObject.
