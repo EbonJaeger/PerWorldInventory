@@ -188,10 +188,10 @@ public class GroupManager {
             groupsConfigFile.set(groupKey + ".worlds", group.getWorlds());
             // Saving gamemode regardless of management; might be saving after convert
             groupsConfigFile.set(groupKey + ".default-gamemode", group.getGameMode().name());
-            groupsConfigFile.set(groupKey + ".enforceLastWorld", group.shouldUseLastWorld());
-            groupsConfigFile.set(groupKey + ".enforceLastPosInGroup", group.shouldUseLastPosInGroup());
-            groupsConfigFile.set(groupKey + ".enforceLastPosInWorld", group.shouldUseLastPosInWorld());
-            groupsConfigFile.set(groupKey + ".enforceLastPosInWorld", group.getDefaultWorld());
+            groupsConfigFile.set(groupKey + ".enforce-last-world", group.shouldUseLastWorld());
+            groupsConfigFile.set(groupKey + ".enforce-last-pos-in-group", group.shouldUseLastPosInGroup());
+            groupsConfigFile.set(groupKey + ".enforce-last-pos-in-world", group.shouldUseLastPosInWorld());
+            groupsConfigFile.set(groupKey + ".enforce-last-pos-in-world", group.getDefaultWorld());
         }
 
         try {
