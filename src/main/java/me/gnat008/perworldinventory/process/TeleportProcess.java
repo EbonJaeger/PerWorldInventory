@@ -190,7 +190,8 @@ public class TeleportProcess {
     }
 
     private Location processWorldRedirect(Location to, Group group, Map<String, String> lastWorldInGroups) {
-        World toLastWorld = server.getWorld(lastWorldInGroups.get(group.getName()));
+        String lastWorldString = lastWorldInGroups.get(group.getName());
+        World toLastWorld = lastWorldString != null? server.getWorld(lastWorldString):null;
         if(toLastWorld != null) {
             if(toLastWorld.equals(to.getWorld())) {
                 PwiLogger.debug("Player is already changing to world '"
