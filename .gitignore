@@ -113,3 +113,6 @@ local.properties
 
 # TeXlipse plugin
 .texlipse
+
+# maven-atom plugin.
+effective.pom

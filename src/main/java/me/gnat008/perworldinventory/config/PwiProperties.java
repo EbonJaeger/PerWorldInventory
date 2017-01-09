@@ -127,6 +127,21 @@ public final class PwiProperties implements SettingsHolder {
     public static final Property<Boolean> DISABLE_BYPASS =
             newProperty("disable-bypass", false);
 
+    @Comment({
+        "Enables last location checking and storing",
+        "Defaults to true"})
+    public static final Property<Boolean> ENABLE_LAST_LOCATION =
+            newProperty("enable-last-location", true);
+
+    @Comment({
+        "Keep storing last location even when last-location is disabled",
+        "Enable this if you want to disable the plugin due to some issue, but still want",
+        "to keep track of players last position for when you enable it again",
+        "Disable this to keep the old data from when last-location was enabled",
+        "Defaults to false"})
+    public static final Property<Boolean> LAST_LOCATION_OVERRIDE_STORAGE =
+            newProperty("last-location-override-storage", false);
+
     private PwiProperties() {
     }
 

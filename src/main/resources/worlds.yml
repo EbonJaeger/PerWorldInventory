@@ -7,15 +7,59 @@
 #     - world_nether
 #     - world_the_end
 #     default-gamemode: SURVIVAL
+#     default-world: world
+#     enforce-last-world-in-group:
+#     - COMMAND
+#     - PLUGIN
+#     - UNKNOWN
+#     enforce-last-pos-to-group:
+#     - COMMAND
+#     - PLUGIN
+#     - UNKNOWN
+#     enforce-last-pos-within-group:
+#     - COMMAND
+#     - PLUGIN
+#     - UNKNOWN
 #   creative:
 #     worlds:
 #     - creative
+#     enforce-last-pos-to-group:
+#     - COMMAND
+#     - PLUGIN
+#     - UNKNOWN
 #     default-gamemode: CREATIVE
+#     default-world: creative
 #
 # 'default' and 'creative' are the names of the groups
 # worlds: is a list of all worlds in the group
 # If you have 'manage-gamemodes' set to true in the main config, the server
-# will use the 'default-gamemode' here to know what gamemode to put users in.
+# will use the 'default-gamemode' here to know what gamemode to put users in
+#
+# The default-world is used if a player is supposed to be redirected to the last
+# world in a group, but the player has never been in that group.
+#
+# The enforce-last-world-in-group is a list of teleport causes that should enforce
+# a change in destination world.
+#
+# The enforce-last-pos-to-group is a list of teleport causes that should enforce
+# a change in destination position when comming from another group
+#
+# the enforce-last-pos-within-world is a list of teleport causes that should enforce a
+# change in destinadion position when traveling between worlds WITHIN a group.
+# WARNING: Using this on portals will effectively disable the ability to use
+# portal to travel if you have grouped your worlds in survival.
+# In the case of end-portals, may cause an infinite loop of
+# going back and forth to the end. You have been warned.
+#
+# Possible values for teleport causes are
+# - CHORUS_FRUIT ##-Indicates the teleportation was caused by a player consuming chorus fruit-##
+# - COMMAND ##-Indicates the teleportation was caused by a player executing a command-##
+# - END_GATEWAY ##-Indicates the teleportation was caused by a player entering an End gateway-##
+# - END_PORTAL ##-Indicates the teleportation was caused by a player entering an End portal-##
+# - NETHER_PORTAL ##-Indicates the teleportation was caused by a player entering a Nether portal-##
+# - PLUGIN ##-Indicates the teleportation was caused by a plugin-##
+# - SPECTATE ##-Indicates the teleportation was caused by a player teleporting to a Entity/Player via the specatator menu-##
+# - UNKNOWN ##-Indicates the teleportation had an unknown cause-##
 groups:
   default:
     worlds:
@@ -23,3 +67,16 @@ groups:
     - world_nether
     - world_the_end
     default-gamemode: SURVIVAL
+    default-world: world
+    enforce-last-world-in-group:
+    - COMMAND
+    - PLUGIN
+    - UNKNOWN
+    enforce-last-pos-to-group:
+    - COMMAND
+    - PLUGIN
+    - UNKNOWN
+    enforce-last-pos-within-group:
+    - COMMAND
+    - PLUGIN
+    - UNKNOWN

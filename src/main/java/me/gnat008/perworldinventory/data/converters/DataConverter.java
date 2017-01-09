@@ -68,6 +68,8 @@ public class DataConverter {
             Group pwiGroup = groupManager.getGroup(mvgroup.getName());
             List<String> worlds = new ArrayList<>(mvgroup.getWorlds());
 
+            // @TODO: I don't know and don't care enough about Multi-Inventories
+            // to try and figure out if the location-saving can be ported.
             if (pwiGroup == null)
                 groupManager.addGroup(mvgroup.getName(), worlds);
             else

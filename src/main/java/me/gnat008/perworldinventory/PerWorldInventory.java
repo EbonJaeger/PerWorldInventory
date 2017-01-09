@@ -34,8 +34,9 @@ import me.gnat008.perworldinventory.data.FileWriter;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.listeners.entity.EntityPortalEventListener;
-import me.gnat008.perworldinventory.listeners.player.PlayerChangedWorldListener;
 import me.gnat008.perworldinventory.listeners.player.PlayerGameModeChangeListener;
+import me.gnat008.perworldinventory.listeners.player.PlayerTeleportListener;
+import me.gnat008.perworldinventory.listeners.player.PlayerChangedWorldListener;
 import me.gnat008.perworldinventory.listeners.player.PlayerQuitListener;
 import me.gnat008.perworldinventory.listeners.player.PlayerSpawnLocationListener;
 import me.gnat008.perworldinventory.listeners.server.PluginListener;
@@ -63,7 +64,6 @@ import java.util.List;
 import java.util.Map;
 
 public class PerWorldInventory extends JavaPlugin {
-
     private PerWorldInventoryAPI api;
     private Economy economy;
     private DataWriter serializer;
@@ -115,6 +115,7 @@ public class PerWorldInventory extends JavaPlugin {
         injector.provide(DataFolder.class, getDataFolder());
         settings = initSettings();
         injector.register(Settings.class, settings);
+
         PwiLogger.setUseDebug(settings.getProperty(PwiProperties.DEBUG_MODE));
         injectServices(injector);
         registerEventListeners(injector);
@@ -165,8 +166,9 @@ public class PerWorldInventory extends JavaPlugin {
 
         pluginManager.registerEvents(injector.getSingleton(PluginListener.class), this);
 
-        pluginManager.registerEvents(injector.getSingleton(PlayerChangedWorldListener.class), this);
         pluginManager.registerEvents(injector.getSingleton(PlayerGameModeChangeListener.class), this);
+        pluginManager.registerEvents(injector.getSingleton(PlayerTeleportListener.class), this);
+        pluginManager.registerEvents(injector.getSingleton(PlayerChangedWorldListener.class), this);
         pluginManager.registerEvents(injector.getSingleton(PlayerQuitListener.class), this);
         pluginManager.registerEvents(injector.getSingleton(EntityPortalEventListener.class), this);
 
