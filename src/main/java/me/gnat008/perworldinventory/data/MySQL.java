@@ -160,7 +160,12 @@ public class MySQL implements DataSource {
     public void saveToDatabase(Group group, GameMode gamemode, PWIPlayer player) {
         String uuid = player.getUuid().toString().replace("-", "");
 
-        boolean exists = isDataStored(uuid, group.getName(), gamemode.name());
+        String pid = isDataStored(uuid, group.getName(), gamemode.name());
+        if (pid != null) { // Data already exists, update
+
+        } else { // Insert data for the first time
+
+        }
     }
 
     @Override
@@ -192,44 +197,35 @@ public class MySQL implements DataSource {
 
             // Armor
             sql = "CREATE TABLE IF NOT EXISTS " + prefix + "armor (" +
-                    "id INT NOT NULL AUTO_INCREMENT," +
                     "pid INT NOT NULL," +
                     "items BLOB NOT NULL," +
-                    "PRIMARY KEY (id)," +
                     "FOREIGN KEY (pid) REFERENCES " + prefix + "players(pid));";
             statement.executeUpdate(sql);
 
             // Inventory
             sql = "CREATE TABLE IF NOT EXISTS " + prefix + "inventory (" +
-                    "id INT NOT NULL AUTO_INCREMENT," +
                     "pid INT NOT NULL," +
                     "items BLOB NOT NULL," +
-                    "PRIMARY KEY (id)," +
                     "FOREIGN KEY (pid) REFERENCES " + prefix + "players(pid));";
             statement.executeUpdate(sql);
 
             // Enderchest
             sql = "CREATE TABLE IF NOT EXISTS " + prefix + "enderchest (" +
-                    "id INT NOT NULL AUTO_INCREMENT," +
                     "pid INT NOT NULL," +
                     "items BLOB NOT NULL," +
-                    "PRIMARY KEY (id)," +
                     "FOREIGN KEY (pid) REFERENCES " + prefix + "players(pid));";
             statement.executeUpdate(sql);
 
             // Economy
             sql = "CREATE TABLE IF NOT EXISTS " + prefix + "economy (" +
-                    "id INT NOT NULL AUTO_INCREMENT," +
                     "pid INT NOT NULL," +
                     "bank_balance DOUBLE," +
                     "balance DOUBLE," +
-                    "PRIMARY KEY (id)," +
                     "FOREIGN KEY (pid) REFERENCES " + prefix + "players(pid));";
             statement.executeUpdate(sql);
 
             // Stats
             sql = "CREATE TABLE IF NOT EXISTS " + prefix + "stats (" +
-                    "id INT NOT NULL AUTO_INCREMENT," +
                     "pid INT NOT NULL," +
                     "can_fly BOOL NOT NULL," +
                     "display_name VARCHAR(16) NOT NULL," +
@@ -245,7 +241,6 @@ public class MySQL implements DataSource {
                     "fire_ticks INT NOT NULL," +
                     "max_air INT NOT NULL," +
                     "remaining_air INT NOT NULL," +
-                    "PRIMARY KEY (id)," +
                     "FOREIGN KEY (pid) REFERENCES " + prefix + "players(pid));";
             statement.executeUpdate(sql);
 
@@ -266,13 +261,15 @@ public class MySQL implements DataSource {
 
     /**
      * Check if data with the given parameters are already stored in the database.
+     * This method will return the pid to use in the lookup of more data if data exists
+     * with the given parameters. If none exists, the method will return null.
      *
      * @param uuid The UUID of the player as a String with all '-' characters removed.
      * @param group The name of the group to check for.
      * @param gameMode The GameMode of the player as a lowercase String.
-     * @return True if data exists.
+     * @return The pid key if data exists, or null
      */
-    private boolean isDataStored(String uuid, String group, String gameMode) {
+    private String isDataStored(String uuid, String group, String gameMode) {
         String sql = "SELECT pid FROM " + prefix + "players WHERE uuid=? AND group=? AND gamemode=?;";
         ResultSet rs = null;
         try (Connection conn = getConnection(); PreparedStatement statement = conn.prepareStatement(sql)) {
@@ -281,14 +278,16 @@ public class MySQL implements DataSource {
             statement.setString(3, gameMode);
 
             rs = statement.executeQuery();
-            return rs.next();
+            if (rs.next()) {
+                return rs.getString("pid");
+            }
         } catch (SQLException ex) {
             PwiLogger.severe("Error checking for existing data:", ex);
         } finally {
             close(rs);
         }
 
-        return false;
+        return null;
     }
 
     private void setConnectionArguments() {

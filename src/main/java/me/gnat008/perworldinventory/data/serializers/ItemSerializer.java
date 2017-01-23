@@ -68,11 +68,8 @@ public class ItemSerializer {
         if (useIndex)
             values.addProperty("index", index);
 
-        ByteArrayOutputStream outputStream;
-        BukkitObjectOutputStream dataObject;
-        try {
-            outputStream = new ByteArrayOutputStream();
-            dataObject = new BukkitObjectOutputStream(outputStream);
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                BukkitObjectOutputStream dataObject = new BukkitObjectOutputStream(outputStream)) {
             dataObject.writeObject(item);
             dataObject.close();
 
@@ -88,8 +85,7 @@ public class ItemSerializer {
     }
 
     public ItemStack deserializeItem(JsonObject data) {
-        try (
-                ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data.get("item").getAsString()));
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data.get("item").getAsString()));
                 BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream)) {
             return (ItemStack) dataInput.readObject();
         } catch (IOException | ClassNotFoundException ex) {
