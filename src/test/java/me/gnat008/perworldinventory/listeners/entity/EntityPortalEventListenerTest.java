@@ -16,7 +16,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -108,7 +110,7 @@ public class EntityPortalEventListenerTest {
     }
 
     private Group mockGroup(String name, GameMode gameMode, boolean configured) {
-        List<String> worlds = new ArrayList<>();
+        Set<String> worlds = new HashSet<>();
         worlds.add(name);
         worlds.add(name + "_nether");
 

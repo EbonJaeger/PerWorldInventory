@@ -15,11 +15,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
+import static me.gnat008.perworldinventory.TestHelper.mockGroup;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -98,7 +96,8 @@ public class SetWorldDefaultCommandTest {
         Player player = mock(Player.class);
         List<String> args = new ArrayList<>();
         args.add("blarg");
-        Group group = new Group("blarg", null, null);
+        //Group group = new Group("blarg", null, null);
+        Group group = mockGroup("blarg");
         given(groupManager.getGroup("blarg")).willReturn(group);
 
         // when
@@ -118,9 +117,9 @@ public class SetWorldDefaultCommandTest {
         given(player.getWorld()).willReturn(world);
         given(world.getName()).willReturn("world");
 
-        List<String> worlds = new ArrayList<>();
+        Set<String> worlds = new HashSet<>();
         worlds.add("world");
-        Group group = new Group("test", worlds, GameMode.SURVIVAL);
+        Group group = mockGroup("test", worlds);
         given(groupManager.getGroupFromWorld("world")).willReturn(group);
 
         // when

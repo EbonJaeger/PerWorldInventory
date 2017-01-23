@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import static me.gnat008.perworldinventory.TestHelper.mockGroup;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -79,7 +80,7 @@ public class FileWriterTest {
     @Test
     public void shouldGetSurvivalFile() {
         // given
-        Group group = new Group("test-group", new ArrayList<String>(), GameMode.SURVIVAL);
+        Group group = mockGroup("test-group");
         GameMode gameMode = GameMode.SURVIVAL;
         PWIPlayer player = mock(PWIPlayer.class);
         given(player.getUuid()).willReturn(UUID_WITH_DATA);
@@ -94,7 +95,7 @@ public class FileWriterTest {
     @Test
     public void shouldGetCreativeFile() {
         // given
-        Group group = new Group("test-group", new ArrayList<String>(), GameMode.SURVIVAL);
+        Group group = mockGroup("test-group");
         GameMode gameMode = GameMode.CREATIVE;
         PWIPlayer player = mock(PWIPlayer.class);
         given(player.getUuid()).willReturn(UUID_WITH_DATA);
@@ -109,7 +110,7 @@ public class FileWriterTest {
     @Test
     public void shouldGetAdventureFile() {
         // given
-        Group group = new Group("test-group", new ArrayList<String>(), GameMode.SURVIVAL);
+        Group group = mockGroup("test-group");
         GameMode gameMode = GameMode.ADVENTURE;
         PWIPlayer player = mock(PWIPlayer.class);
         given(player.getUuid()).willReturn(UUID_WITH_DATA);
@@ -124,7 +125,7 @@ public class FileWriterTest {
     @Test
     public void shouldGetSpectatorFile() {
         // given
-        Group group = new Group("test-group", new ArrayList<String>(), GameMode.SURVIVAL);
+        Group group = mockGroup("test-group");
         GameMode gameMode = GameMode.SPECTATOR;
         PWIPlayer player = mock(PWIPlayer.class);
         given(player.getUuid()).willReturn(UUID_WITH_DATA);

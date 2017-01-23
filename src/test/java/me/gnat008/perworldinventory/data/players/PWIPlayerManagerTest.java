@@ -25,6 +25,7 @@ import org.mockito.Mock;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import static me.gnat008.perworldinventory.TestHelper.mockGroup;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -71,7 +72,7 @@ public class PWIPlayerManagerTest {
     public void addPlayerShouldHaveSurvivalKey() {
         // given
         Player player = mockPlayer("playah", GameMode.SURVIVAL);
-        Group group = new Group("test", new ArrayList<String>(), GameMode.SURVIVAL);
+        Group group = mockGroup("test");
         given(settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)).willReturn(true);
 
         // when
@@ -86,7 +87,7 @@ public class PWIPlayerManagerTest {
     public void addPlayerShouldHaveSurvivalKeyNoSeparation() {
         // given
         Player player = mockPlayer("playah", GameMode.CREATIVE);
-        Group group = new Group("test", new ArrayList<String>(), GameMode.SURVIVAL);
+        Group group = mockGroup("test");
         given(settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)).willReturn(false);
 
         // when
@@ -101,7 +102,7 @@ public class PWIPlayerManagerTest {
     public void addPlayerShouldHaveCreativeKey() {
         // given
         Player player = mockPlayer("playah", GameMode.CREATIVE);
-        Group group = new Group("test", new ArrayList<String>(), GameMode.SURVIVAL);
+        Group group = mockGroup("test");
         given(settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)).willReturn(true);
 
         // when
@@ -115,7 +116,7 @@ public class PWIPlayerManagerTest {
     public void addPlayerShouldHaveAdventureKey() {
         // given
         Player player = mockPlayer("playah", GameMode.ADVENTURE);
-        Group group = new Group("test", new ArrayList<String>(), GameMode.SURVIVAL);
+        Group group = mockGroup("test");
         given(settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)).willReturn(true);
 
         // when
@@ -130,7 +131,7 @@ public class PWIPlayerManagerTest {
     public void addPlayerShouldHaveSpectatorKey() {
         // given
         Player player = mockPlayer("playah", GameMode.SPECTATOR);
-        Group group = new Group("test", new ArrayList<String>(), GameMode.SURVIVAL);
+        Group group = mockGroup("test");
         given(settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)).willReturn(true);
 
         // when

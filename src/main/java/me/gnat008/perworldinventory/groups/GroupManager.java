@@ -28,10 +28,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class GroupManager {
 
@@ -55,7 +52,7 @@ public class GroupManager {
      * @param name The name of the group.
      * @param worlds A list of world names in this group.
      */
-    public void addGroup(String name, List<String> worlds) {
+    public void addGroup(String name, Collection<String> worlds) {
         addGroup(name, worlds, GameMode.SURVIVAL);
     }
 
@@ -66,10 +63,12 @@ public class GroupManager {
      * @param worlds A list of world names in this group.
      * @param gamemode The default GameMode for this group.
      */
-    public void addGroup(String name, List<String> worlds, GameMode gamemode) {
+    public void addGroup(String name, Collection<String> worlds, GameMode gamemode) {
         PwiLogger.debug("Adding group to memory. Group: " + name + " Worlds: " + worlds.toString() + " Gamemode: " + gamemode.name());
 
-        groups.put(name.toLowerCase(), new Group(name, worlds, gamemode, true));
+        Set<String> worldSet = new HashSet<>();
+        worldSet.addAll(worlds);
+        groups.put(name.toLowerCase(), new Group(name, worldSet, gamemode, true));
     }
 
     /**
@@ -100,7 +99,7 @@ public class GroupManager {
         }
 
         if (result == null) { // If true, world was not defined in worlds.yml
-            List<String> worlds = new ArrayList<>();
+            Set<String> worlds = new HashSet<>();
             worlds.add(world);
             worlds.add(world + "_nether");
             worlds.add(world + "_the_end");

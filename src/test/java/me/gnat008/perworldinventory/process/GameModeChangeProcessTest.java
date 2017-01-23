@@ -17,9 +17,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
+import static me.gnat008.perworldinventory.TestHelper.mockGroup;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -53,10 +53,14 @@ public class GameModeChangeProcessTest {
         // given
         World world = mock(World.class);
         given(world.getName()).willReturn("world");
+
         Player player = mock(Player.class);
         given(player.getWorld()).willReturn(world);
+
         PlayerGameModeChangeEvent event = new PlayerGameModeChangeEvent(player, GameMode.ADVENTURE);
-        Group group = getTestGroup();
+
+        Group group = mockGroup("world");
+
         given(groupManager.getGroupFromWorld("world")).willReturn(group);
         given(permissionManager.hasPermission(player, PlayerPermission.BYPASS_GAMEMODE)).willReturn(true);
         given(settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)).willReturn(true);
@@ -76,9 +80,12 @@ public class GameModeChangeProcessTest {
         World world = mock(World.class);
         String worldName = "world";
         given(world.getName()).willReturn(worldName);
+
         Player player = mock(Player.class);
         given(player.getWorld()).willReturn(world);
-        Group group = getTestGroup();
+
+        Group group = mockGroup(worldName);
+
         GameMode newGameMode = GameMode.CREATIVE;
         PlayerGameModeChangeEvent event = new PlayerGameModeChangeEvent(player, newGameMode);
         given(groupManager.getGroupFromWorld(worldName)).willReturn(group);
@@ -100,9 +107,12 @@ public class GameModeChangeProcessTest {
         World world = mock(World.class);
         String worldName = "world";
         given(world.getName()).willReturn(worldName);
+
         Player player = mock(Player.class);
         given(player.getWorld()).willReturn(world);
-        Group group = getTestGroup();
+
+        Group group = mockGroup(worldName);
+
         GameMode newGameMode = GameMode.CREATIVE;
         PlayerGameModeChangeEvent event = new PlayerGameModeChangeEvent(player, newGameMode);
         given(groupManager.getGroupFromWorld(worldName)).willReturn(group);
@@ -132,10 +142,5 @@ public class GameModeChangeProcessTest {
         verifyZeroInteractions(groupManager);
         verifyZeroInteractions(permissionManager);
         verifyZeroInteractions(playerManager);
-    }
-
-    private static Group getTestGroup() {
-        List<String> worlds = Arrays.asList("world", "second-world");
-        return new Group("test-group", worlds, GameMode.SURVIVAL);
     }
 }
