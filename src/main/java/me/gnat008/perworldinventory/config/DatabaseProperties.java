@@ -1,15 +1,15 @@
 package me.gnat008.perworldinventory.config;
 
-import com.github.authme.configme.Comment;
-import com.github.authme.configme.SectionComments;
-import com.github.authme.configme.SettingsHolder;
-import com.github.authme.configme.properties.Property;
+import ch.jalu.configme.Comment;
+import ch.jalu.configme.SectionComments;
+import ch.jalu.configme.SettingsHolder;
+import ch.jalu.configme.properties.Property;
 import me.gnat008.perworldinventory.data.DataSourceType;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.github.authme.configme.properties.PropertyInitializer.newProperty;
+import static ch.jalu.configme.properties.PropertyInitializer.newProperty;
 
 /**
  * Holds the properties for the SQL database

@@ -1,5 +1,6 @@
 package me.gnat008.perworldinventory.config;
 
+
 import ch.jalu.configme.SettingsManager;
 import ch.jalu.configme.migration.PlainMigrationService;
 import ch.jalu.configme.resource.YamlFileResource;

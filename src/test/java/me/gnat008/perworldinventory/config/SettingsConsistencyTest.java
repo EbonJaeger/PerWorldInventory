@@ -5,6 +5,7 @@ import ch.jalu.configme.configurationdata.ConfigurationData;
 import ch.jalu.configme.configurationdata.ConfigurationDataBuilder;
 import ch.jalu.configme.properties.Property;
 import ch.jalu.configme.resource.PropertyResource;
+import ch.jalu.configme.resource.YamlFileResource;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import me.gnat008.perworldinventory.ClassCollector;

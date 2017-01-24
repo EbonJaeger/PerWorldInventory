@@ -10,8 +10,8 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 
+import static me.gnat008.perworldinventory.TestHelper.mockGroup;
 import static me.gnat008.perworldinventory.utils.FileUtils.getFile;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
@@ -28,7 +28,7 @@ public class FileUtilsTest {
     @Test
     public void shouldGetSurvivalFile() throws IOException {
         // given
-        Group group = new Group("test-group", new ArrayList<String>(), GameMode.SURVIVAL);
+        Group group = mockGroup("test-group");
         GameMode gameMode = GameMode.SURVIVAL;
         PWIPlayer player = mock(PWIPlayer.class);
         given(player.getUuid()).willReturn(TestHelper.TESTING_UUID);
@@ -43,7 +43,7 @@ public class FileUtilsTest {
     @Test
     public void shouldGetCreativeFile() throws IOException {
         // given
-        Group group = new Group("test-group", new ArrayList<String>(), GameMode.SURVIVAL);
+        Group group = mockGroup("test-group");
         GameMode gameMode = GameMode.CREATIVE;
         PWIPlayer player = mock(PWIPlayer.class);
         given(player.getUuid()).willReturn(TestHelper.TESTING_UUID);
@@ -58,7 +58,7 @@ public class FileUtilsTest {
     @Test
     public void shouldGetAdventureFile() throws IOException {
         // given
-        Group group = new Group("test-group", new ArrayList<String>(), GameMode.SURVIVAL);
+        Group group = mockGroup("test-group");
         GameMode gameMode = GameMode.ADVENTURE;
         PWIPlayer player = mock(PWIPlayer.class);
         given(player.getUuid()).willReturn(TestHelper.TESTING_UUID);
@@ -73,7 +73,7 @@ public class FileUtilsTest {
     @Test
     public void shouldGetSpectatorFile() throws IOException {
         // given
-        Group group = new Group("test-group", new ArrayList<String>(), GameMode.SURVIVAL);
+        Group group = mockGroup("test-group");
         GameMode gameMode = GameMode.SPECTATOR;
         PWIPlayer player = mock(PWIPlayer.class);
         given(player.getUuid()).willReturn(TestHelper.TESTING_UUID);
