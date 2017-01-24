@@ -4,6 +4,7 @@ import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
 import ch.jalu.injector.testing.InjectDelayed;
 import com.google.common.io.Files;
+import me.gnat008.perworldinventory.BukkitService;
 import me.gnat008.perworldinventory.DataFolder;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.ReflectionTestUtils;
@@ -46,6 +47,8 @@ public class FlatFileTest {
     private PerWorldInventory plugin;
     @Mock
     private Settings settings;
+    @Mock
+    private BukkitService bukkitService;
 
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -70,6 +73,7 @@ public class FlatFileTest {
         injector.provide(DataFolder.class, testFolder);
         injector.register(PerWorldInventory.class, plugin);
         injector.register(Settings.class, settings);
+        injector.register(BukkitService.class, bukkitService);
         flatFile = injector.getSingleton(FlatFile.class);
     }
 

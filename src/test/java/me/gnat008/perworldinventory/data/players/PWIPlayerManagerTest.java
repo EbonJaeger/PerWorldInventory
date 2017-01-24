@@ -3,9 +3,9 @@ package me.gnat008.perworldinventory.data.players;
 import ch.jalu.injector.testing.BeforeInjecting;
 import ch.jalu.injector.testing.DelayedInjectionRunner;
 import ch.jalu.injector.testing.InjectDelayed;
+import me.gnat008.perworldinventory.BukkitService;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.ReflectionTestUtils;
-import me.gnat008.perworldinventory.TestHelper;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.DataSource;
@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import java.util.ArrayList;
 import java.util.UUID;
 
 import static me.gnat008.perworldinventory.TestHelper.mockGroup;
@@ -46,6 +45,9 @@ public class PWIPlayerManagerTest {
 
     @Mock
     private PerWorldInventory plugin;
+
+    @Mock
+    private BukkitService bukkitService;
 
     @Mock
     private DataSource dataSource;

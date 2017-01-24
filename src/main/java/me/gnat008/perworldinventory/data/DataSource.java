@@ -29,8 +29,9 @@ public interface DataSource {
      * Save the location of a player when they log out or are kicked from the server.
      *
      * @param player The player who logged out
+     * @param async Save location data asynchronously.
      */
-    void saveLogoutData(PWIPlayer player);
+    void saveLogoutData(PWIPlayer player, boolean async);
 
     /**
      * Saves a player's data to the database.

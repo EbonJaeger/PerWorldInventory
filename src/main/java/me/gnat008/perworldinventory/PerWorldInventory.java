@@ -55,6 +55,7 @@ import java.util.*;
 public class PerWorldInventory extends JavaPlugin {
 
     private PerWorldInventoryAPI api;
+    private BukkitService bukkitService;
     private Economy economy;
     private GroupManager groupManager;
     private PWIPlayerManager playerManager;
@@ -139,6 +140,7 @@ public class PerWorldInventory extends JavaPlugin {
     }
 
     protected void injectServices(Injector injector) {
+        bukkitService = injector.getSingleton(BukkitService.class);
         groupManager = injector.getSingleton(GroupManager.class);
         injector.registerProvider(DataSource.class, DataSourceProvider.class);
         playerManager = injector.getSingleton(PWIPlayerManager.class);
