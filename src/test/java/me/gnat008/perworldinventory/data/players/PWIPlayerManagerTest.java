@@ -3,6 +3,7 @@ package me.gnat008.perworldinventory.data.players;
 import ch.jalu.injector.testing.BeforeInjecting;
 import ch.jalu.injector.testing.DelayedInjectionRunner;
 import ch.jalu.injector.testing.InjectDelayed;
+import me.gnat008.perworldinventory.BukkitService;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.TestHelper;
 import me.gnat008.perworldinventory.config.PwiProperties;
@@ -45,6 +46,9 @@ public class PWIPlayerManagerTest {
 
     @Mock
     private PerWorldInventory plugin;
+
+    @Mock
+    private BukkitService bukkitService;
 
     @Mock
     private DataWriter dataWriter;
