@@ -125,7 +125,7 @@ public final class PwiProperties implements SettingsHolder {
         "Disables bypass regardless of permission",
         "Defaults to false"})
     public static final Property<Boolean> DISABLE_BYPASS =
-            newProperty("clearGroups-bypass", false);
+            newProperty("disable-bypass", false);
 
     private PwiProperties() {
     }
