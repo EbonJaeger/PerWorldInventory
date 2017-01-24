@@ -140,7 +140,7 @@ public class PerWorldInventory extends JavaPlugin {
     @Override
     public void onDisable() {
         playerManager.onDisable();
-        groupManager.disable();
+        groupManager.clearGroups();
         getServer().getScheduler().cancelTasks(this);
     }
 

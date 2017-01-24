@@ -19,7 +19,9 @@ package me.gnat008.perworldinventory.groups;
 
 import org.bukkit.GameMode;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A group of worlds, typically defined in the worlds.yml file.
@@ -29,7 +31,7 @@ import java.util.List;
 public class Group {
 
     private String name;
-    private List<String> worlds;
+    private Set<String> worlds;
     private GameMode gameMode;
     private boolean configured;
 
@@ -40,7 +42,7 @@ public class Group {
      * @param worlds A list of world names in this group.
      * @param gameMode The default {@link GameMode} for this group.
      */
-    public Group(String name, List<String> worlds, GameMode gameMode) {
+    public Group(String name, Set<String> worlds, GameMode gameMode) {
         this.name = name;
         this.worlds = worlds;
         this.gameMode = gameMode;
@@ -55,7 +57,7 @@ public class Group {
      * @param gameMode The default {@link GameMode} for this group.
      * @param configured If the group is defined in the worlds.yml file.
      */
-    public Group(String name, List<String> worlds, GameMode gameMode, boolean configured) {
+    public Group(String name, Set<String> worlds, GameMode gameMode, boolean configured) {
         this.name = name;
         this.worlds = worlds;
         this.gameMode = gameMode;
@@ -76,7 +78,7 @@ public class Group {
      *
      * @return A List of world names.
      */
-    public List<String> getWorlds() {
+    public Set<String> getWorlds() {
         return this.worlds;
     }
 
@@ -105,7 +107,7 @@ public class Group {
      *
      * @param worlds A list of the worlds to add.
      */
-    public void addWorlds(List<String> worlds) {
+    public void addWorlds(Collection<String> worlds) {
         for (String world : worlds)
             if (!this.worlds.contains(world))
                 this.worlds.add(world);

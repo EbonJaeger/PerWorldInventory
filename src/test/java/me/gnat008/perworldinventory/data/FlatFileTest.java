@@ -27,9 +27,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.UUID;
 
+import static me.gnat008.perworldinventory.TestHelper.mockGroup;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -40,6 +40,8 @@ import static org.mockito.Mockito.mock;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class FlatFileTest {
+
+    private static final UUID UUID_WITH_DATA = UUID.fromString("7f7c909b-24f1-49a4-817f-baa4f4973980");
 
     @InjectDelayed
     private FlatFile flatFile;
@@ -73,6 +75,66 @@ public class FlatFileTest {
         injector.register(PerWorldInventory.class, plugin);
         injector.register(Settings.class, settings);
         flatFile = injector.getSingleton(FlatFile.class);
+    }
+
+    @Test
+    public void shouldGetSurvivalFile() {
+        // given
+        Group group = mockGroup("test-group");
+        GameMode gameMode = GameMode.SURVIVAL;
+        PWIPlayer player = mock(PWIPlayer.class);
+        given(player.getUuid()).willReturn(UUID_WITH_DATA);
+
+        // when
+        File result = flatFile.getFile(gameMode, group, player.getUuid());
+
+        // then
+        assertTrue(result.getName().equals("test-group.json"));
+    }
+
+    @Test
+    public void shouldGetCreativeFile() {
+        // given
+        Group group = mockGroup("test-group");
+        GameMode gameMode = GameMode.CREATIVE;
+        PWIPlayer player = mock(PWIPlayer.class);
+        given(player.getUuid()).willReturn(UUID_WITH_DATA);
+
+        // when
+        File result = flatFile.getFile(gameMode, group, player.getUuid());
+
+        // then
+        assertTrue(result.getName().equals("test-group_creative.json"));
+    }
+
+    @Test
+    public void shouldGetAdventureFile() {
+        // given
+        Group group = mockGroup("test-group");
+        GameMode gameMode = GameMode.ADVENTURE;
+        PWIPlayer player = mock(PWIPlayer.class);
+        given(player.getUuid()).willReturn(UUID_WITH_DATA);
+
+        // when
+        File result = flatFile.getFile(gameMode, group, player.getUuid());
+
+        // then
+        assertTrue(result.getName().equals("test-group_adventure.json"));
+    }
+
+    @Test
+    public void shouldGetSpectatorFile() {
+        // given
+        Group group = mockGroup("test-group");
+        GameMode gameMode = GameMode.SPECTATOR;
+        PWIPlayer player = mock(PWIPlayer.class);
+        given(player.getUuid()).willReturn(UUID_WITH_DATA);
+
+        // when
+        File result = flatFile.getFile(gameMode, group, player.getUuid());
+
+        // then
+        assertTrue(result.getName().equals("test-group_creative.json"));
     }
 
     @Test

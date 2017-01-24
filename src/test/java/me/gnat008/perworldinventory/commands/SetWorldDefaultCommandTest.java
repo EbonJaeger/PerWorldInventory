@@ -8,7 +8,6 @@ import me.gnat008.perworldinventory.data.players.PWIPlayerFactory;
 import me.gnat008.perworldinventory.data.serializers.PlayerSerializer;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
-import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -22,13 +21,10 @@ import org.mockito.Mock;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.emptyArray;
-import static org.hamcrest.Matchers.equalTo;
+import static me.gnat008.perworldinventory.TestHelper.mockGroup;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -107,8 +103,10 @@ public class SetWorldDefaultCommandTest {
     public void shouldSetForArbitraryGroup() {
         // given
         Player player = mock(Player.class);
-        List<String> args = Collections.singletonList("blarg");
-        Group group = new Group("blarg", null, null);
+        List<String> args = new ArrayList<>();
+        args.add("blarg");
+        //Group group = new Group("blarg", null, null);
+        Group group = mockGroup("blarg");
         given(groupManager.getGroup("blarg")).willReturn(group);
 
         // when
@@ -128,8 +126,9 @@ public class SetWorldDefaultCommandTest {
         given(player.getWorld()).willReturn(world);
         given(world.getName()).willReturn("world");
 
-        List<String> worlds = Collections.singletonList("world");
-        Group group = new Group("test", worlds, GameMode.SURVIVAL);
+        Set<String> worlds = new HashSet<>();
+        worlds.add("world");
+        Group group = mockGroup("test", worlds);
         given(groupManager.getGroupFromWorld("world")).willReturn(group);
 
         // when

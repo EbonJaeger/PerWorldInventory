@@ -1,15 +1,17 @@
 package me.gnat008.perworldinventory;
 
+import me.gnat008.perworldinventory.groups.Group;
+import org.bukkit.GameMode;
+
 import java.io.File;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -69,5 +71,29 @@ public final class TestHelper {
         Logger logger = mock(Logger.class);
         PwiLogger.setLogger(logger);
         return logger;
+    }
+
+    /**
+     * Get a group for testing.
+     *
+     * @param name The name of the group.
+     * @return The created Group.
+     */
+    public static Group mockGroup(String name) {
+        Set<String> worlds = new HashSet<>();
+        worlds.add(name);
+
+        return mockGroup(name, worlds);
+    }
+
+    public static Group mockGroup(String name, Collection<String> worlds) {
+        return mockGroup(name, worlds, GameMode.SURVIVAL);
+    }
+
+    public static Group mockGroup(String name, Collection<String> worlds, GameMode gameMode) {
+        Set<String> worldSet = new HashSet<>();
+        worldSet.addAll(worlds);
+
+        return new Group(name, worldSet, gameMode);
     }
 }

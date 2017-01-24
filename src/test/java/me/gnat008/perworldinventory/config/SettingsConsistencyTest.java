@@ -1,11 +1,10 @@
 package me.gnat008.perworldinventory.config;
 
-import com.github.authme.configme.SettingsHolder;
-import com.github.authme.configme.knownproperties.ConfigurationData;
-import com.github.authme.configme.knownproperties.ConfigurationDataBuilder;
-import com.github.authme.configme.properties.Property;
-import com.github.authme.configme.resource.PropertyResource;
-import com.github.authme.configme.resource.YamlFileResource;
+import ch.jalu.configme.SettingsHolder;
+import ch.jalu.configme.configurationdata.ConfigurationData;
+import ch.jalu.configme.configurationdata.ConfigurationDataBuilder;
+import ch.jalu.configme.properties.Property;
+import ch.jalu.configme.resource.PropertyResource;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import me.gnat008.perworldinventory.ClassCollector;

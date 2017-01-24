@@ -20,7 +20,10 @@ import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
+import static me.gnat008.perworldinventory.TestHelper.mockGroup;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.only;
@@ -111,8 +114,12 @@ public class PlayerSpawnLocationListenerTest {
         Player player = mock(Player.class);
         World world = mock(World.class);
         given(world.getName()).willReturn("world");
-        Group spawnWorldGroup = new Group("spawn", Arrays.asList("otherWorld", world.getName()), GameMode.SURVIVAL);
+
+        Set<String> worlds = new HashSet<>();
+        Group spawnWorldGroup = mockGroup("spawn", Arrays.asList("otherWorld", world.getName()), GameMode.SURVIVAL);
+
         given(groupManager.getGroupFromWorld(world.getName())).willReturn(spawnWorldGroup);
+
         Location spawnLocation = new Location(world, 1, 2, 3);
         PlayerSpawnLocationEvent event = new PlayerSpawnLocationEvent(player, spawnLocation);
         given(settings.getProperty(PwiProperties.LOAD_DATA_ON_JOIN)).willReturn(true);
@@ -121,7 +128,7 @@ public class PlayerSpawnLocationListenerTest {
         given(oldWorld.getName()).willReturn("other_world");
         Location lastLocation = new Location(oldWorld, 4, 5, 6);
         given(dataSource.getLogoutData(player)).willReturn(lastLocation);
-        Group oldWorldGroup = new Group("oldWorldGroup", Collections.singletonList(oldWorld.getName()), GameMode.SURVIVAL);
+        Group oldWorldGroup = mockGroup("oldWorldGroup", Collections.singletonList(oldWorld.getName()), GameMode.SURVIVAL);
         given(groupManager.getGroupFromWorld(oldWorld.getName())).willReturn(oldWorldGroup);
 
         // when

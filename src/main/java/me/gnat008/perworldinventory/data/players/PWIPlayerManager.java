@@ -25,6 +25,7 @@ import me.gnat008.perworldinventory.data.DataSource;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -289,11 +290,24 @@ public class PWIPlayerManager {
             player.setRemainingAir(cachedPlayer.getRemainingAir());
         if (settings.getProperty(PwiProperties.USE_ECONOMY)) {
             Economy econ = plugin.getEconomy();
-            econ.bankWithdraw(player.getName(), econ.bankBalance(player.getName()).balance);
-            econ.bankDeposit(player.getName(), cachedPlayer.getBankBalance());
+            if (econ == null) {
+                PwiLogger.warning("Economy saving is turned on, but no economy found!");
+                return;
+            }
 
-            econ.withdrawPlayer(player, econ.getBalance(player));
-            econ.depositPlayer(player, cachedPlayer.getBalance());
+            EconomyResponse er = econ.withdrawPlayer(player, econ.getBalance(player));
+            if (er.transactionSuccess()) {
+                econ.depositPlayer(player, cachedPlayer.getBalance());
+            } else {
+                PwiLogger.warning("[ECON] Unable to withdraw currency from '" + player.getName() + "': " + er.errorMessage);
+            }
+
+            EconomyResponse bankER = econ.bankWithdraw(player.getName(), econ.bankBalance(player.getName()).amount);
+            if (bankER.transactionSuccess()) {
+                econ.bankDeposit(player.getName(), cachedPlayer.getBankBalance());
+            } else {
+                PwiLogger.warning("[ECON] Unable to withdraw currency from bank of '" + player.getName() + "': " + er.errorMessage);
+            }
         }
     }
 

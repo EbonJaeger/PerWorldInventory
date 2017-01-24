@@ -1,8 +1,8 @@
 package me.gnat008.perworldinventory.config;
 
-import com.github.authme.configme.SettingsManager;
-import com.github.authme.configme.migration.PlainMigrationService;
-import com.github.authme.configme.resource.YamlFileResource;
+import ch.jalu.configme.SettingsManager;
+import ch.jalu.configme.migration.PlainMigrationService;
+import ch.jalu.configme.resource.YamlFileResource;
 
 import java.io.File;
 

@@ -18,7 +18,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.ArgumentMatchers.any;
@@ -178,7 +180,7 @@ public class InventoryChangeProcessTest {
     }
 
     private Group mockGroup(String name, GameMode gameMode, boolean configured) {
-        List<String> worlds = new ArrayList<>();
+        Set<String> worlds = new HashSet<>();
         worlds.add(name);
 
         return new Group(name, worlds, gameMode, configured);

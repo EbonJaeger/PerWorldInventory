@@ -6,7 +6,7 @@
 
     <groupId>me.gnat008</groupId>
     <artifactId>perworldinventory</artifactId>
-    <version>1.9.0</version>
+    <version>1.9.1</version>
 
     <name>PerWorldInventory</name>
     <description>Have a different inventory for each world.</description>
@@ -65,11 +65,6 @@
         <repository>
             <id>vault-repo</id>
             <url>http://nexus.hc.to/content/repositories/pub_releases</url>
-        </repository>
-
-        <repository>
-            <id>xephi-repo</id>
-            <url>http://ci.xephi.fr/plugin/repository/everything/</url>
         </repository>
     </repositories>
 
@@ -185,9 +180,9 @@
 
         <!-- ConfigMe -->
         <dependency>
-            <groupId>com.github.authme</groupId>
+            <groupId>ch.jalu</groupId>
             <artifactId>configme</artifactId>
-            <version>0.2.1</version>
+            <version>0.3</version>
         </dependency>
 
         <!-- Database Connection Pool -->

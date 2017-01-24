@@ -32,6 +32,13 @@ public class EntityPortalEventListener implements Listener {
         PwiLogger.debug("[ENTITYPORTALEVENT] A '" + event.getEntity().getName() + "' is going through a portal!");
 
         String worldFrom = event.getFrom().getWorld().getName();
+
+        // For some reason, event.getTo().getWorld().getName() is sometimes null
+        if (event.getTo() == null || event.getTo().getWorld() == null) { // Not gonna bother checking name; its already a WTF that this is needed
+            PwiLogger.debug("[ENTITYPORTALEVENT] event.getTo().getWorld().getName() would throw a NPE! Exiting method!");
+            return;
+        }
+
         String worldTo = event.getTo().getWorld().getName();
         Group from = groupManager.getGroupFromWorld(worldFrom);
         Group to = groupManager.getGroupFromWorld(worldTo);
