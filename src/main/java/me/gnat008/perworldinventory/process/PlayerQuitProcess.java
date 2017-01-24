@@ -43,6 +43,6 @@ public class PlayerQuitProcess {
         }
 
         PwiLogger.debug("Saving logout data for player '" + player.getName() + "'...");
-        playerManager.savePlayer(group, player);
+        playerManager.savePlayer(group, player, true);
     }
 }

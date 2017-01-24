@@ -27,6 +27,7 @@ import com.onarandombox.multiverseinventories.api.profile.PlayerProfile;
 import com.onarandombox.multiverseinventories.api.profile.ProfileType;
 import com.onarandombox.multiverseinventories.api.profile.WorldGroupProfile;
 import com.onarandombox.multiverseinventories.api.share.Sharables;
+import me.gnat008.perworldinventory.BukkitService;
 import me.gnat008.perworldinventory.PwiLogger;
 import me.gnat008.perworldinventory.data.FileWriter;
 import me.gnat008.perworldinventory.data.serializers.InventorySerializer;
@@ -47,6 +48,8 @@ import java.util.*;
 @NoMethodScan
 public class DataConverter {
 
+    @Inject
+    private BukkitService bukkitService;
     @Inject
     private FileWriter serializer;
     @Inject
@@ -78,22 +81,24 @@ public class DataConverter {
                 GameMode gameMode = GameMode.valueOf(profileType.getName());
 
                 for (OfflinePlayer player1 : Bukkit.getOfflinePlayers()) {
-                    try {
-                        PlayerProfile playerData = mvgroup.getPlayerData(profileType, player1);
-                        if (playerData != null) {
-                            String data = serializeMVIToNewFormat(playerData);
+                    bukkitService.runTaskAsync(() -> {
+                        try {
+                            PlayerProfile playerData = mvgroup.getPlayerData(profileType, player1);
+                            if (playerData != null) {
+                                String data = serializeMVIToNewFormat(playerData);
 
-                            File file = serializer.getFile(gameMode, groupManager.getGroup(mvgroup.getName()), player1.getUniqueId());
-                            if (!file.getParentFile().exists())
-                                file.getParentFile().mkdir();
-                            if (!file.exists())
-                                file.createNewFile();
-                            serializer.writeData(file, data);
+                                File file = serializer.getFile(gameMode, groupManager.getGroup(mvgroup.getName()), player1.getUniqueId());
+                                if (!file.getParentFile().exists())
+                                    file.getParentFile().mkdir();
+                                if (!file.exists())
+                                    file.createNewFile();
+                                serializer.writeData(file, data);
+                            }
+                        } catch (Exception ex) {
+                            PwiLogger.warning("Error importing inventory for player: " + player1.getName() +
+                                    " For group: " + mvgroup.getName() + " For gamemode: " + gameMode.name(), ex);
                         }
-                    } catch (Exception ex) {
-                        PwiLogger.warning("Error importing inventory for player: " + player1.getName() +
-                            " For group: " + mvgroup.getName() + " For gamemode: " + gameMode.name(), ex);
-                    }
+                    });
                 }
             }
         }
