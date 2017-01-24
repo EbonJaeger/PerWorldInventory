@@ -35,6 +35,7 @@ public class GroupManagerTest {
     @Test
     public void addGroupWithLowercaseName() {
         // given
+        groupManager.clearGroups(); // Clear any existing groups
         String name = "test";
         Set<String> worlds = new HashSet<>();
         worlds.add(name);
@@ -55,6 +56,7 @@ public class GroupManagerTest {
     @Test
     public void addGroupWithUppercaseName() {
         // given
+        groupManager.clearGroups(); // Clear any existing groups
         String name = "TeSt";
         Set<String> worlds = new HashSet<>();
         worlds.add(name);
@@ -75,6 +77,7 @@ public class GroupManagerTest {
     @Test
     public void addGroupWithUppercaseNameLowercaseGet() {
         // given
+        groupManager.clearGroups(); // Clear any existing groups
         String name = "TeSt";
         Set<String> worlds = new HashSet<>();
         worlds.add(name);
@@ -95,6 +98,7 @@ public class GroupManagerTest {
     @Test
     public void getGroupFromWorldWhereExists() {
         // given
+        groupManager.clearGroups(); // Clear any existing groups
         String name = "test";
         Set<String> worlds = new HashSet<>();
         worlds.add(name);
@@ -116,6 +120,7 @@ public class GroupManagerTest {
     @Test
     public void getGroupFromWorldWhereNotExists() {
         // given
+        groupManager.clearGroups(); // Clear any existing groups
         String name = "test";
         Set<String> worlds = new HashSet<>();
         worlds.add(name);
@@ -129,6 +134,24 @@ public class GroupManagerTest {
         // then
         Group expected = mockGroup(name, worlds, gameMode);
 
+        assertNotNull(result);
+        assertThat(result.getName(), equalTo(expected.getName()));
+        assertThat(result.getWorlds(), equalTo(expected.getWorlds()));
+        assertThat(result.getGameMode(), equalTo(expected.getGameMode()));
+    }
+
+    @Test
+    public void getGroupAfterCreatedFromGroupFromWorldMethod() {
+        // given
+        groupManager.clearGroups(); // Clear any existing groups
+        String worldName = "Test";
+
+        Group expected = groupManager.getGroupFromWorld(worldName);
+
+        // when
+        Group result = groupManager.getGroup(worldName);
+
+        // then
         assertNotNull(result);
         assertThat(result.getName(), equalTo(expected.getName()));
         assertThat(result.getWorlds(), equalTo(expected.getWorlds()));

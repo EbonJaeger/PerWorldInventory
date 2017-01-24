@@ -42,7 +42,7 @@ public class GroupManager {
 
     GroupManager() {}
 
-    public void disable() {
+    public void clearGroups() {
         groups.clear();
     }
 

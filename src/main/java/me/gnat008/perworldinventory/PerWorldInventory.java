@@ -49,7 +49,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -145,7 +144,7 @@ public class PerWorldInventory extends JavaPlugin {
     @Override
     public void onDisable() {
         playerManager.onDisable();
-        groupManager.disable();
+        groupManager.clearGroups();
         getServer().getScheduler().cancelTasks(this);
     }
 
