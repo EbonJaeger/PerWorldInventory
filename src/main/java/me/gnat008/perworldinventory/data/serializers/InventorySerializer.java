@@ -69,6 +69,16 @@ public class InventorySerializer {
         return inventory;
     }
 
+    public String serializeInventoryForSQL(ItemStack[] contents) {
+        String[] strings = new String[contents.length];
+
+        for (int i = 0; i < contents.length; i++) {
+            strings[i] = itemSerializer.serializeForSQL(contents[i]);
+        }
+
+        return strings.toString();
+    }
+
     /**
      * Sets the Inventory using an ItemStack array constructed from a JsonObject.
      *

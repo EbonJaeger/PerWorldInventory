@@ -63,6 +63,32 @@ public class PotionEffectSerializer {
     }
 
     /**
+     * Serialize PotionEffects on a Player to a single String. The type, amplifier, duration,
+     * and if it has particles are separated by ':'.
+     *
+     * @param effects The PotionEffects to serialize.
+     * @return A String[] as a single String.
+     */
+    public static String serializeForSQL(Collection<PotionEffect> effects) {
+        String[] strings = new String[effects.size()];
+
+        int i = 0;
+        for (PotionEffect effect : effects) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(effect.getType().getName()).append(":");
+            sb.append(effect.getAmplifier()).append(":");
+            sb.append(effect.getDuration()).append(":");
+            sb.append(effect.isAmbient()).append(":");
+            sb.append(effect.hasParticles()).append(":");
+
+            strings[i] = sb.toString();
+            i++;
+        }
+
+        return strings.toString();
+    }
+
+    /**
      * Get a Collection of PotionEffects from the given potion effect code
      *
      * @param serializedEffects The potion effect code to decode from
