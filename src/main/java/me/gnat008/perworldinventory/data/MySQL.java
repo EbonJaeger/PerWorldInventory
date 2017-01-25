@@ -168,14 +168,19 @@ public class MySQL implements DataSource {
             gamemode = GameMode.CREATIVE;
         }
 
-        String pid = isDataStored(uuid, group.getName(), gamemode.name());
-        if (pid != null) { // Data already exists, update
-
+        int pid = isDataStored(uuid, group.getName(), gamemode.name());
+        if (pid != -1) { // Data already exists, update
+            try {
+                updateExisting(pid, player);
+            } catch (SQLException ex) {
+                PwiLogger.severe("Error updating data in database for player '" + player.getName() + "' for " +
+                        "group '" + group.getName() + "' and GameMode '" + gamemode.name() + "':", ex);
+            }
         } else { // Insert data for the first time
             try {
                 insertIntoDatabase(group, gamemode, player, uuid);
             } catch (SQLException ex) {
-                PwiLogger.severe("Error saving data to database for player '" + player.getName() + "' for " +
+                PwiLogger.severe("Error inserting data to database for player '" + player.getName() + "' for " +
                         "group '" + group.getName() + "' and GameMode '" + gamemode.name() + "':", ex);
             }
         }
@@ -247,6 +252,10 @@ public class MySQL implements DataSource {
                 econStatement.executeUpdate();
             }
         }
+    }
+
+    private void updateExisting(int pid, PWIPlayer player) throws SQLException {
+        // TODO: Implement
     }
 
     @Override
@@ -349,14 +358,14 @@ public class MySQL implements DataSource {
     /**
      * Check if data with the given parameters are already stored in the database.
      * This method will return the pid to use in the lookup of more data if data exists
-     * with the given parameters. If none exists, the method will return null.
+     * with the given parameters. If none exists, the method will return -1.
      *
      * @param uuid The UUID of the player as a String with all '-' characters removed.
      * @param group The name of the group to check for.
      * @param gameMode The GameMode of the player as a lowercase String.
-     * @return The pid key if data exists, or null
+     * @return The pid key if data exists, -1 if not.
      */
-    private String isDataStored(String uuid, String group, String gameMode) {
+    private int isDataStored(String uuid, String group, String gameMode) {
         String sql = "SELECT pid FROM " + prefix + "players WHERE uuid=? AND group=? AND gamemode=?;";
         ResultSet rs = null;
         try (Connection conn = getConnection(); PreparedStatement statement = conn.prepareStatement(sql)) {
@@ -366,7 +375,7 @@ public class MySQL implements DataSource {
 
             rs = statement.executeQuery();
             if (rs.next()) {
-                return rs.getString("pid");
+                return rs.getInt("pid");
             }
         } catch (SQLException ex) {
             PwiLogger.severe("Error checking for existing data:", ex);
@@ -374,7 +383,7 @@ public class MySQL implements DataSource {
             close(rs);
         }
 
-        return null;
+        return -1;
     }
 
     private void setConnectionArguments() {
