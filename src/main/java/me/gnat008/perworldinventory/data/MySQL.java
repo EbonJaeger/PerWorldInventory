@@ -20,6 +20,7 @@ import org.bukkit.entity.Player;
 
 import javax.inject.Inject;
 import java.sql.*;
+import java.util.UUID;
 
 /**
  * Class to handle MySQL storage.
@@ -163,13 +164,13 @@ public class MySQL implements DataSource {
 
     @Override
     public void saveToDatabase(Group group, GameMode gamemode, PWIPlayer player) {
-        String uuid = player.getUuid().toString().replace("-", "");
+        String uuid = player.getUuid().toString();
         if (gamemode == GameMode.SPECTATOR) {
             gamemode = GameMode.CREATIVE;
         }
 
-        int pid = isDataStored(uuid, group.getName(), gamemode.name());
-        if (pid != -1) { // Data already exists, update
+        String pid = isDataStored(uuid, group.getName(), gamemode.name());
+        if (pid == null || pid.isEmpty()) { // Data already exists, update
             try {
                 updateExisting(pid, player);
             } catch (SQLException ex) {
@@ -197,68 +198,77 @@ public class MySQL implements DataSource {
      * @throws SQLException If an error occurs while updating the database.
      */
     private void insertIntoDatabase(Group group, GameMode gameMode, PWIPlayer player, String uuid) throws SQLException {
-        String sql = "INSERT INTO " + prefix + "players VALUES (null,?,?,?);";
+        String dataUUID = UUID.randomUUID().toString();
+
+        String sql = "INSERT INTO " + prefix + "players VALUES (null,?,?,?,?);";
         try (Connection conn = getConnection()) {
             PreparedStatement playersStatement = conn.prepareStatement(sql);
             playersStatement.setString(1, uuid);
             playersStatement.setString(2, group.getName());
             playersStatement.setString(3, gameMode.name().toLowerCase());
+            playersStatement.setString(3, dataUUID);
             playersStatement.executeUpdate();
 
-            sql = "INSERT INTO " + prefix + "armor VALUES (null,?);";
+            sql = "INSERT INTO " + prefix + "armor VALUES (?,?);";
             PreparedStatement armorStatement = conn.prepareStatement(sql);
             String armor = inventorySerializer.serializeInventoryForSQL(player.getArmor());
             Blob armorBlob = conn.createBlob();
             armorBlob.setBytes(1, armor.getBytes());
-            armorStatement.setBlob(1, armorBlob);
+            armorStatement.setString(1, dataUUID);
+            armorStatement.setBlob(2, armorBlob);
             armorStatement.executeUpdate();
 
-            sql = "INSERT INTO " + prefix + "inventory VALUES (null,?);";
+            sql = "INSERT INTO " + prefix + "inventory VALUES (?,?);";
             PreparedStatement invStatement = conn.prepareStatement(sql);
             String inv = inventorySerializer.serializeInventoryForSQL(player.getInventory());
             Blob invBlob = conn.createBlob();
             invBlob.setBytes(1, inv.getBytes());
-            invStatement.setBlob(1, invBlob);
+            invStatement.setString(1, dataUUID);
+            invStatement.setBlob(2, invBlob);
             invStatement.executeUpdate();
 
-            sql = "INSERT INTO " + prefix + "enderchest VALUES (null,?);";
+            sql = "INSERT INTO " + prefix + "enderchest VALUES (?,?);";
             PreparedStatement ecStatement = conn.prepareStatement(sql);
             String ec = inventorySerializer.serializeInventoryForSQL(player.getEnderChest());
             Blob ecBlob = conn.createBlob();
             ecBlob.setBytes(1, ec.getBytes());
-            ecStatement.setBlob(1, ecBlob);
+            ecStatement.setString(1, dataUUID);
+            ecStatement.setBlob(2, ecBlob);
             ecStatement.executeUpdate();
 
-            sql = "INSERT INTO " + prefix + "stats VALUES (null,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+            sql = "INSERT INTO " + prefix + "stats VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
             PreparedStatement statsStatement = conn.prepareStatement(sql);
-            statsStatement.setBoolean(1, player.getCanFly());
-            statsStatement.setString(2, player.getDisplayName());
-            statsStatement.setFloat(3, player.getExhaustion());
-            statsStatement.setFloat(4, player.getExperience());
-            statsStatement.setBoolean(5, player.isFlying());
-            statsStatement.setInt(6, player.getFoodLevel());
-            statsStatement.setDouble(7, player.getHealth());
-            statsStatement.setInt(8, player.getLevel());
-            statsStatement.setFloat(9, player.getSaturationLevel());
-            statsStatement.setFloat(10, player.getFallDistance());
-            statsStatement.setInt(11, player.getFireTicks());
-            statsStatement.setInt(12, player.getMaxAir());
-            statsStatement.setInt(13, player.getRemainingAir());
+            statsStatement.setString(1, dataUUID);
+            statsStatement.setBoolean(2, player.getCanFly());
+            statsStatement.setString(3, player.getDisplayName());
+            statsStatement.setFloat(4, player.getExhaustion());
+            statsStatement.setFloat(5, player.getExperience());
+            statsStatement.setBoolean(6, player.isFlying());
+            statsStatement.setInt(7, player.getFoodLevel());
+            statsStatement.setDouble(8, player.getHealth());
+            statsStatement.setInt(9, player.getLevel());
+            statsStatement.setFloat(10, player.getSaturationLevel());
+            statsStatement.setFloat(11, player.getFallDistance());
+            statsStatement.setInt(12, player.getFireTicks());
+            statsStatement.setInt(13, player.getMaxAir());
+            statsStatement.setInt(14, player.getRemainingAir());
             statsStatement.executeUpdate();
 
-            sql = "INSERT INTO " + prefix + "potion_effects VALUES (null,?);";
+            sql = "INSERT INTO " + prefix + "potion_effects VALUES (?,?);";
             PreparedStatement peStatement = conn.prepareStatement(sql);
             String pe = PotionEffectSerializer.serializeForSQL(player.getPotionEffects());
             Blob peBlob = conn.createBlob();
             peBlob.setBytes(1, pe.getBytes());
-            peStatement.setBlob(1, peBlob);
+            peStatement.setString(1, dataUUID);
+            peStatement.setBlob(2, peBlob);
             peStatement.executeUpdate();
 
             if (plugin.isEconEnabled()) {
-                sql = "INSERT INTO " + prefix + "economy VALUES (null,?,?);";
+                sql = "INSERT INTO " + prefix + "economy VALUES (?,?,?);";
                 PreparedStatement econStatement = conn.prepareStatement(sql);
-                econStatement.setDouble(1, player.getBankBalance());
-                econStatement.setDouble(2, player.getBalance());
+                econStatement.setString(1, dataUUID);
+                econStatement.setDouble(2, player.getBankBalance());
+                econStatement.setDouble(3, player.getBalance());
                 econStatement.executeUpdate();
             }
         }
@@ -271,7 +281,7 @@ public class MySQL implements DataSource {
      * @param player The player to update the data for.
      * @throws SQLException If an error occurs while updating the database.
      */
-    private void updateExisting(int pid, PWIPlayer player) throws SQLException {
+    private void updateExisting(String pid, PWIPlayer player) throws SQLException {
         try (Connection conn = getConnection()) {
             String sql = "UPDATE " + prefix + "armor " +
                     "SET items=? WHERE pid=?;";
@@ -280,7 +290,7 @@ public class MySQL implements DataSource {
             Blob armorBlob = conn.createBlob();
             armorBlob.setBytes(1, armor.getBytes());
             uArmor.setBlob(1, armorBlob);
-            uArmor.setInt(2, pid);
+            uArmor.setString(2, pid);
             uArmor.executeUpdate();
 
             sql = "UPDATE " + prefix + "inventory " +
@@ -290,7 +300,7 @@ public class MySQL implements DataSource {
             Blob invBlob = conn.createBlob();
             armorBlob.setBytes(1, inv.getBytes());
             uInv.setBlob(1, invBlob);
-            uInv.setInt(2, pid);
+            uInv.setString(2, pid);
             uInv.executeUpdate();
 
             sql = "UPDATE " + prefix + "enderchest " +
@@ -300,7 +310,7 @@ public class MySQL implements DataSource {
             Blob ecBlob = conn.createBlob();
             armorBlob.setBytes(1, enderChest.getBytes());
             uEnderChest.setBlob(1, ecBlob);
-            uEnderChest.setInt(2, pid);
+            uEnderChest.setString(2, pid);
             uEnderChest.executeUpdate();
 
             sql = "UPDATE " + prefix + "stats " +
@@ -321,7 +331,7 @@ public class MySQL implements DataSource {
             uStats.setInt(11, player.getFireTicks());
             uStats.setInt(12, player.getMaxAir());
             uStats.setInt(13, player.getRemainingAir());
-            uStats.setInt(14, pid);
+            uStats.setString(14, pid);
             uStats.executeUpdate();
 
             sql = "UPDATE " + prefix + "potion_effects " +
@@ -331,7 +341,7 @@ public class MySQL implements DataSource {
             Blob peBlob = conn.createBlob();
             peBlob.setBytes(1, pe.getBytes());
             uPotions.setBlob(1, peBlob);
-            uPotions.setInt(2, pid);
+            uPotions.setString(2, pid);
             uPotions.executeUpdate();
 
             if (plugin.isEconEnabled()) {
@@ -340,7 +350,7 @@ public class MySQL implements DataSource {
                 PreparedStatement uEcon = conn.prepareStatement(sql);
                 uEcon.setDouble(1, player.getBankBalance());
                 uEcon.setDouble(2, player.getBalance());
-                uEcon.setInt(3, pid);
+                uEcon.setString(3, pid);
                 uEcon.executeUpdate();
             }
         }
@@ -366,45 +376,46 @@ public class MySQL implements DataSource {
         try (Connection conn = getConnection(); Statement statement = conn.createStatement()) {
             // Players, groups, and gamemodes
             String sql = "CREATE TABLE IF NOT EXISTS " + prefix + "players (" +
-                    "pid INT UNSIGNED NOT NULL AUTO_INCREMENT," +
+                    "id INT UNSIGNED NOT NULL AUTO_INCREMENT," +
                     "uuid CHAR(36) NOT NULL," +
                     "group VARCHAR(255) NOT NULL," +
                     "gamemode ENUM('adventure', 'creative', 'survival') NOT NULL," +
-                    "PRIMARY KEY (pid));";
+                    "pid CHAR(36) NOT NULL," +
+                    "PRIMARY KEY (id));";
             statement.executeUpdate(sql);
 
             // Armor
             sql = "CREATE TABLE IF NOT EXISTS " + prefix + "armor (" +
-                    "pid INT UNSIGNED NOT NULL," +
+                    "pid CHAR(36) NOT NULL," +
                     "items BLOB NOT NULL," +
-                    "FOREIGN KEY (pid) REFERENCES " + prefix + "players(pid));";
+                    "PRIMARY KEY (pid));";
             statement.executeUpdate(sql);
 
             // Inventory
             sql = "CREATE TABLE IF NOT EXISTS " + prefix + "inventory (" +
-                    "pid INT UNSIGNED NOT NULL," +
+                    "pid CHAR(36) NOT NULL," +
                     "items BLOB NOT NULL," +
-                    "FOREIGN KEY (pid) REFERENCES " + prefix + "players(pid));";
+                    "PRIMARY KEY (pid));";
             statement.executeUpdate(sql);
 
             // Enderchest
             sql = "CREATE TABLE IF NOT EXISTS " + prefix + "enderchest (" +
-                    "pid INT UNSIGNED NOT NULL," +
+                    "pid CHAR(36) NOT NULL," +
                     "items BLOB NOT NULL," +
-                    "FOREIGN KEY (pid) REFERENCES " + prefix + "players(pid));";
+                    "PRIMARY KEY (pid));";
             statement.executeUpdate(sql);
 
             // Economy
             sql = "CREATE TABLE IF NOT EXISTS " + prefix + "economy (" +
-                    "pid INT UNSIGNED NOT NULL," +
+                    "pid CHAR(36) NOT NULL," +
                     "bank_balance DOUBLE," +
                     "balance DOUBLE," +
-                    "FOREIGN KEY (pid) REFERENCES " + prefix + "players(pid));";
+                    "PRIMARY KEY (pid));";
             statement.executeUpdate(sql);
 
             // Stats
             sql = "CREATE TABLE IF NOT EXISTS " + prefix + "stats (" +
-                    "pid INT UNSIGNED NOT NULL," +
+                    "pid CHAR(36) NOT NULL," +
                     "can_fly BOOL NOT NULL," +
                     "display_name VARCHAR(16) NOT NULL," +
                     "exhaustion FLOAT NOT NULL," +
@@ -418,14 +429,14 @@ public class MySQL implements DataSource {
                     "fire_ticks INT NOT NULL," +
                     "max_air INT NOT NULL," +
                     "remaining_air INT NOT NULL," +
-                    "FOREIGN KEY (pid) REFERENCES " + prefix + "players(pid));";
+                    "PRIMARY KEY (pid));";
             statement.executeUpdate(sql);
 
             // Potion effects
             sql = "CREATE TABLE IF NOT EXISTS " + prefix + "potion_effects (" +
-                    "pid INT UNSIGNED NOT NULL," +
+                    "pid CHAR(36) NOT NULL," +
                     "potion_effects BLOB NOT NULL," +
-                    "FOREIGN KEY (pid) REFERENCES " + prefix + "players(pid));";
+                    "PRIMARY KEY (pid));";
             statement.executeUpdate(sql);
 
             // Logout location
@@ -446,14 +457,14 @@ public class MySQL implements DataSource {
     /**
      * Check if data with the given parameters are already stored in the database.
      * This method will return the pid to use in the lookup of more data if data exists
-     * with the given parameters. If none exists, the method will return -1.
+     * with the given parameters. If none exists, the method will return null.
      *
      * @param uuid The UUID of the player as a String with all '-' characters removed.
      * @param group The name of the group to check for.
      * @param gameMode The GameMode of the player as a lowercase String.
-     * @return The pid key if data exists, -1 if not.
+     * @return The pid key if data exists, null if not.
      */
-    private int isDataStored(String uuid, String group, String gameMode) {
+    private String isDataStored(String uuid, String group, String gameMode) {
         String sql = "SELECT pid FROM " + prefix + "players WHERE uuid=? AND group=? AND gamemode=?;";
         ResultSet rs = null;
         try (Connection conn = getConnection(); PreparedStatement statement = conn.prepareStatement(sql)) {
@@ -463,7 +474,7 @@ public class MySQL implements DataSource {
 
             rs = statement.executeQuery();
             if (rs.next()) {
-                return rs.getInt("pid");
+                return rs.getString("pid");
             }
         } catch (SQLException ex) {
             PwiLogger.severe("Error checking for existing data:", ex);
@@ -471,7 +482,7 @@ public class MySQL implements DataSource {
             close(rs);
         }
 
-        return -1;
+        return null;
     }
 
     private void setConnectionArguments() {
