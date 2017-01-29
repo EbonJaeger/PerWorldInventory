@@ -69,14 +69,20 @@ public class InventorySerializer {
         return inventory;
     }
 
+    /**
+     * Serialize an ItemStack array for saving in a SQL database.
+     *
+     * @param contents The items in the inventory.
+     * @return A String of serialized items.
+     */
     public String serializeInventoryForSQL(ItemStack[] contents) {
-        String[] strings = new String[contents.length];
+        StringBuilder sb = new StringBuilder();
 
-        for (int i = 0; i < contents.length; i++) {
-            strings[i] = itemSerializer.serializeForSQL(contents[i]);
+        for (ItemStack item : contents) {
+            sb.append(itemSerializer.serializeForSQL(item)).append(":");
         }
 
-        return strings.toString();
+        return sb.toString().substring(0, sb.length() - 1);
     }
 
     /**
@@ -139,5 +145,22 @@ public class InventorySerializer {
         }
 
         return contents;
+    }
+
+    /**
+     * Deserialize a String of encoded items into an ItemStack array.
+     *
+     * @param data The String of items.
+     * @return An array of ItemStacks.
+     */
+    public ItemStack[] deserializeInventory(String data) {
+        String[] strings = data.split(":");
+        ItemStack[] items = new ItemStack[strings.length];
+
+        for (int i = 0; i < strings.length; i++) {
+            items[i] = itemSerializer.deserializeItem(strings[i]);
+        }
+
+        return items;
     }
 }

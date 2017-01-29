@@ -120,10 +120,32 @@ public class ItemSerializer {
         }
     }
 
+    /**
+     * Get an ItemStack from a JsonObject.
+     *
+     * @param data The JsonOjbect containing the item's data.
+     * @return The ItemStack.
+     */
     public ItemStack deserializeItem(JsonObject data) {
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data.get("item").getAsString()));
                 BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream)) {
             return (ItemStack) dataInput.readObject();
+        } catch (IOException | ClassNotFoundException ex) {
+            PwiLogger.severe("Error loading an item:", ex);
+            return new ItemStack(Material.AIR);
+        }
+    }
+
+    /**
+     * Get an ItemStack from a String.
+     *
+     * @param data The String to deserialize.
+     * @return The ItemStack.
+     */
+    public ItemStack deserializeItem(String data) {
+        try (ByteArrayInputStream in = new ByteArrayInputStream(Base64Coder.decodeLines(data));
+                BukkitObjectInputStream inStream = new BukkitObjectInputStream(in)) {
+            return (ItemStack) inStream.readObject();
         } catch (IOException | ClassNotFoundException ex) {
             PwiLogger.severe("Error loading an item:", ex);
             return new ItemStack(Material.AIR);

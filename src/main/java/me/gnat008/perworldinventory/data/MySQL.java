@@ -10,16 +10,22 @@ import me.gnat008.perworldinventory.config.DatabaseProperties;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
+import me.gnat008.perworldinventory.data.serializers.EconomySerializer;
 import me.gnat008.perworldinventory.data.serializers.InventorySerializer;
 import me.gnat008.perworldinventory.data.serializers.PotionEffectSerializer;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.utils.Utils;
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
 
 import javax.inject.Inject;
 import java.sql.*;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.UUID;
 
 /**
@@ -34,6 +40,7 @@ public class MySQL implements DataSource {
     private PerWorldInventory plugin;
     private BukkitService bukkitService;
     private InventorySerializer inventorySerializer;
+    private Settings settings;
 
     /**
      * Constructor
@@ -49,6 +56,7 @@ public class MySQL implements DataSource {
         this.plugin = plugin;
         this.bukkitService = bukkitService;
         this.inventorySerializer = inventorySerializer;
+        this.settings = settings;
         loadSettings(settings);
 
         // Set up connection
@@ -110,11 +118,11 @@ public class MySQL implements DataSource {
 
     @Override
     public void saveLogoutData(PWIPlayer player, boolean async) {
-        String uuid = player.getUuid().toString().replace("-", "");
+        String uuid = player.getUuid().toString();
         Location location = player.getLocation();
 
         bukkitService.runTaskAsync(() -> {
-            String sql = "SELECT id FROM " + prefix + "logout_location WHERE uuid=?;";
+            String sql = "SELECT world FROM " + prefix + "logout_location WHERE uuid=?;";
             try (Connection conn = getConnection(); PreparedStatement query = conn.prepareStatement(sql)) {
                 query.setString(1, uuid);
                 ResultSet existing = query.executeQuery();
@@ -135,7 +143,7 @@ public class MySQL implements DataSource {
                         update.executeUpdate();
                     }
                 } else {
-                    sql = "INSERT INTO " + prefix + "logout_location (uuid,world,x,y,z,pitch,yaw) " +
+                    sql = "INSERT INTO " + prefix + "logout_location " +
                             "VALUES (?,?,?,?,?,?,?);";
                     try (PreparedStatement insert = conn.prepareStatement(sql)) {
                         insert.setString(1, uuid);
@@ -358,11 +366,150 @@ public class MySQL implements DataSource {
 
     @Override
     public void getFromDatabase(Group group, GameMode gamemode, Player player) {
+        String uuid = player.getUniqueId().toString();
 
+        bukkitService.runTaskAsync(() -> {
+            String sql = "SELECT * FROM " + prefix + "players " +
+                    "WHERE uuid=? AND group=? AND gamemode=? " +
+                    "INNER JOIN (" + prefix + "armor, " + prefix + "inventory, " + prefix + "enderchest, " +
+                    prefix + "stats, " + prefix + "potion_effects, " + prefix + "economy) " +
+                    "ON (" + prefix + "armor.pid=" + prefix + "players.pid AND " +
+                    prefix + "inventory.pid=" + prefix + "players.pid AND " +
+                    prefix + "enderchest.pid=" + prefix + "players.pid AND " +
+                    prefix + "stats.pid=" + prefix + "players.pid AND " +
+                    prefix + "potion_effects.pid=" + prefix + "players.pid AND " +
+                    prefix + "economy.pid=" + prefix + "players.pid);";
+
+            try (Connection conn = getConnection()) {
+                PreparedStatement query = conn.prepareStatement(sql);
+                query.setString(1, uuid);
+                query.setString(2, group.getName());
+                query.setString(3, gamemode.toString());
+                ResultSet rs = query.executeQuery();
+
+                if (rs.next()) { // Data found!
+                    bukkitService.runTask(() -> setPlayer(player, rs));
+                } else {
+                    // TODO: check group default first
+                    // Try server defaults
+                    PreparedStatement defQuery = conn.prepareCall(sql);
+                    defQuery.setString(1, uuid);
+                    defQuery.setString(2, "__default");
+                    defQuery.setString(3, GameMode.SURVIVAL.toString());
+                    ResultSet defRS = query.executeQuery();
+
+                    if (defRS.next()) {
+                        bukkitService.runTask(() -> setPlayer(player, defRS));
+                    } else {
+                        PwiLogger.severe("Could not get server defaults! No data found in database!");
+                    }
+                }
+            } catch (SQLException ex) {
+                PwiLogger.severe("Error while getting data for player '" + player.getName() + "' in group '" + group.getName() + "':", ex);
+            }
+        });
+    }
+
+    /**
+     * Set a player's data from a ResultSet from the database.
+     *
+     * @param player The player to apply to.
+     * @param data The data to apply.
+     */
+    private void setPlayer(Player player, ResultSet data) {
+        try {
+            // Set inventory and armor
+            player.getInventory().clear();
+            player.getInventory().setContents(inventorySerializer.deserializeInventory(data.getString("inv_items")));
+            player.getInventory().setArmorContents(inventorySerializer.deserializeInventory(data.getString("armor_items")));
+
+            // Set ender chest
+            if (settings.getProperty(PwiProperties.LOAD_ENDER_CHESTS)) {
+                player.getEnderChest().clear();
+                player.getEnderChest().setContents(inventorySerializer.deserializeInventory(data.getString("ec_items")));
+            }
+
+            // Set stats
+            if (settings.getProperty(PwiProperties.LOAD_CAN_FLY)) {
+                player.setAllowFlight(data.getBoolean("can_fly"));
+            }
+            if (settings.getProperty(PwiProperties.LOAD_DISPLAY_NAME)) {
+                player.setDisplayName(data.getString("display_name"));
+            }
+            if (settings.getProperty(PwiProperties.LOAD_EXHAUSTION)) {
+                player.setExhaustion(data.getFloat("exhaustion"));
+            }
+            if (settings.getProperty(PwiProperties.LOAD_EXP)) {
+                player.setExp(data.getFloat("exp"));
+            }
+            if (settings.getProperty(PwiProperties.LOAD_FLYING)) {
+                player.setFlying(data.getBoolean("flying"));
+            }
+            if (settings.getProperty(PwiProperties.LOAD_HUNGER)) {
+                player.setFoodLevel(data.getInt("food"));
+            }
+            if (settings.getProperty(PwiProperties.LOAD_HEALTH)) {
+                player.setHealth(data.getDouble("health"));
+            }
+            if (settings.getProperty(PwiProperties.LOAD_LEVEL)) {
+                player.setLevel(data.getInt("level"));
+            }
+            if (settings.getProperty(PwiProperties.LOAD_SATURATION)) {
+                player.setSaturation(data.getFloat("saturation"));
+            }
+            if (settings.getProperty(PwiProperties.LOAD_FALL_DISTANCE)) {
+                player.setFallDistance(data.getFloat("fall_distance"));
+            }
+            if (settings.getProperty(PwiProperties.LOAD_FIRE_TICKS)) {
+                player.setFireTicks(data.getInt("fire_ticks"));
+            }
+            if (settings.getProperty(PwiProperties.LOAD_MAX_AIR)) {
+                player.setMaximumAir(data.getInt("max_air"));
+            }
+            if (settings.getProperty(PwiProperties.LOAD_REMAINING_AIR)) {
+                player.setRemainingAir(data.getInt("remaining_air"));
+            }
+
+            // Set potion effects
+            if (settings.getProperty(PwiProperties.LOAD_POTION_EFFECTS)) {
+                for (PotionEffect effect : player.getActivePotionEffects()) {
+                    player.removePotionEffect(effect.getType());
+                }
+
+                Collection<PotionEffect> effects = PotionEffectSerializer.deserialize(data.getString("potion_effects"));
+                for (PotionEffect effect : effects) {
+                    player.addPotionEffect(effect);
+                }
+            }
+
+            // Set economy
+            if (settings.getProperty(PwiProperties.USE_ECONOMY) && plugin.isEconEnabled()) {
+                Economy econ = plugin.getEconomy();
+
+                PwiLogger.debug("[ECON] Withdrawing " + econ.getBalance(player) + " from '" + player.getName() + "'!");
+                EconomyResponse er = econ.withdrawPlayer(player, econ.getBalance(player));
+                if (er.transactionSuccess()) {
+                    econ.depositPlayer(player, data.getDouble("balance"));
+                } else {
+                    PwiLogger.warning("[ECON] Unable to withdraw funds from '" + player.getName() + "': " + er.errorMessage);
+                }
+
+                PwiLogger.debug("[ECON] Withdrawing " + econ.bankBalance(player.getName()) + " from bank of '" + player.getName() + "'!");
+                EconomyResponse bankER = econ.bankWithdraw(player.getName(), econ.bankBalance(player.getName()).amount);
+                if (bankER.transactionSuccess()) {
+                    econ.bankDeposit(player.getName(), data.getDouble("bank_balance"));
+                } else {
+                    PwiLogger.warning("[ECON] Unable to withdraw bank funds from '" + player.getName() + "': " + er.errorMessage);
+                }
+            }
+        } catch (SQLException ex) {
+            PwiLogger.severe("Error getting data for player '" + player.getName() + "' from ResultSet:", ex);
+        }
     }
 
     @Override
     public Location getLogoutData(Player player) {
+        // TODO: implement
         return null;
     }
 
@@ -379,7 +526,7 @@ public class MySQL implements DataSource {
                     "id INT UNSIGNED NOT NULL AUTO_INCREMENT," +
                     "uuid CHAR(36) NOT NULL," +
                     "group VARCHAR(255) NOT NULL," +
-                    "gamemode ENUM('adventure', 'creative', 'survival') NOT NULL," +
+                    "gamemode ENUM('adventure', 'creative', 'spectator', 'survival') NOT NULL," +
                     "pid CHAR(36) NOT NULL," +
                     "PRIMARY KEY (id));";
             statement.executeUpdate(sql);
@@ -387,21 +534,21 @@ public class MySQL implements DataSource {
             // Armor
             sql = "CREATE TABLE IF NOT EXISTS " + prefix + "armor (" +
                     "pid CHAR(36) NOT NULL," +
-                    "items BLOB NOT NULL," +
+                    "armor_items BLOB NOT NULL," +
                     "PRIMARY KEY (pid));";
             statement.executeUpdate(sql);
 
             // Inventory
             sql = "CREATE TABLE IF NOT EXISTS " + prefix + "inventory (" +
                     "pid CHAR(36) NOT NULL," +
-                    "items BLOB NOT NULL," +
+                    "inv_items BLOB NOT NULL," +
                     "PRIMARY KEY (pid));";
             statement.executeUpdate(sql);
 
             // Enderchest
             sql = "CREATE TABLE IF NOT EXISTS " + prefix + "enderchest (" +
                     "pid CHAR(36) NOT NULL," +
-                    "items BLOB NOT NULL," +
+                    "ec_items BLOB NOT NULL," +
                     "PRIMARY KEY (pid));";
             statement.executeUpdate(sql);
 
@@ -441,7 +588,6 @@ public class MySQL implements DataSource {
 
             // Logout location
             sql = "CREATE TABLE IF NOT EXISTS " + prefix + "logout_location (" +
-                    "id INT UNSIGNED NOT NULL AUTO_INCREMENT," +
                     "uuid CHAR(36) NOT NULL," +
                     "world VARCHAR(255) NOT NULL," +
                     "x DOUBLE NOT NULL," +
@@ -449,7 +595,7 @@ public class MySQL implements DataSource {
                     "z DOUBLE NOT NULL," +
                     "pitch FLOAT NOT NULL," +
                     "yaw FLOAT NOT NULL," +
-                    "PRIMARY KEY (id),";
+                    "PRIMARY KEY (uuid),";
             statement.executeUpdate(sql);
         }
     }
