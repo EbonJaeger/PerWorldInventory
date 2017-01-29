@@ -19,7 +19,7 @@ package me.gnat008.perworldinventory.groups;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.PwiLogger;
-import me.gnat008.perworldinventory.Utils;
+import me.gnat008.perworldinventory.utils.Utils;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import org.bukkit.GameMode;

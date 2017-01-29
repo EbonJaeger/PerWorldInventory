@@ -70,6 +70,22 @@ public class InventorySerializer {
     }
 
     /**
+     * Serialize an ItemStack array for saving in a SQL database.
+     *
+     * @param contents The items in the inventory.
+     * @return A String of serialized items.
+     */
+    public String serializeInventoryForSQL(ItemStack[] contents) {
+        StringBuilder sb = new StringBuilder();
+
+        for (ItemStack item : contents) {
+            sb.append(itemSerializer.serializeForSQL(item)).append(":");
+        }
+
+        return sb.toString().substring(0, sb.length() - 1);
+    }
+
+    /**
      * Sets the Inventory using an ItemStack array constructed from a JsonObject.
      *
      * @param player The InventoryHolder to which the Inventory will be set
@@ -129,5 +145,22 @@ public class InventorySerializer {
         }
 
         return contents;
+    }
+
+    /**
+     * Deserialize a String of encoded items into an ItemStack array.
+     *
+     * @param data The String of items.
+     * @return An array of ItemStacks.
+     */
+    public ItemStack[] deserializeInventory(String data) {
+        String[] strings = data.split(":");
+        ItemStack[] items = new ItemStack[strings.length];
+
+        for (int i = 0; i < strings.length; i++) {
+            items[i] = itemSerializer.deserializeItem(strings[i]);
+        }
+
+        return items;
     }
 }

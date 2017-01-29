@@ -23,7 +23,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-public interface DataWriter {
+public interface DataSource {
 
     /**
      * Save the location of a player when they log out or are kicked from the server.
@@ -68,4 +68,21 @@ public interface DataWriter {
      * @return The location of the player when they last logged out or null
      */
     Location getLogoutData(Player player);
+
+    /**
+     * Close the underlying connection to the data source.
+     */
+    void close();
+
+    /**
+     * Get the database type of this data source.
+     *
+     * @return The data source type.
+     */
+    DataSourceType getType();
+
+    /**
+     * Reload the data source.
+     */
+    void reload();
 }

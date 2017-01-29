@@ -22,7 +22,7 @@ import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.PwiLogger;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
-import me.gnat008.perworldinventory.data.DataWriter;
+import me.gnat008.perworldinventory.data.DataSource;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import net.milkbowl.vault.economy.Economy;
@@ -50,7 +50,7 @@ public class PWIPlayerManager {
 
     private PerWorldInventory plugin;
     private BukkitService bukkitService;
-    private DataWriter dataWriter;
+    private DataSource dataSource;
     private GroupManager groupManager;
     private PWIPlayerFactory pwiPlayerFactory;
     private Settings settings;
@@ -62,11 +62,11 @@ public class PWIPlayerManager {
     private Map<String, PWIPlayer> playerCache = new ConcurrentHashMap<>();
 
     @Inject
-    PWIPlayerManager(PerWorldInventory plugin, BukkitService bukkitService, DataWriter dataWriter, GroupManager groupManager,
+    PWIPlayerManager(PerWorldInventory plugin, BukkitService bukkitService, DataSource dataSource, GroupManager groupManager,
                      PWIPlayerFactory pwiPlayerFactory, Settings settings) {
         this.plugin = plugin;
         this.bukkitService = bukkitService;
-        this.dataWriter = dataWriter;
+        this.dataSource = dataSource;
         this.groupManager = groupManager;
         this.pwiPlayerFactory = pwiPlayerFactory;
         this.settings = settings;
@@ -103,11 +103,7 @@ public class PWIPlayerManager {
      * @return The key used to get the player data.
      */
     public String addPlayer(Player player, Group group) {
-        String key = player.getUniqueId().toString() + "." + group.getName() + ".";
-        if (settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES))
-            key += player.getGameMode().toString().toLowerCase();
-        else
-            key += "survival";
+        String key = makeKey(player.getUniqueId(), group, player.getGameMode());
 
         PwiLogger.debug("Adding player '" + player.getName() + "' to cache; key is '" + key + "'");
 
@@ -138,18 +134,29 @@ public class PWIPlayerManager {
     /**
      * Get a player from the cache. This method will
      * return null if no player with the same group and gamemode
-     * is cached.
+     * is cached. This method will use the player's current gamemode
+     * to grab the correct PWIPlayer.
      *
      * @param group The Group the player is in
      * @param player The Player
      * @return The PWIPlayer in the cache, or null
      */
     public PWIPlayer getPlayer(Group group, Player player) {
-        String key = player.getUniqueId().toString() + "." + group.getName() + ".";
-        if (settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES))
-            key += player.getGameMode().toString().toLowerCase();
-        else
-            key += "survival";
+        return getPlayer(group, player.getGameMode(), player);
+    }
+
+    /**
+     * Get a player from the cache. This method will
+     * return null if no player with the same group and gamemode
+     * is cached.
+     *
+     * @param group The Group the player is cached for.
+     * @param gameMode The GameMode to use to get the PWIPlayer.
+     * @param player The player to get the cached version of.
+     * @return The cached PWIPlayer if it exists, or null
+     */
+    public PWIPlayer getPlayer(Group group, GameMode gameMode, Player player) {
+        String key = makeKey(player.getUniqueId(), group, gameMode);
 
         return playerCache.get(key);
     }
@@ -169,7 +176,7 @@ public class PWIPlayerManager {
             getDataFromCache(group, gamemode, player);
         } else {
             PwiLogger.debug("Player was not in cache! Loading from file");
-            dataWriter.getFromDatabase(group, gamemode, player);
+            dataSource.getFromDatabase(group, gamemode, player);
         }
     }
 
@@ -180,11 +187,7 @@ public class PWIPlayerManager {
      * @param player The player to save.
      */
     public void savePlayer(Group group, Player player, boolean async) {
-        String key = player.getUniqueId().toString() + "." + group.getName() + ".";
-        if (settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES))
-            key += player.getGameMode().toString().toLowerCase();
-        else
-            key += "survival";
+        String key = makeKey(player.getUniqueId(), group, player.getGameMode());
 
         // Remove any entry with the current key, if one exists
         // Should remove the possibility of having to write the same data twice
@@ -204,16 +207,16 @@ public class PWIPlayerManager {
                 PwiLogger.debug("Saving cached player '" + cached.getName() + "' for group '" + groupKey.getName() + "' with gamemdde '" + gamemode.name() + "'");
 
                 cached.setSaved(true);
-                dataWriter.saveToDatabase(groupKey, gamemode, cached, async);
+                dataSource.saveToDatabase(groupKey, gamemode, cached, async);
             }
         }
 
         PWIPlayer pwiPlayer = pwiPlayerFactory.create(player, group);
-        dataWriter.saveToDatabase(group,
+        dataSource.saveToDatabase(group,
                 settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES) ? player.getGameMode() : GameMode.SURVIVAL,
                 pwiPlayer,
                 async);
-        dataWriter.saveLogoutData(pwiPlayer, async);
+        dataSource.saveLogoutData(pwiPlayer, async);
         removePlayer(player);
     }
 
@@ -226,11 +229,7 @@ public class PWIPlayerManager {
      * @return True if a {@link PWIPlayer} is cached.
      */
     public boolean isPlayerCached(Group group, GameMode gameMode, Player player) {
-        String key = player.getUniqueId().toString() + "." + group.getName() + ".";
-        if (settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES))
-            key += gameMode.toString().toLowerCase();
-        else
-            key += "survival";
+        String key = makeKey(player.getUniqueId(), group, gameMode);
 
         return playerCache.containsKey(key);
     }
@@ -323,11 +322,7 @@ public class PWIPlayerManager {
      * @return The PWIPlayer
      */
     private PWIPlayer getCachedPlayer(Group group, GameMode gameMode, UUID uuid) {
-        String key = uuid.toString() + "." + group.getName() + ".";
-        if (settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES))
-            key += gameMode.toString().toLowerCase();
-        else
-            key += "survival";
+        String key = makeKey(uuid, group, gameMode);
 
         PwiLogger.debug("Looking for cached data with key '" + key + "'");
 
@@ -359,7 +354,7 @@ public class PWIPlayerManager {
                     PwiLogger.debug("Gamemode: " + gamemode.toString());
 
                     player.setSaved(true);
-                    dataWriter.saveToDatabase(group, gamemode, player, true);
+                    dataSource.saveToDatabase(group, gamemode, player, true);
                 } else {
                     PwiLogger.debug("Removing player '" + player.getName() + "' from cache");
                     playerCache.remove(key);
@@ -402,5 +397,15 @@ public class PWIPlayerManager {
             currentPlayer.setBankBalance(plugin.getEconomy().bankBalance(newData.getName()).balance);
             currentPlayer.setBalance(plugin.getEconomy().getBalance(newData));
         }
+    }
+
+    private String makeKey(UUID uuid, Group group, GameMode gameMode) {
+        String key = uuid.toString() + "." + group.getName() + ".";
+        if (settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES))
+            key += gameMode.toString().toLowerCase();
+        else
+            key += "survival";
+
+        return key;
     }
 }

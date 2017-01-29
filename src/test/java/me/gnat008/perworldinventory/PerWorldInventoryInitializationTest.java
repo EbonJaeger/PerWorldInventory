@@ -8,8 +8,8 @@ import me.gnat008.perworldinventory.commands.PerWorldInventoryCommand;
 import me.gnat008.perworldinventory.commands.ReloadCommand;
 import me.gnat008.perworldinventory.commands.SetWorldDefaultCommand;
 import me.gnat008.perworldinventory.config.Settings;
-import me.gnat008.perworldinventory.data.DataWriter;
-import me.gnat008.perworldinventory.data.FileWriter;
+import me.gnat008.perworldinventory.data.DataSource;
+import me.gnat008.perworldinventory.data.FlatFile;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.listeners.player.PlayerGameModeChangeListener;
@@ -38,8 +38,9 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import static me.gnat008.perworldinventory.TestHelper.getField;
-import static me.gnat008.perworldinventory.TestHelper.setField;
+import static me.gnat008.perworldinventory.ReflectionTestUtils.getField;
+import static me.gnat008.perworldinventory.ReflectionTestUtils.getFieldValue;
+import static me.gnat008.perworldinventory.ReflectionTestUtils.setField;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
@@ -118,7 +119,7 @@ public class PerWorldInventoryInitializationTest {
 
         // then - check various samples
         assertThat(injector.getIfAvailable(GroupManager.class), not(nullValue()));
-        assertThat(injector.getIfAvailable(DataWriter.class), instanceOf(FileWriter.class));
+        assertThat(injector.getIfAvailable(DataSource.class), instanceOf(FlatFile.class));
         assertThat(injector.getIfAvailable(PWIPlayerManager.class), not(nullValue()));
 
         verifyRegisteredListener(PluginListener.class);
@@ -143,7 +144,7 @@ public class PerWorldInventoryInitializationTest {
 
         CommandVerifier(PerWorldInventory plugin, Injector injector) {
             this.injector = injector;
-            this.commands = getField(PerWorldInventory.class, "commands", plugin);
+            this.commands = getFieldValue(PerWorldInventory.class, plugin, "commands");
         }
 
         void assertHasCommand(String label, Class<? extends ExecutableCommand> expectedClass) {
@@ -152,5 +153,4 @@ public class PerWorldInventoryInitializationTest {
             assertThat(command, sameInstance(injector.getIfAvailable(expectedClass)));
         }
     }
-
 }

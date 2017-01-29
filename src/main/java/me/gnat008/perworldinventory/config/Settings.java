@@ -1,5 +1,6 @@
 package me.gnat008.perworldinventory.config;
 
+
 import ch.jalu.configme.SettingsManager;
 import ch.jalu.configme.migration.PlainMigrationService;
 import ch.jalu.configme.resource.YamlFileResource;
@@ -20,7 +21,7 @@ public class Settings extends SettingsManager {
         super(
             new YamlFileResource(yamlFile),
             new PlainMigrationService(),
-            PwiProperties.class);
+            SettingsRetriever.buildConfigurationData());
     }
 
 }

@@ -28,8 +28,8 @@ import com.onarandombox.multiverseinventories.api.profile.ProfileType;
 import com.onarandombox.multiverseinventories.api.profile.WorldGroupProfile;
 import com.onarandombox.multiverseinventories.api.share.Sharables;
 import me.gnat008.perworldinventory.BukkitService;
+import me.gnat008.perworldinventory.DataFolder;
 import me.gnat008.perworldinventory.PwiLogger;
-import me.gnat008.perworldinventory.data.FileWriter;
 import me.gnat008.perworldinventory.data.serializers.InventorySerializer;
 import me.gnat008.perworldinventory.data.serializers.PotionEffectSerializer;
 import me.gnat008.perworldinventory.groups.Group;
@@ -45,19 +45,23 @@ import javax.inject.Inject;
 import java.io.File;
 import java.util.*;
 
+import static me.gnat008.perworldinventory.utils.FileUtils.getFile;
+import static me.gnat008.perworldinventory.utils.FileUtils.writeData;
+
 @NoMethodScan
 public class DataConverter {
 
     @Inject
     private BukkitService bukkitService;
     @Inject
-    private FileWriter serializer;
-    @Inject
     private GroupManager groupManager;
     @Inject
     private InventorySerializer inventorySerializer;
     @Inject
     private PluginManager pluginManager;
+    @Inject
+    @DataFolder
+    private File dataFolder;
 
     DataConverter() {}
 
@@ -87,12 +91,12 @@ public class DataConverter {
                             if (playerData != null) {
                                 String data = serializeMVIToNewFormat(playerData);
 
-                                File file = serializer.getFile(gameMode, groupManager.getGroup(mvgroup.getName()), player1.getUniqueId());
+                                File file = getFile(dataFolder, gameMode, groupManager.getGroup(mvgroup.getName()), player1.getUniqueId());
                                 if (!file.getParentFile().exists())
                                     file.getParentFile().mkdir();
                                 if (!file.exists())
                                     file.createNewFile();
-                                serializer.writeData(file, data);
+                                writeData(file, data);
                             }
                         } catch (Exception ex) {
                             PwiLogger.warning("Error importing inventory for player: " + player1.getName() +

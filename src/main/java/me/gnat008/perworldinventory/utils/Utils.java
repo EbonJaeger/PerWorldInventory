@@ -1,4 +1,4 @@
-package me.gnat008.perworldinventory;
+package me.gnat008.perworldinventory.utils;
 
 import java.io.*;
 
@@ -57,5 +57,14 @@ public final class Utils {
                 out.write(buff, 0, len);
             }
         }
+    }
+
+    /**
+     * Get the available core count of the JVM.
+     *
+     * @return Number of cores.
+     */
+    public static int getCoreCount() {
+        return Runtime.getRuntime().availableProcessors();
     }
 }

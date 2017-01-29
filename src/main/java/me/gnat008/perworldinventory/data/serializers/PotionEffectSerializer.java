@@ -25,6 +25,7 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * A class to help with the serialization of PotionEffects.
@@ -63,6 +64,33 @@ public class PotionEffectSerializer {
     }
 
     /**
+     * Serialize PotionEffects on a Player to a single String. The type, amplifier, duration,
+     * and if it has particles are separated by ':'.
+     *
+     * @param effects The PotionEffects to serialize.
+     * @return A String[] as a single String.
+     */
+    public static String serializeForSQL(Collection<PotionEffect> effects) {
+        if (effects.isEmpty()) {
+            return "none";
+        }
+
+        StringBuilder strings = new StringBuilder();
+        for (PotionEffect effect : effects) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(effect.getType().getName()).append(":");
+            sb.append(effect.getAmplifier()).append(":");
+            sb.append(effect.getDuration()).append(":");
+            sb.append(effect.isAmbient()).append(":");
+            sb.append(effect.hasParticles()).append(":");
+
+            strings.append(sb.toString()).append(";");
+        }
+
+        return strings.toString().substring(0, strings.length() - 1);
+    }
+
+    /**
      * Get a Collection of PotionEffects from the given potion effect code
      *
      * @param serializedEffects The potion effect code to decode from
@@ -71,7 +99,7 @@ public class PotionEffectSerializer {
      * @deprecated Uses deprecated methods that may be removed. Additionally, may not have all the data.
      */
     @Deprecated
-    public static Collection<PotionEffect> deserialize(String serializedEffects) {
+    public static Collection<PotionEffect> _deserialize(String serializedEffects) {
         ArrayList<PotionEffect> effects = new ArrayList<>();
         if (serializedEffects.isEmpty())
             return effects;
@@ -132,6 +160,34 @@ public class PotionEffectSerializer {
     }
 
     /**
+     * Deserialize PotionEffects from a serialized String of data.
+     *
+     * @param data The effects to deserialize.
+     * @return A HashSet of potion effects.
+     */
+    public static Collection<PotionEffect> deserialize(String data) {
+        Collection<PotionEffect> effects = new HashSet<>();
+        if (data.equals("none")) {
+            return effects;
+        }
+
+        String[] strings = data.split(";");
+        for (String string : strings) {
+            String[] parts = string.split(":");
+            PotionEffectType type = PotionEffectType.getByName(parts[0]);
+            int duration = Integer.parseInt(parts[2]);
+            int amplifier = Integer.parseInt(parts[1]);
+            boolean isAmbient = Boolean.parseBoolean(parts[3]);
+            boolean hasParticles = Boolean.parseBoolean(parts[4]);
+
+            PotionEffect effect = new PotionEffect(type, duration, amplifier, isAmbient, hasParticles);
+            effects.add(effect);
+        }
+
+        return effects;
+    }
+
+    /**
      * Add the given PotionEffects to a LivingEntity.
      *
      * @param code   The PotionEffects to add.
@@ -141,7 +197,7 @@ public class PotionEffectSerializer {
      */
     @Deprecated
     public static void addPotionEffects(String code, LivingEntity entity) {
-        entity.addPotionEffects(deserialize(code));
+        entity.addPotionEffects(_deserialize(code));
     }
 
     /**

@@ -68,11 +68,8 @@ public class ItemSerializer {
         if (useIndex)
             values.addProperty("index", index);
 
-        ByteArrayOutputStream outputStream;
-        BukkitObjectOutputStream dataObject;
-        try {
-            outputStream = new ByteArrayOutputStream();
-            dataObject = new BukkitObjectOutputStream(outputStream);
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                BukkitObjectOutputStream dataObject = new BukkitObjectOutputStream(outputStream)) {
             dataObject.writeObject(item);
             dataObject.close();
 
@@ -87,11 +84,68 @@ public class ItemSerializer {
         return values;
     }
 
+    /**
+     * Serialize an item to save in a SQL database.
+     *
+     * @param item The item to serialize.
+     * @return The item serialized to a Base64 string.
+     */
+    public String serializeForSQL(ItemStack item) {
+        if (item == null)
+            return "";
+
+        /*
+         * Check to see if the item is a skull with a null owner.
+         * This is because some people are getting skulls with null owners, which causes Spigot to throw an error
+         * when it tries to serialize the item. If this ever gets fixed in Spigot, this will be removed.
+         */
+        if (item.getType() == Material.SKULL_ITEM) {
+            SkullMeta meta = (SkullMeta) item.getItemMeta();
+            if (meta.hasOwner() && (meta.getOwner() == null || meta.getOwner().isEmpty())) {
+                item.setItemMeta(plugin.getServer().getItemFactory().getItemMeta(Material.SKULL_ITEM));
+            }
+        }
+
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+             BukkitObjectOutputStream dataObject = new BukkitObjectOutputStream(outputStream)) {
+            dataObject.writeObject(item);
+            dataObject.close();
+
+            return Base64Coder.encodeLines(outputStream.toByteArray());
+        } catch (IOException ex) {
+            PwiLogger.severe("Error saving an item:");
+            PwiLogger.severe("Item: " + item.getType().toString());
+            PwiLogger.severe("Reason:", ex);
+            return "";
+        }
+    }
+
+    /**
+     * Get an ItemStack from a JsonObject.
+     *
+     * @param data The JsonOjbect containing the item's data.
+     * @return The ItemStack.
+     */
     public ItemStack deserializeItem(JsonObject data) {
-        try (
-                ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data.get("item").getAsString()));
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data.get("item").getAsString()));
                 BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream)) {
             return (ItemStack) dataInput.readObject();
+        } catch (IOException | ClassNotFoundException ex) {
+            PwiLogger.severe("Error loading an item:", ex);
+            return new ItemStack(Material.AIR);
+        }
+    }
+
+    /**
+     * Get an ItemStack from a String.
+     *
+     * @param data The String to deserialize.
+     * @return The ItemStack.
+     */
+    public ItemStack deserializeItem(String data) {
+        try (ByteArrayInputStream in = new ByteArrayInputStream(Base64Coder.decodeLines(data));
+                BukkitObjectInputStream inStream = new BukkitObjectInputStream(in)) {
+            return (ItemStack) inStream.readObject();
         } catch (IOException | ClassNotFoundException ex) {
             PwiLogger.severe("Error loading an item:", ex);
             return new ItemStack(Material.AIR);

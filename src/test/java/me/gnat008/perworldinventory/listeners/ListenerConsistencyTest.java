@@ -1,6 +1,7 @@
 package me.gnat008.perworldinventory.listeners;
 
 import me.gnat008.perworldinventory.ClassCollector;
+import me.gnat008.perworldinventory.TestHelper;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.junit.BeforeClass;
@@ -22,7 +23,7 @@ public class ListenerConsistencyTest {
 
     @BeforeClass
     public static void collectListeners() {
-        listenerClasses = new ClassCollector("src/main/java", "me/gnat008/perworldinventory/listeners")
+        listenerClasses = new ClassCollector(TestHelper.SOURCES_FOLDER, TestHelper.PROJECT_ROOT + "/listeners")
             .collectClasses(Listener.class);
         if (listenerClasses.isEmpty()) {
             throw new IllegalStateException("Failed collecting any listener classes");
