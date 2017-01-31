@@ -20,7 +20,6 @@ package me.gnat008.perworldinventory.groups;
 import org.bukkit.GameMode;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -108,9 +107,7 @@ public class Group {
      * @param worlds A list of the worlds to add.
      */
     public void addWorlds(Collection<String> worlds) {
-        for (String world : worlds)
-            if (!this.worlds.contains(world))
-                this.worlds.add(world);
+        this.worlds.addAll(worlds);
     }
 
     /**

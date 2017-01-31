@@ -64,6 +64,7 @@ import java.util.Map;
 public class PerWorldInventory extends JavaPlugin {
 
     private PerWorldInventoryAPI api;
+    private BukkitService bukkitService;
     private Economy economy;
     private DataWriter serializer;
     private GroupManager groupManager;
@@ -178,6 +179,7 @@ public class PerWorldInventory extends JavaPlugin {
     }
 
     protected void injectServices(Injector injector) {
+        bukkitService = injector.getSingleton(BukkitService.class);
         groupManager = injector.getSingleton(GroupManager.class);
         serializer = injector.getSingleton(FileWriter.class);
         injector.register(DataWriter.class, serializer);

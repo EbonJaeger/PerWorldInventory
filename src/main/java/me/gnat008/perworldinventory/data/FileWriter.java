@@ -20,6 +20,7 @@ package me.gnat008.perworldinventory.data;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
+import me.gnat008.perworldinventory.BukkitService;
 import me.gnat008.perworldinventory.DataFolder;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.PwiLogger;
@@ -46,42 +47,42 @@ public class FileWriter implements DataWriter {
     private final File FILE_PATH;
 
     private final PerWorldInventory plugin;
+    private final BukkitService bukkitService;
     private final PlayerSerializer playerSerializer;
     private final PWIPlayerFactory pwiPlayerFactory;
 
     @Inject
-    FileWriter(@DataFolder File dataFolder, PerWorldInventory plugin, PlayerSerializer playerSerializer,
+    FileWriter(@DataFolder File dataFolder, PerWorldInventory plugin, BukkitService bukkitService, PlayerSerializer playerSerializer,
                PWIPlayerFactory pwiPlayerFactory) {
         this.FILE_PATH = new File(dataFolder, "data");
         this.plugin = plugin;
+        this.bukkitService = bukkitService;
         this.playerSerializer = playerSerializer;
         this.pwiPlayerFactory = pwiPlayerFactory;
     }
 
     @Override
-    public void saveLogoutData(PWIPlayer player) {
+    public void saveLogoutData(PWIPlayer player, boolean async) {
         File file = new File(getUserFolder(player.getUuid()), "last-logout.json");
 
-        try {
-            if (!file.getParentFile().exists())
-                file.getParentFile().mkdir();
-            if (!file.exists())
-                file.createNewFile();
+        bukkitService.runTaskOptionallyAsync(() -> {
+            try {
+                if (!file.getParentFile().exists())
+                    file.getParentFile().mkdir();
+                if (!file.exists())
+                    file.createNewFile();
 
-            String data = LocationSerializer.serialize(player.getLocation());
-            writeData(file, data);
-        } catch (IOException ex) {
-            PwiLogger.warning("Error creating file '" + file.getPath() + "':", ex);
-        }
+                String data = LocationSerializer.serialize(player.getLocation());
+                writeData(file, data);
+            } catch (IOException ex) {
+                PwiLogger.warning("Error creating file '" + file.getPath() + "':", ex);
+            }
+        }, async);
     }
 
     @Override
     public void saveToDatabase(final Group group, final GameMode gamemode, final PWIPlayer player, boolean async) {
-        if (async) {
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> saveToDatabase(group, gamemode, player));
-        } else {
-            saveToDatabase(group, gamemode, player);
-        }
+        bukkitService.runTaskOptionallyAsync(() -> saveToDatabase(group, gamemode, player), async);
     }
 
     @Override
@@ -121,22 +122,25 @@ public class FileWriter implements DataWriter {
 
         PwiLogger.debug("Getting data for player '" + player.getName() + "' from file '" + file.getPath() + "'");
 
-        try (JsonReader reader = new JsonReader(new FileReader(file))) {
-            JsonParser parser = new JsonParser();
-            JsonObject data = parser.parse(reader).getAsJsonObject();
-            playerSerializer.deserialize(data, player);
-        } catch (FileNotFoundException ex) {
-            if (!file.getParentFile().exists()) {
-                file.getParentFile().mkdir();
+        bukkitService.runTaskAsync(() -> {
+            try (JsonReader reader = new JsonReader(new FileReader(file))) {
+                JsonParser parser = new JsonParser();
+                JsonObject data = parser.parse(reader).getAsJsonObject();
+
+                bukkitService.runTask(() -> playerSerializer.deserialize(data, player));
+            } catch (FileNotFoundException ex) {
+                if (!file.getParentFile().exists()) {
+                    file.getParentFile().mkdir();
+                }
+
+                PwiLogger.debug("File not found for player '" + player.getName() + "' for group '" + group.getName() + "'. Getting data from default sources");
+
+                getFromDefaults(group, player);
+            } catch (IOException exIO) {
+                PwiLogger.severe("Unable to read data for '" + player.getName() + "' for group '" + group.getName() +
+                        "' in gamemode '" + gamemode.toString() + "' for reason:", exIO);
             }
-
-            PwiLogger.debug("File not found for player '" + player.getName() + "' for group '" + group.getName() + "'. Getting data from default sources");
-
-            getFromDefaults(group, player);
-        } catch (IOException exIO) {
-            PwiLogger.severe("Unable to read data for '" + player.getName() + "' for group '" + group.getName() +
-                    "' in gamemode '" + gamemode.toString() + "' for reason:", exIO);
-        }
+        });
     }
 
     @Override
@@ -147,6 +151,7 @@ public class FileWriter implements DataWriter {
         try (JsonReader reader = new JsonReader(new FileReader(file))) {
             JsonParser parser = new JsonParser();
             JsonObject data = parser.parse(reader).getAsJsonObject();
+
             location = LocationSerializer.deserialize(data);
         } catch (FileNotFoundException ex) {
             // Player probably logged in for the first time, not really an error
@@ -166,14 +171,15 @@ public class FileWriter implements DataWriter {
         try (JsonReader reader = new JsonReader(new FileReader(file))) {
             JsonParser parser = new JsonParser();
             JsonObject data = parser.parse(reader).getAsJsonObject();
-            playerSerializer.deserialize(data, player);
+
+            bukkitService.runTask(() -> playerSerializer.deserialize(data, player));
         } catch (FileNotFoundException ex) {
             file = new File(FILE_PATH, "defaults" + File.separator + "__default.json");
 
             try (JsonReader reader = new JsonReader(new FileReader(file))) {
                 JsonParser parser = new JsonParser();
                 JsonObject data = parser.parse(reader).getAsJsonObject();
-                playerSerializer.deserialize(data, player);
+                bukkitService.runTask(() -> playerSerializer.deserialize(data, player));
             } catch (FileNotFoundException ex2) {
                 player.sendMessage(ChatColor.RED + "» " + ChatColor.GRAY + "Something went horribly wrong when loading your inventory! " +
                         "Please notify a server administrator!");

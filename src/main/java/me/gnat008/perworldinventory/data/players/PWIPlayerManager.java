@@ -17,6 +17,7 @@
 
 package me.gnat008.perworldinventory.data.players;
 
+import me.gnat008.perworldinventory.BukkitService;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.PwiLogger;
 import me.gnat008.perworldinventory.config.PwiProperties;
@@ -30,6 +31,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -46,21 +49,23 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PWIPlayerManager {
 
     private PerWorldInventory plugin;
+    private BukkitService bukkitService;
     private DataWriter dataWriter;
     private GroupManager groupManager;
     private PWIPlayerFactory pwiPlayerFactory;
     private Settings settings;
 
     private int interval;
-    private int taskID;
+    private BukkitTask task;
 
     // Key format: uuid.group.gamemode
     private Map<String, PWIPlayer> playerCache = new ConcurrentHashMap<>();
 
     @Inject
-    PWIPlayerManager(PerWorldInventory plugin, DataWriter dataWriter, GroupManager groupManager,
+    PWIPlayerManager(PerWorldInventory plugin, BukkitService bukkitService, DataWriter dataWriter, GroupManager groupManager,
                      PWIPlayerFactory pwiPlayerFactory, Settings settings) {
         this.plugin = plugin;
+        this.bukkitService = bukkitService;
         this.dataWriter = dataWriter;
         this.groupManager = groupManager;
         this.pwiPlayerFactory = pwiPlayerFactory;
@@ -74,7 +79,13 @@ public class PWIPlayerManager {
      * Called when the server is disabled.
      */
     public void onDisable() {
-        Bukkit.getScheduler().cancelTask(taskID);
+        task.cancel();
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            Group group = groupManager.getGroupFromWorld(player.getWorld().getName());
+            savePlayer(group, player, false);
+        }
+
         playerCache.clear();
     }
 
@@ -168,7 +179,7 @@ public class PWIPlayerManager {
      * @param group The Group the player is currently in.
      * @param player The player to save.
      */
-    public void savePlayer(Group group, Player player) {
+    public void savePlayer(Group group, Player player, boolean async) {
         String key = player.getUniqueId().toString() + "." + group.getName() + ".";
         if (settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES))
             key += player.getGameMode().toString().toLowerCase();
@@ -193,7 +204,7 @@ public class PWIPlayerManager {
                 PwiLogger.debug("Saving cached player '" + cached.getName() + "' for group '" + groupKey.getName() + "' with gamemdde '" + gamemode.name() + "'");
 
                 cached.setSaved(true);
-                dataWriter.saveToDatabase(groupKey, gamemode, cached, true);
+                dataWriter.saveToDatabase(groupKey, gamemode, cached, async);
             }
         }
 
@@ -201,8 +212,8 @@ public class PWIPlayerManager {
         dataWriter.saveToDatabase(group,
                 settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES) ? player.getGameMode() : GameMode.SURVIVAL,
                 pwiPlayer,
-                true);
-        dataWriter.saveLogoutData(pwiPlayer);
+                async);
+        dataWriter.saveLogoutData(pwiPlayer, async);
         removePlayer(player);
     }
 
@@ -334,7 +345,7 @@ public class PWIPlayerManager {
      */
     @PostConstruct
     private void scheduleRepeatingTask() {
-        this.taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
+        this.task = bukkitService.runRepeatingTask(() -> {
             for (String key : playerCache.keySet()) {
                 PWIPlayer player = playerCache.get(key);
                 if (!player.isSaved()) {
