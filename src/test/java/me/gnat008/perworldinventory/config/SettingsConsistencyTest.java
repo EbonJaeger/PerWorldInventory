@@ -24,7 +24,7 @@ import static org.junit.Assert.assertThat;
 public class SettingsConsistencyTest {
 
     /** Bukkit's FileConfiguration#getKeys returns all inner nodes also. We want to exclude those in tests. */
-    private static final List<String> YAML_INNER_NODES = ImmutableList.of("player", "player.stats");
+    private static final List<String> YAML_INNER_NODES = ImmutableList.of("metrics", "player", "player.stats");
 
     private final ConfigurationData configData = ConfigurationDataBuilder.collectData(PwiProperties.class);
     private final FileConfiguration ymlConfiguration = YamlConfiguration.loadConfiguration(getJarFile("/config.yml"));

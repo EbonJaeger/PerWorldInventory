@@ -29,6 +29,24 @@ public final class PwiProperties implements SettingsHolder {
     public static final Property<Boolean> SHARE_IF_UNCONFIGURED =
             newProperty("share-if-unconfigured", false);
 
+    @Comment({
+            "Choose whether or not to enable metrics sending.",
+            "See https://bstats.org/getting-started for details."
+    })
+    public static final Property<Boolean> ENABLE_METRICS =
+            newProperty("metrics.enable", true);
+
+    @Comment({
+            "Send the number of configured groups.",
+            "No group names will be sent!"
+    })
+    public static final Property<Boolean> SEND_NUM_GROUPS =
+            newProperty("metrics.send-number-of-groups", true);
+
+    @Comment("Send the total number of worlds on the server.")
+    public static final Property<Boolean> SEND_NUM_WORLDS =
+            newProperty("metrics.send-number-of-worlds", true);
+
     @Comment("Save and load players' economy balances. Requires Vault!")
     public static final Property<Boolean> USE_ECONOMY =
             newProperty("player.economy", false);

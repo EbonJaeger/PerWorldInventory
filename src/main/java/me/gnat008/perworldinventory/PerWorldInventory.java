@@ -138,6 +138,35 @@ public class PerWorldInventory extends JavaPlugin {
             }
         }
 
+        // Start bStats metrics
+        if (settings.getProperty(PwiProperties.ENABLE_METRICS)) {
+            Metrics bStats = new Metrics(this);
+
+            if (settings.getProperty(PwiProperties.SEND_NUM_GROUPS)) {
+                // Get the total number of configured Groups
+                bStats.addCustomChart(new Metrics.SimplePie("num_groups") {
+                    @Override
+                    public String getValue() {
+                        int numGroups = groupManager.countGroups();
+
+                        return String.valueOf(numGroups);
+                    }
+                });
+            }
+
+            if (settings.getProperty(PwiProperties.SEND_NUM_WORLDS)) {
+                // Get the total number of worlds (configured or not)
+                bStats.addCustomChart(new Metrics.SimplePie("num_worlds") {
+                    @Override
+                    public String getValue() {
+                        int numWorlds = Bukkit.getWorlds().size();
+
+                        return String.valueOf(numWorlds);
+                    }
+                });
+            }
+        }
+
         PwiLogger.debug("PerWorldInventory is enabled and debug-mode is active!");
     }
 

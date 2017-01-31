@@ -47,6 +47,15 @@ public class GroupManager {
     }
 
     /**
+     * Get the total number of groups. Used for metrics collecting.
+     *
+     * @return The number of groups.
+     */
+    public int countGroups() {
+        return groups.size();
+    }
+
+    /**
      * Add a Group to memory with a default GameMode of survival.
      *
      * @param name The name of the group.
