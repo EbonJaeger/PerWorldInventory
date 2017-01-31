@@ -66,7 +66,7 @@ public class PlayerSerializer {
         root.add("inventory", inventorySerializer.serializePlayerInventory(player));
         root.add("stats", StatSerializer.serialize(player));
 
-        if (settings.getProperty(PwiProperties.USE_ECONOMY))
+        if (plugin.isEconEnabled())
             root.add("economy", EconomySerializer.serialize(player, plugin.getEconomy()));
 
         return gson.toJson(root);
@@ -91,7 +91,7 @@ public class PlayerSerializer {
             inventorySerializer.setInventory(player, data.getAsJsonObject("inventory"), format);
         if (data.has("stats"))
             statSerializer.deserialize(player, data.getAsJsonObject("stats"), format);
-        if (settings.getProperty(PwiProperties.USE_ECONOMY)) {
+        if (plugin.isEconEnabled()) {
             Economy econ = plugin.getEconomy();
             if (econ == null) {
                 PwiLogger.warning("Economy saving is turned on, but no economy found!");
