@@ -174,7 +174,21 @@ public class PerWorldInventory extends JavaPlugin {
                     public String getValue() {
                         int numWorlds = Bukkit.getWorlds().size();
 
-                        return String.valueOf(numWorlds);
+                        if (numWorlds <= 5) {
+                            return "1-5";
+                        } else if (numWorlds <= 10) {
+                            return "6-10";
+                        } else if (numWorlds <= 15) {
+                            return "11-15";
+                        } else if (numWorlds <= 20) {
+                            return "16-20";
+                        } else if (numWorlds <= 25) {
+                            return "21-25";
+                        } else if (numWorlds <= 30) {
+                            return "26-30";
+                        } else {
+                            return String.valueOf(numWorlds);
+                        }
                     }
                 });
             }
