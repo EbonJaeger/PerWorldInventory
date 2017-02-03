@@ -55,6 +55,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -101,7 +105,15 @@ public class PerWorldInventory extends JavaPlugin {
         if ((!(new File(getDataFolder() + File.separator + "__default.json").exists()))) {
             saveResource("default.json", false);
             File dFile = new File(getDataFolder() + File.separator + "default.json");
-            dFile.renameTo(new File(getDefaultFilesDirectory() + File.separator + "__default.json"));
+            Path source = dFile.toPath();
+            Path destination = getDefaultFilesDirectory().toPath();
+            try {
+                Files.move(source, destination.resolve(source.getFileName()));
+            } catch (IOException ex) {
+                if (!(ex instanceof FileAlreadyExistsException)) {
+                    PwiLogger.warning("Unable to move defaults.json to the defaults folder:", ex);
+                }
+            }
         }
 
         if (!(new File(getDataFolder() + File.separator + "worlds.yml").exists()))
