@@ -19,9 +19,9 @@ package me.gnat008.perworldinventory.groups;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.PwiLogger;
-import me.gnat008.perworldinventory.Utils;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
+import me.gnat008.perworldinventory.util.FileUtils;
 import org.bukkit.GameMode;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -184,7 +184,7 @@ public class GroupManager {
         if (!fileTo.exists()) {
             File fileFrom = new File(plugin.getDefaultFilesDirectory() + File.separator + "__default.json");
             try {
-                Utils.copyFile(fileFrom, fileTo);
+                FileUtils.copyFile(fileFrom, fileTo);
             } catch (IOException ex) {
                 PwiLogger.severe("An error occurred copying file '" + fileFrom.getName() + "' to '" + fileTo.getName() + "':", ex);
             }

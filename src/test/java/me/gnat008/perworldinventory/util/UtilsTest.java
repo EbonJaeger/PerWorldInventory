@@ -1,5 +1,6 @@
-package me.gnat008.perworldinventory;
+package me.gnat008.perworldinventory.util;
 
+import me.gnat008.perworldinventory.util.Utils;
 import org.bukkit.Bukkit;
 import org.junit.Test;
 
