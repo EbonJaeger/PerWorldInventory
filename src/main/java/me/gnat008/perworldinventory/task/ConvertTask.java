@@ -59,23 +59,23 @@ public class ConvertTask extends BukkitRunnable {
             }
 
             OfflinePlayer offlinePlayer = offlinePlayers[nextPosition];
-            if (offlinePlayer.getName() != null) {
+            if (offlinePlayer.getName() != null && toConvert.remove(offlinePlayer)) {
                 playerPortion.add(offlinePlayer);
             }
+        }
 
-            if (!toConvert.isEmpty() && playerPortion.isEmpty()) {
-                PwiLogger.info("Finished lookup of offline players.");
+        if (!toConvert.isEmpty() && playerPortion.isEmpty()) {
+            PwiLogger.info("Finished lookup of offline players.");
 
-                toConvert.clear();
-            }
+            toConvert.clear();
+        }
 
-            currentPage++;
+        currentPage++;
 
-            convertService.executeConvert(playerPortion);
-            if (currentPage % 20 == 0) {
-                int completed = totalConvertCount - toConvert.size();
-                sendMessage("[PerWorldInventory] Convert progress: " + completed + "/" + totalConvertCount);
-            }
+        convertService.executeConvert(playerPortion);
+        if (currentPage % 20 == 0) {
+            int completed = totalConvertCount - toConvert.size();
+            sendMessage("[PerWorldInventory] Convert progress: " + completed + "/" + totalConvertCount);
         }
     }
 
