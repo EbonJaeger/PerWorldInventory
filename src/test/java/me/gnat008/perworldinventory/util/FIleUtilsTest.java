@@ -43,7 +43,7 @@ public class FIleUtilsTest {
         given(player.getUuid()).willReturn(UUID);
 
         // when
-        File result = FileUtils.getFile(testDirectory, gameMode, group, player.getUuid());
+        File result = FileUtils.getFile(testDirectory, gameMode, group);
 
         // then
         assertTrue(result.getName().equals("test-group.json"));
@@ -58,7 +58,7 @@ public class FIleUtilsTest {
         given(player.getUuid()).willReturn(UUID);
 
         // when
-        File result = FileUtils.getFile(testDirectory, gameMode, group, player.getUuid());
+        File result = FileUtils.getFile(testDirectory, gameMode, group);
 
         // then
         assertTrue(result.getName().equals("test-group_creative.json"));
@@ -73,7 +73,7 @@ public class FIleUtilsTest {
         given(player.getUuid()).willReturn(UUID);
 
         // when
-        File result = FileUtils.getFile(testDirectory, gameMode, group, player.getUuid());
+        File result = FileUtils.getFile(testDirectory, gameMode, group);
 
         // then
         assertTrue(result.getName().equals("test-group_adventure.json"));
@@ -88,7 +88,7 @@ public class FIleUtilsTest {
         given(player.getUuid()).willReturn(UUID);
 
         // when
-        File result = FileUtils.getFile(testDirectory, gameMode, group, player.getUuid());
+        File result = FileUtils.getFile(testDirectory, gameMode, group);
 
         // then
         assertTrue(result.getName().equals("test-group_creative.json"));

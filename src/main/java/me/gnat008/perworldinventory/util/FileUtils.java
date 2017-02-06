@@ -4,7 +4,6 @@ import me.gnat008.perworldinventory.groups.Group;
 import org.bukkit.GameMode;
 
 import java.io.*;
-import java.util.UUID;
 
 /**
  * Utility methods for handling files.
@@ -44,13 +43,13 @@ public class FileUtils {
     /**
      * Get the data file for a player.
      *
+     * @param directory The directory where this player's files are.
      * @param gamemode The game mode for the group we are looking for.
      * @param group The group we are looking for.
-     * @param uuid The UUID of the player.
      *
      * @return The data file to read from or write to.
      */
-    public static File getFile(File directory, GameMode gamemode, Group group, UUID uuid) {
+    public static File getFile(File directory, GameMode gamemode, Group group) {
         File file;
         switch(gamemode) {
             case ADVENTURE:

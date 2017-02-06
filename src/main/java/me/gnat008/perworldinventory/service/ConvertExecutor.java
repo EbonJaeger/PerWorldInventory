@@ -72,7 +72,7 @@ public class ConvertExecutor {
                                 String data = convertFormat(playerData);
 
                                 File file = getFile(getUserFolder(player.getUniqueId()),
-                                        gameMode, groupManager.getGroup(mvgroup.getName()), player.getUniqueId());
+                                        gameMode, groupManager.getGroup(mvgroup.getName()));
 
                                 if (!file.getParentFile().exists())
                                     file.getParentFile().mkdir();

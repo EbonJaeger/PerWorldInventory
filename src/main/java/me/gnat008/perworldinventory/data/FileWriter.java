@@ -89,7 +89,7 @@ public class FileWriter implements DataWriter {
 
     @Override
     public void saveToDatabase(Group group, GameMode gamemode, PWIPlayer player) {
-        File file = getFile(getUserFolder(player.getUuid()), gamemode, group, player.getUuid());
+        File file = getFile(getUserFolder(player.getUuid()), gamemode, group);
         PwiLogger.debug("Saving data for player '" + player.getName() + "' in file '" + file.getPath() + "'");
 
         try {
@@ -112,7 +112,7 @@ public class FileWriter implements DataWriter {
 
     @Override
     public void getFromDatabase(Group group, GameMode gamemode, Player player) {
-        File file = getFile(getUserFolder(player.getUniqueId()), gamemode, group, player.getUniqueId());
+        File file = getFile(getUserFolder(player.getUniqueId()), gamemode, group);
 
         PwiLogger.debug("Getting data for player '" + player.getName() + "' from file '" + file.getPath() + "'");
 
