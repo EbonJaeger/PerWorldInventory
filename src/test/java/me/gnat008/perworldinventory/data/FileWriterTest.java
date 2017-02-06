@@ -4,15 +4,12 @@ import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
 import ch.jalu.injector.testing.InjectDelayed;
 import com.google.common.io.Files;
-import me.gnat008.perworldinventory.BukkitService;
 import me.gnat008.perworldinventory.DataFolder;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.TestHelper;
 import me.gnat008.perworldinventory.config.Settings;
-import me.gnat008.perworldinventory.data.players.PWIPlayer;
-import me.gnat008.perworldinventory.groups.Group;
+import me.gnat008.perworldinventory.service.BukkitService;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.World;
@@ -27,10 +24,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.UUID;
 
-import static me.gnat008.perworldinventory.TestHelper.mockGroup;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -79,66 +74,6 @@ public class FileWriterTest {
         injector.register(Settings.class, settings);
         injector.register(BukkitService.class, bukkitService);
         fileWriter = injector.getSingleton(FileWriter.class);
-    }
-
-    @Test
-    public void shouldGetSurvivalFile() {
-        // given
-        Group group = mockGroup("test-group");
-        GameMode gameMode = GameMode.SURVIVAL;
-        PWIPlayer player = mock(PWIPlayer.class);
-        given(player.getUuid()).willReturn(UUID_WITH_DATA);
-
-        // when
-        File result = fileWriter.getFile(gameMode, group, player.getUuid());
-
-        // then
-        assertTrue(result.getName().equals("test-group.json"));
-    }
-
-    @Test
-    public void shouldGetCreativeFile() {
-        // given
-        Group group = mockGroup("test-group");
-        GameMode gameMode = GameMode.CREATIVE;
-        PWIPlayer player = mock(PWIPlayer.class);
-        given(player.getUuid()).willReturn(UUID_WITH_DATA);
-
-        // when
-        File result = fileWriter.getFile(gameMode, group, player.getUuid());
-
-        // then
-        assertTrue(result.getName().equals("test-group_creative.json"));
-    }
-
-    @Test
-    public void shouldGetAdventureFile() {
-        // given
-        Group group = mockGroup("test-group");
-        GameMode gameMode = GameMode.ADVENTURE;
-        PWIPlayer player = mock(PWIPlayer.class);
-        given(player.getUuid()).willReturn(UUID_WITH_DATA);
-
-        // when
-        File result = fileWriter.getFile(gameMode, group, player.getUuid());
-
-        // then
-        assertTrue(result.getName().equals("test-group_adventure.json"));
-    }
-
-    @Test
-    public void shouldGetSpectatorFile() {
-        // given
-        Group group = mockGroup("test-group");
-        GameMode gameMode = GameMode.SPECTATOR;
-        PWIPlayer player = mock(PWIPlayer.class);
-        given(player.getUuid()).willReturn(UUID_WITH_DATA);
-
-        // when
-        File result = fileWriter.getFile(gameMode, group, player.getUuid());
-
-        // then
-        assertTrue(result.getName().equals("test-group_creative.json"));
     }
 
     @Test

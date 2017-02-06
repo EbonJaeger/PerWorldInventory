@@ -1,8 +1,8 @@
 package me.gnat008.perworldinventory.commands;
 
-import me.gnat008.perworldinventory.data.converters.DataConverter;
 import me.gnat008.perworldinventory.permission.AdminPermission;
 import me.gnat008.perworldinventory.permission.PermissionNode;
+import me.gnat008.perworldinventory.service.ConvertService;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginManager;
@@ -13,12 +13,12 @@ import java.util.List;
 public class ConvertCommand implements ExecutableCommand {
 
     private final PluginManager pluginManager;
-    private final DataConverter dataConverter;
+    private final ConvertService convertService;
 
     @Inject
-    ConvertCommand(PluginManager pluginManager, DataConverter dataConverter) {
+    ConvertCommand(PluginManager pluginManager, ConvertService convertService) {
         this.pluginManager = pluginManager;
-        this.dataConverter = dataConverter;
+        this.convertService = convertService;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class ConvertCommand implements ExecutableCommand {
             if (format.equalsIgnoreCase("Multiverse-Inventories")) {
                 sender.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "Converting from Multiverse-Inventories! This may take a while for many players...");
                 sender.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "Check the console to see when it is done.");
-                dataConverter.convertMultiVerseData();
+                convertService.runConversion(sender);
             } else {
                 sender.sendMessage(ChatColor.DARK_RED + "» " + ChatColor.GRAY + "Converting from MultiInv is unsupported at this time.");
             }

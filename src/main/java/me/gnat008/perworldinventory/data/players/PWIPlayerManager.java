@@ -17,7 +17,7 @@
 
 package me.gnat008.perworldinventory.data.players;
 
-import me.gnat008.perworldinventory.BukkitService;
+import me.gnat008.perworldinventory.service.BukkitService;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.PwiLogger;
 import me.gnat008.perworldinventory.config.PwiProperties;
@@ -31,7 +31,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import javax.annotation.PostConstruct;

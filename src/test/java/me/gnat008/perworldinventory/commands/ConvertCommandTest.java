@@ -1,7 +1,7 @@
 package me.gnat008.perworldinventory.commands;
 
 import com.onarandombox.multiverseinventories.MultiverseInventories;
-import me.gnat008.perworldinventory.data.converters.DataConverter;
+import me.gnat008.perworldinventory.service.ConvertService;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginManager;
 import org.junit.Test;
@@ -35,7 +35,7 @@ public class ConvertCommandTest {
     private PluginManager pluginManager;
 
     @Mock
-    private DataConverter dataConverter;
+    private ConvertService convertService;
 
     @Test
     public void shouldNotExecuteNotEnoughArgs() {
@@ -91,7 +91,7 @@ public class ConvertCommandTest {
         command.executeCommand(sender, args);
         // then
         verify(sender).sendMessage(argThat(containsString("Converting from Multiverse-Inventories")));
-        verify(dataConverter, only()).convertMultiVerseData();
+        verify(convertService, only()).runConversion(sender);
     }
 
     @Test
