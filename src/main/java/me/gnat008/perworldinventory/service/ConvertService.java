@@ -93,7 +93,7 @@ public class ConvertService {
     }
 
     public void executeConvert(Collection<OfflinePlayer> batch) {
-        convertExecutor.executeConvert(batch);
+        bukkitService.runTaskAsync(() -> convertExecutor.executeConvert(batch));
     }
 
     private void logAndSendMessage(CommandSender sender, String message) {

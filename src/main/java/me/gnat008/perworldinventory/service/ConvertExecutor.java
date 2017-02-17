@@ -65,27 +65,25 @@ public class ConvertExecutor {
                 GameMode gameMode = GameMode.valueOf(profileType.getName());
 
                 for (OfflinePlayer player : offlinePlayers) {
-                    bukkitService.runTaskAsync(() -> {
-                        try {
-                            PlayerProfile playerData = mvgroup.getPlayerData(profileType, player);
-                            if (playerData != null) {
-                                String data = convertFormat(playerData);
+                    try {
+                        PlayerProfile playerData = mvgroup.getPlayerData(profileType, player);
+                        if (playerData != null) {
+                            String data = convertFormat(playerData);
 
-                                File file = getFile(getUserFolder(player.getUniqueId()),
-                                        gameMode, groupManager.getGroup(mvgroup.getName()));
+                            File file = getFile(getUserFolder(player.getUniqueId()),
+                                    gameMode, groupManager.getGroup(mvgroup.getName()));
 
-                                if (!file.getParentFile().exists())
-                                    file.getParentFile().mkdir();
-                                if (!file.exists())
-                                    file.createNewFile();
+                            if (!file.getParentFile().exists())
+                                file.getParentFile().mkdir();
+                            if (!file.exists())
+                                file.createNewFile();
 
-                                writeData(file, data);
-                            }
-                        } catch (Exception ex) {
-                            PwiLogger.warning("Error importing inventory for player: " + player.getName() +
-                                    " For group: " + mvgroup.getName() + " For GameMode: " + gameMode.name(), ex);
+                            writeData(file, data);
                         }
-                    });
+                    } catch (Exception ex) {
+                        PwiLogger.warning("Error importing inventory for player: " + player.getName() +
+                                " For group: " + mvgroup.getName() + " For GameMode: " + gameMode.name(), ex);
+                    }
                 }
             }
         }
