@@ -66,6 +66,11 @@
             <id>vault-repo</id>
             <url>http://nexus.hc.to/content/repositories/pub_releases</url>
         </repository>
+
+        <repository>
+            <id>bstats-repo</id>
+            <url>https://repo.bstats.org/content/groups/public/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -184,6 +189,13 @@
             <artifactId>configme</artifactId>
             <version>0.3</version>
         </dependency>
+
+        <!-- bStats -->
+        <dependency>
+            <groupId>org.bstats</groupId>
+            <artifactId>bstats-bukkit</artifactId>
+            <version>LATEST</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -232,6 +244,18 @@
                 <version>2.4.3</version>
                 <configuration>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <minimizeJar>true</minimizeJar>
+                    <artifactSet>
+                        <includes>
+                            <include>org.bstats:*</include>
+                        </includes>
+                    </artifactSet>
+                    <relocations>
+                        <relocation>
+                            <pattern>org.bstats</pattern>
+                            <shadedPattern>me.gnat008.perworldinventory</shadedPattern>
+                        </relocation>
+                    </relocations>
                 </configuration>
                 <executions>
                     <execution>

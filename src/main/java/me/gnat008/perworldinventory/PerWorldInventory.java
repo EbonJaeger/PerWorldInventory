@@ -20,13 +20,7 @@ package me.gnat008.perworldinventory;
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
 import me.gnat008.perworldinventory.api.PerWorldInventoryAPI;
-import me.gnat008.perworldinventory.commands.ConvertCommand;
-import me.gnat008.perworldinventory.commands.ExecutableCommand;
-import me.gnat008.perworldinventory.commands.HelpCommand;
-import me.gnat008.perworldinventory.commands.PerWorldInventoryCommand;
-import me.gnat008.perworldinventory.commands.ReloadCommand;
-import me.gnat008.perworldinventory.commands.SetWorldDefaultCommand;
-import me.gnat008.perworldinventory.commands.VersionCommand;
+import me.gnat008.perworldinventory.commands.*;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.DataWriter;
@@ -42,6 +36,7 @@ import me.gnat008.perworldinventory.listeners.server.PluginListener;
 import me.gnat008.perworldinventory.permission.PermissionManager;
 import me.gnat008.perworldinventory.util.Utils;
 import net.milkbowl.vault.economy.Economy;
+import org.bstats.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Server;
@@ -60,11 +55,7 @@ import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PerWorldInventory extends JavaPlugin {
 
