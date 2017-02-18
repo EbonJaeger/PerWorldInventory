@@ -51,6 +51,7 @@ public class ConvertTask extends BukkitRunnable {
 
         while (currentIndex < stopIndex && currentIndex < offlinePlayers.length) {
             playersInPage.add(offlinePlayers[currentIndex]);
+            currentIndex++;
         }
 
         currentPage++;
