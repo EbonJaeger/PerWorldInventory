@@ -42,8 +42,8 @@ public class ConvertTaskTest {
     public void shouldRunTask() {
         // given
         OfflinePlayer[] players = {
-                mockOfflinePlayer("Bob"), mockOfflinePlayer("Bobby"), mockOfflinePlayer("LilBob"),
-                mockOfflinePlayer("Bobbers"), mockOfflinePlayer("Nicole"), mockOfflinePlayer("RanOutaNames")
+                mock(OfflinePlayer.class), mock(OfflinePlayer.class), mock(OfflinePlayer.class),
+                mock(OfflinePlayer.class), mock(OfflinePlayer.class), mock(OfflinePlayer.class)
         };
         reset(convertService);
         ConvertTask task = new ConvertTask(convertService, null, players);
@@ -108,13 +108,6 @@ public class ConvertTaskTest {
         // then
         verify(scheduler).cancelTask(task.getTaskId());
         verify(commandSender).sendMessage(argThat(containsString("Conversion has been completed!")));
-    }
-
-    private OfflinePlayer mockOfflinePlayer(String name) {
-        OfflinePlayer player = mock(OfflinePlayer.class);
-        given(player.getName()).willReturn(name);
-
-        return player;
     }
 
     private void assertRanConvertWithPlayers(OfflinePlayer... players) {

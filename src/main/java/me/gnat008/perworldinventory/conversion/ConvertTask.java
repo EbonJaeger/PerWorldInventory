@@ -22,13 +22,11 @@ public class ConvertTask extends BukkitRunnable {
     private final OfflinePlayer[] offlinePlayers;
     private final UUID sender;
 
-    private final int maxPage;
     private int currentPage = 0;
 
     public ConvertTask(ConvertService convertService, CommandSender sender, OfflinePlayer[] offlinePlayers) {
         this.convertService = convertService;
         this.offlinePlayers = offlinePlayers;
-        this.maxPage = offlinePlayers.length / CONVERTS_PER_TICK;
 
         if (sender instanceof Player) {
             this.sender = ((Player) sender).getUniqueId();
@@ -39,15 +37,15 @@ public class ConvertTask extends BukkitRunnable {
 
     @Override
     public void run() {
-        if (currentPage > maxPage) {
+        int stopIndex = currentPage * CONVERTS_PER_TICK + CONVERTS_PER_TICK;
+        int currentIndex = currentPage * CONVERTS_PER_TICK;
+
+        if (currentIndex >= offlinePlayers.length) {
             finish();
             return;
         }
 
-        int stopIndex = currentPage * CONVERTS_PER_TICK + CONVERTS_PER_TICK;
-        int currentIndex = currentPage * CONVERTS_PER_TICK;
         List<OfflinePlayer> playersInPage = new ArrayList<>(CONVERTS_PER_TICK);
-
         while (currentIndex < stopIndex && currentIndex < offlinePlayers.length) {
             playersInPage.add(offlinePlayers[currentIndex]);
             currentIndex++;
