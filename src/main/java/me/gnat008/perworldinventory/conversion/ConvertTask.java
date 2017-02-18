@@ -1,7 +1,5 @@
-package me.gnat008.perworldinventory.task;
+package me.gnat008.perworldinventory.conversion;
 
-import me.gnat008.perworldinventory.PwiLogger;
-import me.gnat008.perworldinventory.service.ConvertService;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -9,8 +7,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -21,19 +19,14 @@ public class ConvertTask extends BukkitRunnable {
     private static final int CONVERTS_PER_TICK = 5;
 
     private final ConvertService convertService;
-    private final int totalConvertCount;
     private final OfflinePlayer[] offlinePlayers;
-    private final Set<OfflinePlayer> toConvert;
     private final UUID sender;
 
     private int currentPage = 0;
 
-    public ConvertTask(ConvertService convertService, CommandSender sender,
-                       OfflinePlayer[] offlinePlayers, Set<OfflinePlayer> toConvert) {
+    public ConvertTask(ConvertService convertService, CommandSender sender, OfflinePlayer[] offlinePlayers) {
         this.convertService = convertService;
         this.offlinePlayers = offlinePlayers;
-        this.toConvert = toConvert;
-        this.totalConvertCount = toConvert.size();
 
         if (sender instanceof Player) {
             this.sender = ((Player) sender).getUniqueId();
@@ -44,38 +37,25 @@ public class ConvertTask extends BukkitRunnable {
 
     @Override
     public void run() {
-        if (toConvert.isEmpty()) {
+        int stopIndex = currentPage * CONVERTS_PER_TICK + CONVERTS_PER_TICK;
+        int currentIndex = currentPage * CONVERTS_PER_TICK;
+
+        if (currentIndex >= offlinePlayers.length) {
             finish();
             return;
         }
 
-        Set<OfflinePlayer> playerPortion = new HashSet<>(CONVERTS_PER_TICK);
-
-        for (int i = 0; i < CONVERTS_PER_TICK; i++) {
-            int nextPosition = (currentPage * CONVERTS_PER_TICK) + i;
-            if (offlinePlayers.length <= nextPosition) {
-                // There are no more players on this page
-                break;
-            }
-
-            OfflinePlayer offlinePlayer = offlinePlayers[nextPosition];
-            if (offlinePlayer.getName() != null && toConvert.remove(offlinePlayer)) {
-                playerPortion.add(offlinePlayer);
-            }
-        }
-
-        if (!toConvert.isEmpty() && playerPortion.isEmpty()) {
-            PwiLogger.info("Finished lookup of offline players.");
-
-            toConvert.clear();
+        List<OfflinePlayer> playersInPage = new ArrayList<>(CONVERTS_PER_TICK);
+        while (currentIndex < stopIndex && currentIndex < offlinePlayers.length) {
+            playersInPage.add(offlinePlayers[currentIndex]);
+            currentIndex++;
         }
 
         currentPage++;
 
-        convertService.executeConvert(playerPortion);
+        convertService.executeConvert(playersInPage);
         if (currentPage % 20 == 0) {
-            int completed = totalConvertCount - toConvert.size();
-            sendMessage("[PerWorldInventory] Convert progress: " + completed + "/" + totalConvertCount);
+            sendMessage("[PerWorldInventory] Convert progress: " + stopIndex + "/" + offlinePlayers.length);
         }
     }
 

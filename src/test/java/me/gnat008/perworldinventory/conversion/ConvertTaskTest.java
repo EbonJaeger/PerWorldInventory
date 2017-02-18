@@ -1,7 +1,6 @@
-package me.gnat008.perworldinventory.task;
+package me.gnat008.perworldinventory.conversion;
 
 import me.gnat008.perworldinventory.ReflectionTestUtils;
-import me.gnat008.perworldinventory.service.ConvertService;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
@@ -42,14 +41,12 @@ public class ConvertTaskTest {
     @Test
     public void shouldRunTask() {
         // given
-        OfflinePlayer[] players = asArray(
-                mockOfflinePlayer("Bob"), mockOfflinePlayer("Bobby"), mockOfflinePlayer("LilBob"),
-                mockOfflinePlayer("Bobbers"), mockOfflinePlayer("Nicole"), mockOfflinePlayer("RanOutaNames")
-                );
-        Set<OfflinePlayer> setPlayers = new HashSet<>();
-        setPlayers.addAll(Arrays.asList(players));
+        OfflinePlayer[] players = {
+                mock(OfflinePlayer.class), mock(OfflinePlayer.class), mock(OfflinePlayer.class),
+                mock(OfflinePlayer.class), mock(OfflinePlayer.class), mock(OfflinePlayer.class)
+        };
         reset(convertService);
-        ConvertTask task = new ConvertTask(convertService, null, players, setPlayers);
+        ConvertTask task = new ConvertTask(convertService, null, players);
 
         // when (1 - first run, 5 players per run)
         task.run();
@@ -74,9 +71,7 @@ public class ConvertTaskTest {
         UUID uuid = UUID.randomUUID();
         given(sender.getUniqueId()).willReturn(uuid);
 
-        Set<OfflinePlayer> set = new HashSet<>();
-
-        ConvertTask task = new ConvertTask(convertService, sender, new OfflinePlayer[0], set);
+        ConvertTask task = new ConvertTask(convertService, sender, new OfflinePlayer[0]);
 
         ReflectionTestUtils.setField(BukkitRunnable.class, task, "taskId", 29457);
         Server server = mock(Server.class);
@@ -97,9 +92,7 @@ public class ConvertTaskTest {
     @Test
     public void shouldStopAndInformConsoleOnComplete() {
         // given
-        Set<OfflinePlayer> set = new HashSet<>();
-
-        ConvertTask task = new ConvertTask(convertService, null, new OfflinePlayer[0], set);
+        ConvertTask task = new ConvertTask(convertService, null, new OfflinePlayer[0]);
 
         ReflectionTestUtils.setField(BukkitRunnable.class, task, "taskId", 29457);
         Server server = mock(Server.class);
@@ -115,17 +108,6 @@ public class ConvertTaskTest {
         // then
         verify(scheduler).cancelTask(task.getTaskId());
         verify(commandSender).sendMessage(argThat(containsString("Conversion has been completed!")));
-    }
-
-    private OfflinePlayer mockOfflinePlayer(String name) {
-        OfflinePlayer player = mock(OfflinePlayer.class);
-        given(player.getName()).willReturn(name);
-
-        return player;
-    }
-
-    private OfflinePlayer[] asArray(OfflinePlayer... players) {
-        return players;
     }
 
     private void assertRanConvertWithPlayers(OfflinePlayer... players) {

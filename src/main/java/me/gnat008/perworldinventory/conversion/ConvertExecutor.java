@@ -1,4 +1,4 @@
-package me.gnat008.perworldinventory.service;
+package me.gnat008.perworldinventory.conversion;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -16,7 +16,6 @@ import me.gnat008.perworldinventory.data.serializers.PotionEffectSerializer;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import org.bukkit.GameMode;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.potion.PotionEffect;
 
 import javax.inject.Inject;
@@ -33,18 +32,13 @@ public class ConvertExecutor {
 
     private final File FILE_PATH;
 
-    private BukkitService bukkitService;
-    private GroupManager groupManager;
-    private PluginManager pluginManager;
-    private InventorySerializer inventorySerializer;
+    private final GroupManager groupManager;
+    private final InventorySerializer inventorySerializer;
+    private List<WorldGroupProfile> multiverseGroups = null;
 
     @Inject
-    ConvertExecutor(BukkitService bukkitService,
-                    GroupManager groupManager, PluginManager pluginManager,
-                    InventorySerializer inventorySerializer, @DataFolder File dataFolder) {
-        this.bukkitService = bukkitService;
+    ConvertExecutor(GroupManager groupManager, InventorySerializer inventorySerializer, @DataFolder File dataFolder) {
         this.groupManager = groupManager;
-        this.pluginManager = pluginManager;
         this.inventorySerializer = inventorySerializer;
         this.FILE_PATH = new File(dataFolder, "data");
     }
@@ -52,41 +46,39 @@ public class ConvertExecutor {
     /**
      * Converts data from the MultiVerse-Inventories format to the PWI format.
      *
-     * @param offlinePlayers The players to convert.
+     * @param player The player to convert.
      */
-    public void executeConvert(Collection<OfflinePlayer> offlinePlayers) {
-        MultiverseInventories mvinventories = (MultiverseInventories) pluginManager.getPlugin("Multiverse-Inventories");
-        List<WorldGroupProfile> mvgroups = mvinventories.getGroupManager().getGroups();
-
-        for (WorldGroupProfile mvgroup : mvgroups) {
+    public void executeConvert(OfflinePlayer player) {
+        for (WorldGroupProfile mvgroup : multiverseGroups) {
             ProfileType[] MV_PROFILETYPES = { ProfileTypes.SURVIVAL, ProfileTypes.CREATIVE, ProfileTypes.ADVENTURE };
 
             for (ProfileType profileType : MV_PROFILETYPES) {
                 GameMode gameMode = GameMode.valueOf(profileType.getName());
+                try {
+                    PlayerProfile playerData = mvgroup.getPlayerData(profileType, player);
+                    if (playerData != null) {
+                        String data = convertFormat(playerData);
 
-                for (OfflinePlayer player : offlinePlayers) {
-                    try {
-                        PlayerProfile playerData = mvgroup.getPlayerData(profileType, player);
-                        if (playerData != null) {
-                            String data = convertFormat(playerData);
+                        File file = getFile(getUserFolder(player.getUniqueId()),
+                                gameMode, groupManager.getGroup(mvgroup.getName()));
 
-                            File file = getFile(getUserFolder(player.getUniqueId()),
-                                    gameMode, groupManager.getGroup(mvgroup.getName()));
+                        if (!file.getParentFile().exists())
+                            file.getParentFile().mkdir();
+                        if (!file.exists())
+                            file.createNewFile();
 
-                            if (!file.getParentFile().exists())
-                                file.getParentFile().mkdir();
-                            if (!file.exists())
-                                file.createNewFile();
-
-                            writeData(file, data);
-                        }
-                    } catch (Exception ex) {
-                        PwiLogger.warning("Error importing inventory for player: " + player.getName() +
-                                " For group: " + mvgroup.getName() + " For GameMode: " + gameMode.name(), ex);
+                        writeData(file, data);
                     }
+                } catch (Exception ex) {
+                    PwiLogger.warning("Error importing inventory for player: " + player.getName() +
+                            " For group: " + mvgroup.getName() + " For GameMode: " + gameMode.name(), ex);
                 }
             }
         }
+    }
+
+    void setMultiverseGroups(MultiverseInventories mvinventories) {
+        this.multiverseGroups = mvinventories.getGroupManager().getGroups();
     }
 
     /**

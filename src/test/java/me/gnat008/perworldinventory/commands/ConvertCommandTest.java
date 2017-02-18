@@ -1,7 +1,7 @@
 package me.gnat008.perworldinventory.commands;
 
 import com.onarandombox.multiverseinventories.MultiverseInventories;
-import me.gnat008.perworldinventory.service.ConvertService;
+import me.gnat008.perworldinventory.conversion.ConvertService;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginManager;
 import org.junit.Test;

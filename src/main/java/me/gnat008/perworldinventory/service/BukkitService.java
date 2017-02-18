@@ -47,6 +47,10 @@ public class BukkitService {
         return Bukkit.getScheduler().runTaskTimer(plugin, task, delay, period);
     }
 
+    public BukkitTask runRepeatingTaskAsynchronously(Runnable task, long delay, long period) {
+        return Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, task, delay, period);
+    }
+
     /**
      * Runs a task on the next server tick, either asynchronously or synchronously.
      *

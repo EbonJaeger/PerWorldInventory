@@ -2,7 +2,7 @@ package me.gnat008.perworldinventory.commands;
 
 import me.gnat008.perworldinventory.permission.AdminPermission;
 import me.gnat008.perworldinventory.permission.PermissionNode;
-import me.gnat008.perworldinventory.service.ConvertService;
+import me.gnat008.perworldinventory.conversion.ConvertService;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginManager;

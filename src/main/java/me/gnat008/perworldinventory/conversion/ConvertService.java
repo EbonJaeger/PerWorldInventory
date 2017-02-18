@@ -1,11 +1,11 @@
-package me.gnat008.perworldinventory.service;
+package me.gnat008.perworldinventory.conversion;
 
 import com.onarandombox.multiverseinventories.MultiverseInventories;
 import com.onarandombox.multiverseinventories.api.profile.WorldGroupProfile;
 import me.gnat008.perworldinventory.PwiLogger;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
-import me.gnat008.perworldinventory.task.ConvertTask;
+import me.gnat008.perworldinventory.service.BukkitService;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
@@ -39,25 +39,22 @@ public class ConvertService {
     public void runConversion(CommandSender sender) {
         MultiverseInventories mvinventories = (MultiverseInventories) pluginManager.getPlugin("Multiverse-Inventories");
         if (mvinventories == null) {
-            logAndSendMessage(sender, "MultiVerse-Inventories is not installed! Cannot convert; aborting.");
+            logAndSendWarning(sender, "MultiVerse-Inventories is not installed! Cannot convert; aborting.");
             return;
         }
 
-        Set<OfflinePlayer> toConvert = new HashSet<>();
         OfflinePlayer[] offlinePlayers = bukkitService.getOfflinePlayers();
-        toConvert.addAll(Arrays.asList(offlinePlayers));
-
-        convertPlayers(sender, offlinePlayers, toConvert, mvinventories);
+        convertPlayers(sender, offlinePlayers, mvinventories);
     }
 
-    private void convertPlayers(CommandSender sender, OfflinePlayer[] offlinePlayers,
-                                Set<OfflinePlayer> toConvert, MultiverseInventories mvi) {
+    private void convertPlayers(CommandSender sender, OfflinePlayer[] offlinePlayers, MultiverseInventories mvi) {
         if (isConverting) {
-            logAndSendMessage(sender, "Conversion is already in progress!");
+            logAndSendWarning(sender, "Conversion is already in progress!");
             return;
         }
 
         isConverting = true;
+        convertExecutor.setMultiverseGroups(mvi);
 
         List<WorldGroupProfile> mvgroups = mvi.getGroupManager().getGroups();
         for (WorldGroupProfile mvgroup : mvgroups) {
@@ -72,8 +69,8 @@ public class ConvertService {
             }
         }
 
-        ConvertTask convertTask = new ConvertTask(this, sender, offlinePlayers, toConvert);
-        bukkitService.runRepeatingTask(convertTask, 0, 1);
+        ConvertTask convertTask = new ConvertTask(this, sender, offlinePlayers);
+        bukkitService.runRepeatingTaskAsynchronously(convertTask, 0, 1);
     }
 
     /**
@@ -81,22 +78,22 @@ public class ConvertService {
      *
      * @param converting Conversion state.
      */
-    public void setConverting(boolean converting) {
+    void setConverting(boolean converting) {
         this.isConverting = converting;
     }
 
-    public void disableMVI() {
+    void disableMVI() {
         MultiverseInventories mvinventories = (MultiverseInventories) pluginManager.getPlugin("Multiverse-Inventories");
         if (mvinventories != null && pluginManager.isPluginEnabled(mvinventories)) {
             pluginManager.disablePlugin(mvinventories);
         }
     }
 
-    public void executeConvert(Collection<OfflinePlayer> batch) {
-        bukkitService.runTaskAsync(() -> convertExecutor.executeConvert(batch));
+    void executeConvert(Collection<OfflinePlayer> batch) {
+        batch.forEach(convertExecutor::executeConvert);
     }
 
-    private void logAndSendMessage(CommandSender sender, String message) {
+    private void logAndSendWarning(CommandSender sender, String message) {
         PwiLogger.warning(message);
 
         if (sender != null && !(sender instanceof ConsoleCommandSender)) {
