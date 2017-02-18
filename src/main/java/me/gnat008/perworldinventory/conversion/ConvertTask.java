@@ -1,6 +1,5 @@
-package me.gnat008.perworldinventory.task;
+package me.gnat008.perworldinventory.conversion;
 
-import me.gnat008.perworldinventory.service.ConvertService;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
