@@ -38,13 +38,10 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import static me.gnat008.perworldinventory.TestHelper.getField;
-import static me.gnat008.perworldinventory.TestHelper.setField;
+import static me.gnat008.perworldinventory.ReflectionTestUtils.getFieldValue;
+import static me.gnat008.perworldinventory.ReflectionTestUtils.setField;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.sameInstance;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -79,7 +76,7 @@ public class PerWorldInventoryInitializationTest {
         dataFolder = temporaryFolder.newFolder();
 
         // Wire various Bukkit components
-        setField(Bukkit.class, "server", null, server);
+        setField(Bukkit.class, null, "server", server);
         given(server.getLogger()).willReturn(mock(Logger.class));
         given(server.getScheduler()).willReturn(mock(BukkitScheduler.class));
         given(server.getPluginManager()).willReturn(pluginManager);
@@ -98,7 +95,7 @@ public class PerWorldInventoryInitializationTest {
             "PerWorldInventory", "N/A", PerWorldInventory.class.getCanonicalName());
         JavaPluginLoader pluginLoader = new JavaPluginLoader(server);
         plugin = new PerWorldInventory(pluginLoader, descriptionFile, dataFolder, null);
-        setField(JavaPlugin.class, "logger", plugin, mock(PluginLogger.class));
+        setField(JavaPlugin.class, plugin, "logger", mock(PluginLogger.class));
     }
 
     @Test
@@ -143,7 +140,7 @@ public class PerWorldInventoryInitializationTest {
 
         CommandVerifier(PerWorldInventory plugin, Injector injector) {
             this.injector = injector;
-            this.commands = getField(PerWorldInventory.class, "commands", plugin);
+            this.commands = getFieldValue(PerWorldInventory.class, plugin, "commands");
         }
 
         void assertHasCommand(String label, Class<? extends ExecutableCommand> expectedClass) {

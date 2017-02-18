@@ -17,7 +17,7 @@ public final class ReflectionTestUtils {
      * @param fieldName The name of the field to modify.
      * @param value The value to give the field.
      */
-    public static <T> void setField(Class<T> clazz, T instance, String fieldName, Object value) {
+    public static <T> void setField(Class<? super T> clazz, T instance, String fieldName, Object value) {
         try {
             Field field = getField(clazz, instance, fieldName);
             field.set(instance, value);
@@ -33,6 +33,29 @@ public final class ReflectionTestUtils {
             field.setAccessible(true);
             return field;
         } catch (NoSuchFieldException ex) {
+            throw new UnsupportedOperationException(format("Could not get field '%s' for instance '%s' of class '%s'.",
+                    fieldName, instance, clazz.getName()), ex);
+        }
+    }
+
+    /**
+     * Gets a field's value.
+     *
+     * @param clazz the class on which the field is declared
+     * @param fieldName the field name
+     * @param instance the instance to get it from (null for static fields)
+     * @param <V> the value's type
+     * @param <T> the instance's type
+     * @return the field value
+     */
+    @SuppressWarnings("unchecked")
+    public static <V, T> V getFieldValue(Class<? super T> clazz, T instance, String fieldName) {
+        try {
+            Field field = clazz.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            // Avoid forcing user to cast
+            return (V) field.get(instance);
+        } catch (NoSuchFieldException | IllegalAccessException ex) {
             throw new UnsupportedOperationException(format("Could not get field '%s' for instance '%s' of class '%s'.",
                     fieldName, instance, clazz.getName()), ex);
         }

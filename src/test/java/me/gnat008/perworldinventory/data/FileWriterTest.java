@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
+import static me.gnat008.perworldinventory.ReflectionTestUtils.setField;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -113,6 +114,6 @@ public class FileWriterTest {
     private static void setUpWorldReturnedByBukkit(World world) {
         Server server = mock(Server.class);
         given(server.getWorld(anyString())).willReturn(world);
-        TestHelper.setField(Bukkit.class, "server", null, server);
+        setField(Bukkit.class, null, "server", server);
     }
 }
