@@ -55,7 +55,7 @@ public class ConvertTask extends BukkitRunnable {
 
         convertService.executeConvert(playersInPage);
         if (currentPage % 20 == 0) {
-            sendMessage("[PerWorldInventory] Convert progress: " + stopIndex + "/" + offlinePlayers.length);
+            sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "Convert progress: " + stopIndex + "/" + offlinePlayers.length);
         }
     }
 
@@ -76,7 +76,7 @@ public class ConvertTask extends BukkitRunnable {
         } else {
             Player player = Bukkit.getPlayer(sender);
             if (player != null && player.isOnline()) {
-                player.sendMessage(ChatColor.GOLD + message);
+                player.sendMessage(message);
             }
         }
     }

@@ -46,7 +46,6 @@ public class ConvertCommand implements ExecutableCommand {
         if (isPluginInstalled(format)) {
             if (format.equalsIgnoreCase("Multiverse-Inventories")) {
                 sender.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "Converting from Multiverse-Inventories! This may take a while for many players...");
-                sender.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY + "Check the console to see when it is done.");
                 convertService.runConversion(sender);
             } else {
                 sender.sendMessage(ChatColor.DARK_RED + "» " + ChatColor.GRAY + "Converting from MultiInv is unsupported at this time.");

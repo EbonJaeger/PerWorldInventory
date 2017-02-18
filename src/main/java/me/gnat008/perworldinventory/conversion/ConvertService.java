@@ -97,7 +97,7 @@ public class ConvertService {
         PwiLogger.warning(message);
 
         if (sender != null && !(sender instanceof ConsoleCommandSender)) {
-            sender.sendMessage(ChatColor.RED + "[PerWorldInventory] " + message);
+            sender.sendMessage(ChatColor.DARK_RED + "» " + ChatColor.GRAY + message);
         }
     }
 }
