@@ -248,12 +248,14 @@
                     <artifactSet>
                         <includes>
                             <include>org.bstats:*</include>
+                            <include>ch.jalu:*</include>
+                            <include>javax.inject</include>
                         </includes>
                     </artifactSet>
                     <relocations>
                         <relocation>
                             <pattern>org.bstats</pattern>
-                            <shadedPattern>me.gnat008.perworldinventory</shadedPattern>
+                            <shadedPattern>me.gnat008.perworldinventory.metrics</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
