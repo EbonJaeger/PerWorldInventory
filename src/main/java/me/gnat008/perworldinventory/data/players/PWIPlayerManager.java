@@ -170,7 +170,7 @@ public class PWIPlayerManager {
      * @param group The Group the player is currently in.
      * @param player The player to save.
      */
-    public void savePlayer(Group group, Player player, boolean async) {
+    public void savePlayer(Group group, Player player, boolean createTask) {
         String key = makeKey(player.getUniqueId(), group, player.getGameMode());
 
         // Remove any entry with the current key, if one exists
@@ -191,16 +191,25 @@ public class PWIPlayerManager {
                 PwiLogger.debug("Saving cached player '" + cached.getName() + "' for group '" + groupKey.getName() + "' with gamemdde '" + gamemode.name() + "'");
 
                 cached.setSaved(true);
-                dataWriter.saveToDatabase(groupKey, gamemode, cached, async);
+                if (!createTask) {
+                    dataWriter.saveToDatabase(groupKey, gamemode, cached);
+                } else {
+                    bukkitService.runTaskAsync(() -> dataWriter.saveToDatabase(groupKey, gamemode, cached));
+                }
             }
         }
 
         PWIPlayer pwiPlayer = pwiPlayerFactory.create(player, group);
-        dataWriter.saveToDatabase(group,
-                settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES) ? player.getGameMode() : GameMode.SURVIVAL,
-                pwiPlayer,
-                async);
-        dataWriter.saveLogoutData(pwiPlayer, async);
+        if (!createTask) {
+            dataWriter.saveToDatabase(group,
+                    settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES) ? player.getGameMode() : GameMode.SURVIVAL,
+                    pwiPlayer);
+        } else {
+            bukkitService.runTaskAsync(() -> dataWriter.saveToDatabase(group,
+                    settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES) ? player.getGameMode() : GameMode.SURVIVAL,
+                    pwiPlayer));
+        }
+        dataWriter.saveLogoutData(pwiPlayer, createTask); // If we're disabling, cant create a new task
         removePlayer(player);
     }
 
@@ -338,7 +347,7 @@ public class PWIPlayerManager {
                     PwiLogger.debug("Gamemode: " + gamemode.toString());
 
                     player.setSaved(true);
-                    dataWriter.saveToDatabase(group, gamemode, player, true);
+                    bukkitService.runTaskAsync(() -> dataWriter.saveToDatabase(group, gamemode, player));
                 } else {
                     PwiLogger.debug("Removing player '" + player.getName() + "' from cache");
                     playerCache.remove(key);

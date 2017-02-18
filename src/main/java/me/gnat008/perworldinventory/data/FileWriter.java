@@ -29,7 +29,6 @@ import me.gnat008.perworldinventory.data.players.PWIPlayerFactory;
 import me.gnat008.perworldinventory.data.serializers.LocationSerializer;
 import me.gnat008.perworldinventory.data.serializers.PlayerSerializer;
 import me.gnat008.perworldinventory.groups.Group;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -62,27 +61,28 @@ public class FileWriter implements DataWriter {
     }
 
     @Override
-    public void saveLogoutData(PWIPlayer player, boolean async) {
+    public void saveLogoutData(PWIPlayer player, boolean createTask) {
         File file = new File(getUserFolder(player.getUuid()), "last-logout.json");
 
-        bukkitService.runTaskOptionallyAsync(() -> {
-            try {
-                if (!file.getParentFile().exists())
-                    file.getParentFile().mkdir();
-                if (!file.exists())
-                    file.createNewFile();
-
-                String data = LocationSerializer.serialize(player.getLocation());
-                writeData(file, data);
-            } catch (IOException ex) {
-                PwiLogger.warning("Error creating file '" + file.getPath() + "':", ex);
-            }
-        }, async);
+        if (createTask) {
+            bukkitService.runTaskAsync(() -> saveLogout(file, player));
+        } else {
+            saveLogout(file, player);
+        }
     }
 
-    @Override
-    public void saveToDatabase(final Group group, final GameMode gamemode, final PWIPlayer player, boolean async) {
-        bukkitService.runTaskOptionallyAsync(() -> saveToDatabase(group, gamemode, player), async);
+    private void saveLogout(File file, PWIPlayer player) {
+        try {
+            if (!file.getParentFile().exists())
+                file.getParentFile().mkdir();
+            if (!file.exists())
+                file.createNewFile();
+
+            String data = LocationSerializer.serialize(player.getLocation());
+            writeData(file, data);
+        } catch (IOException ex) {
+            PwiLogger.warning("Error creating file '" + file.getPath() + "':", ex);
+        }
     }
 
     @Override

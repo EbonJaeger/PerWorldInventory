@@ -29,9 +29,9 @@ public interface DataWriter {
      * Save the location of a player when they log out or are kicked from the server.
      *
      * @param player The player who logged out
-     * @param async Save location data asynchronously.
+     * @param createTask If we should schedule a task to do this.
      */
-    void saveLogoutData(PWIPlayer player, boolean async);
+    void saveLogoutData(PWIPlayer player, boolean createTask);
 
     /**
      * Saves a player's data to the database.
@@ -42,10 +42,7 @@ public interface DataWriter {
      * @param group The {@link me.gnat008.perworldinventory.groups.Group} the player was in
      * @param gamemode The {@link org.bukkit.GameMode} the player was in
      * @param player The {@link me.gnat008.perworldinventory.data.players.PWIPlayer} to save
-     * @param async Save data asynchronously
      */
-    void saveToDatabase(final Group group, final GameMode gamemode, final PWIPlayer player, boolean async);
-
     void saveToDatabase(Group group, GameMode gamemode, PWIPlayer player);
 
     /**
