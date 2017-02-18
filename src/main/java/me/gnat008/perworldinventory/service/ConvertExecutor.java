@@ -33,16 +33,13 @@ public class ConvertExecutor {
 
     private final File FILE_PATH;
 
-    private BukkitService bukkitService;
     private GroupManager groupManager;
     private PluginManager pluginManager;
     private InventorySerializer inventorySerializer;
 
     @Inject
-    ConvertExecutor(BukkitService bukkitService,
-                    GroupManager groupManager, PluginManager pluginManager,
+    ConvertExecutor(GroupManager groupManager, PluginManager pluginManager,
                     InventorySerializer inventorySerializer, @DataFolder File dataFolder) {
-        this.bukkitService = bukkitService;
         this.groupManager = groupManager;
         this.pluginManager = pluginManager;
         this.inventorySerializer = inventorySerializer;

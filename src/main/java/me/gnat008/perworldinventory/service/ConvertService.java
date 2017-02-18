@@ -39,21 +39,17 @@ public class ConvertService {
     public void runConversion(CommandSender sender) {
         MultiverseInventories mvinventories = (MultiverseInventories) pluginManager.getPlugin("Multiverse-Inventories");
         if (mvinventories == null) {
-            logAndSendMessage(sender, "MultiVerse-Inventories is not installed! Cannot convert; aborting.");
+            logAndSendWarning(sender, "MultiVerse-Inventories is not installed! Cannot convert; aborting.");
             return;
         }
 
-        Set<OfflinePlayer> toConvert = new HashSet<>();
         OfflinePlayer[] offlinePlayers = bukkitService.getOfflinePlayers();
-        toConvert.addAll(Arrays.asList(offlinePlayers));
-
-        convertPlayers(sender, offlinePlayers, toConvert, mvinventories);
+        convertPlayers(sender, offlinePlayers, mvinventories);
     }
 
-    private void convertPlayers(CommandSender sender, OfflinePlayer[] offlinePlayers,
-                                Set<OfflinePlayer> toConvert, MultiverseInventories mvi) {
+    private void convertPlayers(CommandSender sender, OfflinePlayer[] offlinePlayers, MultiverseInventories mvi) {
         if (isConverting) {
-            logAndSendMessage(sender, "Conversion is already in progress!");
+            logAndSendWarning(sender, "Conversion is already in progress!");
             return;
         }
 
@@ -72,8 +68,8 @@ public class ConvertService {
             }
         }
 
-        ConvertTask convertTask = new ConvertTask(this, sender, offlinePlayers, toConvert);
-        bukkitService.runRepeatingTask(convertTask, 0, 1);
+        ConvertTask convertTask = new ConvertTask(this, sender, offlinePlayers);
+        bukkitService.runRepeatingTaskAsynchronously(convertTask, 0, 1);
     }
 
     /**
@@ -93,10 +89,10 @@ public class ConvertService {
     }
 
     public void executeConvert(Collection<OfflinePlayer> batch) {
-        bukkitService.runTaskAsync(() -> convertExecutor.executeConvert(batch));
+        convertExecutor.executeConvert(batch);
     }
 
-    private void logAndSendMessage(CommandSender sender, String message) {
+    private void logAndSendWarning(CommandSender sender, String message) {
         PwiLogger.warning(message);
 
         if (sender != null && !(sender instanceof ConsoleCommandSender)) {
