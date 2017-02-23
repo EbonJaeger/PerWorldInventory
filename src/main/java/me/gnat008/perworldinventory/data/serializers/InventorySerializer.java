@@ -61,7 +61,7 @@ public class InventorySerializer {
         JsonArray inventory = new JsonArray();
 
         for (int i = 0; i < contents.length; i++) {
-            JsonObject values = itemSerializer.serializeInventoryItem(contents[i], i);
+            JsonObject values = itemSerializer.serializeItem(contents[i], i);
             if (values != null)
                 inventory.add(values);
         }
@@ -115,11 +115,7 @@ public class InventorySerializer {
 	            JsonObject item = inv.get(i).getAsJsonObject();
 	            int index = item.get("index").getAsInt();
 	            
-	            ItemStack is;
-	            if (format >= 1)
-	                is = itemSerializer.deserializeItem(item);
-	            else
-	                is = itemSerializer.getItem(item);
+	            ItemStack is = itemSerializer.deserializeItem(item, format);
 	
 	            contents[index] = is;
         	}

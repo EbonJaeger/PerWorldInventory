@@ -21,6 +21,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.PwiLogger;
+import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -44,11 +45,19 @@ public class ItemSerializer {
 
     ItemSerializer() {}
 
-    public JsonObject serializeInventoryItem(ItemStack item, int index) {
-        return serializeItem(item, true, index);
-    }
-
-    public JsonObject serializeItem(ItemStack item, boolean useIndex, int index) {
+    /**
+     * Serialize an ItemStack to a JsonObject.
+     * <p>
+     *     The item itself will be saved as a Base64 encoded string to
+     *     simplify the serialization and deserialization process. The result is
+     *     not human readable.
+     * </p>
+     *
+     * @param item The item to serialize.
+     * @param index The position in the inventory.
+     * @return A JsonObject with the serialized item.
+     */
+    public JsonObject serializeItem(ItemStack item, int index) {
         JsonObject values = new JsonObject();
         if (item == null)
             return null;
@@ -65,36 +74,44 @@ public class ItemSerializer {
             }
         }
 
-        if (useIndex)
-            values.addProperty("index", index);
+        values.addProperty("index", index);
 
-        ByteArrayOutputStream outputStream;
-        BukkitObjectOutputStream dataObject;
-        try {
-            outputStream = new ByteArrayOutputStream();
-            dataObject = new BukkitObjectOutputStream(outputStream);
-            dataObject.writeObject(item);
-            dataObject.close();
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+             BukkitObjectOutputStream bos = new BukkitObjectOutputStream(outputStream)) {
+            bos.writeObject(item);
+            String encoded = Base64Coder.encodeLines(outputStream.toByteArray());
 
-            values.addProperty("item", Base64Coder.encodeLines(outputStream.toByteArray()));
+            values.addProperty("item", encoded);
         } catch (IOException ex) {
-            PwiLogger.severe("Error saving an item:");
-            PwiLogger.severe("Item: " + item.getType().toString());
-            PwiLogger.severe("Reason:", ex);
+            PwiLogger.severe("Unable to serialize item '" + item.getType().toString() + "':", ex);
             return null;
         }
 
         return values;
     }
 
-    public ItemStack deserializeItem(JsonObject data) {
-        try (
-                ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data.get("item").getAsString()));
-                BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream)) {
-            return (ItemStack) dataInput.readObject();
-        } catch (IOException | ClassNotFoundException ex) {
-            PwiLogger.severe("Error loading an item:", ex);
-            return new ItemStack(Material.AIR);
+    /**
+     * Get an ItemStack from a JsonObject.
+     *
+     * @param data The Json to read.
+     * @param format The data format being used. Refer to {@link PlayerSerializer#serialize(PWIPlayer)}.
+     * @return The deserialized item stack.
+     */
+    public ItemStack deserializeItem(JsonObject data, int format) {
+        switch (format) {
+            case 0:
+                return getItem(data);
+            case 1:
+            case 2:
+                try (ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data.get("item").getAsString()));
+                     BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream)) {
+                    return (ItemStack) dataInput.readObject();
+                } catch (IOException | ClassNotFoundException ex) {
+                    PwiLogger.severe("Unable to deserialize an item:", ex);
+                    return new ItemStack(Material.AIR);
+                }
+            default:
+                throw new IllegalArgumentException("Unknown data format '" + format + "'");
         }
     }
 
@@ -103,7 +120,7 @@ public class ItemSerializer {
      *
      * @param item The data for the item
      * @return The ItemStack
-     * @deprecated Kept for compatibility reasons. Use ItemSerializer#deserializeItem(JsonObject data) whenever possible
+     * @deprecated Kept for compatibility reasons. Use {@link ItemSerializer#deserializeItem(JsonObject, int)} whenever possible
      */
     @Deprecated
     public ItemStack getItem(JsonObject item) {

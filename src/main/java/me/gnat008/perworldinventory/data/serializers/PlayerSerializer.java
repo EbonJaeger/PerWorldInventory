@@ -50,7 +50,7 @@ public class PlayerSerializer {
      * <p>
      *     Formats:
      *     0: Deserialize items with the old TacoSerialization methods
-     *     1: Deserialize items with Base64
+     *     1: (De)serialize items with Base64
      *     2: Serialize/Deserialize PotionEffects as JsonObjects
      * </p>
      *

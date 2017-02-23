@@ -18,7 +18,6 @@
 package me.gnat008.perworldinventory.data.serializers;
 
 import com.google.gson.JsonObject;
-import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
@@ -67,7 +66,7 @@ public class StatSerializer {
      *
      * @param player The Player to apply the stats to.
      * @param stats  The stats to apply.
-     * @param dataFormat See {@link PlayerSerializer#serialize(PerWorldInventory, PWIPlayer)}.
+     * @param dataFormat See {@link PlayerSerializer#serialize(PWIPlayer)}.
      */
     public void deserialize(Player player,JsonObject stats, int dataFormat) {
         if (settings.getProperty(PwiProperties.LOAD_CAN_FLY) && stats.has("can-fly"))
