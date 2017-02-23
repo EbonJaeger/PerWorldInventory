@@ -45,21 +45,21 @@ public class GameModeChangeProcess {
         GameMode newGameMode = event.getNewGameMode();
         Group group = groupManager.getGroupFromWorld(player.getWorld().getName());
 
-        PwiLogger.debug("Player '" + player.getName() + "' changed to gamemode '" + newGameMode.name() + "' in group '" + group.getName() + "'");
+        PwiLogger.debug("[GM PROCESS] Player '" + player.getName() + "' changed to GameMode '" + newGameMode.name() + "' in group '" + group.getName() + "'");
 
         playerManager.addPlayer(player, group);
 
         if (settings.getProperty(PwiProperties.DISABLE_BYPASS)) {
-            PwiLogger.debug("Bypass system is disabled in the config, loading data");
+            PwiLogger.debug("[GM PROCESS] Bypass system is disabled in the config, loading data");
 
             playerManager.getPlayerData(group, newGameMode, player);
         } else {
             if (!permissionManager.hasPermission(player, PlayerPermission.BYPASS_GAMEMODE)) {
-                PwiLogger.debug("Player '" + player.getName() + "' does not have gamemode bypass permission! Loading data");
+                PwiLogger.debug("[GM PROCESS] Player '" + player.getName() + "' does not have GameMode bypass permission! Loading data");
 
                 playerManager.getPlayerData(group, newGameMode, player);
             } else {
-                PwiLogger.debug("Player '" + player.getName() + "' has gamemode bypass permission!");
+                PwiLogger.debug("[GM PROCESS] Player '" + player.getName() + "' has GameMode bypass permission!");
             }
         }
     }
