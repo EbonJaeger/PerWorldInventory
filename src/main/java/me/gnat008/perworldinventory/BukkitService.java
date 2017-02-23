@@ -1,7 +1,6 @@
 package me.gnat008.perworldinventory;
 
 import org.bukkit.Bukkit;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import javax.inject.Inject;
@@ -31,6 +30,17 @@ public class BukkitService {
      */
     public BukkitTask runTask(Runnable task) {
         return Bukkit.getScheduler().runTask(plugin, task);
+    }
+
+    /**
+     * Runs a task after a delay in ticks.
+     *
+     * @param task The task to run.
+     * @param delay The number of ticks before the task is run for the first time.
+     * @return A BukkitTask with the ID number.
+     */
+    public BukkitTask runTaskLater(Runnable task, long delay) {
+        return Bukkit.getScheduler().runTaskLater(plugin, task, delay);
     }
 
     /**
