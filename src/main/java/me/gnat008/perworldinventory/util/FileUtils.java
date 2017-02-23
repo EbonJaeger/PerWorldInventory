@@ -1,5 +1,8 @@
 package me.gnat008.perworldinventory.util;
 
+import me.gnat008.perworldinventory.groups.Group;
+import org.bukkit.GameMode;
+
 import java.io.*;
 
 /**
@@ -23,5 +26,44 @@ public class FileUtils {
                 out.write(buff, 0, len);
             }
         }
+    }
+
+    /**
+     * Write a string of data to a file.
+     *
+     * @param file The file to write to.
+     * @param data The data to write.
+     */
+    public static void writeData(final File file, final String data) throws IOException {
+        try (FileWriter writer = new FileWriter(file)) {
+            writer.write(data);
+        }
+    }
+
+    /**
+     * Get the data file for a player.
+     *
+     * @param directory The directory where this player's files are.
+     * @param gamemode The game mode for the group we are looking for.
+     * @param group The group we are looking for.
+     *
+     * @return The data file to read from or write to.
+     */
+    public static File getFile(File directory, GameMode gamemode, Group group) {
+        File file;
+        switch(gamemode) {
+            case ADVENTURE:
+                file = new File(directory, group.getName() + "_adventure.json");
+                break;
+            case CREATIVE:
+            case SPECTATOR:
+                file = new File(directory, group.getName() + "_creative.json");
+                break;
+            default:
+                file = new File(directory, group.getName() + ".json");
+                break;
+        }
+
+        return file;
     }
 }

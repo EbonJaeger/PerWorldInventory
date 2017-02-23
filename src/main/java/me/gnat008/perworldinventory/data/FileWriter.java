@@ -20,7 +20,7 @@ package me.gnat008.perworldinventory.data;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
-import me.gnat008.perworldinventory.BukkitService;
+import me.gnat008.perworldinventory.service.BukkitService;
 import me.gnat008.perworldinventory.DataFolder;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.PwiLogger;
@@ -40,6 +40,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.UUID;
+
+import static me.gnat008.perworldinventory.util.FileUtils.getFile;
+import static me.gnat008.perworldinventory.util.FileUtils.writeData;
 
 public class FileWriter implements DataWriter {
 
@@ -87,7 +90,7 @@ public class FileWriter implements DataWriter {
 
     @Override
     public void saveToDatabase(Group group, GameMode gamemode, PWIPlayer player) {
-        File file = getFile(gamemode, group, player.getUuid());
+        File file = getFile(getUserFolder(player.getUuid()), gamemode, group);
         PwiLogger.debug("Saving data for player '" + player.getName() + "' in file '" + file.getPath() + "'");
 
         try {
@@ -104,21 +107,13 @@ public class FileWriter implements DataWriter {
             String data = playerSerializer.serialize(player);
             writeData(file, data);
         } catch (IOException ex) {
-            PwiLogger.severe("Error creating file '" + file + "':", ex);
-        }
-    }
-
-    public void writeData(final File file, final String data) {
-        try (java.io.FileWriter writer = new java.io.FileWriter(file)) {
-            writer.write(data);
-        } catch (IOException ex) {
             PwiLogger.severe("Could not write data to file '" + file + "':", ex);
         }
     }
 
     @Override
     public void getFromDatabase(Group group, GameMode gamemode, Player player) {
-        File file = getFile(gamemode, group, player.getUniqueId());
+        File file = getFile(getUserFolder(player.getUniqueId()), gamemode, group);
 
         PwiLogger.debug("Getting data for player '" + player.getName() + "' from file '" + file.getPath() + "'");
 
@@ -196,34 +191,6 @@ public class FileWriter implements DataWriter {
     }
 
     /**
-     * Get the data file for a player.
-     *
-     * @param gamemode The game mode for the group we are looking for.
-     * @param group The group we are looking for.
-     * @param uuid The UUID of the player.
-     *
-     * @return The data file to read from or write to.
-     */
-    public File getFile(GameMode gamemode, Group group, UUID uuid) {
-        File dir = getUserFolder(uuid);
-        File file;
-        switch(gamemode) {
-            case ADVENTURE:
-                file = new File(dir, group.getName() + "_adventure.json");
-                break;
-            case CREATIVE:
-            case SPECTATOR:
-                file = new File(dir, group.getName() + "_creative.json");
-                break;
-            default:
-                file = new File(dir, group.getName() + ".json");
-                break;
-        }
-
-        return file;
-    }
-
-    /**
      * Return the folder in which data is stored for the player.
      *
      * @param uuid The player's UUID
@@ -255,24 +222,29 @@ public class FileWriter implements DataWriter {
         try {
             tmp.getParentFile().mkdirs();
             tmp.createNewFile();
+
+            Group tempGroup = new Group("tmp", null, null);
+            writeData(tmp, playerSerializer.serialize(pwiPlayerFactory.create(player, tempGroup)));
+
+            player.setFoodLevel(20);
+            player.setHealth(player.getMaxHealth());
+            player.setSaturation(20);
+            player.setTotalExperience(0);
+            player.setRemainingAir(player.getMaximumAir());
+            player.setFireTicks(0);
+
+            writeData(file, playerSerializer.serialize(pwiPlayerFactory.create(player, group)));
+
+            getFromDatabase(tempGroup, GameMode.SURVIVAL, player);
+
+            tmp.delete();
+
+            player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY +  "Defaults for '" + group.getName() +
+                    "' set!");
         } catch (IOException ex) {
-            player.sendMessage(ChatColor.DARK_RED + "» " + ChatColor.GRAY +  "Could not create temporary file! Aborting!");
-            return;
+            player.sendMessage(ChatColor.DARK_RED + "» " + ChatColor.GRAY +  "Could not create temporary file!" +
+                    "Aborting!");
         }
-        Group tempGroup = new Group("tmp", null, null);
-        writeData(tmp, playerSerializer.serialize(pwiPlayerFactory.create(player, tempGroup)));
 
-        player.setFoodLevel(20);
-        player.setHealth(player.getMaxHealth());
-        player.setSaturation(20);
-        player.setTotalExperience(0);
-        player.setRemainingAir(player.getMaximumAir());
-        player.setFireTicks(0);
-
-        writeData(file, playerSerializer.serialize(pwiPlayerFactory.create(player, group)));
-
-        getFromDatabase(tempGroup, GameMode.SURVIVAL, player);
-        tmp.delete();
-        player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY +  "Defaults for '" + group.getName() + "' set!");
     }
 }

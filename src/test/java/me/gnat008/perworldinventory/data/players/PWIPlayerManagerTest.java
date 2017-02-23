@@ -3,14 +3,13 @@ package me.gnat008.perworldinventory.data.players;
 import ch.jalu.injector.testing.BeforeInjecting;
 import ch.jalu.injector.testing.DelayedInjectionRunner;
 import ch.jalu.injector.testing.InjectDelayed;
-import me.gnat008.perworldinventory.BukkitService;
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.TestHelper;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.DataWriter;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
+import me.gnat008.perworldinventory.service.BukkitService;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Server;
@@ -23,9 +22,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import java.util.ArrayList;
 import java.util.UUID;
 
+import static me.gnat008.perworldinventory.ReflectionTestUtils.setField;
 import static me.gnat008.perworldinventory.TestHelper.mockGroup;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -67,7 +66,7 @@ public class PWIPlayerManagerTest {
 
         // Add mocks for Bukkit.getScheduler, called in @PostConstruct method
         Server server = mock(Server.class);
-        TestHelper.setField(Bukkit.class, "server", null, server);
+        setField(Bukkit.class, null, "server", server);
         BukkitScheduler scheduler = mock(BukkitScheduler.class);
         given(server.getScheduler()).willReturn(scheduler);
     }

@@ -1,7 +1,8 @@
-package me.gnat008.perworldinventory;
+package me.gnat008.perworldinventory.service;
 
+import me.gnat008.perworldinventory.PerWorldInventory;
 import org.bukkit.Bukkit;
-import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.scheduler.BukkitTask;
 
 import javax.inject.Inject;
@@ -46,6 +47,10 @@ public class BukkitService {
         return Bukkit.getScheduler().runTaskTimer(plugin, task, delay, period);
     }
 
+    public BukkitTask runRepeatingTaskAsynchronously(Runnable task, long delay, long period) {
+        return Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, task, delay, period);
+    }
+
     /**
      * Runs a task on the next server tick, either asynchronously or synchronously.
      *
@@ -69,5 +74,14 @@ public class BukkitService {
      */
     public BukkitTask runTaskAsync(Runnable task) {
         return Bukkit.getScheduler().runTaskAsynchronously(plugin, task);
+    }
+
+    /**
+     * Get an array of all offline players on the server.
+     *
+     * @return An array of offline players.
+     */
+    public OfflinePlayer[] getOfflinePlayers() {
+        return Bukkit.getOfflinePlayers();
     }
 }

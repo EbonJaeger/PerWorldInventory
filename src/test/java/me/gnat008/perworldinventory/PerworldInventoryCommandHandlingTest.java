@@ -2,12 +2,7 @@ package me.gnat008.perworldinventory;
 
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
-import me.gnat008.perworldinventory.commands.ConvertCommand;
-import me.gnat008.perworldinventory.commands.HelpCommand;
-import me.gnat008.perworldinventory.commands.PerWorldInventoryCommand;
-import me.gnat008.perworldinventory.commands.ReloadCommand;
-import me.gnat008.perworldinventory.commands.SetWorldDefaultCommand;
-import me.gnat008.perworldinventory.commands.VersionCommand;
+import me.gnat008.perworldinventory.commands.*;
 import me.gnat008.perworldinventory.permission.AdminPermission;
 import me.gnat008.perworldinventory.permission.PermissionManager;
 import org.bukkit.Bukkit;
@@ -32,15 +27,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.logging.Logger;
 
-import static me.gnat008.perworldinventory.TestHelper.setField;
+import static me.gnat008.perworldinventory.ReflectionTestUtils.setField;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.only;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.*;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 /**
@@ -77,7 +69,7 @@ public class PerworldInventoryCommandHandlingTest {
         File dataFolder = temporaryFolder.newFolder();
 
         // Set mock server
-        setField(Bukkit.class, "server", null, server);
+        setField(Bukkit.class, null, "server", server);
         given(server.getLogger()).willReturn(mock(Logger.class));
 
         // PluginDescriptionFile is final and so cannot be mocked
@@ -85,7 +77,7 @@ public class PerworldInventoryCommandHandlingTest {
             "PerWorldInventory", "N/A", PerWorldInventory.class.getCanonicalName());
         JavaPluginLoader pluginLoader = new JavaPluginLoader(server);
         plugin = new PerWorldInventory(pluginLoader, descriptionFile, dataFolder, null);
-        setField(JavaPlugin.class, "logger", plugin, mock(PluginLogger.class));
+        setField(JavaPlugin.class, plugin, "logger", mock(PluginLogger.class));
 
         Injector injector = new InjectorBuilder().addDefaultHandlers("me.gnat008.perworldinventory").create();
         injector.register(PermissionManager.class, permissionManager);
@@ -96,7 +88,7 @@ public class PerworldInventoryCommandHandlingTest {
         injector.register(SetWorldDefaultCommand.class, setWorldDefaultsCommand);
         injector.register(VersionCommand.class, versionCommand);
         plugin.registerCommands(injector);
-        TestHelper.setField(PerWorldInventory.class, "permissionManager", plugin, permissionManager);
+        setField(PerWorldInventory.class, plugin, "permissionManager", permissionManager);
     }
 
     @Test
