@@ -157,6 +157,7 @@ public class PWIPlayerManager {
      * @param group The Group the player is in
      * @param gamemode The Gamemode the player is in
      * @param player The Player to get the data for
+     * @param cause The the trigger for getting player data
      */
     public void getPlayerData(Group group, GameMode gamemode, Player player, DeserializeCause cause) {
         PwiLogger.debug("Trying to get data from cache for player '" + player.getName() + "'");
@@ -175,6 +176,7 @@ public class PWIPlayerManager {
      *
      * @param group The Group the player is currently in.
      * @param player The player to save.
+     * @param createTask If a new task should be started.
      */
     public void savePlayer(Group group, Player player, boolean createTask) {
         String key = makeKey(player.getUniqueId(), group, player.getGameMode());
@@ -223,6 +225,7 @@ public class PWIPlayerManager {
      * Return whether a player in a given group is currently cached.
      *
      * @param group The group the player was in.
+     * @param gameMode The GameMode the player is in.
      * @param player The player to check for.
      *
      * @return True if a {@link PWIPlayer} is cached.
@@ -321,6 +324,7 @@ public class PWIPlayerManager {
      *
      * @param group The Group to grab data from
      * @param gameMode The GameMode to get the data for
+     * @param uuid The UUID of the player
      * @return The PWIPlayer
      */
     private PWIPlayer getCachedPlayer(Group group, GameMode gameMode, UUID uuid) {
@@ -402,6 +406,18 @@ public class PWIPlayerManager {
         }
     }
 
+    /**
+     * Create a key to get and save a player's data in the cache.
+     * <p>
+     *     The format of a key is as follows:
+     *     <i>uuid.group-name.gamemode</i>
+     * </p>
+     *
+     * @param uuid The UUID of the player.
+     * @param group The Group the player is in.
+     * @param gameMode The player's current GameMode.
+     * @return The key.
+     */
     public String makeKey(UUID uuid, Group group, GameMode gameMode) {
         String key = uuid.toString() + "." + group.getName() + ".";
         if (settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES))
