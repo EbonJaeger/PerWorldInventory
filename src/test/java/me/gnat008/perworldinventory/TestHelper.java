@@ -13,7 +13,7 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.TransferQueue;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 import static org.mockito.Mockito.mock;
@@ -24,6 +24,7 @@ import static org.mockito.Mockito.mock;
 public final class TestHelper {
 
     public static final String PROJECT_ROOT = "/me/gnat008/perworldinventory/";
+    public static final UUID TEST_UUID = UUID.randomUUID();
 
     private TestHelper() {
     }
@@ -122,6 +123,8 @@ public final class TestHelper {
     public static Group mockGroup(String name) {
         Set<String> worlds = new HashSet<>();
         worlds.add(name);
+        worlds.add(name + "_nether");
+        worlds.add(name + "_the_end");
 
         return mockGroup(name, worlds);
     }
@@ -136,4 +139,6 @@ public final class TestHelper {
 
         return new Group(name, worldSet, gameMode);
     }
+
+
 }

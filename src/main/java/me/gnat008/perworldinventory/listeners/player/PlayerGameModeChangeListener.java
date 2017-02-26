@@ -17,7 +17,13 @@
 
 package me.gnat008.perworldinventory.listeners.player;
 
+import me.gnat008.perworldinventory.BukkitService;
+import me.gnat008.perworldinventory.PwiLogger;
+import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
+import me.gnat008.perworldinventory.groups.Group;
+import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.process.GameModeChangeProcess;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -27,15 +33,33 @@ import javax.inject.Inject;
 
 public class PlayerGameModeChangeListener implements Listener {
 
+    private BukkitService bukkitService;
     private GameModeChangeProcess process;
+    private GroupManager groupManager;
+    private PWIPlayerManager playerManager;
 
     @Inject
-    PlayerGameModeChangeListener(GameModeChangeProcess process) {
+    PlayerGameModeChangeListener(BukkitService bukkitService, GameModeChangeProcess process,
+                                 GroupManager groupManager, PWIPlayerManager playerManager) {
+        this.bukkitService = bukkitService;
         this.process = process;
+        this.groupManager = groupManager;
+        this.playerManager = playerManager;
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerGameModeChange(PlayerGameModeChangeEvent event) {
-        process.processGameModeChange(event);
+        if (event.isCancelled()) {
+            return;
+        }
+
+        Player player = event.getPlayer();
+        Group group = groupManager.getGroupFromWorld(player.getWorld().getName());
+
+        PwiLogger.debug("[GM PROCESS] Player '" + player.getName() + "' changed to GameMode '" +
+                event.getNewGameMode().name() + "' in group '" + group.getName() + "'");
+
+        playerManager.addPlayer(player, group);
+        bukkitService.runTaskLater(() -> process.processGameModeChange(player, event.getNewGameMode(), group), 1L);
     }
 }

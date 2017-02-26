@@ -22,13 +22,16 @@ import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.PwiLogger;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
-import me.gnat008.perworldinventory.data.DataWriter;
+import me.gnat008.perworldinventory.data.DataSource;
+import me.gnat008.perworldinventory.data.serializers.DeserializeCause;
+import me.gnat008.perworldinventory.events.InventoryLoadCompleteEvent;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitTask;
@@ -38,6 +41,8 @@ import javax.inject.Inject;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static me.gnat008.perworldinventory.util.Utils.zeroPlayer;
 
 /**
  * This class is used to manage cached players.
@@ -49,7 +54,7 @@ public class PWIPlayerManager {
 
     private PerWorldInventory plugin;
     private BukkitService bukkitService;
-    private DataWriter dataWriter;
+    private DataSource dataSource;
     private GroupManager groupManager;
     private PWIPlayerFactory pwiPlayerFactory;
     private Settings settings;
@@ -61,11 +66,11 @@ public class PWIPlayerManager {
     private Map<String, PWIPlayer> playerCache = new ConcurrentHashMap<>();
 
     @Inject
-    PWIPlayerManager(PerWorldInventory plugin, BukkitService bukkitService, DataWriter dataWriter, GroupManager groupManager,
+    PWIPlayerManager(PerWorldInventory plugin, BukkitService bukkitService, DataSource dataSource, GroupManager groupManager,
                      PWIPlayerFactory pwiPlayerFactory, Settings settings) {
         this.plugin = plugin;
         this.bukkitService = bukkitService;
-        this.dataWriter = dataWriter;
+        this.dataSource = dataSource;
         this.groupManager = groupManager;
         this.pwiPlayerFactory = pwiPlayerFactory;
         this.settings = settings;
@@ -153,14 +158,15 @@ public class PWIPlayerManager {
      * @param gamemode The Gamemode the player is in
      * @param player The Player to get the data for
      */
-    public void getPlayerData(Group group, GameMode gamemode, Player player) {
+    public void getPlayerData(Group group, GameMode gamemode, Player player, DeserializeCause cause) {
         PwiLogger.debug("Trying to get data from cache for player '" + player.getName() + "'");
+        zeroPlayer(plugin, player);
 
         if(isPlayerCached(group, gamemode, player)) {
-            getDataFromCache(group, gamemode, player);
+            getDataFromCache(group, gamemode, player, cause);
         } else {
             PwiLogger.debug("Player was not in cache! Loading from file");
-            dataWriter.getFromDatabase(group, gamemode, player);
+            dataSource.getFromDatabase(group, gamemode, player, cause);
         }
     }
 
@@ -192,24 +198,24 @@ public class PWIPlayerManager {
 
                 cached.setSaved(true);
                 if (!createTask) {
-                    dataWriter.saveToDatabase(groupKey, gamemode, cached);
+                    dataSource.saveToDatabase(groupKey, gamemode, cached);
                 } else {
-                    bukkitService.runTaskAsync(() -> dataWriter.saveToDatabase(groupKey, gamemode, cached));
+                    bukkitService.runTaskAsync(() -> dataSource.saveToDatabase(groupKey, gamemode, cached));
                 }
             }
         }
 
         PWIPlayer pwiPlayer = pwiPlayerFactory.create(player, group);
         if (!createTask) {
-            dataWriter.saveToDatabase(group,
+            dataSource.saveToDatabase(group,
                     settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES) ? player.getGameMode() : GameMode.SURVIVAL,
                     pwiPlayer);
         } else {
-            bukkitService.runTaskAsync(() -> dataWriter.saveToDatabase(group,
+            bukkitService.runTaskAsync(() -> dataSource.saveToDatabase(group,
                     settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES) ? player.getGameMode() : GameMode.SURVIVAL,
                     pwiPlayer));
         }
-        dataWriter.saveLogoutData(pwiPlayer, createTask); // If we're disabling, cant create a new task
+        dataSource.saveLogoutData(pwiPlayer, createTask); // If we're disabling, cant create a new task
         removePlayer(player);
     }
 
@@ -227,7 +233,7 @@ public class PWIPlayerManager {
         return playerCache.containsKey(key);
     }
 
-    private void getDataFromCache(Group group, GameMode gamemode, Player player) {
+    private void getDataFromCache(Group group, GameMode gamemode, Player player, DeserializeCause cause) {
         PWIPlayer cachedPlayer = getCachedPlayer(group, gamemode, player.getUniqueId());
         if (cachedPlayer == null) {
             PwiLogger.debug("No data for player '" + player.getName() + "' found in cache");
@@ -302,6 +308,9 @@ public class PWIPlayerManager {
                 PwiLogger.warning("[ECON] Unable to withdraw currency from bank of '" + player.getName() + "': " + er.errorMessage);
             }
         }
+
+        InventoryLoadCompleteEvent event = new InventoryLoadCompleteEvent(player, cause);
+        Bukkit.getPluginManager().callEvent(event);
     }
 
     /**
@@ -347,7 +356,7 @@ public class PWIPlayerManager {
                     PwiLogger.debug("Gamemode: " + gamemode.toString());
 
                     player.setSaved(true);
-                    bukkitService.runTaskAsync(() -> dataWriter.saveToDatabase(group, gamemode, player));
+                    bukkitService.runTaskAsync(() -> dataSource.saveToDatabase(group, gamemode, player));
                 } else {
                     PwiLogger.debug("Removing player '" + player.getName() + "' from cache");
                     playerCache.remove(key);
@@ -377,6 +386,7 @@ public class PWIPlayerManager {
         currentPlayer.setExperience(newData.getExp());
         currentPlayer.setFlying(newData.isFlying());
         currentPlayer.setFoodLevel(newData.getFoodLevel());
+        currentPlayer.setMaxHealth(newData.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
         currentPlayer.setHealth(newData.getHealth());
         currentPlayer.setLevel(newData.getLevel());
         currentPlayer.setSaturationLevel(newData.getSaturation());
@@ -392,7 +402,7 @@ public class PWIPlayerManager {
         }
     }
 
-    private String makeKey(UUID uuid, Group group, GameMode gameMode) {
+    public String makeKey(UUID uuid, Group group, GameMode gameMode) {
         String key = uuid.toString() + "." + group.getName() + ".";
         if (settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES))
             key += gameMode.toString().toLowerCase();

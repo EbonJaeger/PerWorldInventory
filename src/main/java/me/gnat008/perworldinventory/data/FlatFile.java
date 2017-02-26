@@ -26,6 +26,7 @@ import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.PwiLogger;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.data.players.PWIPlayerFactory;
+import me.gnat008.perworldinventory.data.serializers.DeserializeCause;
 import me.gnat008.perworldinventory.data.serializers.LocationSerializer;
 import me.gnat008.perworldinventory.data.serializers.PlayerSerializer;
 import me.gnat008.perworldinventory.groups.Group;
@@ -41,7 +42,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.UUID;
 
-public class FileWriter implements DataWriter {
+import static me.gnat008.perworldinventory.util.Utils.zeroPlayer;
+
+public class FlatFile implements DataSource {
 
     private final File FILE_PATH;
 
@@ -51,8 +54,8 @@ public class FileWriter implements DataWriter {
     private final PWIPlayerFactory pwiPlayerFactory;
 
     @Inject
-    FileWriter(@DataFolder File dataFolder, PerWorldInventory plugin, BukkitService bukkitService, PlayerSerializer playerSerializer,
-               PWIPlayerFactory pwiPlayerFactory) {
+    FlatFile(@DataFolder File dataFolder, PerWorldInventory plugin, BukkitService bukkitService, PlayerSerializer playerSerializer,
+             PWIPlayerFactory pwiPlayerFactory) {
         this.FILE_PATH = new File(dataFolder, "data");
         this.plugin = plugin;
         this.bukkitService = bukkitService;
@@ -117,7 +120,7 @@ public class FileWriter implements DataWriter {
     }
 
     @Override
-    public void getFromDatabase(Group group, GameMode gamemode, Player player) {
+    public void getFromDatabase(Group group, GameMode gamemode, Player player, DeserializeCause cause) {
         File file = getFile(gamemode, group, player.getUniqueId());
 
         PwiLogger.debug("Getting data for player '" + player.getName() + "' from file '" + file.getPath() + "'");
@@ -127,7 +130,7 @@ public class FileWriter implements DataWriter {
                 JsonParser parser = new JsonParser();
                 JsonObject data = parser.parse(reader).getAsJsonObject();
 
-                bukkitService.runTask(() -> playerSerializer.deserialize(data, player));
+                bukkitService.runTask(() -> playerSerializer.deserialize(data, player, cause));
             } catch (FileNotFoundException ex) {
                 if (!file.getParentFile().exists()) {
                     file.getParentFile().mkdir();
@@ -135,7 +138,7 @@ public class FileWriter implements DataWriter {
 
                 PwiLogger.debug("File not found for player '" + player.getName() + "' for group '" + group.getName() + "'. Getting data from default sources");
 
-                getFromDefaults(group, player);
+                getFromDefaults(group, player, cause);
             } catch (IOException exIO) {
                 PwiLogger.severe("Unable to read data for '" + player.getName() + "' for group '" + group.getName() +
                         "' in gamemode '" + gamemode.toString() + "' for reason:", exIO);
@@ -165,21 +168,21 @@ public class FileWriter implements DataWriter {
         return location;
     }
 
-    private void getFromDefaults(Group group, Player player) {
+    private void getFromDefaults(Group group, Player player, DeserializeCause cause) {
         File file = new File(FILE_PATH, "defaults" + File.separator + group.getName() + ".json");
 
         try (JsonReader reader = new JsonReader(new FileReader(file))) {
             JsonParser parser = new JsonParser();
             JsonObject data = parser.parse(reader).getAsJsonObject();
 
-            bukkitService.runTask(() -> playerSerializer.deserialize(data, player));
+            bukkitService.runTask(() -> playerSerializer.deserialize(data, player, cause));
         } catch (FileNotFoundException ex) {
             file = new File(FILE_PATH, "defaults" + File.separator + "__default.json");
 
             try (JsonReader reader = new JsonReader(new FileReader(file))) {
                 JsonParser parser = new JsonParser();
                 JsonObject data = parser.parse(reader).getAsJsonObject();
-                bukkitService.runTask(() -> playerSerializer.deserialize(data, player));
+                bukkitService.runTask(() -> playerSerializer.deserialize(data, player, cause));
             } catch (FileNotFoundException ex2) {
                 player.sendMessage(ChatColor.RED + "» " + ChatColor.GRAY + "Something went horribly wrong when loading your inventory! " +
                         "Please notify a server administrator!");
@@ -262,16 +265,11 @@ public class FileWriter implements DataWriter {
         Group tempGroup = new Group("tmp", null, null);
         writeData(tmp, playerSerializer.serialize(pwiPlayerFactory.create(player, tempGroup)));
 
-        player.setFoodLevel(20);
-        player.setHealth(player.getMaxHealth());
-        player.setSaturation(20);
-        player.setTotalExperience(0);
-        player.setRemainingAir(player.getMaximumAir());
-        player.setFireTicks(0);
+        zeroPlayer(plugin, player, false);
 
         writeData(file, playerSerializer.serialize(pwiPlayerFactory.create(player, group)));
 
-        getFromDatabase(tempGroup, GameMode.SURVIVAL, player);
+        getFromDatabase(tempGroup, GameMode.SURVIVAL, player, DeserializeCause.CHANGED_DEFAULTS);
         tmp.delete();
         player.sendMessage(ChatColor.BLUE + "» " + ChatColor.GRAY +  "Defaults for '" + group.getName() + "' set!");
     }

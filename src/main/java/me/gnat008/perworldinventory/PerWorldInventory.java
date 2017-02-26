@@ -23,12 +23,14 @@ import me.gnat008.perworldinventory.api.PerWorldInventoryAPI;
 import me.gnat008.perworldinventory.commands.*;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
-import me.gnat008.perworldinventory.data.DataWriter;
-import me.gnat008.perworldinventory.data.FileWriter;
+import me.gnat008.perworldinventory.data.DataSource;
+import me.gnat008.perworldinventory.data.DataSourceProvider;
+import me.gnat008.perworldinventory.data.FlatFile;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.listeners.entity.EntityPortalEventListener;
 import me.gnat008.perworldinventory.listeners.player.*;
+import me.gnat008.perworldinventory.listeners.server.InventoryLoadingListener;
 import me.gnat008.perworldinventory.listeners.server.PluginListener;
 import me.gnat008.perworldinventory.permission.PermissionManager;
 import me.gnat008.perworldinventory.util.Utils;
@@ -59,7 +61,7 @@ public class PerWorldInventory extends JavaPlugin {
     private PerWorldInventoryAPI api;
     private BukkitService bukkitService;
     private Economy economy;
-    private DataWriter serializer;
+    private DataSource serializer;
     private GroupManager groupManager;
     private PWIPlayerManager playerManager;
     private Settings settings;
@@ -196,8 +198,8 @@ public class PerWorldInventory extends JavaPlugin {
     protected void injectServices(Injector injector) {
         bukkitService = injector.getSingleton(BukkitService.class);
         groupManager = injector.getSingleton(GroupManager.class);
-        serializer = injector.getSingleton(FileWriter.class);
-        injector.register(DataWriter.class, serializer);
+        serializer = injector.getSingleton(FlatFile.class);
+        injector.registerProvider(DataSource.class, DataSourceProvider.class);
         playerManager = injector.getSingleton(PWIPlayerManager.class);
         permissionManager = injector.getSingleton(PermissionManager.class);
         api = injector.getSingleton(PerWorldInventoryAPI.class);
@@ -215,6 +217,7 @@ public class PerWorldInventory extends JavaPlugin {
         pluginManager.registerEvents(injector.getSingleton(PlayerGameModeChangeListener.class), this);
         pluginManager.registerEvents(injector.getSingleton(PlayerQuitListener.class), this);
         pluginManager.registerEvents(injector.getSingleton(EntityPortalEventListener.class), this);
+        pluginManager.registerEvents(injector.getSingleton(InventoryLoadingListener.class), this);
 
         // The PlayerSpawnLocationEvent is only fired in Spigot
         // As of version 1.9.2

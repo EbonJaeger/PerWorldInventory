@@ -18,12 +18,13 @@
 package me.gnat008.perworldinventory.data;
 
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
+import me.gnat008.perworldinventory.data.serializers.DeserializeCause;
 import me.gnat008.perworldinventory.groups.Group;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-public interface DataWriter {
+public interface DataSource {
 
     /**
      * Save the location of a player when they log out or are kicked from the server.
@@ -55,7 +56,7 @@ public interface DataWriter {
      * @param gamemode The {@link org.bukkit.GameMode} the player was in
      * @param player The {@link org.bukkit.entity.Player} to set the data to
      */
-    void getFromDatabase(Group group, GameMode gamemode, Player player);
+    void getFromDatabase(Group group, GameMode gamemode, Player player, DeserializeCause cause);
 
     /**
      * Get the name of the world that a player logged out in.
