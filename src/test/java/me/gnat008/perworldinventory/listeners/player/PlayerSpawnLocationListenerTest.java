@@ -1,11 +1,10 @@
-package me.gnat008.perworldinventory.listeners;
+package me.gnat008.perworldinventory.listeners.player;
 
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.DataSource;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
-import me.gnat008.perworldinventory.listeners.player.PlayerSpawnLocationListener;
 import me.gnat008.perworldinventory.process.InventoryChangeProcess;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -25,10 +24,7 @@ import java.util.Set;
 
 import static me.gnat008.perworldinventory.TestHelper.mockGroup;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.only;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for {@link PlayerSpawnLocationListener}.

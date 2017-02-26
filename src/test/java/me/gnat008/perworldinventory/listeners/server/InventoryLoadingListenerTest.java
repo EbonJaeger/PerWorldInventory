@@ -50,4 +50,17 @@ public class InventoryLoadingListenerTest {
         // then
         verifyZeroInteractions(process);
     }
+
+    @Test
+    public void shouldAlsoNotInteract() {
+        // given
+        Player player = mock(Player.class);
+        InventoryLoadCompleteEvent event = new InventoryLoadCompleteEvent(player, DeserializeCause.CHANGED_DEFAULTS);
+
+        // when
+        listener.onLoadComplete(event);
+
+        // then
+        verifyZeroInteractions(process);
+    }
 }
