@@ -23,7 +23,7 @@ import com.google.gson.stream.JsonReader;
 import me.gnat008.perworldinventory.BukkitService;
 import me.gnat008.perworldinventory.DataFolder;
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.PwiLogger;
+import me.gnat008.perworldinventory.ConsoleLogger;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.data.players.PWIPlayerFactory;
 import me.gnat008.perworldinventory.data.serializers.DeserializeCause;
@@ -84,14 +84,14 @@ public class FlatFile implements DataSource {
             String data = LocationSerializer.serialize(player.getLocation());
             writeData(file, data);
         } catch (IOException ex) {
-            PwiLogger.warning("Error creating file '" + file.getPath() + "':", ex);
+            ConsoleLogger.warning("Error creating file '" + file.getPath() + "':", ex);
         }
     }
 
     @Override
     public void saveToDatabase(Group group, GameMode gamemode, PWIPlayer player) {
         File file = getFile(gamemode, group, player.getUuid());
-        PwiLogger.debug("Saving data for player '" + player.getName() + "' in file '" + file.getPath() + "'");
+        ConsoleLogger.debug("Saving data for player '" + player.getName() + "' in file '" + file.getPath() + "'");
 
         try {
             if (!file.getParentFile().exists()) {
@@ -102,12 +102,12 @@ public class FlatFile implements DataSource {
                 file.createNewFile();
             }
 
-            PwiLogger.debug("Writing player data for player '" + player.getName() + "' to file");
+            ConsoleLogger.debug("Writing player data for player '" + player.getName() + "' to file");
 
             String data = playerSerializer.serialize(player);
             writeData(file, data);
         } catch (IOException ex) {
-            PwiLogger.severe("Error creating file '" + file + "':", ex);
+            ConsoleLogger.severe("Error creating file '" + file + "':", ex);
         }
     }
 
@@ -115,7 +115,7 @@ public class FlatFile implements DataSource {
         try (java.io.FileWriter writer = new java.io.FileWriter(file)) {
             writer.write(data);
         } catch (IOException ex) {
-            PwiLogger.severe("Could not write data to file '" + file + "':", ex);
+            ConsoleLogger.severe("Could not write data to file '" + file + "':", ex);
         }
     }
 
@@ -123,7 +123,7 @@ public class FlatFile implements DataSource {
     public void getFromDatabase(Group group, GameMode gamemode, Player player, DeserializeCause cause) {
         File file = getFile(gamemode, group, player.getUniqueId());
 
-        PwiLogger.debug("Getting data for player '" + player.getName() + "' from file '" + file.getPath() + "'");
+        ConsoleLogger.debug("Getting data for player '" + player.getName() + "' from file '" + file.getPath() + "'");
 
         bukkitService.runTaskAsync(() -> {
             try (JsonReader reader = new JsonReader(new FileReader(file))) {
@@ -136,11 +136,11 @@ public class FlatFile implements DataSource {
                     file.getParentFile().mkdir();
                 }
 
-                PwiLogger.debug("File not found for player '" + player.getName() + "' for group '" + group.getName() + "'. Getting data from default sources");
+                ConsoleLogger.debug("File not found for player '" + player.getName() + "' for group '" + group.getName() + "'. Getting data from default sources");
 
                 getFromDefaults(group, player, cause);
             } catch (IOException exIO) {
-                PwiLogger.severe("Unable to read data for '" + player.getName() + "' for group '" + group.getName() +
+                ConsoleLogger.severe("Unable to read data for '" + player.getName() + "' for group '" + group.getName() +
                         "' in gamemode '" + gamemode.toString() + "' for reason:", exIO);
             }
         });
@@ -161,7 +161,7 @@ public class FlatFile implements DataSource {
             location = null;
         } catch (IOException ioEx) {
             // Something went wrong
-            PwiLogger.warning("Unable to get logout location data for '" + player.getName() + "':", ioEx);
+            ConsoleLogger.warning("Unable to get logout location data for '" + player.getName() + "':", ioEx);
             location = null;
         }
 
@@ -186,14 +186,14 @@ public class FlatFile implements DataSource {
             } catch (FileNotFoundException ex2) {
                 player.sendMessage(ChatColor.RED + "» " + ChatColor.GRAY + "Something went horribly wrong when loading your inventory! " +
                         "Please notify a server administrator!");
-                PwiLogger.severe("Unable to find inventory data for player '" + player.getName() +
+                ConsoleLogger.severe("Unable to find inventory data for player '" + player.getName() +
                         "' for group '" + group.getName() + "':", ex2);
             } catch (IOException exIO) {
-                PwiLogger.severe("Unable to read data for '" + player.getName() + "' for group '" + group.getName() +
+                ConsoleLogger.severe("Unable to read data for '" + player.getName() + "' for group '" + group.getName() +
                         "' for reason:", exIO);
             }
         } catch (IOException exIO) {
-            PwiLogger.severe("Unable to read data for '" + player.getName() + "' for group '" + group.getName() +
+            ConsoleLogger.severe("Unable to read data for '" + player.getName() + "' for group '" + group.getName() +
                     "' for reason:", exIO);
         }
     }

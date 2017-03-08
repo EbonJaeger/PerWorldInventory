@@ -1,7 +1,7 @@
 package me.gnat008.perworldinventory.process;
 
 import me.gnat008.perworldinventory.BukkitService;
-import me.gnat008.perworldinventory.PwiLogger;
+import me.gnat008.perworldinventory.ConsoleLogger;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
@@ -64,7 +64,7 @@ public class InventoryChangeProcess {
      */
     public void processWorldChangeOnSpawn(Player player, Group from, Group to) {
         if (!from.equals(to)) {
-            PwiLogger.debug("[PROCESS] Logout world groups are different! Saving data for player '" + player.getName() + "' for group '" + from.getName() + "'");
+            ConsoleLogger.debug("[PROCESS] Logout world groups are different! Saving data for player '" + player.getName() + "' for group '" + from.getName() + "'");
 
             playerManager.addPlayer(player, from);
 
@@ -83,37 +83,37 @@ public class InventoryChangeProcess {
     protected void processWorldChange(Player player, Group from, Group to) {
         // Check if the FROM group is configured
         if (!from.isConfigured() && settings.getProperty(PwiProperties.SHARE_IF_UNCONFIGURED)) {
-            PwiLogger.debug("[PROCESS] FROM group (" + from.getName() + ") is not defined, and plugin configured to share inventory");
+            ConsoleLogger.debug("[PROCESS] FROM group (" + from.getName() + ") is not defined, and plugin configured to share inventory");
             postProcessWorldChange(player, to);
             return;
         }
 
         // Check if the groups are actually the same group
         if (from.equals(to)) {
-            PwiLogger.debug("[PROCESS] Both groups are the same: '" + to.getName() + "'");
+            ConsoleLogger.debug("[PROCESS] Both groups are the same: '" + to.getName() + "'");
             return;
         }
 
         // Check of the TO group is configured
         if (!to.isConfigured() && settings.getProperty(PwiProperties.SHARE_IF_UNCONFIGURED)) {
-            PwiLogger.debug("[PROCESS] TO group (" + to.getName() + ") is not defined, and plugin configured to share inventory");
+            ConsoleLogger.debug("[PROCESS] TO group (" + to.getName() + ") is not defined, and plugin configured to share inventory");
             postProcessWorldChange(player, to);
             return;
         }
 
         // Check if the player bypasses the changes
         if (!settings.getProperty(PwiProperties.DISABLE_BYPASS) && permissionManager.hasPermission(player, PlayerPermission.BYPASS_WORLDS)) {
-            PwiLogger.debug("[PROCESS] Player '" + player.getName() + "' has '" + PlayerPermission.BYPASS_WORLDS.getNode() + "' permission! Returning");
+            ConsoleLogger.debug("[PROCESS] Player '" + player.getName() + "' has '" + PlayerPermission.BYPASS_WORLDS.getNode() + "' permission! Returning");
             postProcessWorldChange(player, to);
             return;
         }
 
         // Check if GameModes have separate inventories
         if (settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)) {
-            PwiLogger.debug("[PROCESS] GameModes are separated! Loading data for player '" + player.getName() + "' for group '" + to.getName() + "' in gamemode '" + player.getGameMode().name() + "'");
+            ConsoleLogger.debug("[PROCESS] GameModes are separated! Loading data for player '" + player.getName() + "' for group '" + to.getName() + "' in gamemode '" + player.getGameMode().name() + "'");
             playerManager.getPlayerData(to, player.getGameMode(), player, DeserializeCause.WORLD_CHANGE);
         } else {
-            PwiLogger.debug("[PROCESS] Loading data for player '" + player.getName() + "' for group '" + to.getName() + "'");
+            ConsoleLogger.debug("[PROCESS] Loading data for player '" + player.getName() + "' for group '" + to.getName() + "'");
             playerManager.getPlayerData(to, GameMode.SURVIVAL, player, DeserializeCause.WORLD_CHANGE);
         }
     }
@@ -133,9 +133,9 @@ public class InventoryChangeProcess {
         // Check if we should manage the player's gamemode when changing worlds
         if (settings.getProperty(PwiProperties.MANAGE_GAMEMODES)) {
             if (permissionManager.hasPermission(player, PlayerPermission.BYPASS_ENFORCEGAMEMODE)) {
-                PwiLogger.debug("[PROCESS] Player '" + player.getName() + "' has '" + PlayerPermission.BYPASS_ENFORCEGAMEMODE.getNode() + "' permission! Not enforcing gamemode.");
+                ConsoleLogger.debug("[PROCESS] Player '" + player.getName() + "' has '" + PlayerPermission.BYPASS_ENFORCEGAMEMODE.getNode() + "' permission! Not enforcing gamemode.");
             } else {
-                PwiLogger.debug("[PROCESS] PWI manages GameModes! Setting player '" + player.getName() +
+                ConsoleLogger.debug("[PROCESS] PWI manages GameModes! Setting player '" + player.getName() +
                         "' to gamemode " + group.getGameMode().name());
 
                 bukkitService.runTaskLater(() -> player.setGameMode(group.getGameMode()), 1L);

@@ -1,7 +1,7 @@
 package me.gnat008.perworldinventory.data;
 
 import ch.jalu.injector.Injector;
-import me.gnat008.perworldinventory.PwiLogger;
+import me.gnat008.perworldinventory.ConsoleLogger;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -22,7 +22,7 @@ public class DataSourceProvider implements Provider<DataSource> {
         try {
             return createDataSource();
         } catch (Exception ex) {
-            PwiLogger.severe("Unable to create data source:", ex);
+            ConsoleLogger.severe("Unable to create data source:", ex);
             throw new IllegalStateException("Error during initialization of data source", ex);
         }
     }

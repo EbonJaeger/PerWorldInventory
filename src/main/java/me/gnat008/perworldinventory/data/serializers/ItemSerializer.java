@@ -20,7 +20,7 @@ package me.gnat008.perworldinventory.data.serializers;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.PwiLogger;
+import me.gnat008.perworldinventory.ConsoleLogger;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -83,7 +83,7 @@ public class ItemSerializer {
 
             values.addProperty("item", encoded);
         } catch (IOException ex) {
-            PwiLogger.severe("Unable to serialize item '" + item.getType().toString() + "':", ex);
+            ConsoleLogger.severe("Unable to serialize item '" + item.getType().toString() + "':", ex);
             return null;
         }
 
@@ -107,7 +107,7 @@ public class ItemSerializer {
                      BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream)) {
                     return (ItemStack) dataInput.readObject();
                 } catch (IOException | ClassNotFoundException ex) {
-                    PwiLogger.severe("Unable to deserialize an item:", ex);
+                    ConsoleLogger.severe("Unable to deserialize an item:", ex);
                     return new ItemStack(Material.AIR);
                 }
             default:

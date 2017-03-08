@@ -85,7 +85,7 @@ public class PerWorldInventory extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        PwiLogger.setLogger(getLogger());
+        ConsoleLogger.setLogger(getLogger());
 
         // Make the data folders
         if (!(new File(getDataFolder() + File.separator + "data" + File.separator + "defaults").exists())) {
@@ -102,7 +102,7 @@ public class PerWorldInventory extends JavaPlugin {
                 Files.move(source, destination.resolve(source.getFileName()));
             } catch (IOException ex) {
                 if (!(ex instanceof FileAlreadyExistsException)) {
-                    PwiLogger.warning("Unable to move defaults.json to the defaults folder:", ex);
+                    ConsoleLogger.warning("Unable to move defaults.json to the defaults folder:", ex);
                 }
             }
         }
@@ -118,7 +118,7 @@ public class PerWorldInventory extends JavaPlugin {
         injector.provide(DataFolder.class, getDataFolder());
         settings = initSettings();
         injector.register(Settings.class, settings);
-        PwiLogger.setUseDebug(settings.getProperty(PwiProperties.DEBUG_MODE));
+        ConsoleLogger.setUseDebug(settings.getProperty(PwiProperties.DEBUG_MODE));
         injectServices(injector);
         registerEventListeners(injector);
 
@@ -185,7 +185,7 @@ public class PerWorldInventory extends JavaPlugin {
             }
         }
 
-        PwiLogger.debug("PerWorldInventory is enabled and debug-mode is active!");
+        ConsoleLogger.debug("PerWorldInventory is enabled and debug-mode is active!");
     }
 
     @Override
@@ -248,7 +248,7 @@ public class PerWorldInventory extends JavaPlugin {
     }
 
     public void reload() {
-        PwiLogger.setUseDebug(settings != null && settings.getProperty(PwiProperties.DEBUG_MODE));
+        ConsoleLogger.setUseDebug(settings != null && settings.getProperty(PwiProperties.DEBUG_MODE));
     }
 
     public Economy getEconomy() {

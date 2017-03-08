@@ -18,7 +18,7 @@
 package me.gnat008.perworldinventory.data.serializers;
 
 import com.google.gson.JsonObject;
-import me.gnat008.perworldinventory.PwiLogger;
+import me.gnat008.perworldinventory.ConsoleLogger;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.entity.Player;
@@ -41,12 +41,12 @@ public class EconomySerializer {
 
     public static void deserialize(Economy econ, JsonObject data, Player player) {
         if (data.has("bank-balance")) {
-            PwiLogger.debug("[ECON] Depositing " + data.get("bank-balance").getAsDouble() + " to bank of '" + player.getName() + "'!");
+            ConsoleLogger.debug("[ECON] Depositing " + data.get("bank-balance").getAsDouble() + " to bank of '" + player.getName() + "'!");
             econ.bankDeposit(player.getName(), data.get("bank-balance").getAsDouble());
         }
 
         if (data.has("balance")) {
-            PwiLogger.debug("[ECON] Depositing " + data.get("balance").getAsDouble() + " to '" + player.getName() + "'!");
+            ConsoleLogger.debug("[ECON] Depositing " + data.get("balance").getAsDouble() + " to '" + player.getName() + "'!");
             econ.depositPlayer(player, data.get("balance").getAsDouble());
         }
     }

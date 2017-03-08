@@ -110,7 +110,7 @@ public final class TestHelper {
 
     public static Logger initMockLogger() {
         Logger logger = mock(Logger.class);
-        PwiLogger.setLogger(logger);
+        ConsoleLogger.setLogger(logger);
         return logger;
     }
 

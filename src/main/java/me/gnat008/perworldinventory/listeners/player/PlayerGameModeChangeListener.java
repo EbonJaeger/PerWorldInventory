@@ -18,7 +18,7 @@
 package me.gnat008.perworldinventory.listeners.player;
 
 import me.gnat008.perworldinventory.BukkitService;
-import me.gnat008.perworldinventory.PwiLogger;
+import me.gnat008.perworldinventory.ConsoleLogger;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
@@ -56,7 +56,7 @@ public class PlayerGameModeChangeListener implements Listener {
         Player player = event.getPlayer();
         Group group = groupManager.getGroupFromWorld(player.getWorld().getName());
 
-        PwiLogger.debug("[GM PROCESS] Player '" + player.getName() + "' changed to GameMode '" +
+        ConsoleLogger.debug("[GM PROCESS] Player '" + player.getName() + "' changed to GameMode '" +
                 event.getNewGameMode().name() + "' in group '" + group.getName() + "'");
 
         playerManager.addPlayer(player, group);

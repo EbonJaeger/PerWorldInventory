@@ -1,6 +1,6 @@
 package me.gnat008.perworldinventory.process;
 
-import me.gnat008.perworldinventory.PwiLogger;
+import me.gnat008.perworldinventory.ConsoleLogger;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
@@ -40,16 +40,16 @@ public class GameModeChangeProcess {
         }
 
         if (settings.getProperty(PwiProperties.DISABLE_BYPASS)) {
-            PwiLogger.debug("[GM PROCESS] Bypass system is disabled in the config, loading data");
+            ConsoleLogger.debug("[GM PROCESS] Bypass system is disabled in the config, loading data");
 
             playerManager.getPlayerData(group, newGameMode, player, DeserializeCause.GAMEMODE_CHANGE);
         } else {
             if (!permissionManager.hasPermission(player, PlayerPermission.BYPASS_GAMEMODE)) {
-                PwiLogger.debug("[GM PROCESS] Player '" + player.getName() + "' does not have GameMode bypass permission! Loading data");
+                ConsoleLogger.debug("[GM PROCESS] Player '" + player.getName() + "' does not have GameMode bypass permission! Loading data");
 
                 playerManager.getPlayerData(group, newGameMode, player, DeserializeCause.GAMEMODE_CHANGE);
             } else {
-                PwiLogger.debug("[GM PROCESS] Player '" + player.getName() + "' has GameMode bypass permission!");
+                ConsoleLogger.debug("[GM PROCESS] Player '" + player.getName() + "' has GameMode bypass permission!");
             }
         }
     }

@@ -1,6 +1,6 @@
 package me.gnat008.perworldinventory.listeners.player;
 
-import me.gnat008.perworldinventory.PwiLogger;
+import me.gnat008.perworldinventory.ConsoleLogger;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
@@ -39,7 +39,7 @@ public class PlayerTeleportListener implements Listener {
             return;
         }
 
-        PwiLogger.debug("[EVENTS] Player '" + event.getPlayer().getName() + "' going from world '" + from + "' to world '" + to + "'");
+        ConsoleLogger.debug("[EVENTS] Player '" + event.getPlayer().getName() + "' going from world '" + from + "' to world '" + to + "'");
 
         Group groupFrom = groupManager.getGroupFromWorld(from.getWorld().getName());
         Group groupTo = groupManager.getGroupFromWorld(to.getWorld().getName());
