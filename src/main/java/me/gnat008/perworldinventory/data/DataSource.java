@@ -66,4 +66,17 @@ public interface DataSource {
      * @return The location of the player when they last logged out or null
      */
     Location getLogoutData(Player player);
+
+    /**
+     * Set the default inventory loadout for a group. This is the inventory that will
+     * be given to a player the first time they enter a world in the group.
+     * <p>
+     * A snapshot of the player will be taken and saved to a temp file to be deleted after.
+     * This is so some stats are set to max, e.g. health. The snapshot will be restored to
+     * the player after the default loadout has been saved.
+     *
+     * @param player The player performing the command.
+     * @param group The group to write the defaults for.
+     */
+    void setGroupDefault(Player player, Group group);
 }
