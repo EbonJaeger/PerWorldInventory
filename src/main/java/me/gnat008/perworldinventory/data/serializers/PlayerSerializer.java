@@ -111,13 +111,7 @@ public class PlayerSerializer {
                 ConsoleLogger.warning("[ECON] Unable to withdraw funds from '" + player.getName() + "': " + er.errorMessage);
             }
 
-            ConsoleLogger.debug("[ECON] Withdrawing " + econ.bankBalance(player.getName()) + " from bank of '" + player.getName() + "'!");
-            EconomyResponse bankER = econ.bankWithdraw(player.getName(), econ.bankBalance(player.getName()).amount);
-            if (!bankER.transactionSuccess()) {
-                ConsoleLogger.warning("[ECON] Unable to withdraw bank funds from '" + player.getName() + "': " + er.errorMessage);
-            }
-
-            if (data.has("economy") && er.transactionSuccess() && bankER.transactionSuccess()) {
+            if (data.has("economy") && er.transactionSuccess()) {
                 EconomySerializer.deserialize(econ, data.getAsJsonObject("economy"), player);
             }
         }

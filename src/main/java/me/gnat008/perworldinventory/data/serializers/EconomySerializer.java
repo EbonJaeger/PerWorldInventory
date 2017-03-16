@@ -30,21 +30,12 @@ public class EconomySerializer {
     public static JsonObject serialize(PWIPlayer player, Economy econ) {
         JsonObject data = new JsonObject();
 
-        if (econ.bankBalance(player.getName()).transactionSuccess()) {
-            data.addProperty("bank-balance", player.getBankBalance());
-        }
-
         data.addProperty("balance", player.getBalance());
 
         return data;
     }
 
     public static void deserialize(Economy econ, JsonObject data, Player player) {
-        if (data.has("bank-balance")) {
-            ConsoleLogger.debug("[ECON] Depositing " + data.get("bank-balance").getAsDouble() + " to bank of '" + player.getName() + "'!");
-            econ.bankDeposit(player.getName(), data.get("bank-balance").getAsDouble());
-        }
-
         if (data.has("balance")) {
             ConsoleLogger.debug("[ECON] Depositing " + data.get("balance").getAsDouble() + " to '" + player.getName() + "'!");
             econ.depositPlayer(player, data.get("balance").getAsDouble());
