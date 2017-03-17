@@ -42,6 +42,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.UUID;
 
+import static me.gnat008.perworldinventory.util.FileUtils.createFileIfNotExists;
+import static me.gnat008.perworldinventory.util.FileUtils.writeData;
 import static me.gnat008.perworldinventory.util.Utils.zeroPlayer;
 
 public class FlatFile implements DataSource {
@@ -76,11 +78,7 @@ public class FlatFile implements DataSource {
 
     private void saveLogout(File file, PWIPlayer player) {
         try {
-            if (!file.getParentFile().exists())
-                file.getParentFile().mkdir();
-            if (!file.exists())
-                file.createNewFile();
-
+            createFileIfNotExists(file);
             String data = LocationSerializer.serialize(player.getLocation());
             writeData(file, data);
         } catch (IOException ex) {
@@ -94,28 +92,13 @@ public class FlatFile implements DataSource {
         ConsoleLogger.debug("Saving data for player '" + player.getName() + "' in file '" + file.getPath() + "'");
 
         try {
-            if (!file.getParentFile().exists()) {
-                file.getParentFile().mkdir();
-            }
-
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-
+            createFileIfNotExists(file);
             ConsoleLogger.debug("Writing player data for player '" + player.getName() + "' to file");
 
             String data = playerSerializer.serialize(player);
             writeData(file, data);
         } catch (IOException ex) {
             ConsoleLogger.severe("Error creating file '" + file + "':", ex);
-        }
-    }
-
-    public void writeData(final File file, final String data) {
-        try (java.io.FileWriter writer = new java.io.FileWriter(file)) {
-            writer.write(data);
-        } catch (IOException ex) {
-            ConsoleLogger.severe("Could not write data to file '" + file + "':", ex);
         }
     }
 
@@ -246,8 +229,7 @@ public class FlatFile implements DataSource {
 
         File tmp = new File(getUserFolder(player.getUniqueId()), "tmp.json");
         try {
-            tmp.getParentFile().mkdirs();
-            tmp.createNewFile();
+            createFileIfNotExists(tmp);
         } catch (IOException ex) {
             player.sendMessage(ChatColor.DARK_RED + "» " + ChatColor.GRAY +  "Could not create temporary file! Aborting!");
             return;

@@ -45,6 +45,9 @@ import javax.inject.Inject;
 import java.io.File;
 import java.util.*;
 
+import static me.gnat008.perworldinventory.util.FileUtils.createFileIfNotExists;
+import static me.gnat008.perworldinventory.util.FileUtils.writeData;
+
 @NoMethodScan
 public class DataConverter {
 
@@ -88,11 +91,8 @@ public class DataConverter {
                                 String data = serializeMVIToNewFormat(playerData);
 
                                 File file = serializer.getFile(gameMode, groupManager.getGroup(mvgroup.getName()), player1.getUniqueId());
-                                if (!file.getParentFile().exists())
-                                    file.getParentFile().mkdir();
-                                if (!file.exists())
-                                    file.createNewFile();
-                                serializer.writeData(file, data);
+                                createFileIfNotExists(file);
+                                writeData(file, data);
                             }
                         } catch (Exception ex) {
                             ConsoleLogger.warning("Error importing inventory for player: " + player1.getName() +

@@ -5,7 +5,6 @@ import me.gnat008.perworldinventory.ConsoleLogger;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import java.io.IOException;
 
 /**
  * Creates the data source
@@ -27,7 +26,7 @@ public class DataSourceProvider implements Provider<DataSource> {
         }
     }
 
-    private DataSource createDataSource() throws ClassNotFoundException, IOException {
+    private DataSource createDataSource() {
         DataSourceType type = DataSourceType.FLATFILE;
         DataSource dataSource;
 

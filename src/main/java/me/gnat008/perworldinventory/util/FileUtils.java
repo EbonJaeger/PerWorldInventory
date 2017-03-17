@@ -1,11 +1,16 @@
 package me.gnat008.perworldinventory.util;
 
+import me.gnat008.perworldinventory.ConsoleLogger;
+
 import java.io.*;
 
 /**
  * Utility methods for handling files.
  */
-public class FileUtils {
+public final class FileUtils {
+
+    private FileUtils() {
+    }
 
     /**
      * Copy a file from one location to another. The file will not be deleted.
@@ -23,5 +28,43 @@ public class FileUtils {
                 out.write(buff, 0, len);
             }
         }
+    }
+
+    /**
+     * Writes the given data to the provided file.
+     *
+     * @param file The file to write to.
+     * @param data The data to write.
+     */
+    public static void writeData(File file, String data) {
+        try (FileWriter writer = new FileWriter(file)) {
+            writer.write(data);
+        } catch (IOException ex) {
+            ConsoleLogger.severe("Could not write data to file '" + file + "':", ex);
+        }
+    }
+
+    /**
+     * Creates the given file if it doesn't exist.
+     *
+     * @param file The file to create if necessary.
+     * @return The given file (allows inline use).
+     * @throws IOException if file could not be created
+     */
+    public static File createFileIfNotExists(File file) throws IOException {
+        if (!file.exists()) {
+            if (!file.getParentFile().exists()) {
+                boolean success = file.getParentFile().mkdirs();
+                if (!success) {
+                    ConsoleLogger.warning("Could not create parent directories while trying to create '" + file + "'");
+                }
+            }
+
+            boolean success = file.createNewFile();
+            if (!success) {
+                ConsoleLogger.warning("Could not create file '" + file + "'");
+            }
+        }
+        return file;
     }
 }

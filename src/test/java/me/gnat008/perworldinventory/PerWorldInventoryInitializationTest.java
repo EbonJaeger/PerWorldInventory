@@ -9,6 +9,7 @@ import me.gnat008.perworldinventory.commands.ReloadCommand;
 import me.gnat008.perworldinventory.commands.SetWorldDefaultCommand;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.DataSource;
+import me.gnat008.perworldinventory.data.DataSourceProvider;
 import me.gnat008.perworldinventory.data.FlatFile;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.GroupManager;
@@ -107,6 +108,7 @@ public class PerWorldInventoryInitializationTest {
         injector.register(PluginManager.class, pluginManager);
         injector.provide(DataFolder.class, dataFolder);
         injector.register(Settings.class, settings);
+        injector.registerProvider(DataSource.class, DataSourceProvider.class);
 
         // when
         plugin.injectServices(injector);
