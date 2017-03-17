@@ -114,10 +114,8 @@ public class PerWorldInventory extends JavaPlugin {
         injector.register(PluginManager.class, getServer().getPluginManager());
         injector.provide(DataFolder.class, getDataFolder());
         injector.registerProvider(DataSource.class, DataSourceProvider.class);
-        settings = initSettings();
-        injector.register(Settings.class, settings);
-        ConsoleLogger.setUseDebug(settings.getProperty(PwiProperties.DEBUG_MODE));
         injectServices(injector);
+        ConsoleLogger.setUseDebug(settings.getProperty(PwiProperties.DEBUG_MODE));
         registerEventListeners(injector);
 
         // Load world groups
@@ -194,6 +192,7 @@ public class PerWorldInventory extends JavaPlugin {
     }
 
     protected void injectServices(Injector injector) {
+        settings = injector.getSingleton(Settings.class);
         groupManager = injector.getSingleton(GroupManager.class);
         playerManager = injector.getSingleton(PWIPlayerManager.class);
         permissionManager = injector.getSingleton(PermissionManager.class);
@@ -300,13 +299,5 @@ public class PerWorldInventory extends JavaPlugin {
         }
 
         return false;
-    }
-
-    private Settings initSettings() {
-        File configFile = new File(getDataFolder(), "config.yml");
-        if (!configFile.exists()) {
-            saveResource("config.yml", false);
-        }
-        return new Settings(configFile);
     }
 }
