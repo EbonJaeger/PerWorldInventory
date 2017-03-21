@@ -114,6 +114,8 @@ public class PerWorldInventory extends JavaPlugin {
         injector.register(PluginManager.class, getServer().getPluginManager());
         injector.provide(DataFolder.class, getDataFolder());
         injector.registerProvider(DataSource.class, DataSourceProvider.class);
+        settings = initSettings();
+        injector.register(Settings.class, settings);
         injectServices(injector);
         ConsoleLogger.setUseDebug(settings.getProperty(PwiProperties.DEBUG_MODE));
         registerEventListeners(injector);
@@ -299,5 +301,13 @@ public class PerWorldInventory extends JavaPlugin {
         }
 
         return false;
+    }
+
+    private Settings initSettings() {
+        File configFile = new File(getDataFolder(), "config.yml");
+        if (!configFile.exists()) {
+            saveResource("config.yml", false);
+        }
+        return new Settings(configFile);
     }
 }
