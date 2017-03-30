@@ -1,6 +1,6 @@
 package me.gnat008.perworldinventory.commands;
 
-import me.gnat008.perworldinventory.data.FileWriter;
+import me.gnat008.perworldinventory.data.DataSource;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.permission.AdminPermission;
@@ -15,10 +15,9 @@ import java.util.List;
 public class SetWorldDefaultCommand implements ExecutableCommand {
 
     @Inject
-    private FileWriter fileSerializer;
+    private DataSource dataSource;
     @Inject
     private GroupManager groupManager;
-
 
     @Override
     public void executeCommand(CommandSender sender, List<String> args) {
@@ -49,7 +48,7 @@ public class SetWorldDefaultCommand implements ExecutableCommand {
         }
 
         if (group != null) {
-            fileSerializer.setGroupDefault(player, group);
+            dataSource.setGroupDefault(player, group);
         }
     }
 

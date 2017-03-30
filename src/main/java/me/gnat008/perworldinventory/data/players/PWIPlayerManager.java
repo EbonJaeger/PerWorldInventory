@@ -19,16 +19,19 @@ package me.gnat008.perworldinventory.data.players;
 
 import me.gnat008.perworldinventory.BukkitService;
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.PwiLogger;
+import me.gnat008.perworldinventory.ConsoleLogger;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
-import me.gnat008.perworldinventory.data.DataWriter;
+import me.gnat008.perworldinventory.data.DataSource;
+import me.gnat008.perworldinventory.data.serializers.DeserializeCause;
+import me.gnat008.perworldinventory.events.InventoryLoadCompleteEvent;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitTask;
@@ -38,6 +41,8 @@ import javax.inject.Inject;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static me.gnat008.perworldinventory.util.Utils.zeroPlayer;
 
 /**
  * This class is used to manage cached players.
@@ -49,7 +54,7 @@ public class PWIPlayerManager {
 
     private PerWorldInventory plugin;
     private BukkitService bukkitService;
-    private DataWriter dataWriter;
+    private DataSource dataSource;
     private GroupManager groupManager;
     private PWIPlayerFactory pwiPlayerFactory;
     private Settings settings;
@@ -61,11 +66,11 @@ public class PWIPlayerManager {
     private Map<String, PWIPlayer> playerCache = new ConcurrentHashMap<>();
 
     @Inject
-    PWIPlayerManager(PerWorldInventory plugin, BukkitService bukkitService, DataWriter dataWriter, GroupManager groupManager,
+    PWIPlayerManager(PerWorldInventory plugin, BukkitService bukkitService, DataSource dataSource, GroupManager groupManager,
                      PWIPlayerFactory pwiPlayerFactory, Settings settings) {
         this.plugin = plugin;
         this.bukkitService = bukkitService;
-        this.dataWriter = dataWriter;
+        this.dataSource = dataSource;
         this.groupManager = groupManager;
         this.pwiPlayerFactory = pwiPlayerFactory;
         this.settings = settings;
@@ -104,10 +109,10 @@ public class PWIPlayerManager {
     public String addPlayer(Player player, Group group) {
         String key = makeKey(player.getUniqueId(), group, player.getGameMode());
 
-        PwiLogger.debug("Adding player '" + player.getName() + "' to cache; key is '" + key + "'");
+        ConsoleLogger.debug("Adding player '" + player.getName() + "' to cache; key is '" + key + "'");
 
         if (playerCache.containsKey(key)) {
-            PwiLogger.debug("Player '" + player.getName() + "' found in cache! Updating cache");
+            ConsoleLogger.debug("Player '" + player.getName() + "' found in cache! Updating cache");
             updateCache(player, playerCache.get(key));
         } else {
             playerCache.put(key, pwiPlayerFactory.create(player, group));
@@ -152,15 +157,17 @@ public class PWIPlayerManager {
      * @param group The Group the player is in
      * @param gamemode The Gamemode the player is in
      * @param player The Player to get the data for
+     * @param cause The the trigger for getting player data
      */
-    public void getPlayerData(Group group, GameMode gamemode, Player player) {
-        PwiLogger.debug("Trying to get data from cache for player '" + player.getName() + "'");
+    public void getPlayerData(Group group, GameMode gamemode, Player player, DeserializeCause cause) {
+        ConsoleLogger.debug("Trying to get data from cache for player '" + player.getName() + "'");
+        zeroPlayer(plugin, player);
 
         if(isPlayerCached(group, gamemode, player)) {
-            getDataFromCache(group, gamemode, player);
+            getDataFromCache(group, gamemode, player, cause);
         } else {
-            PwiLogger.debug("Player was not in cache! Loading from file");
-            dataWriter.getFromDatabase(group, gamemode, player);
+            ConsoleLogger.debug("Player was not in cache! Loading from file");
+            dataSource.getFromDatabase(group, gamemode, player, cause);
         }
     }
 
@@ -169,6 +176,7 @@ public class PWIPlayerManager {
      *
      * @param group The Group the player is currently in.
      * @param player The player to save.
+     * @param createTask If a new task should be started.
      */
     public void savePlayer(Group group, Player player, boolean createTask) {
         String key = makeKey(player.getUniqueId(), group, player.getGameMode());
@@ -188,28 +196,28 @@ public class PWIPlayerManager {
                 Group groupKey = groupManager.getGroup(parts[1]);
                 GameMode gamemode = GameMode.valueOf(parts[2].toUpperCase());
 
-                PwiLogger.debug("Saving cached player '" + cached.getName() + "' for group '" + groupKey.getName() + "' with gamemdde '" + gamemode.name() + "'");
+                ConsoleLogger.debug("Saving cached player '" + cached.getName() + "' for group '" + groupKey.getName() + "' with gamemdde '" + gamemode.name() + "'");
 
                 cached.setSaved(true);
                 if (!createTask) {
-                    dataWriter.saveToDatabase(groupKey, gamemode, cached);
+                    dataSource.saveToDatabase(groupKey, gamemode, cached);
                 } else {
-                    bukkitService.runTaskAsync(() -> dataWriter.saveToDatabase(groupKey, gamemode, cached));
+                    bukkitService.runTaskAsync(() -> dataSource.saveToDatabase(groupKey, gamemode, cached));
                 }
             }
         }
 
         PWIPlayer pwiPlayer = pwiPlayerFactory.create(player, group);
         if (!createTask) {
-            dataWriter.saveToDatabase(group,
+            dataSource.saveToDatabase(group,
                     settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES) ? player.getGameMode() : GameMode.SURVIVAL,
                     pwiPlayer);
         } else {
-            bukkitService.runTaskAsync(() -> dataWriter.saveToDatabase(group,
+            bukkitService.runTaskAsync(() -> dataSource.saveToDatabase(group,
                     settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES) ? player.getGameMode() : GameMode.SURVIVAL,
                     pwiPlayer));
         }
-        dataWriter.saveLogoutData(pwiPlayer, createTask); // If we're disabling, cant create a new task
+        dataSource.saveLogoutData(pwiPlayer, createTask); // If we're disabling, cant create a new task
         removePlayer(player);
     }
 
@@ -217,6 +225,7 @@ public class PWIPlayerManager {
      * Return whether a player in a given group is currently cached.
      *
      * @param group The group the player was in.
+     * @param gameMode The GameMode the player is in.
      * @param player The player to check for.
      *
      * @return True if a {@link PWIPlayer} is cached.
@@ -227,15 +236,15 @@ public class PWIPlayerManager {
         return playerCache.containsKey(key);
     }
 
-    private void getDataFromCache(Group group, GameMode gamemode, Player player) {
+    private void getDataFromCache(Group group, GameMode gamemode, Player player, DeserializeCause cause) {
         PWIPlayer cachedPlayer = getCachedPlayer(group, gamemode, player.getUniqueId());
         if (cachedPlayer == null) {
-            PwiLogger.debug("No data for player '" + player.getName() + "' found in cache");
+            ConsoleLogger.debug("No data for player '" + player.getName() + "' found in cache");
 
             return;
         }
 
-        PwiLogger.debug("Player '" + player.getName() + "' found in cache! Setting their data");
+        ConsoleLogger.debug("Player '" + player.getName() + "' found in cache! Setting their data");
 
         if (settings.getProperty(PwiProperties.LOAD_ENDER_CHESTS))
             player.getEnderChest().setContents(cachedPlayer.getEnderChest());
@@ -284,7 +293,7 @@ public class PWIPlayerManager {
         if (settings.getProperty(PwiProperties.USE_ECONOMY)) {
             Economy econ = plugin.getEconomy();
             if (econ == null) {
-                PwiLogger.warning("Economy saving is turned on, but no economy found!");
+                ConsoleLogger.warning("Economy saving is turned on, but no economy found!");
                 return;
             }
 
@@ -292,16 +301,19 @@ public class PWIPlayerManager {
             if (er.transactionSuccess()) {
                 econ.depositPlayer(player, cachedPlayer.getBalance());
             } else {
-                PwiLogger.warning("[ECON] Unable to withdraw currency from '" + player.getName() + "': " + er.errorMessage);
+                ConsoleLogger.warning("[ECON] Unable to withdraw currency from '" + player.getName() + "': " + er.errorMessage);
             }
 
             EconomyResponse bankER = econ.bankWithdraw(player.getName(), econ.bankBalance(player.getName()).amount);
             if (bankER.transactionSuccess()) {
                 econ.bankDeposit(player.getName(), cachedPlayer.getBankBalance());
             } else {
-                PwiLogger.warning("[ECON] Unable to withdraw currency from bank of '" + player.getName() + "': " + er.errorMessage);
+                ConsoleLogger.warning("[ECON] Unable to withdraw currency from bank of '" + player.getName() + "': " + er.errorMessage);
             }
         }
+
+        InventoryLoadCompleteEvent event = new InventoryLoadCompleteEvent(player, cause);
+        Bukkit.getPluginManager().callEvent(event);
     }
 
     /**
@@ -312,12 +324,13 @@ public class PWIPlayerManager {
      *
      * @param group The Group to grab data from
      * @param gameMode The GameMode to get the data for
+     * @param uuid The UUID of the player
      * @return The PWIPlayer
      */
     private PWIPlayer getCachedPlayer(Group group, GameMode gameMode, UUID uuid) {
         String key = makeKey(uuid, group, gameMode);
 
-        PwiLogger.debug("Looking for cached data with key '" + key + "'");
+        ConsoleLogger.debug("Looking for cached data with key '" + key + "'");
 
         return playerCache.get(key);
     }
@@ -341,15 +354,15 @@ public class PWIPlayerManager {
                     Group group = groupManager.getGroup(parts[1]);
                     GameMode gamemode = GameMode.valueOf(parts[2].toUpperCase());
 
-                    PwiLogger.debug("Saving cached player with key '" + key + "'");
-                    PwiLogger.debug("Player: " + player.getName());
-                    PwiLogger.debug("Group: " + group.getName());
-                    PwiLogger.debug("Gamemode: " + gamemode.toString());
+                    ConsoleLogger.debug("Saving cached player with key '" + key + "'");
+                    ConsoleLogger.debug("Player: " + player.getName());
+                    ConsoleLogger.debug("Group: " + group.getName());
+                    ConsoleLogger.debug("Gamemode: " + gamemode.toString());
 
                     player.setSaved(true);
-                    bukkitService.runTaskAsync(() -> dataWriter.saveToDatabase(group, gamemode, player));
+                    bukkitService.runTaskAsync(() -> dataSource.saveToDatabase(group, gamemode, player));
                 } else {
-                    PwiLogger.debug("Removing player '" + player.getName() + "' from cache");
+                    ConsoleLogger.debug("Removing player '" + player.getName() + "' from cache");
                     playerCache.remove(key);
                 }
             }
@@ -363,7 +376,7 @@ public class PWIPlayerManager {
      * @param currentPlayer The PWIPlayer currently in the cache
      */
     public void updateCache(Player newData, PWIPlayer currentPlayer) {
-        PwiLogger.debug("Updating player '" + newData.getName() + "' in the cache");
+        ConsoleLogger.debug("Updating player '" + newData.getName() + "' in the cache");
 
         currentPlayer.setSaved(false);
 
@@ -377,6 +390,7 @@ public class PWIPlayerManager {
         currentPlayer.setExperience(newData.getExp());
         currentPlayer.setFlying(newData.isFlying());
         currentPlayer.setFoodLevel(newData.getFoodLevel());
+        currentPlayer.setMaxHealth(newData.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
         currentPlayer.setHealth(newData.getHealth());
         currentPlayer.setLevel(newData.getLevel());
         currentPlayer.setSaturationLevel(newData.getSaturation());
@@ -392,7 +406,19 @@ public class PWIPlayerManager {
         }
     }
 
-    private String makeKey(UUID uuid, Group group, GameMode gameMode) {
+    /**
+     * Create a key to get and save a player's data in the cache.
+     * <p>
+     *     The format of a key is as follows:
+     *     <i>uuid.group-name.gamemode</i>
+     * </p>
+     *
+     * @param uuid The UUID of the player.
+     * @param group The Group the player is in.
+     * @param gameMode The player's current GameMode.
+     * @return The key.
+     */
+    public String makeKey(UUID uuid, Group group, GameMode gameMode) {
         String key = uuid.toString() + "." + group.getName() + ".";
         if (settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES))
             key += gameMode.toString().toLowerCase();

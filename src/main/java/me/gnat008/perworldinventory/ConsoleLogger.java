@@ -5,20 +5,20 @@ import java.util.logging.Logger;
 /**
  * Static logger for PerWorldInventory.
  */
-public final class PwiLogger {
+public final class ConsoleLogger {
 
     private static Logger logger;
     private static boolean useDebug;
 
-    private PwiLogger() {
+    private ConsoleLogger() {
     }
 
     public static void setLogger(Logger logger) {
-        PwiLogger.logger = logger;
+        ConsoleLogger.logger = logger;
     }
 
     public static void setUseDebug(boolean useDebug) {
-        PwiLogger.useDebug = useDebug;
+        ConsoleLogger.useDebug = useDebug;
     }
 
     public static void severe(String message) {

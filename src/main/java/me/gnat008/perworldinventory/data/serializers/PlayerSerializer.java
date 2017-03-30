@@ -20,12 +20,14 @@ package me.gnat008.perworldinventory.data.serializers;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.PwiLogger;
+import me.gnat008.perworldinventory.ConsoleLogger;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
+import me.gnat008.perworldinventory.events.InventoryLoadCompleteEvent;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import javax.inject.Inject;
@@ -61,6 +63,7 @@ public class PlayerSerializer {
         Gson gson = new Gson();
         JsonObject root = new JsonObject();
 
+        ConsoleLogger.debug("[SERIALIZER] Serializing player '" + player.getName()+ "'");
         root.addProperty("data-format", 2);
         root.add("ender-chest", inventorySerializer.serializeInventory(player.getEnderChest()));
         root.add("inventory", inventorySerializer.serializePlayerInventory(player));
@@ -68,6 +71,8 @@ public class PlayerSerializer {
 
         if (plugin.isEconEnabled())
             root.add("economy", EconomySerializer.serialize(player, plugin.getEconomy()));
+
+        ConsoleLogger.debug("[SERIALIZER] Done serializing player '" + player.getName()+ "'");
 
         return gson.toJson(root);
     }
@@ -79,7 +84,9 @@ public class PlayerSerializer {
      * @param data   The saved player information.
      * @param player The Player to apply the deserialized information to.
      */
-    public void deserialize(final JsonObject data, final Player player) {
+    public void deserialize(final JsonObject data, final Player player, DeserializeCause cause) {
+        ConsoleLogger.debug("[SERIALIZER] Deserializing player '" + player.getName()+ "'");
+
         int format = 0;
         if (data.has("data-format"))
             format = data.get("data-format").getAsInt();
@@ -94,25 +101,25 @@ public class PlayerSerializer {
         if (plugin.isEconEnabled()) {
             Economy econ = plugin.getEconomy();
             if (econ == null) {
-                PwiLogger.warning("Economy saving is turned on, but no economy found!");
+                ConsoleLogger.warning("Economy saving is turned on, but no economy found!");
                 return;
             }
 
-            PwiLogger.debug("[ECON] Withdrawing " + econ.getBalance(player) + " from '" + player.getName() + "'!");
+            ConsoleLogger.debug("[ECON] Withdrawing " + econ.getBalance(player) + " from '" + player.getName() + "'!");
             EconomyResponse er = econ.withdrawPlayer(player, econ.getBalance(player));
             if (!er.transactionSuccess()) {
-                PwiLogger.warning("[ECON] Unable to withdraw funds from '" + player.getName() + "': " + er.errorMessage);
+                ConsoleLogger.warning("[ECON] Unable to withdraw funds from '" + player.getName() + "': " + er.errorMessage);
             }
 
-            PwiLogger.debug("[ECON] Withdrawing " + econ.bankBalance(player.getName()) + " from bank of '" + player.getName() + "'!");
-            EconomyResponse bankER = econ.bankWithdraw(player.getName(), econ.bankBalance(player.getName()).amount);
-            if (!bankER.transactionSuccess()) {
-                PwiLogger.warning("[ECON] Unable to withdraw bank funds from '" + player.getName() + "': " + er.errorMessage);
-            }
-
-            if (data.has("economy") && er.transactionSuccess() && bankER.transactionSuccess()) {
+            if (data.has("economy") && er.transactionSuccess()) {
                 EconomySerializer.deserialize(econ, data.getAsJsonObject("economy"), player);
             }
         }
+
+        ConsoleLogger.debug("[SERIALIZER] Done deserializing player '" + player.getName()+ "'");
+
+        // Call event to signal loading is done
+        InventoryLoadCompleteEvent event = new InventoryLoadCompleteEvent(player, cause);
+        Bukkit.getPluginManager().callEvent(event);
     }
 }

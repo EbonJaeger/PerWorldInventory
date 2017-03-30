@@ -28,8 +28,8 @@ import com.onarandombox.multiverseinventories.api.profile.ProfileType;
 import com.onarandombox.multiverseinventories.api.profile.WorldGroupProfile;
 import com.onarandombox.multiverseinventories.api.share.Sharables;
 import me.gnat008.perworldinventory.BukkitService;
-import me.gnat008.perworldinventory.PwiLogger;
-import me.gnat008.perworldinventory.data.FileWriter;
+import me.gnat008.perworldinventory.ConsoleLogger;
+import me.gnat008.perworldinventory.data.FlatFile;
 import me.gnat008.perworldinventory.data.serializers.InventorySerializer;
 import me.gnat008.perworldinventory.data.serializers.PotionEffectSerializer;
 import me.gnat008.perworldinventory.groups.Group;
@@ -45,13 +45,16 @@ import javax.inject.Inject;
 import java.io.File;
 import java.util.*;
 
+import static me.gnat008.perworldinventory.util.FileUtils.createFileIfNotExists;
+import static me.gnat008.perworldinventory.util.FileUtils.writeData;
+
 @NoMethodScan
 public class DataConverter {
 
     @Inject
     private BukkitService bukkitService;
     @Inject
-    private FileWriter serializer;
+    private FlatFile serializer;
     @Inject
     private GroupManager groupManager;
     @Inject
@@ -62,7 +65,7 @@ public class DataConverter {
     DataConverter() {}
 
     public void convertMultiVerseData() {
-        PwiLogger.info("Beginning data conversion. This may take a while...");
+        ConsoleLogger.info("Beginning data conversion. This may take a while...");
         MultiverseInventories mvinventories = (MultiverseInventories) pluginManager.getPlugin("Multiverse-Inventories");
         List<WorldGroupProfile> mvgroups = mvinventories.getGroupManager().getGroups();
 
@@ -88,14 +91,11 @@ public class DataConverter {
                                 String data = serializeMVIToNewFormat(playerData);
 
                                 File file = serializer.getFile(gameMode, groupManager.getGroup(mvgroup.getName()), player1.getUniqueId());
-                                if (!file.getParentFile().exists())
-                                    file.getParentFile().mkdir();
-                                if (!file.exists())
-                                    file.createNewFile();
-                                serializer.writeData(file, data);
+                                createFileIfNotExists(file);
+                                writeData(file, data);
                             }
                         } catch (Exception ex) {
-                            PwiLogger.warning("Error importing inventory for player: " + player1.getName() +
+                            ConsoleLogger.warning("Error importing inventory for player: " + player1.getName() +
                                     " For group: " + mvgroup.getName() + " For gamemode: " + gameMode.name(), ex);
                         }
                     });
@@ -104,13 +104,13 @@ public class DataConverter {
         }
 
         groupManager.saveGroupsToDisk();
-        PwiLogger.info("Data conversion complete! Disabling Multiverse-Inventories...");
+        ConsoleLogger.info("Data conversion complete! Disabling Multiverse-Inventories...");
         pluginManager.disablePlugin(mvinventories);
-        PwiLogger.info("Multiverse-Inventories disabled! Don't forget to remove the .jar!");
+        ConsoleLogger.info("Multiverse-Inventories disabled! Don't forget to remove the .jar!");
     }
 
     public void convertMultiInvData() {
-        PwiLogger.info("Beginning data conversion. This may take awhile...");
+        ConsoleLogger.info("Beginning data conversion. This may take awhile...");
         MultiInv multiinv = (MultiInv) pluginManager.getPlugin("MultiInv");
         /*MultiInvAPI mvAPI = new MultiInvAPI(multiinv);
 
@@ -132,9 +132,9 @@ public class DataConverter {
         }*/
 
         groupManager.saveGroupsToDisk();
-        PwiLogger.info("Data conversion complete! Disabling MultiInv...");
+        ConsoleLogger.info("Data conversion complete! Disabling MultiInv...");
         pluginManager.disablePlugin(multiinv);
-        PwiLogger.info("MultiInv disabled! Don't forget to remove the .jar!");
+        ConsoleLogger.info("MultiInv disabled! Don't forget to remove the .jar!");
     }
 
     private String serializeMVIToNewFormat(PlayerProfile data) {

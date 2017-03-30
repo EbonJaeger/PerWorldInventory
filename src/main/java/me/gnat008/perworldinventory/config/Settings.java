@@ -18,9 +18,9 @@ public class Settings extends SettingsManager {
      */
     public Settings(File yamlFile) {
         super(
-            new YamlFileResource(yamlFile),
-            new PlainMigrationService(),
-            PwiProperties.class);
+                new YamlFileResource(yamlFile),
+                new PlainMigrationService(),
+                PwiProperties.class);
     }
 
 }

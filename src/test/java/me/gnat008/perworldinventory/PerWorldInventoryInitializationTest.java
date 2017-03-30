@@ -8,8 +8,9 @@ import me.gnat008.perworldinventory.commands.PerWorldInventoryCommand;
 import me.gnat008.perworldinventory.commands.ReloadCommand;
 import me.gnat008.perworldinventory.commands.SetWorldDefaultCommand;
 import me.gnat008.perworldinventory.config.Settings;
-import me.gnat008.perworldinventory.data.DataWriter;
-import me.gnat008.perworldinventory.data.FileWriter;
+import me.gnat008.perworldinventory.data.DataSource;
+import me.gnat008.perworldinventory.data.DataSourceProvider;
+import me.gnat008.perworldinventory.data.FlatFile;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.listeners.player.PlayerGameModeChangeListener;
@@ -41,10 +42,7 @@ import java.util.logging.Logger;
 import static me.gnat008.perworldinventory.TestHelper.getField;
 import static me.gnat008.perworldinventory.TestHelper.setField;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.sameInstance;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -110,6 +108,7 @@ public class PerWorldInventoryInitializationTest {
         injector.register(PluginManager.class, pluginManager);
         injector.provide(DataFolder.class, dataFolder);
         injector.register(Settings.class, settings);
+        injector.registerProvider(DataSource.class, DataSourceProvider.class);
 
         // when
         plugin.injectServices(injector);
@@ -118,7 +117,7 @@ public class PerWorldInventoryInitializationTest {
 
         // then - check various samples
         assertThat(injector.getIfAvailable(GroupManager.class), not(nullValue()));
-        assertThat(injector.getIfAvailable(DataWriter.class), instanceOf(FileWriter.class));
+        assertThat(injector.getIfAvailable(DataSource.class), instanceOf(FlatFile.class));
         assertThat(injector.getIfAvailable(PWIPlayerManager.class), not(nullValue()));
 
         verifyRegisteredListener(PluginListener.class);

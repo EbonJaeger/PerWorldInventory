@@ -1,11 +1,10 @@
-package me.gnat008.perworldinventory.listeners;
+package me.gnat008.perworldinventory.listeners.player;
 
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
-import me.gnat008.perworldinventory.data.DataWriter;
+import me.gnat008.perworldinventory.data.DataSource;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
-import me.gnat008.perworldinventory.listeners.player.PlayerSpawnLocationListener;
 import me.gnat008.perworldinventory.process.InventoryChangeProcess;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -25,10 +24,7 @@ import java.util.Set;
 
 import static me.gnat008.perworldinventory.TestHelper.mockGroup;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.only;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for {@link PlayerSpawnLocationListener}.
@@ -40,7 +36,7 @@ public class PlayerSpawnLocationListenerTest {
     private PlayerSpawnLocationListener listener;
 
     @Mock
-    private DataWriter dataWriter;
+    private DataSource dataSource;
 
     @Mock
     private GroupManager groupManager;
@@ -61,7 +57,7 @@ public class PlayerSpawnLocationListenerTest {
         listener.onPlayerSpawn(event);
 
         // then
-        verifyZeroInteractions(dataWriter);
+        verifyZeroInteractions(dataSource);
         verifyZeroInteractions(groupManager);
         verifyZeroInteractions(process);
     }
@@ -75,7 +71,7 @@ public class PlayerSpawnLocationListenerTest {
         Location spawnLocation = new Location(world, 1, 2, 3);
         PlayerSpawnLocationEvent event = new PlayerSpawnLocationEvent(player, spawnLocation);
         given(settings.getProperty(PwiProperties.LOAD_DATA_ON_JOIN)).willReturn(true);
-        given(dataWriter.getLogoutData(player)).willReturn(null);
+        given(dataSource.getLogoutData(player)).willReturn(null);
 
         // when
         listener.onPlayerSpawn(event);
@@ -98,7 +94,7 @@ public class PlayerSpawnLocationListenerTest {
         World oldWorld = mock(World.class);
         given(oldWorld.getName()).willReturn("world");
         Location lastLocation = new Location(oldWorld, 4, 5, 6);
-        given(dataWriter.getLogoutData(player)).willReturn(lastLocation);
+        given(dataSource.getLogoutData(player)).willReturn(lastLocation);
 
         // when
         listener.onPlayerSpawn(event);
@@ -127,7 +123,7 @@ public class PlayerSpawnLocationListenerTest {
         World oldWorld = mock(World.class);
         given(oldWorld.getName()).willReturn("other_world");
         Location lastLocation = new Location(oldWorld, 4, 5, 6);
-        given(dataWriter.getLogoutData(player)).willReturn(lastLocation);
+        given(dataSource.getLogoutData(player)).willReturn(lastLocation);
         Group oldWorldGroup = mockGroup("oldWorldGroup", Collections.singletonList(oldWorld.getName()), GameMode.SURVIVAL);
         given(groupManager.getGroupFromWorld(oldWorld.getName())).willReturn(oldWorldGroup);
 

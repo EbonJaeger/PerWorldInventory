@@ -22,6 +22,7 @@ import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import org.bukkit.GameMode;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 
 import javax.inject.Inject;
@@ -49,6 +50,7 @@ public class StatSerializer {
         root.addProperty("flying", player.isFlying());
         root.addProperty("food", player.getFoodLevel());
         root.addProperty("gamemode", player.getGamemode().toString());
+        root.addProperty("max-health", player.getMaxHealth());
         root.addProperty("health", player.getHealth());
         root.addProperty("level", player.getLevel());
         root.add("potion-effects", PotionEffectSerializer.serialize(player.getPotionEffects()));
@@ -81,14 +83,16 @@ public class StatSerializer {
             player.setFlying(stats.get("flying").getAsBoolean());
         if (settings.getProperty(PwiProperties.LOAD_HUNGER) && stats.has("food"))
             player.setFoodLevel(stats.get("food").getAsInt());
+        if (settings.getProperty(PwiProperties.LOAD_MAX_HEALTH) && stats.has("max-health"))
+            player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(stats.get("max-health").getAsDouble());
         if (settings.getProperty(PwiProperties.LOAD_HEALTH) && stats.has("health")) {
             double health = stats.get("health").getAsDouble();
-            if (health <= player.getMaxHealth()) {
+            if (health <= player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()) {
                 player.setHealth(health);
             } else if (health <= 0) {
-                player.setHealth(player.getMaxHealth());
+                player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
             } else {
-                player.setHealth(player.getMaxHealth());
+                player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
             }
         }
         if (settings.getProperty(PwiProperties.LOAD_GAMEMODE) && (!settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)) && stats.has("gamemode")) {

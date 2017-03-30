@@ -20,6 +20,7 @@ package me.gnat008.perworldinventory.data.players;
 import me.gnat008.perworldinventory.groups.Group;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -49,6 +50,7 @@ public class PWIPlayer {
     private float experience;
     private boolean isFlying;
     private int foodLevel;
+    private double maxHealth;
     private double health;
     private GameMode gamemode;
     private int level;
@@ -89,6 +91,7 @@ public class PWIPlayer {
         this.experience = player.getExp();
         this.isFlying = player.isFlying();
         this.foodLevel = player.getFoodLevel();
+        this.maxHealth = player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue();
         this.health = player.getHealth();
         this.gamemode = player.getGameMode();
         this.level = player.getLevel();
@@ -263,6 +266,24 @@ public class PWIPlayer {
      */
     public void setFoodLevel(int foodLevel) {
         this.foodLevel = foodLevel;
+    }
+
+    /**
+     * Get a player's maximum health.
+     *
+     * @return Maximum health
+     */
+    public double getMaxHealth() {
+        return maxHealth;
+    }
+
+    /**
+     * Set a player's maximum health.
+     *
+     * @param maxHealth Maximum health
+     */
+    public void setMaxHealth(double maxHealth) {
+        this.maxHealth = maxHealth;
     }
 
     /**

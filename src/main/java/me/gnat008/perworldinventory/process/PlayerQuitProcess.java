@@ -1,6 +1,6 @@
 package me.gnat008.perworldinventory.process;
 
-import me.gnat008.perworldinventory.PwiLogger;
+import me.gnat008.perworldinventory.ConsoleLogger;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.Group;
@@ -32,17 +32,17 @@ public class PlayerQuitProcess {
         String logoutWorld = player.getWorld().getName();
         Group group = groupManager.getGroupFromWorld(logoutWorld);
 
-        PwiLogger.debug("Player '" + player.getName() + "' quit! Checking cache");
+        ConsoleLogger.debug("Player '" + player.getName() + "' quit! Checking cache");
 
         PWIPlayer cached = playerManager.getPlayer(group, player);
         if (cached != null) {
-            PwiLogger.debug("Cached data for player '" + player.getName() + "' found! Updating and setting them as saved");
+            ConsoleLogger.debug("Cached data for player '" + player.getName() + "' found! Updating and setting them as saved");
 
             playerManager.updateCache(player, cached);
             cached.setSaved(true);
         }
 
-        PwiLogger.debug("Saving logout data for player '" + player.getName() + "'...");
+        ConsoleLogger.debug("Saving logout data for player '" + player.getName() + "'...");
         playerManager.savePlayer(group, player, true);
     }
 }

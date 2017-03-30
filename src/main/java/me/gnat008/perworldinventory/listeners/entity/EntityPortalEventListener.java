@@ -1,9 +1,8 @@
 package me.gnat008.perworldinventory.listeners.entity;
 
-import me.gnat008.perworldinventory.PwiLogger;
+import me.gnat008.perworldinventory.ConsoleLogger;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -29,13 +28,13 @@ public class EntityPortalEventListener implements Listener {
         if (!(event.getEntity() instanceof Item))
             return;
 
-        PwiLogger.debug("[ENTITYPORTALEVENT] A '" + event.getEntity().getName() + "' is going through a portal!");
+        ConsoleLogger.debug("[ENTITYPORTALEVENT] A '" + event.getEntity().getName() + "' is going through a portal!");
 
         String worldFrom = event.getFrom().getWorld().getName();
 
         // For some reason, event.getTo().getWorld().getName() is sometimes null
         if (event.getTo() == null || event.getTo().getWorld() == null) { // Not gonna bother checking name; its already a WTF that this is needed
-            PwiLogger.debug("[ENTITYPORTALEVENT] event.getTo().getWorld().getName() would throw a NPE! Exiting method!");
+            ConsoleLogger.debug("[ENTITYPORTALEVENT] event.getTo().getWorld().getName() would throw a NPE! Exiting method!");
             return;
         }
 
@@ -45,7 +44,7 @@ public class EntityPortalEventListener implements Listener {
 
         // If the groups are different, cancel the event
         if (!from.equals(to)) {
-            PwiLogger.debug("[ENTITYPORTALEVENT] Group '" + from.getName() + "' and group '" + to.getName() + "' are different! Canceling event!");
+            ConsoleLogger.debug("[ENTITYPORTALEVENT] Group '" + from.getName() + "' and group '" + to.getName() + "' are different! Canceling event!");
             event.setCancelled(true);
         }
     }

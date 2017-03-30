@@ -1,6 +1,10 @@
 package me.gnat008.perworldinventory.util;
 
-import java.io.*;
+import me.gnat008.perworldinventory.PerWorldInventory;
+import net.milkbowl.vault.economy.Economy;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
 
 /**
  * Class that holds utility methods.
@@ -41,4 +45,44 @@ public final class Utils {
         return false;
     }
 
+    /**
+     * Clear a player's inventory and set all of their stats to default.
+     *
+     * @param plugin {@link PerWorldInventory} for econ.
+     * @param player The player to zero.
+     */
+    public static void zeroPlayer(PerWorldInventory plugin, Player player) {
+        zeroPlayer(plugin, player, true);
+    }
+
+    /**
+     * Set a player's stats to defaults, and optionally clear their inventory.
+     *
+     * @param plugin {@link PerWorldInventory} for econ.
+     * @param player The player to zero.
+     * @param clearInventory Clear the player's inventory.
+     */
+    public static void zeroPlayer(PerWorldInventory plugin, Player player, boolean clearInventory) {
+        if (clearInventory) {
+            player.getInventory().clear();
+            player.getEnderChest().clear();
+        }
+
+        player.setExp(0.0F);
+        player.setFoodLevel(20);
+        player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+        player.setLevel(0);
+        for (PotionEffect effect : player.getActivePotionEffects()) {
+            player.removePotionEffect(effect.getType());
+        }
+        player.setSaturation(20.0F);
+        player.setFallDistance(0.0f);
+        player.setFireTicks(0);
+
+        if (plugin.isEconEnabled()) {
+            Economy econ = plugin.getEconomy();
+            econ.bankWithdraw(player.getName(), econ.bankBalance(player.getName()).amount);
+            econ.withdrawPlayer(player, econ.getBalance(player));
+        }
+    }
 }

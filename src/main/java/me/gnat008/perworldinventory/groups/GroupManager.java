@@ -18,7 +18,7 @@
 package me.gnat008.perworldinventory.groups;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.PwiLogger;
+import me.gnat008.perworldinventory.ConsoleLogger;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.util.FileUtils;
@@ -73,7 +73,7 @@ public class GroupManager {
      * @param gamemode The default GameMode for this group.
      */
     public void addGroup(String name, Collection<String> worlds, GameMode gamemode) {
-        PwiLogger.debug("Adding group to memory. Group: " + name + " Worlds: " + worlds.toString() + " Gamemode: " + gamemode.name());
+        ConsoleLogger.debug("Adding group to memory. Group: " + name + " Worlds: " + worlds.toString() + " Gamemode: " + gamemode.name());
 
         Set<String> worldSet = new HashSet<>();
         worldSet.addAll(worlds);
@@ -175,7 +175,7 @@ public class GroupManager {
         try {
             groupsConfigFile.save(plugin.getDataFolder() + "/worlds.yml");
         } catch (IOException ex) {
-            PwiLogger.warning("Could not save the groups config to disk:", ex);
+            ConsoleLogger.warning("Could not save the groups config to disk:", ex);
         }
     }
 
@@ -186,7 +186,7 @@ public class GroupManager {
             try {
                 FileUtils.copyFile(fileFrom, fileTo);
             } catch (IOException ex) {
-                PwiLogger.severe("An error occurred copying file '" + fileFrom.getName() + "' to '" + fileTo.getName() + "':", ex);
+                ConsoleLogger.severe("An error occurred copying file '" + fileFrom.getName() + "' to '" + fileTo.getName() + "':", ex);
             }
         }
     }

@@ -23,15 +23,13 @@ import me.gnat008.perworldinventory.api.PerWorldInventoryAPI;
 import me.gnat008.perworldinventory.commands.*;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
-import me.gnat008.perworldinventory.data.DataWriter;
-import me.gnat008.perworldinventory.data.FileWriter;
+import me.gnat008.perworldinventory.data.DataSource;
+import me.gnat008.perworldinventory.data.DataSourceProvider;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.listeners.entity.EntityPortalEventListener;
-import me.gnat008.perworldinventory.listeners.player.PlayerChangedWorldListener;
-import me.gnat008.perworldinventory.listeners.player.PlayerGameModeChangeListener;
-import me.gnat008.perworldinventory.listeners.player.PlayerQuitListener;
-import me.gnat008.perworldinventory.listeners.player.PlayerSpawnLocationListener;
+import me.gnat008.perworldinventory.listeners.player.*;
+import me.gnat008.perworldinventory.listeners.server.InventoryLoadingListener;
 import me.gnat008.perworldinventory.listeners.server.PluginListener;
 import me.gnat008.perworldinventory.permission.PermissionManager;
 import me.gnat008.perworldinventory.util.Utils;
@@ -60,9 +58,7 @@ import java.util.*;
 public class PerWorldInventory extends JavaPlugin {
 
     private PerWorldInventoryAPI api;
-    private BukkitService bukkitService;
     private Economy economy;
-    private DataWriter serializer;
     private GroupManager groupManager;
     private PWIPlayerManager playerManager;
     private Settings settings;
@@ -86,7 +82,7 @@ public class PerWorldInventory extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        PwiLogger.setLogger(getLogger());
+        ConsoleLogger.setLogger(getLogger());
 
         // Make the data folders
         if (!(new File(getDataFolder() + File.separator + "data" + File.separator + "defaults").exists())) {
@@ -103,7 +99,7 @@ public class PerWorldInventory extends JavaPlugin {
                 Files.move(source, destination.resolve(source.getFileName()));
             } catch (IOException ex) {
                 if (!(ex instanceof FileAlreadyExistsException)) {
-                    PwiLogger.warning("Unable to move defaults.json to the defaults folder:", ex);
+                    ConsoleLogger.warning("Unable to move defaults.json to the defaults folder:", ex);
                 }
             }
         }
@@ -117,10 +113,11 @@ public class PerWorldInventory extends JavaPlugin {
         injector.register(Server.class, getServer());
         injector.register(PluginManager.class, getServer().getPluginManager());
         injector.provide(DataFolder.class, getDataFolder());
+        injector.registerProvider(DataSource.class, DataSourceProvider.class);
         settings = initSettings();
         injector.register(Settings.class, settings);
-        PwiLogger.setUseDebug(settings.getProperty(PwiProperties.DEBUG_MODE));
         injectServices(injector);
+        ConsoleLogger.setUseDebug(settings.getProperty(PwiProperties.DEBUG_MODE));
         registerEventListeners(injector);
 
         // Load world groups
@@ -186,7 +183,7 @@ public class PerWorldInventory extends JavaPlugin {
             }
         }
 
-        PwiLogger.debug("PerWorldInventory is enabled and debug-mode is active!");
+        ConsoleLogger.debug("PerWorldInventory is enabled and debug-mode is active!");
     }
 
     @Override
@@ -197,10 +194,8 @@ public class PerWorldInventory extends JavaPlugin {
     }
 
     protected void injectServices(Injector injector) {
-        bukkitService = injector.getSingleton(BukkitService.class);
+        settings = injector.getSingleton(Settings.class);
         groupManager = injector.getSingleton(GroupManager.class);
-        serializer = injector.getSingleton(FileWriter.class);
-        injector.register(DataWriter.class, serializer);
         playerManager = injector.getSingleton(PWIPlayerManager.class);
         permissionManager = injector.getSingleton(PermissionManager.class);
         api = injector.getSingleton(PerWorldInventoryAPI.class);
@@ -213,10 +208,12 @@ public class PerWorldInventory extends JavaPlugin {
 
         pluginManager.registerEvents(injector.getSingleton(PluginListener.class), this);
 
+        pluginManager.registerEvents(injector.getSingleton(PlayerTeleportListener.class), this);
         pluginManager.registerEvents(injector.getSingleton(PlayerChangedWorldListener.class), this);
         pluginManager.registerEvents(injector.getSingleton(PlayerGameModeChangeListener.class), this);
         pluginManager.registerEvents(injector.getSingleton(PlayerQuitListener.class), this);
         pluginManager.registerEvents(injector.getSingleton(EntityPortalEventListener.class), this);
+        pluginManager.registerEvents(injector.getSingleton(InventoryLoadingListener.class), this);
 
         // The PlayerSpawnLocationEvent is only fired in Spigot
         // As of version 1.9.2
@@ -247,7 +244,7 @@ public class PerWorldInventory extends JavaPlugin {
     }
 
     public void reload() {
-        PwiLogger.setUseDebug(settings != null && settings.getProperty(PwiProperties.DEBUG_MODE));
+        ConsoleLogger.setUseDebug(settings != null && settings.getProperty(PwiProperties.DEBUG_MODE));
     }
 
     public Economy getEconomy() {
