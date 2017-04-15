@@ -183,6 +183,21 @@ public class GroupManager {
         File fileTo = new File(plugin.getDefaultFilesDirectory() + File.separator + group + ".json");
         if (!fileTo.exists()) {
             File fileFrom = new File(plugin.getDefaultFilesDirectory() + File.separator + "__default.json");
+
+            // Make sure the server's default file exists
+            if (!fileFrom.exists()) {
+                plugin.saveResource("default.json", false);
+                File def = new File(plugin.getDataFolder(), "default.json");
+
+                try {
+                    FileUtils.copyFile(def, fileFrom);
+                } catch (IOException ex) {
+                    ConsoleLogger.severe("An error occurred copying server default file:", ex);
+                }
+
+                def.delete();
+            }
+
             try {
                 FileUtils.copyFile(fileFrom, fileTo);
             } catch (IOException ex) {
