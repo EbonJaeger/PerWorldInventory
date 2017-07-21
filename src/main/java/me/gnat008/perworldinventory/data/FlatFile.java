@@ -152,7 +152,7 @@ public class FlatFile implements DataSource {
     }
 
     private void getFromDefaults(Group group, Player player, DeserializeCause cause) {
-        File file = new File(FILE_PATH, "defaults" + File.separator + group.getName() + ".json");
+        File file = new File(FILE_PATH + File.separator + "defaults", group.getName() + ".json");
 
         try (JsonReader reader = new JsonReader(new FileReader(file))) {
             JsonParser parser = new JsonParser();
@@ -160,7 +160,7 @@ public class FlatFile implements DataSource {
 
             bukkitService.runTask(() -> playerSerializer.deserialize(data, player, cause));
         } catch (FileNotFoundException ex) {
-            file = new File(FILE_PATH, "defaults" + File.separator + "__default.json");
+            file = new File(FILE_PATH + File.separator + "defaults", "__default.json");
 
             try (JsonReader reader = new JsonReader(new FileReader(file))) {
                 JsonParser parser = new JsonParser();
