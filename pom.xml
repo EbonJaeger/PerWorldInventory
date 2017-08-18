@@ -199,6 +199,8 @@
     </dependencies>
 
     <build>
+      <defaultGoal>clean package</defaultGoal>
+      <finalName>${project.name}</finalName>
         <resources>
             <resource>
                 <directory>.</directory>
