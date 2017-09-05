@@ -106,6 +106,10 @@
                     <groupId>net.milkbowl.vault</groupId>
                     <artifactId>Vault</artifactId>
                 </exclusion>
+                <exclusion>
+                     <groupId>org.mcstats.bukkit</groupId>
+                     <artifactId>metrics</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -199,6 +203,7 @@
     </dependencies>
 
     <build>
+      <defaultGoal>clean install</defaultGoal>
         <resources>
             <resource>
                 <directory>.</directory>
