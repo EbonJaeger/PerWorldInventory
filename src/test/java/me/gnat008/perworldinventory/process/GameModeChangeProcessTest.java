@@ -1,9 +1,11 @@
 package me.gnat008.perworldinventory.process;
 
+import me.gnat008.perworldinventory.BukkitService;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.data.serializers.DeserializeCause;
+import me.gnat008.perworldinventory.events.InventoryLoadEvent;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.permission.PermissionManager;
 import me.gnat008.perworldinventory.permission.PlayerPermission;
@@ -30,10 +32,10 @@ public class GameModeChangeProcessTest {
     private GameModeChangeProcess process;
 
     @Mock
-    private PermissionManager permissionManager;
+    private BukkitService bukkitService;
 
     @Mock
-    private PWIPlayerManager playerManager;
+    private PermissionManager permissionManager;
 
     @Mock
     private Settings settings;
@@ -53,7 +55,7 @@ public class GameModeChangeProcessTest {
         process.processGameModeChange(player, GameMode.ADVENTURE, group);
 
         // then
-        verify(playerManager, never()).getPlayerData(any(Group.class), any(GameMode.class), any(Player.class), any(DeserializeCause.class));
+        verifyZeroInteractions(bukkitService);
     }
 
     @Test
@@ -72,7 +74,7 @@ public class GameModeChangeProcessTest {
         process.processGameModeChange(player, newGameMode, group);
 
         // then
-        verify(playerManager).getPlayerData(group, newGameMode, player, DeserializeCause.GAMEMODE_CHANGE);
+        verify(bukkitService).callEvent(any(InventoryLoadEvent.class));
     }
 
     @Test
@@ -90,7 +92,7 @@ public class GameModeChangeProcessTest {
         process.processGameModeChange(player, newGameMode, group);
 
         // then
-        verify(playerManager).getPlayerData(group, newGameMode, player, DeserializeCause.GAMEMODE_CHANGE);
+        verify(bukkitService).callEvent(any(InventoryLoadEvent.class));
     }
 
     @Test
@@ -105,7 +107,7 @@ public class GameModeChangeProcessTest {
         process.processGameModeChange(player, newGameMode, group);
 
         // then
+        verifyZeroInteractions(bukkitService);
         verifyZeroInteractions(permissionManager);
-        verifyZeroInteractions(playerManager);
     }
 }

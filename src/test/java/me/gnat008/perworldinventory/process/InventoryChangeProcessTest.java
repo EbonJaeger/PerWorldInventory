@@ -1,10 +1,12 @@
 package me.gnat008.perworldinventory.process;
 
+import me.gnat008.perworldinventory.BukkitService;
 import me.gnat008.perworldinventory.TestHelper;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.data.serializers.DeserializeCause;
+import me.gnat008.perworldinventory.events.InventoryLoadEvent;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.permission.PermissionManager;
 import me.gnat008.perworldinventory.permission.PlayerPermission;
@@ -34,6 +36,9 @@ public class InventoryChangeProcessTest {
     private InventoryChangeProcess process;
 
     @Mock
+    private BukkitService bukkitService;
+
+    @Mock
     private PermissionManager permissionManager;
 
     @Mock
@@ -60,6 +65,7 @@ public class InventoryChangeProcessTest {
         process.processWorldChange(player, from, to);
 
         // then
+        verifyZeroInteractions(bukkitService);
         verifyZeroInteractions(playerManager);
         verifyZeroInteractions(permissionManager);
     }
@@ -77,6 +83,7 @@ public class InventoryChangeProcessTest {
         process.processWorldChange(player, from, to);
 
         // then
+        verifyZeroInteractions(bukkitService);
         verifyZeroInteractions(playerManager);
         verifyZeroInteractions(permissionManager);
     }
@@ -99,7 +106,7 @@ public class InventoryChangeProcessTest {
 
         // then
         verify(permissionManager).hasPermission(player, PlayerPermission.BYPASS_WORLDS);
-        verify(playerManager).getPlayerData(any(Group.class), any(GameMode.class), any(Player.class), any(DeserializeCause.class));
+        verify(bukkitService).callEvent(any(InventoryLoadEvent.class));
     }
 
     @Test
@@ -112,6 +119,7 @@ public class InventoryChangeProcessTest {
         process.processWorldChange(player, from, from);
 
         // then
+        verifyZeroInteractions(bukkitService);
         verifyZeroInteractions(playerManager);
         verifyZeroInteractions(permissionManager);
     }
@@ -130,7 +138,7 @@ public class InventoryChangeProcessTest {
         process.processWorldChange(player, from, to);
 
         // then
-        verifyZeroInteractions(playerManager);
+        verifyZeroInteractions(bukkitService);
     }
 
     @Test
@@ -149,7 +157,7 @@ public class InventoryChangeProcessTest {
         process.processWorldChange(player, from, to);
 
         // then
-        verify(playerManager).getPlayerData(any(Group.class), any(GameMode.class), any(Player.class), any(DeserializeCause.class));
+        verify(bukkitService).callEvent(any(InventoryLoadEvent.class));
     }
 
     @Test
@@ -167,7 +175,7 @@ public class InventoryChangeProcessTest {
         process.processWorldChange(player, from, to);
 
         // then
-        verify(playerManager).getPlayerData(any(Group.class), any(GameMode.class), any(Player.class), any(DeserializeCause.class));
+        verify(bukkitService).callEvent(any(InventoryLoadEvent.class));
     }
 
     private Group mockGroup(String name, GameMode gameMode, boolean configured) {

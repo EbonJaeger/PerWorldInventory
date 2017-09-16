@@ -22,8 +22,6 @@ public class GameModeChangeProcess {
     @Inject
     private PermissionManager permissionManager;
     @Inject
-    private PWIPlayerManager playerManager;
-    @Inject
     private Settings settings;
 
     GameModeChangeProcess() {
