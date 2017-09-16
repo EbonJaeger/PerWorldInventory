@@ -26,7 +26,7 @@ public class InventoryLoadingListenerTest {
     private InventoryChangeProcess process;
 
     @Test
-    public void shouldInteract() {
+    public void shouldInteractLoadComplete() {
         // given
         Player player = mock(Player.class);
         InventoryLoadCompleteEvent event = new InventoryLoadCompleteEvent(player, DeserializeCause.WORLD_CHANGE);
@@ -39,7 +39,7 @@ public class InventoryLoadingListenerTest {
     }
 
     @Test
-    public void shouldNotInteract() {
+    public void shouldNotInteractLoadComplete() {
         // given
         Player player = mock(Player.class);
         InventoryLoadCompleteEvent event = new InventoryLoadCompleteEvent(player, DeserializeCause.GAMEMODE_CHANGE);
@@ -52,7 +52,7 @@ public class InventoryLoadingListenerTest {
     }
 
     @Test
-    public void shouldAlsoNotInteract() {
+    public void shouldAlsoNotInteractLoadComplete() {
         // given
         Player player = mock(Player.class);
         InventoryLoadCompleteEvent event = new InventoryLoadCompleteEvent(player, DeserializeCause.CHANGED_DEFAULTS);

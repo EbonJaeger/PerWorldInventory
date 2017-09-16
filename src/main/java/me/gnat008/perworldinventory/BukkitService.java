@@ -1,6 +1,7 @@
 package me.gnat008.perworldinventory;
 
 import org.bukkit.Bukkit;
+import org.bukkit.event.Event;
 import org.bukkit.scheduler.BukkitTask;
 
 import javax.inject.Inject;
@@ -79,5 +80,14 @@ public class BukkitService {
      */
     public BukkitTask runTaskAsync(Runnable task) {
         return Bukkit.getScheduler().runTaskAsynchronously(plugin, task);
+    }
+
+    /**
+     * Call an {@link Event}.
+     *
+     * @param event The event to call.
+     */
+    public void callEvent(Event event) {
+        Bukkit.getPluginManager().callEvent(event);
     }
 }

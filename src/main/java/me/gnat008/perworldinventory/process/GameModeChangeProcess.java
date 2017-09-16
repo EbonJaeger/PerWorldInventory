@@ -1,10 +1,12 @@
 package me.gnat008.perworldinventory.process;
 
+import me.gnat008.perworldinventory.BukkitService;
 import me.gnat008.perworldinventory.ConsoleLogger;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.data.serializers.DeserializeCause;
+import me.gnat008.perworldinventory.events.InventoryLoadEvent;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.permission.PermissionManager;
 import me.gnat008.perworldinventory.permission.PlayerPermission;
@@ -16,11 +18,9 @@ import javax.inject.Inject;
 public class GameModeChangeProcess {
 
     @Inject
-    private PermissionManager permissionManager;
-
+    private BukkitService bukkitService;
     @Inject
-    private PWIPlayerManager playerManager;
-
+    private PermissionManager permissionManager;
     @Inject
     private Settings settings;
 
@@ -39,15 +39,17 @@ public class GameModeChangeProcess {
             return;
         }
 
+        InventoryLoadEvent event = new InventoryLoadEvent(player, DeserializeCause.GAMEMODE_CHANGE, newGameMode, group);
+
         if (settings.getProperty(PwiProperties.DISABLE_BYPASS)) {
             ConsoleLogger.debug("[GM PROCESS] Bypass system is disabled in the config, loading data");
 
-            playerManager.getPlayerData(group, newGameMode, player, DeserializeCause.GAMEMODE_CHANGE);
+            bukkitService.callEvent(event);
         } else {
             if (!permissionManager.hasPermission(player, PlayerPermission.BYPASS_GAMEMODE)) {
                 ConsoleLogger.debug("[GM PROCESS] Player '" + player.getName() + "' does not have GameMode bypass permission! Loading data");
 
-                playerManager.getPlayerData(group, newGameMode, player, DeserializeCause.GAMEMODE_CHANGE);
+                bukkitService.callEvent(event);
             } else {
                 ConsoleLogger.debug("[GM PROCESS] Player '" + player.getName() + "' has GameMode bypass permission!");
             }

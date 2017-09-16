@@ -6,6 +6,7 @@ import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
 import me.gnat008.perworldinventory.data.serializers.DeserializeCause;
+import me.gnat008.perworldinventory.events.InventoryLoadEvent;
 import me.gnat008.perworldinventory.groups.Group;
 import me.gnat008.perworldinventory.groups.GroupManager;
 import me.gnat008.perworldinventory.permission.PermissionManager;
@@ -111,10 +112,12 @@ public class InventoryChangeProcess {
         // Check if GameModes have separate inventories
         if (settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)) {
             ConsoleLogger.debug("[PROCESS] GameModes are separated! Loading data for player '" + player.getName() + "' for group '" + to.getName() + "' in gamemode '" + player.getGameMode().name() + "'");
-            playerManager.getPlayerData(to, player.getGameMode(), player, DeserializeCause.WORLD_CHANGE);
+            InventoryLoadEvent event = new InventoryLoadEvent(player, DeserializeCause.WORLD_CHANGE, player.getGameMode(), to);
+            bukkitService.callEvent(event);
         } else {
             ConsoleLogger.debug("[PROCESS] Loading data for player '" + player.getName() + "' for group '" + to.getName() + "'");
-            playerManager.getPlayerData(to, GameMode.SURVIVAL, player, DeserializeCause.WORLD_CHANGE);
+            InventoryLoadEvent event = new InventoryLoadEvent(player, DeserializeCause.WORLD_CHANGE, GameMode.SURVIVAL, to);
+            bukkitService.callEvent(event);
         }
     }
 
