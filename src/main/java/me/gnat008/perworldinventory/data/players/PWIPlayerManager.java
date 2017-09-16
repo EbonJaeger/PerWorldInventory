@@ -260,7 +260,7 @@ public class PWIPlayerManager {
             player.setExhaustion(cachedPlayer.getExhaustion());
         if (settings.getProperty(PwiProperties.LOAD_EXP))
             player.setExp(cachedPlayer.getExperience());
-        if (settings.getProperty(PwiProperties.LOAD_FLYING))
+        if (settings.getProperty(PwiProperties.LOAD_FLYING) && player.getAllowFlight())
             player.setFlying(cachedPlayer.isFlying());
         if (settings.getProperty(PwiProperties.LOAD_HUNGER))
             player.setFoodLevel(cachedPlayer.getFoodLevel());

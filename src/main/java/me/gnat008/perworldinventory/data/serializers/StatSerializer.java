@@ -79,7 +79,7 @@ public class StatSerializer {
             player.setExhaustion((float) stats.get("exhaustion").getAsDouble());
         if (settings.getProperty(PwiProperties.LOAD_EXP) && stats.has("exp"))
             player.setExp((float) stats.get("exp").getAsDouble());
-        if (settings.getProperty(PwiProperties.LOAD_FLYING) && stats.has("flying"))
+        if (settings.getProperty(PwiProperties.LOAD_FLYING) && stats.has("flying") && player.getAllowFlight())
             player.setFlying(stats.get("flying").getAsBoolean());
         if (settings.getProperty(PwiProperties.LOAD_HUNGER) && stats.has("food"))
             player.setFoodLevel(stats.get("food").getAsInt());
