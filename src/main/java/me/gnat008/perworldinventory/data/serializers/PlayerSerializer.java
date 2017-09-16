@@ -19,6 +19,7 @@ package me.gnat008.perworldinventory.data.serializers;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import me.gnat008.perworldinventory.BukkitService;
 import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.ConsoleLogger;
 import me.gnat008.perworldinventory.config.PwiProperties;
@@ -34,6 +35,8 @@ import javax.inject.Inject;
 
 public class PlayerSerializer {
 
+    @Inject
+    private BukkitService bukkitService;
     @Inject
     private InventorySerializer inventorySerializer;
     @Inject
@@ -120,6 +123,6 @@ public class PlayerSerializer {
 
         // Call event to signal loading is done
         InventoryLoadCompleteEvent event = new InventoryLoadCompleteEvent(player, cause);
-        Bukkit.getPluginManager().callEvent(event);
+        bukkitService.callEvent(event);
     }
 }
