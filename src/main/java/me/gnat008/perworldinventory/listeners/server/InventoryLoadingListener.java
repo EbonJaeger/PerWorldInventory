@@ -1,10 +1,10 @@
 package me.gnat008.perworldinventory.listeners.server;
 
 import me.gnat008.perworldinventory.data.players.PWIPlayerManager;
-import me.gnat008.perworldinventory.data.serializers.DeserializeCause;
 import me.gnat008.perworldinventory.events.InventoryLoadCompleteEvent;
 import me.gnat008.perworldinventory.events.InventoryLoadEvent;
 import me.gnat008.perworldinventory.process.InventoryChangeProcess;
+import org.bukkit.GameMode;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -27,8 +27,19 @@ public class InventoryLoadingListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onLoadComplete(InventoryLoadCompleteEvent event) {
-        if (event.getCause() == DeserializeCause.WORLD_CHANGE) {
-            process.postProcessWorldChange(event.getPlayer());
+        switch (event.getCause()) {
+            case WORLD_CHANGE:
+                process.postProcessWorldChange(event.getPlayer());
+                break;
+            case GAMEMODE_CHANGE:
+                if (event.getPlayer().getGameMode() == GameMode.CREATIVE) {
+                    // Sometimes some players get Creative mode, but cannot fly
+                    event.getPlayer().setFlying(true);
+                }
+                break;
+            case CHANGED_DEFAULTS:
+            default:
+                break;
         }
     }
 
