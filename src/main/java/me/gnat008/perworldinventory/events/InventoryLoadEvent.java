@@ -46,6 +46,10 @@ public class InventoryLoadEvent extends Event implements Cancellable {
         return HANDLERS;
     }
 
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
+
     /**
      * Get the {@link Player}.
      *
