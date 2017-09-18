@@ -160,7 +160,7 @@ public class FlatFile implements DataSource {
 
             bukkitService.runTask(() -> playerSerializer.deserialize(data, player, cause));
         } catch (FileNotFoundException ex) {
-            file = new File(FILE_PATH + File.separator + "defaults", "default.json");
+            file = new File(FILE_PATH + File.separator + "defaults", "__default.json");
 
             try (JsonReader reader = new JsonReader(new FileReader(file))) {
                 JsonParser parser = new JsonParser();
