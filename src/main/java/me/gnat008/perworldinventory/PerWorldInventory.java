@@ -91,15 +91,15 @@ public class PerWorldInventory extends JavaPlugin {
 
         // Copy over the server default loadout file
         if (!(new File(getDefaultFilesDirectory(), "__default.json").exists())) {
-            saveResource("default.json", false);
-            File dFile = new File(getDataFolder(), "default.json");
+            saveResource("__default.json", false);
+            File dFile = new File(getDataFolder(), "__default.json");
             Path source = dFile.toPath();
             Path destination = getDefaultFilesDirectory().toPath();
             try {
                 Files.move(source, destination.resolve(source.getFileName()));
             } catch (IOException ex) {
                 if (!(ex instanceof FileAlreadyExistsException)) {
-                    ConsoleLogger.warning("Unable to move defaults.json to the defaults folder:", ex);
+                    ConsoleLogger.warning("Unable to move __defaults.json to the defaults folder:", ex);
                 }
             }
         }
