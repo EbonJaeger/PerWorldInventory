@@ -210,6 +210,7 @@ public class PerWorldInventory extends JavaPlugin {
 
         pluginManager.registerEvents(injector.getSingleton(PlayerTeleportListener.class), this);
         pluginManager.registerEvents(injector.getSingleton(PlayerChangedWorldListener.class), this);
+        pluginManager.registerEvents(injector.getSingleton(PlayerDeathListener.class), this);
         pluginManager.registerEvents(injector.getSingleton(PlayerGameModeChangeListener.class), this);
         pluginManager.registerEvents(injector.getSingleton(PlayerQuitListener.class), this);
         pluginManager.registerEvents(injector.getSingleton(EntityPortalEventListener.class), this);

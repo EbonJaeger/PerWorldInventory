@@ -88,9 +88,11 @@ public class StatSerializer {
         if (settings.getProperty(PwiProperties.LOAD_HEALTH) && stats.has("health")) {
             double health = stats.get("health").getAsDouble();
             if (health <= player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()) {
-                player.setHealth(health);
-            } else if (health <= 0) {
-                player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+                if (health <= 0) {
+                    player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+                } else {
+                    player.setHealth(health);
+                }
             } else {
                 player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
             }
