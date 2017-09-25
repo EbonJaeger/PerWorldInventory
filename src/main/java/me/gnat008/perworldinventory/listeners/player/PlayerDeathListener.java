@@ -8,6 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.potion.PotionEffect;
 
 import javax.inject.Inject;
 
@@ -30,6 +31,24 @@ public class PlayerDeathListener implements Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
         Group group = groupManager.getGroupFromWorld(player.getLocation().getWorld().getName());
+
+        if (!event.getKeepInventory()) {
+            player.getInventory().clear();
+        }
+
+        if (!event.getKeepLevel()) {
+            player.setExp(event.getNewExp());
+            player.setLevel(event.getNewLevel());
+        }
+
+        player.setFoodLevel(20);
+        player.setSaturation(5f);
+        player.setExhaustion(0f);
+        player.setFallDistance(0f);
+        player.setFireTicks(0);
+        for (PotionEffect effect : player.getActivePotionEffects()) {
+            player.removePotionEffect(effect.getType());
+        }
 
         playerManager.addPlayer(player, group);
     }
