@@ -99,7 +99,7 @@ public class PerWorldInventory extends JavaPlugin {
                 Files.move(source, destination.resolve(source.getFileName()));
             } catch (IOException ex) {
                 if (!(ex instanceof FileAlreadyExistsException)) {
-                    ConsoleLogger.warning("Unable to move defaults.json to the defaults folder:", ex);
+                    ConsoleLogger.warning("Unable to move __defaults.json to the defaults folder:", ex);
                 }
             }
         }
