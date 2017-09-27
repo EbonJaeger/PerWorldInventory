@@ -91,8 +91,8 @@ public class PerWorldInventory extends JavaPlugin {
 
         // Copy over the server default loadout file
         if (!(new File(getDefaultFilesDirectory(), "__default.json").exists())) {
-            saveResource("default.json", false);
-            File dFile = new File(getDataFolder(), "default.json");
+            saveResource("__default.json", false);
+            File dFile = new File(getDataFolder(), "__default.json");
             Path source = dFile.toPath();
             Path destination = getDefaultFilesDirectory().toPath();
             try {

@@ -186,8 +186,8 @@ public class GroupManager {
 
             // Make sure the server's default file exists
             if (!fileFrom.exists()) {
-                plugin.saveResource("default.json", false);
-                File def = new File(plugin.getDataFolder(), "default.json");
+                plugin.saveResource("__default.json", false);
+                File def = new File(plugin.getDataFolder(), "__default.json");
 
                 try {
                     FileUtils.copyFile(def, fileFrom);
