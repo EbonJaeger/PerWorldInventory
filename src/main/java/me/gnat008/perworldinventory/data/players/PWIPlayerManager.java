@@ -236,6 +236,16 @@ public class PWIPlayerManager {
         return playerCache.containsKey(key);
     }
 
+    /**
+     * Get a player from the cache, and apply the cached inventories and stats
+     * to the actual player. If no matching player is found in the cache, nothing
+     * happens and this method simply returns.
+     *
+     * @param group The {@link Group} the cached player was in.
+     * @param gamemode The GameMode the cached player was in.
+     * @param player The current actual player to apply the data to.
+     * @param cause What triggered the inventory switch; passed on for post-processing.
+     */
     private void getDataFromCache(Group group, GameMode gamemode, Player player, DeserializeCause cause) {
         PWIPlayer cachedPlayer = getCachedPlayer(group, gamemode, player.getUniqueId());
         if (cachedPlayer == null) {
@@ -264,11 +274,19 @@ public class PWIPlayerManager {
             player.setFlying(cachedPlayer.isFlying());
         if (settings.getProperty(PwiProperties.LOAD_HUNGER))
             player.setFoodLevel(cachedPlayer.getFoodLevel());
+        if (settings.getProperty(PwiProperties.LOAD_MAX_HEALTH))
+            player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(cachedPlayer.getMaxHealth());
         if (settings.getProperty(PwiProperties.LOAD_HEALTH)) {
-            if (cachedPlayer.getHealth() <= player.getMaxHealth())
-                player.setHealth(cachedPlayer.getHealth());
-            else
-                player.setHealth(player.getMaxHealth());
+            double health = cachedPlayer.getHealth();
+            if (health <= player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()) {
+                if (health <= 0) {
+                    player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+                } else {
+                    player.setHealth(health);
+                }
+            } else {
+                player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+            }
         }
         if (settings.getProperty(PwiProperties.LOAD_GAMEMODE) && (!settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)))
             player.setGameMode(cachedPlayer.getGamemode());

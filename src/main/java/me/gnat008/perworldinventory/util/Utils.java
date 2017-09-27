@@ -68,15 +68,15 @@ public final class Utils {
             player.getEnderChest().clear();
         }
 
-        player.setExp(0.0F);
+        player.setExp(0f);
         player.setFoodLevel(20);
         player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
         player.setLevel(0);
         for (PotionEffect effect : player.getActivePotionEffects()) {
             player.removePotionEffect(effect.getType());
         }
-        player.setSaturation(20.0F);
-        player.setFallDistance(0.0f);
+        player.setSaturation(5f);
+        player.setFallDistance(0f);
         player.setFireTicks(0);
 
         if (plugin.isEconEnabled()) {
