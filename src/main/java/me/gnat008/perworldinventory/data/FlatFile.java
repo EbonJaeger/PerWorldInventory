@@ -17,6 +17,7 @@
 
 package me.gnat008.perworldinventory.data;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
@@ -79,7 +80,8 @@ public class FlatFile implements DataSource {
     private void saveLogout(File file, PWIPlayer player) {
         try {
             createFileIfNotExists(file);
-            String data = LocationSerializer.serialize(player.getLocation());
+            Gson gson = new Gson();
+            String data = gson.toJson(LocationSerializer.serialize(player.getLocation()));
             writeData(file, data);
         } catch (IOException ex) {
             ConsoleLogger.warning("Error creating file '" + file.getPath() + "':", ex);

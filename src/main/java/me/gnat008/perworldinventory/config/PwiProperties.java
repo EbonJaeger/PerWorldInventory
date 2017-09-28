@@ -59,6 +59,10 @@ public final class PwiProperties implements SettingsHolder {
     public static final Property<Boolean> LOAD_INVENTORY =
             newProperty("player.inventory", true);
 
+    @Comment("Teleport a player to their last location in a world")
+    public static final Property<Boolean> LOAD_LOCATION =
+            newProperty("player.location", false);
+
     @Comment("Load if a player is able to fly")
     public static final Property<Boolean> LOAD_CAN_FLY =
             newProperty("player.stats.can-fly", true);

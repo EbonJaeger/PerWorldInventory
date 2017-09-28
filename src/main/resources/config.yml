@@ -30,6 +30,8 @@ player:
   ender-chest: true
   # Load players' inventory
   inventory: true
+  # Teleport a player to their last location in a world
+  location: false
   # All options for player stats are here:
   stats:
     # Load if a player is able to fly

@@ -20,16 +20,17 @@ package me.gnat008.perworldinventory.data.serializers;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import me.gnat008.perworldinventory.BukkitService;
-import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.ConsoleLogger;
+import me.gnat008.perworldinventory.PerWorldInventory;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.events.InventoryLoadCompleteEvent;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
-import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 import javax.inject.Inject;
 
@@ -71,6 +72,7 @@ public class PlayerSerializer {
         root.add("ender-chest", inventorySerializer.serializeInventory(player.getEnderChest()));
         root.add("inventory", inventorySerializer.serializePlayerInventory(player));
         root.add("stats", StatSerializer.serialize(player));
+        root.add("location", LocationSerializer.serialize(player.getLocation()));
 
         if (plugin.isEconEnabled())
             root.add("economy", EconomySerializer.serialize(player, plugin.getEconomy()));
@@ -101,6 +103,12 @@ public class PlayerSerializer {
             inventorySerializer.setInventory(player, data.getAsJsonObject("inventory"), format);
         if (data.has("stats"))
             statSerializer.deserialize(player, data.getAsJsonObject("stats"), format);
+        if (settings.getProperty(PwiProperties.LOAD_LOCATION) && data.has("location")) {
+            Location location = LocationSerializer.deserialize(data.getAsJsonObject("location"));
+            if (location.getWorld().equals(player.getWorld())) {
+                player.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
+            }
+        }
         if (plugin.isEconEnabled()) {
             Economy econ = plugin.getEconomy();
             if (econ == null) {

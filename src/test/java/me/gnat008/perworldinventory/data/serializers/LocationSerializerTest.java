@@ -1,7 +1,6 @@
 package me.gnat008.perworldinventory.data.serializers;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.junit.Ignore;
@@ -25,9 +24,7 @@ public class LocationSerializerTest {
         Location testLocation = new Location(world, 1.2, 3.4, 5.6, 7.8f, 9.0f);
 
         // when
-        String json = LocationSerializer.serialize(testLocation);
-        JsonParser parser = new JsonParser();
-        JsonObject result = parser.parse(json).getAsJsonObject();
+        JsonObject result = LocationSerializer.serialize(testLocation);
 
         // then
         assertThat(result.get("world").getAsString(), equalTo("test-world"));

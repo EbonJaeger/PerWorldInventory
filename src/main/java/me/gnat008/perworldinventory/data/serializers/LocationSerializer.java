@@ -17,7 +17,6 @@
 
 package me.gnat008.perworldinventory.data.serializers;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -33,8 +32,7 @@ public class LocationSerializer {
      * @param location The {@link org.bukkit.Location}
      * @return The JsonObject in String form
      */
-    public static String serialize(Location location) {
-        Gson gson = new Gson();
+    public static JsonObject serialize(Location location) {
         JsonObject root = new JsonObject();
 
         root.addProperty("world", location.getWorld().getName());
@@ -43,7 +41,7 @@ public class LocationSerializer {
         root.addProperty("z", location.getZ());
         root.addProperty("pitch", location.getPitch());
         root.addProperty("yaw", location.getYaw());
-        return gson.toJson(root);
+        return root;
     }
 
     /**
