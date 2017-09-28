@@ -6,7 +6,7 @@
 
     <groupId>me.gnat008</groupId>
     <artifactId>perworldinventory</artifactId>
-    <version>1.11.1</version>
+    <version>1.12</version>
 
     <name>PerWorldInventory</name>
     <description>Have a different inventory for each world.</description>
