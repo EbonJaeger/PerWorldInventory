@@ -3,6 +3,7 @@ package me.gnat008.perworldinventory.util;
 import me.gnat008.perworldinventory.ConsoleLogger;
 
 import java.io.*;
+import java.nio.file.Files;
 
 /**
  * Utility methods for handling files.
@@ -54,10 +55,7 @@ public final class FileUtils {
     public static File createFileIfNotExists(File file) throws IOException {
         if (!file.exists()) {
             if (!file.getParentFile().exists()) {
-                boolean success = file.getParentFile().mkdirs();
-                if (!success) {
-                    ConsoleLogger.warning("Could not create parent directories while trying to create '" + file + "'");
-                }
+                Files.createDirectories(file.getParentFile().toPath());
             }
 
             boolean success = file.createNewFile();
