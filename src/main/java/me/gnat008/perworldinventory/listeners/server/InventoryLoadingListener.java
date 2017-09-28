@@ -34,7 +34,7 @@ public class InventoryLoadingListener implements Listener {
             case GAMEMODE_CHANGE:
                 if (event.getPlayer().getGameMode() == GameMode.CREATIVE) {
                     // Sometimes some players get Creative mode, but cannot fly
-                    event.getPlayer().setFlying(true);
+                    event.getPlayer().setAllowFlight(true);
                 }
                 break;
             case CHANGED_DEFAULTS:
