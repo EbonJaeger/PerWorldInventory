@@ -33,6 +33,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -262,6 +263,11 @@ public class PWIPlayerManager {
             player.getInventory().setContents(cachedPlayer.getInventory());
             player.getInventory().setArmorContents(cachedPlayer.getArmor());
         }
+        if (settings.getProperty(PwiProperties.LOAD_LOCATION)) {
+            if (cachedPlayer.getLocation().getWorld().equals(player.getWorld())) {
+                player.teleport(cachedPlayer.getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+            }
+        }
         if (settings.getProperty(PwiProperties.LOAD_CAN_FLY))
             player.setAllowFlight(cachedPlayer.getCanFly());
         if (settings.getProperty(PwiProperties.LOAD_DISPLAY_NAME))
@@ -401,6 +407,8 @@ public class PWIPlayerManager {
         currentPlayer.setArmor(newData.getInventory().getArmorContents());
         currentPlayer.setEnderChest(newData.getEnderChest().getContents());
         currentPlayer.setInventory(newData.getInventory().getContents());
+
+        currentPlayer.setLocation(newData.getLocation());
 
         currentPlayer.setCanFly(newData.getAllowFlight());
         currentPlayer.setDisplayName(newData.getDisplayName());
