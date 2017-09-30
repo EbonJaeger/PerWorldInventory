@@ -58,10 +58,7 @@ public final class FileUtils {
                 Files.createDirectories(file.getParentFile().toPath());
             }
 
-            boolean success = file.createNewFile();
-            if (!success) {
-                ConsoleLogger.warning("Could not create file '" + file + "'");
-            }
+            Files.createFile(file.toPath());
         }
         return file;
     }
