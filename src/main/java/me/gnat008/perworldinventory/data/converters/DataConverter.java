@@ -43,6 +43,8 @@ import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.*;
 
 import static me.gnat008.perworldinventory.util.FileUtils.createFileIfNotExists;
@@ -91,7 +93,14 @@ public class DataConverter {
                                 String data = serializeMVIToNewFormat(playerData);
 
                                 File file = serializer.getFile(gameMode, groupManager.getGroup(mvgroup.getName()), player1.getUniqueId());
-                                createFileIfNotExists(file);
+                                try {
+                                    createFileIfNotExists(file);
+                                } catch (IOException ex) {
+                                    if (!(ex instanceof FileAlreadyExistsException)) {
+                                        ConsoleLogger.severe("Error creating file '" + file.getPath() + "':", ex);
+                                        return;
+                                    }
+                                }
                                 writeData(file, data);
                             }
                         } catch (Exception ex) {

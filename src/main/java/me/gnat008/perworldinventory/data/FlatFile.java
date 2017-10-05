@@ -22,9 +22,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 import me.gnat008.perworldinventory.BukkitService;
+import me.gnat008.perworldinventory.ConsoleLogger;
 import me.gnat008.perworldinventory.DataFolder;
 import me.gnat008.perworldinventory.PerWorldInventory;
-import me.gnat008.perworldinventory.ConsoleLogger;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
 import me.gnat008.perworldinventory.data.players.PWIPlayerFactory;
 import me.gnat008.perworldinventory.data.serializers.DeserializeCause;
@@ -41,6 +41,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.UUID;
 
 import static me.gnat008.perworldinventory.util.FileUtils.createFileIfNotExists;
@@ -80,12 +81,16 @@ public class FlatFile implements DataSource {
     private void saveLogout(File file, PWIPlayer player) {
         try {
             createFileIfNotExists(file);
-            Gson gson = new Gson();
-            String data = gson.toJson(LocationSerializer.serialize(player.getLocation()));
-            writeData(file, data);
         } catch (IOException ex) {
-            ConsoleLogger.warning("Error creating file '" + file.getPath() + "':", ex);
+            if (!(ex instanceof FileAlreadyExistsException)) {
+                ConsoleLogger.severe("Error creating file '" + file.getPath() + "':", ex);
+                return;
+            }
         }
+
+        Gson gson = new Gson();
+        String data = gson.toJson(LocationSerializer.serialize(player.getLocation()));
+        writeData(file, data);
     }
 
     @Override
@@ -95,13 +100,17 @@ public class FlatFile implements DataSource {
 
         try {
             createFileIfNotExists(file);
-            ConsoleLogger.debug("Writing player data for player '" + player.getName() + "' to file");
-
-            String data = playerSerializer.serialize(player);
-            writeData(file, data);
         } catch (IOException ex) {
-            ConsoleLogger.severe("Error creating file '" + file + "':", ex);
+            if (!(ex instanceof FileAlreadyExistsException)) {
+                ConsoleLogger.severe("Error creating file '" + file.getPath() + "':", ex);
+                return;
+            }
         }
+
+        ConsoleLogger.debug("Writing player data for player '" + player.getName() + "' to file");
+
+        String data = playerSerializer.serialize(player);
+        writeData(file, data);
     }
 
     @Override
@@ -233,8 +242,10 @@ public class FlatFile implements DataSource {
         try {
             createFileIfNotExists(tmp);
         } catch (IOException ex) {
-            player.sendMessage(ChatColor.DARK_RED + "» " + ChatColor.GRAY +  "Could not create temporary file! Aborting!");
-            return;
+            if (!(ex instanceof FileAlreadyExistsException)) {
+                player.sendMessage(ChatColor.DARK_RED + "» " + ChatColor.GRAY +  "Could not create temporary file! Aborting!");
+                return;
+            }
         }
         Group tempGroup = new Group("tmp", null, null);
         writeData(tmp, playerSerializer.serialize(pwiPlayerFactory.create(player, tempGroup)));
