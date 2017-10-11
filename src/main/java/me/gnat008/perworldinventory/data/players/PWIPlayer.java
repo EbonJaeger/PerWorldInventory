@@ -62,7 +62,6 @@ public class PWIPlayer {
     private int remainingAir;
 
     /* ECONOMY */
-    private double bankBalance;
     private double balance;
 
     private Location location;
@@ -102,7 +101,6 @@ public class PWIPlayer {
         this.maxAir = player.getMaximumAir();
         this.remainingAir = player.getRemainingAir();
 
-        this.bankBalance = bankBalance;
         this.balance = balance;
     }
 
@@ -374,24 +372,6 @@ public class PWIPlayer {
      */
     public void setPotionEffects(Collection<PotionEffect> potionEffects) {
         this.potionEffects = potionEffects;
-    }
-
-    /**
-     * Get a player's bank balance (economy).
-     *
-     * @return Bank balance
-     */
-    public double getBankBalance() {
-        return this.bankBalance;
-    }
-
-    /**
-     * Set a player's bank balance (economy).
-     *
-     * @param bankBalance Bank balance
-     */
-    public void setBankBalance(double bankBalance) {
-        this.bankBalance = bankBalance;
     }
 
     /**

@@ -316,23 +316,15 @@ public class PWIPlayerManager {
             player.setRemainingAir(cachedPlayer.getRemainingAir());
         if (settings.getProperty(PwiProperties.USE_ECONOMY)) {
             Economy econ = plugin.getEconomy();
-            if (econ == null) {
+            if (econ != null) {
+                EconomyResponse er = econ.withdrawPlayer(player, econ.getBalance(player));
+                if (er.transactionSuccess()) {
+                    econ.depositPlayer(player, cachedPlayer.getBalance());
+                } else {
+                    ConsoleLogger.warning("[ECON] Unable to withdraw currency from '" + player.getName() + "': " + er.errorMessage);
+                }
+            } else {
                 ConsoleLogger.warning("Economy saving is turned on, but no economy found!");
-                return;
-            }
-
-            EconomyResponse er = econ.withdrawPlayer(player, econ.getBalance(player));
-            if (er.transactionSuccess()) {
-                econ.depositPlayer(player, cachedPlayer.getBalance());
-            } else {
-                ConsoleLogger.warning("[ECON] Unable to withdraw currency from '" + player.getName() + "': " + er.errorMessage);
-            }
-
-            EconomyResponse bankER = econ.bankWithdraw(player.getName(), econ.bankBalance(player.getName()).amount);
-            if (bankER.transactionSuccess()) {
-                econ.bankDeposit(player.getName(), cachedPlayer.getBankBalance());
-            } else {
-                ConsoleLogger.warning("[ECON] Unable to withdraw currency from bank of '" + player.getName() + "': " + er.errorMessage);
             }
         }
 
@@ -427,7 +419,6 @@ public class PWIPlayerManager {
         currentPlayer.setRemainingAir(newData.getRemainingAir());
 
         if (plugin.getEconomy() != null) {
-            currentPlayer.setBankBalance(plugin.getEconomy().bankBalance(newData.getName()).balance);
             currentPlayer.setBalance(plugin.getEconomy().getBalance(newData));
         }
     }
