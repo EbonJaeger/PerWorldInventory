@@ -69,7 +69,7 @@
 
         <repository>
             <id>bstats-repo</id>
-            <url>https://repo.bstats.org/content/groups/public/</url>
+            <url>http://repo.bstats.org/content/repositories/releases/</url>
         </repository>
     </repositories>
 

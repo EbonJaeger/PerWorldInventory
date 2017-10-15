@@ -34,7 +34,7 @@ import me.gnat008.perworldinventory.listeners.server.PluginListener;
 import me.gnat008.perworldinventory.permission.PermissionManager;
 import me.gnat008.perworldinventory.util.Utils;
 import net.milkbowl.vault.economy.Economy;
-import org.bstats.Metrics;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Server;
@@ -54,6 +54,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.Callable;
 
 public class PerWorldInventory extends JavaPlugin {
 
@@ -146,21 +147,21 @@ public class PerWorldInventory extends JavaPlugin {
 
             if (settings.getProperty(PwiProperties.SEND_NUM_GROUPS)) {
                 // Get the total number of configured Groups
-                bStats.addCustomChart(new Metrics.SimplePie("num_groups") {
+                bStats.addCustomChart(new Metrics.SimplePie("num_groups", new Callable<String>() {
                     @Override
-                    public String getValue() {
+                    public String call() throws Exception {
                         int numGroups = groupManager.countGroups();
 
                         return String.valueOf(numGroups);
                     }
-                });
+                }));
             }
 
             if (settings.getProperty(PwiProperties.SEND_NUM_WORLDS)) {
                 // Get the total number of worlds (configured or not)
-                bStats.addCustomChart(new Metrics.SimplePie("num_worlds") {
+                bStats.addCustomChart(new Metrics.SimplePie("num_worlds", new Callable<String>() {
                     @Override
-                    public String getValue() {
+                    public String call() throws Exception {
                         int numWorlds = Bukkit.getWorlds().size();
 
                         if (numWorlds <= 5) {
@@ -179,7 +180,7 @@ public class PerWorldInventory extends JavaPlugin {
                             return String.valueOf(numWorlds);
                         }
                     }
-                });
+                }));
             }
         }
 
