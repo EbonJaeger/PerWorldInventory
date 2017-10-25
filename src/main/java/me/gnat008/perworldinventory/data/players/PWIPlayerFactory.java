@@ -7,6 +7,8 @@ import org.bukkit.entity.Player;
 
 import javax.inject.Inject;
 
+import static me.gnat008.perworldinventory.util.Utils.checkServerVersion;
+
 /**
  * Factory for creating {@link PWIPlayer} objects.
  */
@@ -34,7 +36,10 @@ public class PWIPlayerFactory {
             balance = economy.getBalance(player);
         }
 
-        return new PWIPlayer(player, group, bankBalance, balance);
+        if (checkServerVersion(plugin.getServer().getVersion(), 1, 9, 0)) {
+            return new PWIPlayer(player, group, bankBalance, balance, true);
+        } else {
+            return new PWIPlayer(player, group, bankBalance, balance, false);
+        }
     }
-
 }

@@ -73,7 +73,7 @@ public class PWIPlayer {
     private boolean saved;
     private Group group;
 
-    PWIPlayer(Player player, Group group, double bankBalance, double balance) {
+    PWIPlayer(Player player, Group group, double bankBalance, double balance, boolean useAttributes) {
         this.uuid = player.getUniqueId();
         this.name = player.getName();
         this.location = player.getLocation();
@@ -91,7 +91,11 @@ public class PWIPlayer {
         this.experience = player.getExp();
         this.isFlying = player.isFlying();
         this.foodLevel = player.getFoodLevel();
-        this.maxHealth = player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue();
+        if (useAttributes) {
+            this.maxHealth = player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue();
+        } else {
+            this.maxHealth = player.getMaxHealth();
+        }
         this.health = player.getHealth();
         this.gamemode = player.getGameMode();
         this.level = player.getLevel();

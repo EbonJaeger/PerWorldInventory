@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static me.gnat008.perworldinventory.util.Utils.checkServerVersion;
 import static me.gnat008.perworldinventory.util.Utils.zeroPlayer;
 
 /**
@@ -408,7 +409,11 @@ public class PWIPlayerManager {
         currentPlayer.setExperience(newData.getExp());
         currentPlayer.setFlying(newData.isFlying());
         currentPlayer.setFoodLevel(newData.getFoodLevel());
-        currentPlayer.setMaxHealth(newData.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
+        if (checkServerVersion(plugin.getServer().getVersion(), 1, 9, 0)) {
+            currentPlayer.setMaxHealth(newData.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
+        } else {
+            currentPlayer.setMaxHealth(newData.getMaxHealth());
+        }
         currentPlayer.setHealth(newData.getHealth());
         currentPlayer.setLevel(newData.getLevel());
         currentPlayer.setSaturationLevel(newData.getSaturation());
