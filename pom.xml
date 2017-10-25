@@ -6,7 +6,7 @@
 
     <groupId>me.gnat008</groupId>
     <artifactId>perworldinventory</artifactId>
-    <version>1.11.1</version>
+    <version>1.11.2</version>
 
     <name>PerWorldInventory</name>
     <description>Have a different inventory for each world.</description>
@@ -48,11 +48,6 @@
 
     <repositories>
         <repository>
-            <id>fancifullib-repo</id>
-            <url>http://repo.stealthyone.com/content/groups/public/</url>
-        </repository>
-
-        <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
         </repository>
@@ -69,7 +64,7 @@
 
         <repository>
             <id>bstats-repo</id>
-            <url>https://repo.bstats.org/content/groups/public/</url>
+            <url>http://repo.bstats.org/content/repositories/releases/</url>
         </repository>
     </repositories>
 
@@ -138,13 +133,6 @@
             </exclusions>
         </dependency>
 
-        <dependency>
-            <groupId>mkremins</groupId>
-            <artifactId>fanciful</artifactId>
-            <version>0.3.3-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-
         <!-- Unit Testing Libraries -->
         <dependency>
             <groupId>junit</groupId>
@@ -198,7 +186,7 @@
         <dependency>
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
-            <version>1.1</version>
+            <version>1.2</version>
         </dependency>
     </dependencies>
 

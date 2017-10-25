@@ -34,7 +34,7 @@ import me.gnat008.perworldinventory.listeners.server.PluginListener;
 import me.gnat008.perworldinventory.permission.PermissionManager;
 import me.gnat008.perworldinventory.util.Utils;
 import net.milkbowl.vault.economy.Economy;
-import org.bstats.Metrics;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Server;
@@ -146,40 +146,34 @@ public class PerWorldInventory extends JavaPlugin {
 
             if (settings.getProperty(PwiProperties.SEND_NUM_GROUPS)) {
                 // Get the total number of configured Groups
-                bStats.addCustomChart(new Metrics.SimplePie("num_groups") {
-                    @Override
-                    public String getValue() {
-                        int numGroups = groupManager.countGroups();
+                bStats.addCustomChart(new Metrics.SimplePie("num_groups", () -> {
+                    int numGroups = groupManager.countGroups();
 
-                        return String.valueOf(numGroups);
-                    }
-                });
+                    return String.valueOf(numGroups);
+                }));
             }
 
             if (settings.getProperty(PwiProperties.SEND_NUM_WORLDS)) {
                 // Get the total number of worlds (configured or not)
-                bStats.addCustomChart(new Metrics.SimplePie("num_worlds") {
-                    @Override
-                    public String getValue() {
-                        int numWorlds = Bukkit.getWorlds().size();
+                bStats.addCustomChart(new Metrics.SimplePie("num_worlds", () -> {
+                    int numWorlds = Bukkit.getWorlds().size();
 
-                        if (numWorlds <= 5) {
-                            return "1-5";
-                        } else if (numWorlds <= 10) {
-                            return "6-10";
-                        } else if (numWorlds <= 15) {
-                            return "11-15";
-                        } else if (numWorlds <= 20) {
-                            return "16-20";
-                        } else if (numWorlds <= 25) {
-                            return "21-25";
-                        } else if (numWorlds <= 30) {
-                            return "26-30";
-                        } else {
-                            return String.valueOf(numWorlds);
-                        }
+                    if (numWorlds <= 5) {
+                        return "1-5";
+                    } else if (numWorlds <= 10) {
+                        return "6-10";
+                    } else if (numWorlds <= 15) {
+                        return "11-15";
+                    } else if (numWorlds <= 20) {
+                        return "16-20";
+                    } else if (numWorlds <= 25) {
+                        return "21-25";
+                    } else if (numWorlds <= 30) {
+                        return "26-30";
+                    } else {
+                        return String.valueOf(numWorlds);
                     }
-                });
+                }));
             }
         }
 
