@@ -49,5 +49,6 @@ public class PlayerTeleportListener implements Listener {
         }
 
         playerManager.addPlayer(event.getPlayer(), groupFrom);
+        event.getPlayer().closeInventory();
     }
 }
