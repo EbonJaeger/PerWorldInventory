@@ -63,6 +63,7 @@ public class PerWorldInventory extends JavaPlugin {
     private PWIPlayerManager playerManager;
     private Settings settings;
     private PermissionManager permissionManager;
+    private WorldInventoriesDupingPatch patch;
 
     private final Map<String, ExecutableCommand> commands = new HashMap<>();
 
@@ -177,6 +178,9 @@ public class PerWorldInventory extends JavaPlugin {
             }
         }
 
+        patch = new WorldInventoriesDupingPatch();
+        patch.enable(this);
+
         ConsoleLogger.debug("PerWorldInventory is enabled and debug-mode is active!");
     }
 
@@ -184,6 +188,7 @@ public class PerWorldInventory extends JavaPlugin {
     public void onDisable() {
         playerManager.onDisable();
         groupManager.clearGroups();
+        patch.disable();
         getServer().getScheduler().cancelTasks(this);
     }
 
