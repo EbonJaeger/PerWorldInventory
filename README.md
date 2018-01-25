@@ -2,7 +2,7 @@
 
 > PerWorldInventory Is a multiworld inventory plugin for CraftBukkit and Spigot that supports UUIDs.
 
-> It's a good replacement for the outdated [Multiverse-Inventories](http://dev.bukkit.org/bukkit-plugins/multiverse-inventories/) plugin.
+> A huge thank you to my good friend ![Beatles](https://github.com/BeatlesDev) for helping me with issue tracking and management!
 ***
 
 ## Installation and Usage
