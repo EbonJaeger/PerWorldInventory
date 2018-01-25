@@ -1,5 +1,6 @@
 package me.gnat008.perworldinventory;
 
+import me.gnat008.perworldinventory.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.scheduler.BukkitTask;
@@ -80,6 +81,15 @@ public class BukkitService {
      */
     public BukkitTask runTaskAsync(Runnable task) {
         return Bukkit.getScheduler().runTaskAsynchronously(plugin, task);
+    }
+
+    /**
+     * Check if the server supports using {@link org.bukkit.attribute.Attribute}s.
+     *
+     * @return True if the server is new enough to have the Attribute class.
+     */
+    public boolean shouldUseAttributes() {
+        return Utils.checkServerVersion(plugin.getServer().getVersion(), 1, 9, 0);
     }
 
     /**

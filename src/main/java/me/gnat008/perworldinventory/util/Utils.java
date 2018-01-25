@@ -2,6 +2,7 @@ package me.gnat008.perworldinventory.util;
 
 import me.gnat008.perworldinventory.PerWorldInventory;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
@@ -70,7 +71,13 @@ public final class Utils {
 
         player.setExp(0f);
         player.setFoodLevel(20);
-        player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+
+        if (checkServerVersion(Bukkit.getVersion(), 1, 9, 0)) {
+            player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+        } else {
+            player.setHealth(player.getMaxHealth());
+        }
+
         player.setLevel(0);
         for (PotionEffect effect : player.getActivePotionEffects()) {
             player.removePotionEffect(effect.getType());

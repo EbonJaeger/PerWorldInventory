@@ -18,7 +18,7 @@
 package me.gnat008.perworldinventory.data.serializers;
 
 import com.google.gson.JsonObject;
-import me.gnat008.perworldinventory.ConsoleLogger;
+import me.gnat008.perworldinventory.BukkitService;
 import me.gnat008.perworldinventory.config.PwiProperties;
 import me.gnat008.perworldinventory.config.Settings;
 import me.gnat008.perworldinventory.data.players.PWIPlayer;
@@ -29,6 +29,9 @@ import org.bukkit.entity.Player;
 import javax.inject.Inject;
 
 public class StatSerializer {
+
+    @Inject
+    BukkitService bukkitService;
 
     @Inject
     private Settings settings;
@@ -88,14 +91,26 @@ public class StatSerializer {
             player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(stats.get("max-health").getAsDouble());
         if (settings.getProperty(PwiProperties.LOAD_HEALTH) && stats.has("health")) {
             double health = stats.get("health").getAsDouble();
-            if (health <= player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()) {
-                if (health <= 0) {
-                    player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+            if (bukkitService.shouldUseAttributes()) {
+                if (health <= player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()) {
+                    if (health <= 0) {
+                        player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+                    } else {
+                        player.setHealth(health);
+                    }
                 } else {
-                    player.setHealth(health);
+                    player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
                 }
             } else {
-                player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+                if (health <= player.getMaxHealth()) {
+                    if (health <= 0) {
+                        player.setHealth(player.getMaxHealth());
+                    } else {
+                        player.setHealth(health);
+                    }
+                } else {
+                    player.setHealth(player.getMaxHealth());
+                }
             }
         }
         if (settings.getProperty(PwiProperties.LOAD_GAMEMODE) && (!settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)) && stats.has("gamemode")) {
