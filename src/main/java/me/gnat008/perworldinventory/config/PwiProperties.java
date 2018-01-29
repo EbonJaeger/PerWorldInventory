@@ -89,10 +89,6 @@ public final class PwiProperties implements SettingsHolder {
     public static final Property<Boolean> LOAD_GAMEMODE =
             newProperty("player.stats.gamemode", false);
 
-    @Comment("Load the maximum health a player can have")
-    public static final Property<Boolean> LOAD_MAX_HEALTH =
-            newProperty("player.stats.max-health", true);
-
     @Comment("Load how much health a player has")
     public static final Property<Boolean> LOAD_HEALTH =
             newProperty("player.stats.health", true);

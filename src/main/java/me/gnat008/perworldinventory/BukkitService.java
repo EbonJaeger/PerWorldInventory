@@ -89,7 +89,7 @@ public class BukkitService {
      * @return True if the server is new enough to have the Attribute class.
      */
     public boolean shouldUseAttributes() {
-        return Utils.checkServerVersion(plugin.getServer().getVersion(), 1, 9, 0);
+        return Utils.checkServerVersion(plugin.getServer().getVersion(), 1, 11, 0);
     }
 
     /**

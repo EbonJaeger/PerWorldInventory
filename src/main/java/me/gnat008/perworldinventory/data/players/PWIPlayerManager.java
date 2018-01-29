@@ -275,30 +275,16 @@ public class PWIPlayerManager {
             player.setFlying(cachedPlayer.isFlying());
         if (settings.getProperty(PwiProperties.LOAD_HUNGER))
             player.setFoodLevel(cachedPlayer.getFoodLevel());
-        if (settings.getProperty(PwiProperties.LOAD_MAX_HEALTH))
-            player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(cachedPlayer.getMaxHealth());
         if (settings.getProperty(PwiProperties.LOAD_HEALTH)) {
-            double health = cachedPlayer.getHealth();
             if (bukkitService.shouldUseAttributes()) {
-                if (health <= player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()) {
-                    if (health <= 0) {
-                        player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
-                    } else {
-                        player.setHealth(health);
-                    }
-                } else {
-                    player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
-                }
+                player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(cachedPlayer.getMaxHealth());
             } else {
-                if (health <= player.getMaxHealth()) {
-                    if (health <= 0) {
-                        player.setHealth(player.getMaxHealth());
-                    } else {
-                        player.setHealth(health);
-                    }
-                } else {
-                    player.setHealth(player.getMaxHealth());
-                }
+                player.setMaxHealth(cachedPlayer.getMaxHealth());
+            }
+            if (cachedPlayer.getHealth() > 0 && cachedPlayer.getHealth() <= cachedPlayer.getMaxHealth()) {
+                player.setHealth(cachedPlayer.getHealth());
+            } else {
+                player.setHealth(cachedPlayer.getHealth());
             }
         }
         if (settings.getProperty(PwiProperties.LOAD_GAMEMODE) && (!settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)))
