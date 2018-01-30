@@ -284,7 +284,7 @@ public class PWIPlayerManager {
             if (cachedPlayer.getHealth() > 0 && cachedPlayer.getHealth() <= cachedPlayer.getMaxHealth()) {
                 player.setHealth(cachedPlayer.getHealth());
             } else {
-                player.setHealth(cachedPlayer.getHealth());
+                player.setHealth(cachedPlayer.getMaxHealth());
             }
         }
         if (settings.getProperty(PwiProperties.LOAD_GAMEMODE) && (!settings.getProperty(PwiProperties.SEPARATE_GAMEMODE_INVENTORIES)))
