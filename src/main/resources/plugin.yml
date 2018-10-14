@@ -1,6 +1,7 @@
 main: me.gnat008.perworldinventory.PerWorldInventory
 version: maven-version
 name: PerWorldInventory
+website: http://dev.bukkit.org/bukkit-plugins/world-inventory/
 author: Gnat008
 softdepend: [Vault]
 
